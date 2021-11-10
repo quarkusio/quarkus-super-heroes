@@ -1,0 +1,22 @@
+<table mat-table [dataSource]="dataSource"  class="mat-elevation-z8 table table-striped">
+    <thead>
+    <ng-container matColumnDef="id">
+        <th scope="col" class="fight-list-header thead-dark" mat-header-cell *matHeaderCellDef > Id </th>
+        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+    </ng-container>
+    <ng-container matColumnDef="fightDate">
+        <th scope="col" class="fight-list-header thead-dark" mat-header-cell *matHeaderCellDef> Fight Date </th>
+        <td mat-cell *matCellDef="let element"> {{element.fightDate | date: 'medium'}} </td>
+    </ng-container>
+    <ng-container matColumnDef="winnerName">
+        <th scope="col" class="fight-list-header thead-dark" mat-header-cell *matHeaderCellDef> Winner </th>
+        <td mat-cell *matCellDef="let element"> {{element.winnerName}} </td>
+    </ng-container>
+    <ng-container matColumnDef="loserName">
+        <th scope="col" class="fight-list-header thead-dark" mat-header-cell *matHeaderCellDef> Loser </th>
+        <td mat-cell *matCellDef="let element"> {{element.loserName}} </td>
+    </ng-container>
+    </thead>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

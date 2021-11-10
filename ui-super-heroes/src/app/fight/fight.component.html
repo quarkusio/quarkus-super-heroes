@@ -1,0 +1,50 @@
+<div class="row" id="fight-row">
+    <div class="col-xs-6 col-sm-4 col-md-4">
+        <div class="hero card-pf" [className]="winner == figthers.hero.name ? 'hero-winner-card' : 'off'">
+            <h2 class="hero-name">
+                {{figthers.hero.name}}
+            </h2>
+            <div class="card-pf-body">
+                <img class="rounded" src="{{figthers.hero.picture}}">
+
+                <h2><i class="fas fa-bolt"></i> {{figthers.hero.level}}</h2>
+                <h2><a data-toggle="collapse" href="#heroPowers" role="button" aria-expanded="false" aria-controls="heroPowers"><i class="powers hero fas fa-atom"></i></a></h2>
+
+                <div class="collapse" id="heroPowers">
+                    {{figthers.hero.powers}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-6 col-sm-4 col-md-4">
+        <div class="card-pf">
+            <div class="card-pf-body">
+                <button (click)="newFighters()" class="btn btn-primary btn-block btn-lg"><h4><i class="fas fa-random"></i> NEW FIGHTERS</h4></button>
+                <button (click)="fight()" class="btn btn-danger btn-block btn-lg"><h4><i class="fab fa-battle-net"></i> FIGHT !</h4></button>
+            </div>
+
+            <div *ngIf="winner" class="winner-text">Winner is <span [className]="winner == figthers.villain.name ? 'winner-villain' : 'winner-hero'">{{winner}}</span></div>
+        </div>
+    </div>
+
+    <div class="col-xs-6 col-sm-4 col-md-4">
+        <div class="villain card-pf" [className]="winner == figthers.villain.name ? 'villain-winner-card' : 'off'">
+            <h2 class="villain-name">
+                {{figthers.villain.name}}
+            </h2>
+            <div class="card-pf-body">
+                <img class="rounded" src="{{figthers.villain.picture}}">
+
+                <h2><i class="fas fa-bolt"></i> {{figthers.villain.level}}</h2>
+                <h2><a data-toggle="collapse" href="#villainPowers" role="button" aria-expanded="false" aria-controls="villainPowers"><i class="powers villain fas fa-atom"></i></a></h2>
+
+                <div class="collapse" id="villainPowers">
+                    {{figthers.villain.powers}}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
