@@ -116,7 +116,7 @@ public class VillainResource {
 	@Path("/{id}")
 	@Consumes(APPLICATION_JSON)
 	@Operation(summary = "Completely updates/replaces an exiting villain by replacing it with the passed-in villain")
-	@APIResponse(responseCode = "204", description = "Replace a villain")
+	@APIResponse(responseCode = "204", description = "Replaced the villain")
 	@APIResponse(responseCode = "400", description = "Invalid villain passed in")
 	@APIResponse(responseCode = "404", description = "No villain found")
 	public Response fullyUpdateVillain(@Valid @NotNull Villain villain) {
@@ -135,8 +135,8 @@ public class VillainResource {
 	@Path("/{id}")
 	@Consumes(APPLICATION_JSON)
 	@Operation(summary = "Partially updates an exiting villain")
-	@APIResponse(responseCode = "200", description = "Update a villain", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class)))
-	@APIResponse(responseCode = "400", description = "Invalid villain passed in")
+	@APIResponse(responseCode = "200", description = "Updated the villain", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class)))
+	@APIResponse(responseCode = "400", description = "Null villain passed in (no request body)")
 	@APIResponse(responseCode = "404", description = "No villain found")
 	public Response partiallyUpdateVillain(@Parameter(name = "id", required = true) @PathParam("id") Long id, @NotNull Villain villain) {
 		if (villain.id == null) {
