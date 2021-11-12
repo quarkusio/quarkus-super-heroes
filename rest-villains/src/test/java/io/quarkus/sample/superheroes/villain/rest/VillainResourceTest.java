@@ -4,70 +4,95 @@ import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.Response.Status.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
-import java.util.Random;
+import java.util.Optional;
+import java.util.Set;
 
-import org.hamcrest.core.Is;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
+import javax.validation.ConstraintViolationException;
+import javax.ws.rs.core.HttpHeaders;
+
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.ArgumentMatcher;
 
 import io.quarkus.sample.superheroes.villain.Villain;
+import io.quarkus.sample.superheroes.villain.service.VillainService;
 import io.quarkus.test.junit.QuarkusTest;
-
-import io.restassured.common.mapper.TypeRef;
+import io.quarkus.test.junit.mockito.InjectMock;
 
 @QuarkusTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class VillainResourceTest {
 	private static final String DEFAULT_NAME = "Super Chocolatine";
-	private static final String UPDATED_NAME = "Super Chocolatine (updated)";
+	private static final String UPDATED_NAME = DEFAULT_NAME + " (updated)";
 	private static final String DEFAULT_OTHER_NAME = "Super Chocolatine chocolate in";
-	private static final String UPDATED_OTHER_NAME = "Super Chocolatine chocolate in (updated)";
+	private static final String UPDATED_OTHER_NAME = DEFAULT_OTHER_NAME + " (updated)";
 	private static final String DEFAULT_PICTURE = "super_chocolatine.png";
 	private static final String UPDATED_PICTURE = "super_chocolatine_updated.png";
 	private static final String DEFAULT_POWERS = "does not eat pain au chocolat";
-	private static final String UPDATED_POWERS = "does not eat pain au chocolat (updated)";
+	private static final String UPDATED_POWERS = DEFAULT_POWERS + " (updated)";
 	private static final int DEFAULT_LEVEL = 42;
-	private static final int UPDATED_LEVEL = 43;
+	private static final int UPDATED_LEVEL = DEFAULT_LEVEL + 1;
+	private static final long DEFAULT_ID = 1;
 
-	private static final int NB_VILLAINS = 581;
-	private static String villainId;
+	@InjectMock
+	VillainService villainService;
 
 	@Test
-	public void testHelloEndpoint() {
+	public void helloEndpoint() {
 		given()
-			.accept(TEXT_PLAIN)
+				.accept(TEXT_PLAIN)
 			.when().get("/api/villains/hello")
 			.then()
 				.statusCode(200)
 				.body(is("Hello Villain Resource"));
+
+		verifyNoInteractions(this.villainService);
 	}
 
 	@Test
-	void shouldNotGetUnknownVillain() {
-		Long randomId = new Random().nextLong();
+	public void shouldNotGetUnknownVillain() {
+		when(this.villainService.findVillainById(eq(DEFAULT_ID)))
+			.thenReturn(Optional.empty());
+
 		given()
-			.pathParam("id", randomId)
-			.when().get("/api/villains/{id}")
+			.when().get("/api/villains/{id}", DEFAULT_ID)
 			.then().statusCode(NOT_FOUND.getStatusCode());
+
+		verify(this.villainService).findVillainById(eq(DEFAULT_ID));
+		verifyNoMoreInteractions(this.villainService);
 	}
 
 	@Test
-	void shouldGetRandomVillain() {
+	public void shouldGetRandomVillain() {
+		when(this.villainService.findRandomVillain())
+			.thenReturn(createDefaultVillian());
+
 		given()
 			.when().get("/api/villains/random")
 			.then()
-			.statusCode(OK.getStatusCode())
-			.contentType(JSON);
+				.statusCode(OK.getStatusCode())
+				.contentType(JSON)
+				.body(
+					"$", notNullValue(),
+					"id", is((int) DEFAULT_ID),
+					"name", is(DEFAULT_NAME),
+					"otherName", is(DEFAULT_OTHER_NAME),
+					"level", is(DEFAULT_LEVEL),
+					"picture", is(DEFAULT_PICTURE),
+					"powers", is(DEFAULT_POWERS)
+				);
+
+		verify(this.villainService).findRandomVillain();
+		verifyNoMoreInteractions(this.villainService);
 	}
 
 	@Test
-	void shouldNotAddInvalidItem() {
+	public void shouldNotAddInvalidItem() {
 		Villain villain = new Villain();
 		villain.name = null;
 		villain.otherName = DEFAULT_OTHER_NAME;
@@ -76,31 +101,174 @@ public class VillainResourceTest {
 		villain.level = 0;
 
 		given()
-			.body(villain)
-			.contentType(JSON)
-			.accept(JSON)
 			.when()
-			.post("/api/villains")
+				.body(villain)
+				.contentType(JSON)
+				.accept(JSON)
+				.post("/api/villains")
 			.then()
-			.statusCode(BAD_REQUEST.getStatusCode());
+				.statusCode(BAD_REQUEST.getStatusCode());
+
+		verifyNoInteractions(this.villainService);
 	}
 
 	@Test
-	@Order(1)
-	void shouldGetInitialItems() {
-		List<Villain> villains = get("/api/villains")
+	public void shouldNotAddNullItem() {
+		given()
+			.when()
+				.contentType(JSON)
+				.accept(JSON)
+				.post("/api/villains")
 			.then()
-			.statusCode(OK.getStatusCode())
-			.contentType(JSON)
-			.extract()
-			.body()
-			.as(getVillainTypeRef());
-		assertEquals(NB_VILLAINS, villains.size());
+				.statusCode(BAD_REQUEST.getStatusCode());
+
+		verifyNoInteractions(this.villainService);
 	}
 
 	@Test
-	@Order(2)
-	void shouldAddAnItem() {
+	public void shouldNotFullyUpdateNullItem() {
+		given()
+			.when()
+				.contentType(JSON)
+				.accept(JSON)
+				.body("")
+				.put("/api/villains/{id}", DEFAULT_ID)
+			.then()
+				.statusCode(BAD_REQUEST.getStatusCode());
+
+		verifyNoInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldNotFullyUpdateInvalidItem() {
+		Villain villain = createFullyUpdatedVillain();
+		villain.name = null;
+		villain.otherName = UPDATED_OTHER_NAME;
+		villain.picture = UPDATED_PICTURE;
+		villain.powers = UPDATED_PICTURE;
+		villain.level = 0;
+
+		given()
+			.when()
+				.body(villain)
+				.contentType(JSON)
+				.accept(JSON)
+				.put("/api/villains/{id}", villain.id)
+			.then()
+				.statusCode(BAD_REQUEST.getStatusCode());
+
+		verifyNoInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldNotPartiallyUpdateInvalidItem() {
+		ArgumentMatcher<Villain> villainMatcher = v ->
+			(v.id == DEFAULT_ID) &&
+				(v.name == null) &&
+				v.otherName.equals(UPDATED_OTHER_NAME) &&
+				v.picture.equals(UPDATED_PICTURE) &&
+				v.powers.equals(UPDATED_POWERS) &&
+				(v.level == 0);
+
+		when(this.villainService.partialUpdateVillain(argThat(villainMatcher)))
+			.thenThrow(new ConstraintViolationException(Set.of()));
+
+		Villain villain = createPartiallyUpdatedVillain();
+		villain.name = null;
+		villain.otherName = UPDATED_OTHER_NAME;
+		villain.level = 0;
+
+		given()
+			.when()
+				.body(villain)
+				.contentType(JSON)
+				.accept(JSON)
+				.patch("/api/villains/{id}", DEFAULT_ID)
+			.then()
+				.statusCode(BAD_REQUEST.getStatusCode());
+
+		verify(this.villainService).partialUpdateVillain(argThat(villainMatcher));
+		verifyNoMoreInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldNotPartiallyUpdateNullItem() {
+		given()
+			.when()
+				.contentType(JSON)
+				.accept(JSON)
+				.body("")
+				.patch("/api/villains/{id}", DEFAULT_ID)
+			.then()
+				.statusCode(BAD_REQUEST.getStatusCode());
+
+		verifyNoInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldGetItems() {
+		when(this.villainService.findAllVillains())
+			.thenReturn(List.of(createDefaultVillian()));
+
+		get("/api/villains")
+			.then()
+				.statusCode(OK.getStatusCode())
+				.contentType(JSON)
+				.body(
+					"$.size()", is(1),
+					"[0].id", is((int) DEFAULT_ID),
+					"[0].name", is(DEFAULT_NAME),
+					"[0].otherName", is(DEFAULT_OTHER_NAME),
+					"[0].level", is(DEFAULT_LEVEL),
+					"[0].picture", is(DEFAULT_PICTURE),
+					"[0].powers", is(DEFAULT_POWERS)
+				);
+
+		verify(this.villainService).findAllVillains();
+		verifyNoMoreInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldGetEmptyItems() {
+		when(this.villainService.findAllVillains())
+			.thenReturn(List.of());
+
+		get("/api/villains")
+			.then()
+				.statusCode(NO_CONTENT.getStatusCode())
+				.body(blankOrNullString());
+
+		verify(this.villainService).findAllVillains();
+		verifyNoMoreInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldGetNullItems() {
+		when(this.villainService.findAllVillains())
+			.thenReturn(null);
+
+		get("/api/villains")
+			.then()
+				.statusCode(NO_CONTENT.getStatusCode())
+				.body(blankOrNullString());
+
+		verify(this.villainService).findAllVillains();
+		verifyNoMoreInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldAddAnItem() {
+		ArgumentMatcher<Villain> villainMatcher = v ->
+			(v.id == null) &&
+			v.name.equals(DEFAULT_NAME) &&
+			v.otherName.equals(DEFAULT_OTHER_NAME) &&
+			v.picture.equals(DEFAULT_PICTURE) &&
+			v.powers.equals(DEFAULT_POWERS) &&
+			(v.level == DEFAULT_LEVEL);
+
+		when(this.villainService.persistVillain(argThat(villainMatcher)))
+			.thenReturn(createDefaultVillian());
+
 		Villain villain = new Villain();
 		villain.name = DEFAULT_NAME;
 		villain.otherName = DEFAULT_OTHER_NAME;
@@ -108,108 +276,201 @@ public class VillainResourceTest {
 		villain.powers = DEFAULT_POWERS;
 		villain.level = DEFAULT_LEVEL;
 
-		String location = given()
-			.body(villain)
-			.contentType(JSON)
-			.accept(JSON)
-			.when()
-			.post("/api/villains")
-			.then()
-			.statusCode(CREATED.getStatusCode())
-			.extract()
-			.header("Location");
-		assertTrue(location.contains("/api/villains"));
-
-		// Stores the id
-		String[] segments = location.split("/");
-		villainId = segments[segments.length - 1];
-		assertNotNull(villainId);
-
 		given()
-			.pathParam("id", villainId)
 			.when()
-			.get("/api/villains/{id}")
+				.body(villain)
+				.contentType(JSON)
+				.accept(JSON)
+				.post("/api/villains")
 			.then()
-			.contentType(JSON)
-			.statusCode(OK.getStatusCode())
-			.body("name", Is.is(DEFAULT_NAME))
-			.body("otherName", Is.is(DEFAULT_OTHER_NAME))
-			.body("level", Is.is(DEFAULT_LEVEL))
-			.body("picture", Is.is(DEFAULT_PICTURE))
-			.body("powers", Is.is(DEFAULT_POWERS));
+				.statusCode(CREATED.getStatusCode())
+				.header(HttpHeaders.LOCATION, containsString("/api/villains/" + DEFAULT_ID));
 
-		List<Villain> villains = get("/api/villains")
-			.then()
-			.statusCode(OK.getStatusCode())
-			.contentType(JSON)
-			.extract()
-			.body()
-			.as(getVillainTypeRef());
-		assertEquals(NB_VILLAINS + 1, villains.size());
+		verify(this.villainService).persistVillain(argThat(villainMatcher));
+		verifyNoMoreInteractions(this.villainService);
 	}
 
 	@Test
-	@Order(3)
-	void testUpdatingAnItem() {
+	public void shouldNotFullyUpdateNotFoundItem() {
+		var villain = createFullyUpdatedVillain();
+		ArgumentMatcher<Villain> villainMatcher = v ->
+			(v.id == DEFAULT_ID) &&
+				v.name.equals(UPDATED_NAME) &&
+				v.otherName.equals(UPDATED_OTHER_NAME) &&
+				v.picture.equals(UPDATED_PICTURE) &&
+				v.powers.equals(UPDATED_POWERS) &&
+				(v.level == UPDATED_LEVEL);
+
+		when(this.villainService.replaceVillain(argThat(villainMatcher)))
+			.thenReturn(Optional.empty());
+
+		given()
+			.when()
+				.body(villain)
+				.contentType(JSON)
+				.accept(JSON)
+				.put("/api/villains/{id}", villain.id)
+			.then()
+				.statusCode(NOT_FOUND.getStatusCode())
+				.body(blankOrNullString());
+
+		verify(this.villainService).replaceVillain(argThat(villainMatcher));
+		verifyNoMoreInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldFullyUpdateAnItem() {
+		var villain = createFullyUpdatedVillain();
+		ArgumentMatcher<Villain> villainMatcher = v ->
+			(v.id == DEFAULT_ID) &&
+				v.name.equals(UPDATED_NAME) &&
+				v.otherName.equals(UPDATED_OTHER_NAME) &&
+				v.picture.equals(UPDATED_PICTURE) &&
+				v.powers.equals(UPDATED_POWERS) &&
+				(v.level == UPDATED_LEVEL);
+
+		when(this.villainService.replaceVillain(argThat(villainMatcher)))
+			.thenReturn(Optional.of(villain));
+
+		given()
+			.when()
+				.body(villain)
+				.contentType(JSON)
+				.accept(JSON)
+				.put("/api/villains/{id}", villain.id)
+			.then()
+				.statusCode(NO_CONTENT.getStatusCode())
+				.body(blankOrNullString());
+
+		verify(this.villainService).replaceVillain(argThat(villainMatcher));
+		verifyNoMoreInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldNotPartiallyUpdateNotFoundItem() {
+		ArgumentMatcher<Villain> villainMatcher = v ->
+			(v.id == DEFAULT_ID) &&
+				(v.name == null) &&
+				(v.otherName == null) &&
+				v.picture.equals(UPDATED_PICTURE) &&
+				v.powers.equals(UPDATED_POWERS) &&
+				(v.level == null);
+
+		var partialVillain = new Villain();
+		partialVillain.powers = UPDATED_POWERS;
+		partialVillain.picture = UPDATED_PICTURE;
+
+		when(this.villainService.partialUpdateVillain(argThat(villainMatcher)))
+			.thenReturn(Optional.empty());
+
+		given()
+			.when()
+				.body(partialVillain)
+				.contentType(JSON)
+				.accept(JSON)
+				.patch("/api/villains/{id}", DEFAULT_ID)
+			.then()
+				.statusCode(NOT_FOUND.getStatusCode())
+				.body(blankOrNullString());
+
+		verify(this.villainService).partialUpdateVillain(argThat(villainMatcher));
+		verifyNoMoreInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldPartiallyUpdateAnItem() {
+		ArgumentMatcher<Villain> villainMatcher = v ->
+			(v.id == DEFAULT_ID) &&
+				(v.name == null) &&
+				(v.otherName == null) &&
+				v.picture.equals(UPDATED_PICTURE) &&
+				v.powers.equals(UPDATED_POWERS) &&
+				(v.level == null);
+
+		var partialVillain = new Villain();
+		partialVillain.powers = UPDATED_POWERS;
+		partialVillain.picture = UPDATED_PICTURE;
+
+		when(this.villainService.partialUpdateVillain(argThat(villainMatcher)))
+			.thenReturn(Optional.of(createPartiallyUpdatedVillain()));
+
+		given()
+			.when()
+				.body(partialVillain)
+				.contentType(JSON)
+				.accept(JSON)
+				.patch("/api/villains/{id}", DEFAULT_ID)
+			.then()
+				.statusCode(OK.getStatusCode())
+				.contentType(JSON)
+				.body(
+					"$", notNullValue(),
+					"id", is((int) DEFAULT_ID),
+					"name", is(DEFAULT_NAME),
+					"otherName", is(DEFAULT_OTHER_NAME),
+					"level", is(DEFAULT_LEVEL),
+					"picture", is(UPDATED_PICTURE),
+					"powers", is(UPDATED_POWERS)
+				);
+
+		verify(this.villainService).partialUpdateVillain(argThat(villainMatcher));
+		verifyNoMoreInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldRemoveAnItem() {
+		doNothing()
+			.when(this.villainService)
+			.deleteVillain(eq(DEFAULT_ID));
+
+		given()
+			.when().delete("/api/villains/{id}", DEFAULT_ID)
+			.then()
+				.statusCode(NO_CONTENT.getStatusCode())
+				.body(blankOrNullString());
+
+		verify(this.villainService).deleteVillain(eq(DEFAULT_ID));
+		verifyNoMoreInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldPingOpenAPI() {
+		given()
+			.when()
+				.accept(JSON)
+				.get("/q/openapi")
+			.then()
+				.statusCode(OK.getStatusCode());
+	}
+
+	private static Villain createDefaultVillian() {
 		Villain villain = new Villain();
-		villain.id = Long.valueOf(villainId);
+		villain.id = DEFAULT_ID;
+		villain.name = DEFAULT_NAME;
+		villain.otherName = DEFAULT_OTHER_NAME;
+		villain.picture = DEFAULT_PICTURE;
+		villain.powers = DEFAULT_POWERS;
+		villain.level = DEFAULT_LEVEL;
+
+		return villain;
+	}
+
+	public static Villain createFullyUpdatedVillain() {
+		Villain villain = createDefaultVillian();
 		villain.name = UPDATED_NAME;
 		villain.otherName = UPDATED_OTHER_NAME;
 		villain.picture = UPDATED_PICTURE;
 		villain.powers = UPDATED_POWERS;
 		villain.level = UPDATED_LEVEL;
 
-		given()
-			.body(villain)
-			.contentType(JSON)
-			.accept(JSON)
-			.when()
-			.put("/api/villains")
-			.then()
-			.statusCode(OK.getStatusCode())
-			.contentType(JSON)
-			.body("name", Is.is(UPDATED_NAME))
-			.body("otherName", Is.is(UPDATED_OTHER_NAME))
-			.body("level", Is.is(UPDATED_LEVEL))
-			.body("picture", Is.is(UPDATED_PICTURE))
-			.body("powers", Is.is(UPDATED_POWERS));
-
-		List<Villain> villains = get("/api/villains")
-			.then()
-			.statusCode(OK.getStatusCode())
-			.contentType(JSON)
-			.extract()
-			.body()
-			.as(getVillainTypeRef());
-		assertEquals(NB_VILLAINS + 1, villains.size());
+		return villain;
 	}
 
-	@Test
-	@Order(4)
-	void shouldRemoveAnItem() {
-		given().pathParam("id", villainId).when().delete("/api/villains/{id}").then().statusCode(NO_CONTENT.getStatusCode());
+	public static Villain createPartiallyUpdatedVillain() {
+		Villain villain = createDefaultVillian();
+		villain.picture = UPDATED_PICTURE;
+		villain.powers = UPDATED_POWERS;
 
-		List<Villain> villains = get("/api/villains")
-			.then()
-			.statusCode(OK.getStatusCode())
-			.contentType(JSON)
-			.extract()
-			.body()
-			.as(getVillainTypeRef());
-		assertEquals(NB_VILLAINS, villains.size());
-	}
-
-	@Test
-	void shouldPingOpenAPI() {
-		given()
-			.accept(JSON)
-			.when().get("/q/openapi")
-			.then().statusCode(OK.getStatusCode());
-	}
-
-	private TypeRef<List<Villain>> getVillainTypeRef() {
-		return new TypeRef<>() {
-			// Kept empty on purpose
-		};
+		return villain;
 	}
 }

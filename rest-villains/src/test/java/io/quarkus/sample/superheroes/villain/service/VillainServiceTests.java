@@ -14,12 +14,16 @@ import javax.validation.ConstraintViolationException;
 
 import org.eclipse.microprofile.config.Config;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import io.quarkus.panache.mock.PanacheMock;
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.config.VillainConfig;
+import io.quarkus.sample.superheroes.villain.mapping.VillainFullUpdateMapper;
+import io.quarkus.sample.superheroes.villain.mapping.VillainPartialUpdateMapper;
 import io.quarkus.test.Mock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectSpy;
 
 import io.smallrye.config.SmallRyeConfig;
 
@@ -43,6 +47,12 @@ class VillainServiceTests {
 
 	@Inject
 	VillainConfig villainConfig;
+
+	@InjectSpy
+	VillainPartialUpdateMapper villainPartialUpdateMapper;
+
+	@InjectSpy
+	VillainFullUpdateMapper villainFullUpdateMapper;
 
 	@Test
 	public void findAllVillainsNoneFound() {
@@ -255,9 +265,9 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void updateNullVillain() {
+	public void fullyUpdateNullVillain() {
 		PanacheMock.mock(Villain.class);
-		var cve = catchThrowableOfType(() -> this.villainService.updateVillain(null), ConstraintViolationException.class);
+		var cve = catchThrowableOfType(() -> this.villainService.replaceVillain(null), ConstraintViolationException.class);
 
 		assertThat(cve)
 			.isNotNull();
@@ -282,15 +292,16 @@ class VillainServiceTests {
 			);
 
 		PanacheMock.verifyNoInteractions(Villain.class);
+		Mockito.verifyNoInteractions(this.villainFullUpdateMapper, this.villainPartialUpdateMapper);
 	}
 
 	@Test
-	public void updateInvalidVillain() {
+	public void fullyUpdateInvalidVillain() {
 		PanacheMock.mock(Villain.class);
 		var villain = createDefaultVillian();
 		villain.name = null;
 
-		var cve = catchThrowableOfType(() -> this.villainService.updateVillain(villain), ConstraintViolationException.class);
+		var cve = catchThrowableOfType(() -> this.villainService.replaceVillain(villain), ConstraintViolationException.class);
 
 		assertThat(cve)
 			.isNotNull();
@@ -315,15 +326,32 @@ class VillainServiceTests {
 			);
 
 		PanacheMock.verifyNoInteractions(Villain.class);
+		Mockito.verifyNoInteractions(this.villainFullUpdateMapper, this.villainPartialUpdateMapper);
 	}
 
 	@Test
-	public void updateVillain() {
+	public void fullyUpdateNotFoundVillain() {
 		PanacheMock.mock(Villain.class);
-		when(Villain.findById(eq(DEFAULT_ID))).thenReturn(createDefaultVillian());
+		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.empty());
 
-		assertThat(this.villainService.updateVillain(createUpdatedVillain()))
+		assertThat(this.villainService.replaceVillain(createUpdatedVillain()))
 			.isNotNull()
+			.isNotPresent();
+
+		PanacheMock.verify(Villain.class).findByIdOptional(eq(DEFAULT_ID));
+		PanacheMock.verifyNoMoreInteractions(Villain.class);
+		Mockito.verifyNoInteractions(this.villainPartialUpdateMapper, this.villainFullUpdateMapper);
+	}
+
+	@Test
+	public void fullyUpdateVillain() {
+		PanacheMock.mock(Villain.class);
+		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.of(createDefaultVillian()));
+
+		assertThat(this.villainService.replaceVillain(createUpdatedVillain()))
+			.isNotNull()
+			.isPresent()
+			.get()
 			.extracting(
 				"id",
 				"name",
@@ -341,8 +369,125 @@ class VillainServiceTests {
 				UPDATED_POWERS
 			);
 
-		PanacheMock.verify(Villain.class).findById(eq(DEFAULT_ID));
+		PanacheMock.verify(Villain.class).findByIdOptional(eq(DEFAULT_ID));
 		PanacheMock.verifyNoMoreInteractions(Villain.class);
+		Mockito.verify(this.villainFullUpdateMapper).mapFullUpdate(any(Villain.class), any(Villain.class));
+		Mockito.verifyNoInteractions(this.villainPartialUpdateMapper);
+	}
+
+	@Test
+	public void partiallyUpdateNullVillain() {
+		PanacheMock.mock(Villain.class);
+		var cve = catchThrowableOfType(() -> this.villainService.partialUpdateVillain(null), ConstraintViolationException.class);
+
+		assertThat(cve)
+			.isNotNull();
+
+		var violations = cve.getConstraintViolations();
+
+		assertThat(violations)
+			.isNotNull()
+			.hasSize(1);
+
+		assertThat(violations.stream().findFirst())
+			.isNotNull()
+			.isPresent()
+			.get()
+			.extracting(
+				ConstraintViolation::getInvalidValue,
+				ConstraintViolation::getMessage
+			)
+			.containsExactly(
+				null,
+				"must not be null"
+			);
+
+		PanacheMock.verifyNoInteractions(Villain.class);
+		Mockito.verifyNoInteractions(this.villainFullUpdateMapper, this.villainPartialUpdateMapper);
+	}
+
+	@Test
+	public void partiallyUpdateInvalidVillain() {
+		PanacheMock.mock(Villain.class);
+		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.of(createDefaultVillian()));
+		var villain = createDefaultVillian();
+		villain.id = DEFAULT_ID;
+		villain.name = "a";
+
+		var cve = catchThrowableOfType(() -> this.villainService.partialUpdateVillain(villain), ConstraintViolationException.class);
+
+		assertThat(cve)
+			.isNotNull();
+
+		var violations = cve.getConstraintViolations();
+
+		assertThat(violations)
+			.isNotNull()
+			.hasSize(1);
+
+		assertThat(violations.stream().findFirst())
+			.isNotNull()
+			.isPresent()
+			.get()
+			.extracting(
+				ConstraintViolation::getInvalidValue,
+				ConstraintViolation::getMessage
+			)
+			.containsExactly(
+				"a",
+				"size must be between 3 and 50"
+			);
+
+		PanacheMock.verify(Villain.class).findByIdOptional(eq(DEFAULT_ID));
+		PanacheMock.verifyNoMoreInteractions(Villain.class);
+		Mockito.verify(this.villainPartialUpdateMapper).mapPartialUpdate(any(Villain.class), any(Villain.class));
+		Mockito.verifyNoInteractions(this.villainFullUpdateMapper);
+	}
+
+	@Test
+	public void partiallyUpdateNotFoundVillain() {
+		PanacheMock.mock(Villain.class);
+		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.empty());
+
+		assertThat(this.villainService.partialUpdateVillain(createPartialUpdatedVillain()))
+			.isNotNull()
+			.isNotPresent();
+
+		PanacheMock.verify(Villain.class).findByIdOptional(eq(DEFAULT_ID));
+		PanacheMock.verifyNoMoreInteractions(Villain.class);
+		Mockito.verifyNoInteractions(this.villainFullUpdateMapper, this.villainPartialUpdateMapper);
+	}
+
+	@Test
+	public void partiallyUpdateVillain() {
+		PanacheMock.mock(Villain.class);
+		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.of(createDefaultVillian()));
+
+		assertThat(this.villainService.partialUpdateVillain(createPartialUpdatedVillain()))
+			.isNotNull()
+			.isPresent()
+			.get()
+			.extracting(
+				"id",
+				"name",
+				"otherName",
+				"level",
+				"picture",
+				"powers"
+			)
+			.containsExactly(
+				DEFAULT_ID,
+				DEFAULT_NAME,
+				DEFAULT_OTHER_NAME,
+				DEFAULT_LEVEL,
+				UPDATED_PICTURE,
+				UPDATED_POWERS
+			);
+
+		PanacheMock.verify(Villain.class).findByIdOptional(eq(DEFAULT_ID));
+		PanacheMock.verifyNoMoreInteractions(Villain.class);
+		Mockito.verify(this.villainPartialUpdateMapper).mapPartialUpdate(any(Villain.class), any(Villain.class));
+		Mockito.verifyNoInteractions(this.villainFullUpdateMapper);
 	}
 
 	@Test
@@ -375,6 +520,14 @@ class VillainServiceTests {
 		villain.picture = UPDATED_PICTURE;
 		villain.powers = UPDATED_POWERS;
 		villain.level = UPDATED_LEVEL;
+
+		return villain;
+	}
+
+	public static Villain createPartialUpdatedVillain() {
+		Villain villain = createDefaultVillian();
+		villain.picture = UPDATED_PICTURE;
+		villain.powers = UPDATED_POWERS;
 
 		return villain;
 	}

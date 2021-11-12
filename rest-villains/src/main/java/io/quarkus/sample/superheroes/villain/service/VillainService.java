@@ -7,19 +7,29 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.config.VillainConfig;
+import io.quarkus.sample.superheroes.villain.mapping.VillainFullUpdateMapper;
+import io.quarkus.sample.superheroes.villain.mapping.VillainPartialUpdateMapper;
 
 @ApplicationScoped
 @Transactional(REQUIRED)
 public class VillainService {
+	private final Validator validator;
 	private final VillainConfig villainConfig;
+	private final VillainPartialUpdateMapper villainPartialUpdateMapper;
+	private final VillainFullUpdateMapper villainFullUpdateMapper;
 
-	public VillainService(VillainConfig villainConfig) {
+	public VillainService(Validator validator, VillainConfig villainConfig, VillainPartialUpdateMapper villainPartialUpdateMapper, VillainFullUpdateMapper villainFullUpdateMapper) {
+		this.validator = validator;
 		this.villainConfig = villainConfig;
+		this.villainPartialUpdateMapper = villainPartialUpdateMapper;
+		this.villainFullUpdateMapper = villainFullUpdateMapper;
 	}
 
 	@Transactional(SUPPORTS)
@@ -50,15 +60,33 @@ public class VillainService {
 		return villain;
 	}
 
-	public Villain updateVillain(@NotNull @Valid Villain villain) {
-		Villain entity = Villain.findById(villain.id);
-		entity.name = villain.name;
-		entity.otherName = villain.otherName;
-		entity.level = villain.level;
-		entity.picture = villain.picture;
-		entity.powers = villain.powers;
+	public Optional<Villain> replaceVillain(@NotNull @Valid Villain villain) {
+		return Villain.findByIdOptional(villain.id)
+			.map(Villain.class::cast)
+			.map(v -> {
+				this.villainFullUpdateMapper.mapFullUpdate(villain, v);
+				return v;
+			});
+	}
 
-		return entity;
+	public Optional<Villain> partialUpdateVillain(@NotNull Villain villain) {
+		return Villain.findByIdOptional(villain.id)
+			.map(Villain.class::cast)
+			.map(v -> {
+				this.villainPartialUpdateMapper.mapPartialUpdate(villain, v);
+				return v;
+			})
+			.map(this::validatePartialUpdate);
+	}
+
+	private Villain validatePartialUpdate(Villain villain) {
+		var violations = this.validator.validate(villain);
+
+		if ((violations != null) && !violations.isEmpty()) {
+			throw new ConstraintViolationException(violations);
+		}
+
+		return villain;
 	}
 
 	public void deleteVillain(Long id) {

@@ -1,5 +1,6 @@
 package io.quarkus.sample.superheroes.villain;
 
+import java.util.Objects;
 import java.util.Random;
 
 import javax.persistence.Column;
@@ -20,7 +21,7 @@ public class Villain extends PanacheEntity {
 
 	@NotNull
 	@Min(1)
-	public int level;
+	public Integer level;
 
 	public String picture;
 
@@ -51,5 +52,22 @@ public class Villain extends PanacheEntity {
 				'\'' +
 				'}'
 		);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		Villain villain = (Villain) o;
+		return this.id.equals(villain.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.id);
 	}
 }
