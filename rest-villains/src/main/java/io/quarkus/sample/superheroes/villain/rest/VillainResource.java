@@ -53,21 +53,36 @@ public class VillainResource {
 	@Operation(summary = "Returns a random villain")
 	@APIResponse(
 		responseCode = "200",
+		description = "Gets random villain",
 		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class, required = true))
 	)
-	public Villain getRandomVillain() {
-		Villain villain = this.service.findRandomVillain();
-		this.logger.debugf("Found random villain %s", villain);
-		return villain;
+	@APIResponse(
+		responseCode = "404",
+		description = "No villain found"
+	)
+	public Response getRandomVillain() {
+		return this.service.findRandomVillain()
+			.map(v -> {
+				this.logger.debugf("Found random villain %s", v);
+				return Response.ok(v).build();
+			})
+			.orElseGet(() -> {
+				this.logger.debug("No random villain found");
+				return Response.status(Status.NOT_FOUND).build();
+			});
 	}
 
 	@GET
 	@Operation(summary = "Returns all the villains from the database")
 	@APIResponse(
 		responseCode = "200",
+		description = "Gets all villains",
 		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class, type = SchemaType.ARRAY))
 	)
-	@APIResponse(responseCode = "204", description = "No villains")
+	@APIResponse(
+		responseCode = "204",
+		description = "No villains"
+	)
 	public Response getAllVillains() {
 		List<Villain> villains = Optional.ofNullable(this.service.findAllVillains())
 			.orElseGet(List::of);
@@ -82,8 +97,15 @@ public class VillainResource {
 	@GET
 	@Path("/{id}")
 	@Operation(summary = "Returns a villain for a given identifier")
-	@APIResponse(responseCode = "200", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class)))
-	@APIResponse(responseCode = "404", description = "The villain is not found for a given identifier")
+	@APIResponse(
+		responseCode = "200",
+		description = "Gets a villain for a given id",
+		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class))
+	)
+	@APIResponse(
+		responseCode = "404",
+		description = "The villain is not found for a given identifier"
+	)
 	public Response getVillain(@Parameter(name = "id", required = true) @PathParam("id") Long id) {
 		return this.service.findVillainById(id)
 			.map(v -> {
@@ -104,7 +126,10 @@ public class VillainResource {
 		description = "The URI of the created villain",
 		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = URI.class))
 	)
-	@APIResponse(responseCode = "400", description = "Invalid villain passed in")
+	@APIResponse(
+		responseCode = "400",
+		description = "Invalid villain passed in (or no request body found)"
+	)
 	public Response createVillain(@Valid @NotNull Villain villain, @Context UriInfo uriInfo) {
 		Villain v = this.service.persistVillain(villain);
 		UriBuilder builder = uriInfo.getAbsolutePathBuilder().path(Long.toString(v.id));
@@ -116,9 +141,18 @@ public class VillainResource {
 	@Path("/{id}")
 	@Consumes(APPLICATION_JSON)
 	@Operation(summary = "Completely updates/replaces an exiting villain by replacing it with the passed-in villain")
-	@APIResponse(responseCode = "204", description = "Replaced the villain")
-	@APIResponse(responseCode = "400", description = "Invalid villain passed in")
-	@APIResponse(responseCode = "404", description = "No villain found")
+	@APIResponse(
+		responseCode = "204",
+		description = "Replaced the villain"
+	)
+	@APIResponse(
+		responseCode = "400",
+		description = "Invalid villain passed in (or no request body found)"
+	)
+	@APIResponse(
+		responseCode = "404",
+		description = "No villain found"
+	)
 	public Response fullyUpdateVillain(@Valid @NotNull Villain villain) {
 		return this.service.replaceVillain(villain)
 			.map(v -> {
@@ -135,9 +169,19 @@ public class VillainResource {
 	@Path("/{id}")
 	@Consumes(APPLICATION_JSON)
 	@Operation(summary = "Partially updates an exiting villain")
-	@APIResponse(responseCode = "200", description = "Updated the villain", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class)))
-	@APIResponse(responseCode = "400", description = "Null villain passed in (no request body)")
-	@APIResponse(responseCode = "404", description = "No villain found")
+	@APIResponse(
+		responseCode = "200",
+		description = "Updated the villain",
+		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class))
+	)
+	@APIResponse(
+		responseCode = "400",
+		description = "Null villain passed in (or no request body found)"
+	)
+	@APIResponse(
+		responseCode = "404",
+		description = "No villain found"
+	)
 	public Response partiallyUpdateVillain(@Parameter(name = "id", required = true) @PathParam("id") Long id, @NotNull Villain villain) {
 		if (villain.id == null) {
 			villain.id = id;
@@ -155,9 +199,23 @@ public class VillainResource {
 	}
 
 	@DELETE
+	@Operation(summary = "Delete all villains")
+	@APIResponse(
+		responseCode = "204",
+		description = "Deletes all villains"
+	)
+	public void deleteAllVillains() {
+		this.service.deleteAllVillains();
+		this.logger.debug("Deleted all villains");
+	}
+
+	@DELETE
 	@Path("/{id}")
 	@Operation(summary = "Deletes an exiting villain")
-	@APIResponse(responseCode = "204", description = "Delete a villain")
+	@APIResponse(
+		responseCode = "204",
+		description = "Delete a villain"
+	)
 	public void deleteVillain(@Parameter(name = "id", required = true) @PathParam("id") Long id) {
 		this.service.deleteVillain(id);
 		this.logger.debugf("Villain with id %d deleted ", id);
@@ -167,6 +225,11 @@ public class VillainResource {
 	@Path("/hello")
 	@Produces(MediaType.TEXT_PLAIN)
 	@Tag(name = "hello")
+	@Operation(summary = "Ping hello")
+	@APIResponse(
+		responseCode = "200",
+		description = "Ping hello"
+	)
 	public String hello() {
 		return "Hello Villain Resource";
 	}

@@ -26,7 +26,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 
 @QuarkusTest
-public class VillainResourceTest {
+public class VillainResourceTests {
 	private static final String DEFAULT_NAME = "Super Chocolatine";
 	private static final String UPDATED_NAME = DEFAULT_NAME + " (updated)";
 	private static final String DEFAULT_OTHER_NAME = "Super Chocolatine chocolate in";
@@ -68,9 +68,22 @@ public class VillainResourceTest {
 	}
 
 	@Test
-	public void shouldGetRandomVillain() {
+	public void shouldGetRandomVillainNotFound() {
 		when(this.villainService.findRandomVillain())
-			.thenReturn(createDefaultVillian());
+			.thenReturn(Optional.empty());
+
+		given()
+			.when().get("/api/villains/random")
+			.then().statusCode(NOT_FOUND.getStatusCode());
+
+		verify(this.villainService).findRandomVillain();
+		verifyNoMoreInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldGetRandomVillainFound() {
+		when(this.villainService.findRandomVillain())
+			.thenReturn(Optional.of(createDefaultVillian()));
 
 		given()
 			.when().get("/api/villains/random")
@@ -418,7 +431,7 @@ public class VillainResourceTest {
 	}
 
 	@Test
-	public void shouldRemoveAnItem() {
+	public void shouldDeleteVillain() {
 		doNothing()
 			.when(this.villainService)
 			.deleteVillain(eq(DEFAULT_ID));
@@ -430,6 +443,22 @@ public class VillainResourceTest {
 				.body(blankOrNullString());
 
 		verify(this.villainService).deleteVillain(eq(DEFAULT_ID));
+		verifyNoMoreInteractions(this.villainService);
+	}
+
+	@Test
+	public void shouldDeleteAllVillains() {
+		doNothing()
+			.when(this.villainService)
+			.deleteAllVillains();
+
+		given()
+			.when().delete("/api/villains")
+			.then()
+			.statusCode(NO_CONTENT.getStatusCode())
+			.body(blankOrNullString());
+
+		verify(this.villainService).deleteAllVillains();
 		verifyNoMoreInteractions(this.villainService);
 	}
 

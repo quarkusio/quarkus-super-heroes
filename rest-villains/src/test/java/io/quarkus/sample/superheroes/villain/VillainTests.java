@@ -17,6 +17,17 @@ class VillainTests {
 	private static final int DEFAULT_LEVEL = 42;
 
 	@Test
+	public void findRandomNotFound() {
+		Villain.deleteAll();
+		assertThat(Villain.count())
+			.isEqualTo(0);
+
+		assertThat(Villain.findRandom())
+			.isNotNull()
+			.isEmpty();
+	}
+
+	@Test
 	public void findRandomFound() {
 		Villain villain = new Villain();
 		villain.name = DEFAULT_NAME;
@@ -47,5 +58,12 @@ class VillainTests {
 				DEFAULT_PICTURE,
 				DEFAULT_POWERS
 			);
+
+		assertThat(Villain.findRandom())
+			.isNotNull()
+			.isPresent()
+			.get()
+			.usingRecursiveComparison()
+			.isEqualTo(villain);
 	}
 }

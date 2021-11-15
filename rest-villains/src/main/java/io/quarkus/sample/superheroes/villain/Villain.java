@@ -1,6 +1,7 @@
 package io.quarkus.sample.superheroes.villain;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 
 import javax.persistence.Column;
@@ -28,11 +29,16 @@ public class Villain extends PanacheEntity {
 	@Column(columnDefinition = "TEXT")
 	public String powers;
 
-	public static Villain findRandom() {
+	public static Optional<Villain> findRandom() {
 		long countVillains = count();
-		Random random = new Random();
-		int randomVillain = random.nextInt((int) countVillains);
-		return findAll().page(randomVillain, 1).firstResult();
+
+		if (countVillains > 0) {
+			Random random = new Random();
+			int randomVillain = random.nextInt((int) countVillains);
+			return findAll().page(randomVillain, 1).firstResultOptional();
+		}
+
+		return Optional.empty();
 	}
 
 	@Override

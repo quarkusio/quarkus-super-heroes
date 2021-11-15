@@ -43,14 +43,8 @@ public class VillainService {
 	}
 
 	@Transactional(SUPPORTS)
-	public Villain findRandomVillain() {
-		Villain randomVillain = null;
-
-		while (randomVillain == null) {
-			randomVillain = Villain.findRandom();
-		}
-
-		return randomVillain;
+	public Optional<Villain> findRandomVillain() {
+		return Villain.findRandom();
 	}
 
 	public Villain persistVillain(@NotNull @Valid Villain villain) {
@@ -87,6 +81,13 @@ public class VillainService {
 		}
 
 		return villain;
+	}
+
+	public void deleteAllVillains() {
+		List<Villain> villains = Villain.listAll();
+		villains.stream()
+			.map(v -> v.id)
+			.forEach(this::deleteVillain);
 	}
 
 	public void deleteVillain(Long id) {

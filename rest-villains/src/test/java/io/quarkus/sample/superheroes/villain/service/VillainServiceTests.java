@@ -144,12 +144,27 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void findRandomVillain() {
+	public void findRandomVillainNotFound() {
 		PanacheMock.mock(Villain.class);
-		when(Villain.findRandom()).thenReturn(createDefaultVillian());
+		when(Villain.findRandom()).thenReturn(Optional.empty());
 
 		assertThat(this.villainService.findRandomVillain())
 			.isNotNull()
+			.isEmpty();
+
+		PanacheMock.verify(Villain.class).findRandom();
+		PanacheMock.verifyNoMoreInteractions(Villain.class);
+	}
+
+	@Test
+	public void findRandomVillainFound() {
+		PanacheMock.mock(Villain.class);
+		when(Villain.findRandom()).thenReturn(Optional.of(createDefaultVillian()));
+
+		assertThat(this.villainService.findRandomVillain())
+			.isNotNull()
+			.isPresent()
+			.get()
 			.extracting(
 				"id",
 				"name",
@@ -498,6 +513,23 @@ class VillainServiceTests {
 		this.villainService.deleteVillain(DEFAULT_ID);
 
 		PanacheMock.verify(Villain.class).deleteById(eq(DEFAULT_ID));
+		PanacheMock.verifyNoMoreInteractions(Villain.class);
+	}
+
+	@Test
+	public void deleteAllVillains() {
+		var v1 = createDefaultVillian();
+		var v2 = createUpdatedVillain();
+		v2.id = v1.id + 1;
+
+		PanacheMock.mock(Villain.class);
+		when(Villain.deleteById(anyLong())).thenReturn(true);
+		when(Villain.listAll()).thenReturn(List.of(v1, v2));
+
+		this.villainService.deleteAllVillains();
+
+		PanacheMock.verify(Villain.class).listAll();
+		PanacheMock.verify(Villain.class, times(2)).deleteById(anyLong());
 		PanacheMock.verifyNoMoreInteractions(Villain.class);
 	}
 

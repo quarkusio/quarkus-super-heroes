@@ -23,6 +23,7 @@ import io.quarkus.test.junit.QuarkusIntegrationTest;
 @QuarkusIntegrationTest
 @TestMethodOrder(OrderAnnotation.class)
 public class VillainResourceIT {
+	private static final int DEFAULT_ORDER = 0;
 	private static final String DEFAULT_NAME = "Super Chocolatine";
 	private static final String UPDATED_NAME = DEFAULT_NAME + " (updated)";
 	private static final String DEFAULT_OTHER_NAME = "Super Chocolatine chocolate in";
@@ -39,6 +40,7 @@ public class VillainResourceIT {
 	private static String villainId;
 
 	@Test
+	@Order(DEFAULT_ORDER)
 	public void helloEndpoint() {
 		given()
 			.when()
@@ -50,6 +52,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER)
 	public void shouldNotGetUnknownVillain() {
 		given()
 			.when().get("/api/villains/{id}", new Random().nextLong())
@@ -57,7 +60,8 @@ public class VillainResourceIT {
 	}
 
 	@Test
-	public void shouldGetRandomVillain() {
+	@Order(DEFAULT_ORDER)
+	public void shouldGetRandomVillainFound() {
 		given()
 			.when().get("/api/villains/random")
 			.then()
@@ -67,6 +71,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER)
 	public void shouldNotAddInvalidItem() {
 		Villain villain = new Villain();
 		villain.name = null;
@@ -86,6 +91,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER)
 	public void shouldNotFullyUpdateInvalidItem() {
 		var villain = new Villain();
 		villain.id = 1L;
@@ -106,6 +112,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER)
 	public void shouldNotPartiallyUpdateInvalidItem() {
 		var villain = new Villain();
 		villain.id = 1L;
@@ -126,6 +133,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER)
 	public void shouldNotAddNullItem() {
 		given()
 			.when()
@@ -137,6 +145,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER)
 	public void shouldNotFullyUpdateNullItem() {
 		given()
 				.when()
@@ -149,6 +158,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER)
 	public void shouldNotFullyUpdateNotFoundItem() {
 		Villain villain = new Villain();
 		villain.id = -1L;
@@ -169,6 +179,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER)
 	public void shouldNotPartiallyUpdateNullItem() {
 		given()
 			.when()
@@ -181,6 +192,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER)
 	public void shouldNotPartiallyUpdateNotFoundItem() {
 		Villain villain = new Villain();
 		villain.picture = DEFAULT_PICTURE;
@@ -319,7 +331,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(5)
-	public void shouldRemoveAnItem() {
+	public void shouldDeleteVillain() {
 		given()
 			.when().delete("/api/villains/{id}", villainId)
 			.then()
@@ -331,6 +343,29 @@ public class VillainResourceIT {
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
 				.body("size()", is(NB_VILLAINS));
+	}
+
+	@Test
+	@Order(6)
+	public void shouldDeleteAllVillains() {
+		given()
+			.when().delete("/api/villains/")
+			.then()
+				.statusCode(NO_CONTENT.getStatusCode())
+				.body(blankOrNullString());
+
+		get("/api/villains")
+			.then()
+				.statusCode(NO_CONTENT.getStatusCode())
+				.body(blankOrNullString());
+	}
+
+	@Test
+	@Order(7)
+	public void shouldGetRandomVillainNotFound() {
+		given()
+			.when().get("/api/villains/random")
+			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
 
 	@Test
