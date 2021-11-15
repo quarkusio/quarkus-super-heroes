@@ -12,6 +12,9 @@ import javax.validation.constraints.Size;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
+/**
+ * JPA entity class for a Villain. Re-used in the API layer.
+ */
 @Entity
 public class Villain extends PanacheEntity {
 	@NotNull

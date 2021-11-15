@@ -36,6 +36,9 @@ import org.jboss.logging.Logger;
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.service.VillainService;
 
+/**
+ * JAX-RS API endpoints with <code>/api/villains</code> as the base URI for all endpoints
+ */
 @Path("/api/villains")
 @Tag(name = "villains")
 @Produces(APPLICATION_JSON)

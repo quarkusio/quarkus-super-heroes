@@ -8,6 +8,9 @@ import org.eclipse.microprofile.health.Liveness;
 
 import io.quarkus.sample.superheroes.villain.rest.VillainResource;
 
+/**
+ * {@link HealthCheck} to ping the Villain service
+ */
 @Liveness
 public class PingVillainResourceHealthCheck implements HealthCheck {
 	@Inject

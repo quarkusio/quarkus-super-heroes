@@ -17,6 +17,9 @@ import io.quarkus.sample.superheroes.villain.config.VillainConfig;
 import io.quarkus.sample.superheroes.villain.mapping.VillainFullUpdateMapper;
 import io.quarkus.sample.superheroes.villain.mapping.VillainPartialUpdateMapper;
 
+/**
+ * Service class containing business methods for the application.
+ */
 @ApplicationScoped
 @Transactional(REQUIRED)
 public class VillainService {
@@ -56,7 +59,7 @@ public class VillainService {
 
 	public Optional<Villain> replaceVillain(@NotNull @Valid Villain villain) {
 		return Villain.findByIdOptional(villain.id)
-			.map(Villain.class::cast)
+			.map(Villain.class::cast) // Only here for type erasure within the IDE
 			.map(v -> {
 				this.villainFullUpdateMapper.mapFullUpdate(villain, v);
 				return v;
@@ -65,7 +68,7 @@ public class VillainService {
 
 	public Optional<Villain> partialUpdateVillain(@NotNull Villain villain) {
 		return Villain.findByIdOptional(villain.id)
-			.map(Villain.class::cast)
+			.map(Villain.class::cast) // Only here for type erasure within the IDE
 			.map(v -> {
 				this.villainPartialUpdateMapper.mapPartialUpdate(villain, v);
 				return v;
@@ -73,6 +76,12 @@ public class VillainService {
 			.map(this::validatePartialUpdate);
 	}
 
+	/**
+	 * Validates a {@link Villain} for a partial update according to annotated validation rules on the {@link Villain} object.
+	 * @param villain The {@link Villain}
+	 * @return The same {@link Villain} that was passed in, assuming it passes validation. The return is used as a convenience so the method can be called in a functional pipeline.
+	 * @throws ConstraintViolationException If validation fails
+	 */
 	private Villain validatePartialUpdate(Villain villain) {
 		var violations = this.validator.validate(villain);
 
