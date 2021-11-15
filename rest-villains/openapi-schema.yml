@@ -20,7 +20,7 @@ paths:
       summary: Returns all the villains from the database
       responses:
         "200":
-          description: OK
+          description: Gets all villains
           content:
             application/json:
               schema:
@@ -47,14 +47,22 @@ paths:
                 format: uri
                 type: string
         "400":
-          description: Invalid villain passed in
+          description: Invalid villain passed in (or no request body found)
+    delete:
+      tags:
+      - villains
+      summary: Delete all villains
+      responses:
+        "204":
+          description: Deletes all villains
   /api/villains/hello:
     get:
       tags:
       - hello
+      summary: Ping hello
       responses:
         "200":
-          description: OK
+          description: Ping hello
           content:
             text/plain:
               schema:
@@ -66,11 +74,13 @@ paths:
       summary: Returns a random villain
       responses:
         "200":
-          description: OK
+          description: Gets random villain
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Villain'
+        "404":
+          description: No villain found
   /api/villains/{id}:
     get:
       tags:
@@ -85,7 +95,7 @@ paths:
           type: integer
       responses:
         "200":
-          description: OK
+          description: Gets a villain for a given id
           content:
             application/json:
               schema:
@@ -106,7 +116,7 @@ paths:
         "204":
           description: Replaced the villain
         "400":
-          description: Invalid villain passed in
+          description: Invalid villain passed in (or no request body found)
         "404":
           description: No villain found
     delete:
@@ -147,7 +157,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Villain'
         "400":
-          description: Null villain passed in (no request body)
+          description: Null villain passed in (or no request body found)
         "404":
           description: No villain found
 components:
