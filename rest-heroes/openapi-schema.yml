@@ -1,0 +1,189 @@
+---
+openapi: 3.0.3
+info:
+  title: Hero API
+  description: This API allows CRUD operations on a hero
+  contact:
+    name: Quarkus
+    url: https://github.com/quarkusio
+  version: "1.0"
+servers:
+- url: http://localhost:8083
+tags:
+- name: hello
+- name: heroes
+paths:
+  /api/heroes:
+    get:
+      tags:
+      - heroes
+      summary: Returns all the heroes from the database
+      responses:
+        "200":
+          description: Gets all heroes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Hero'
+        "204":
+          description: No Heroes
+    post:
+      tags:
+      - heroes
+      summary: Creates a valid hero
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hero'
+      responses:
+        "201":
+          description: The URI of the created hero
+          content:
+            application/json:
+              schema:
+                format: uri
+                type: string
+        "400":
+          description: Invalid hero passed in (or no request body found)
+    delete:
+      tags:
+      - heroes
+      summary: Delete all heroes
+      responses:
+        "204":
+          description: Deletes all heroes
+  /api/heroes/hello:
+    get:
+      tags:
+      - hello
+      summary: Ping hello
+      responses:
+        "200":
+          description: Ping hello
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/heroes/random:
+    get:
+      tags:
+      - heroes
+      summary: Returns a random hero
+      responses:
+        "200":
+          description: Gets a random hero
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hero'
+        "404":
+          description: No hero found
+  /api/heroes/{id}:
+    get:
+      tags:
+      - heroes
+      summary: Returns a hero for a given identifier
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        "200":
+          description: Gets a hero for a given id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hero'
+        "404":
+          description: The hero is not found for a given identifier
+    put:
+      tags:
+      - heroes
+      summary: Completely updates/replaces an exiting hero by replacing it with the
+        passed-in hero
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hero'
+      responses:
+        "204":
+          description: Replaced the hero
+        "400":
+          description: Invalid hero passed in (or no request body found)
+        "404":
+          description: No hero found
+    delete:
+      tags:
+      - heroes
+      summary: Deletes an exiting hero
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        "204":
+          description: Deletes a hero
+    patch:
+      tags:
+      - heroes
+      summary: Partially updates an exiting hero
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hero'
+      responses:
+        "200":
+          description: Updated the hero
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hero'
+        "400":
+          description: Null hero passed in (or no request body found)
+        "404":
+          description: No hero found
+components:
+  schemas:
+    Hero:
+      required:
+      - name
+      - level
+      type: object
+      properties:
+        id:
+          format: int64
+          type: integer
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+          nullable: false
+        otherName:
+          type: string
+        level:
+          format: int32
+          minimum: 1
+          type: integer
+          nullable: false
+        picture:
+          type: string
+        powers:
+          type: string
