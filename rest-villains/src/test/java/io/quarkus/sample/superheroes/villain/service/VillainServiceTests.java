@@ -426,7 +426,6 @@ class VillainServiceTests {
 		PanacheMock.mock(Villain.class);
 		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.of(createDefaultVillian()));
 		var villain = createDefaultVillian();
-		villain.id = DEFAULT_ID;
 		villain.name = "a";
 
 		var cve = catchThrowableOfType(() -> this.villainService.partialUpdateVillain(villain), ConstraintViolationException.class);
@@ -529,7 +528,8 @@ class VillainServiceTests {
 		this.villainService.deleteAllVillains();
 
 		PanacheMock.verify(Villain.class).listAll();
-		PanacheMock.verify(Villain.class, times(2)).deleteById(anyLong());
+		PanacheMock.verify(Villain.class).deleteById(eq(v1.id));
+		PanacheMock.verify(Villain.class).deleteById(eq(v2.id));
 		PanacheMock.verifyNoMoreInteractions(Villain.class);
 	}
 

@@ -42,28 +42,17 @@ class VillainTests {
 		assertThat(Villain.count())
 			.isEqualTo(1L);
 
-		assertThat(villain)
-			.isNotNull()
-			.extracting(
-				"name",
-				"otherName",
-				"level",
-				"picture",
-				"powers"
-			)
-			.containsExactly(
-				DEFAULT_NAME,
-				DEFAULT_OTHER_NAME,
-				DEFAULT_LEVEL,
-				DEFAULT_PICTURE,
-				DEFAULT_POWERS
-			);
+		var v = Villain.findRandom();
 
-		assertThat(Villain.findRandom())
+		assertThat(v)
 			.isNotNull()
 			.isPresent()
 			.get()
 			.usingRecursiveComparison()
 			.isEqualTo(villain);
+
+		assertThat(v.get().id)
+			.isNotNull()
+			.isPositive();
 	}
 }

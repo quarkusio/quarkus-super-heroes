@@ -18,7 +18,7 @@ public class PingVillainResourceHealthCheck implements HealthCheck {
 
 	@Override
 	public HealthCheckResponse call() {
-		String response = this.villainResource.hello();
+		var response = this.villainResource.hello();
 
 		return HealthCheckResponse.named("Ping Villain REST Endpoint")
 			.withData("Response", response)

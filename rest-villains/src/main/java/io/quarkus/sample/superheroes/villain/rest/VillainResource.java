@@ -21,7 +21,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -66,7 +65,7 @@ public class VillainResource {
 	public Response getRandomVillain() {
 		return this.service.findRandomVillain()
 			.map(v -> {
-				this.logger.debugf("Found random villain %s", v);
+				this.logger.debugf("Found random villain: %s", v);
 				return Response.ok(v).build();
 			})
 			.orElseGet(() -> {
@@ -90,7 +89,7 @@ public class VillainResource {
 		List<Villain> villains = Optional.ofNullable(this.service.findAllVillains())
 			.orElseGet(List::of);
 
-		this.logger.debugf("Total number of villains %d", villains.size());
+		this.logger.debugf("Total number of villains: %d", villains.size());
 
 		return !villains.isEmpty() ?
 		       Response.ok(villains).build() :
@@ -112,7 +111,7 @@ public class VillainResource {
 	public Response getVillain(@Parameter(name = "id", required = true) @PathParam("id") Long id) {
 		return this.service.findVillainById(id)
 			.map(v -> {
-				this.logger.debugf("Found villain %s", v);
+				this.logger.debugf("Found villain: %s", v);
 				return Response.ok(v).build();
 			})
 			.orElseGet(() -> {
@@ -134,8 +133,8 @@ public class VillainResource {
 		description = "Invalid villain passed in (or no request body found)"
 	)
 	public Response createVillain(@Valid @NotNull Villain villain, @Context UriInfo uriInfo) {
-		Villain v = this.service.persistVillain(villain);
-		UriBuilder builder = uriInfo.getAbsolutePathBuilder().path(Long.toString(v.id));
+		var v = this.service.persistVillain(villain);
+		var builder = uriInfo.getAbsolutePathBuilder().path(Long.toString(v.id));
 		this.logger.debugf("New villain created with URI %s", builder.build().toString());
 		return Response.created(builder.build()).build();
 	}

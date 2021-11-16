@@ -106,7 +106,7 @@ public class VillainResourceTests {
 
 	@Test
 	public void shouldNotAddInvalidItem() {
-		Villain villain = new Villain();
+		var villain = new Villain();
 		villain.name = null;
 		villain.otherName = DEFAULT_OTHER_NAME;
 		villain.picture = DEFAULT_PICTURE;
@@ -154,7 +154,7 @@ public class VillainResourceTests {
 
 	@Test
 	public void shouldNotFullyUpdateInvalidItem() {
-		Villain villain = createFullyUpdatedVillain();
+		var villain = createFullyUpdatedVillain();
 		villain.name = null;
 		villain.otherName = UPDATED_OTHER_NAME;
 		villain.picture = UPDATED_PICTURE;
@@ -186,7 +186,7 @@ public class VillainResourceTests {
 		when(this.villainService.partialUpdateVillain(argThat(villainMatcher)))
 			.thenThrow(new ConstraintViolationException(Set.of()));
 
-		Villain villain = createPartiallyUpdatedVillain();
+		var villain = createPartiallyUpdatedVillain();
 		villain.name = null;
 		villain.otherName = UPDATED_OTHER_NAME;
 		villain.level = 0;
@@ -258,7 +258,7 @@ public class VillainResourceTests {
 	@Test
 	public void shouldGetNullItems() {
 		when(this.villainService.findAllVillains())
-			.thenReturn(null);
+			.thenReturn(List.of());
 
 		get("/api/villains")
 			.then()
@@ -282,7 +282,7 @@ public class VillainResourceTests {
 		when(this.villainService.persistVillain(argThat(villainMatcher)))
 			.thenReturn(createDefaultVillian());
 
-		Villain villain = new Villain();
+		var villain = new Villain();
 		villain.name = DEFAULT_NAME;
 		villain.otherName = DEFAULT_OTHER_NAME;
 		villain.picture = DEFAULT_PICTURE;
@@ -473,7 +473,7 @@ public class VillainResourceTests {
 	}
 
 	private static Villain createDefaultVillian() {
-		Villain villain = new Villain();
+		var villain = new Villain();
 		villain.id = DEFAULT_ID;
 		villain.name = DEFAULT_NAME;
 		villain.otherName = DEFAULT_OTHER_NAME;
@@ -485,7 +485,7 @@ public class VillainResourceTests {
 	}
 
 	public static Villain createFullyUpdatedVillain() {
-		Villain villain = createDefaultVillian();
+		var villain = createDefaultVillian();
 		villain.name = UPDATED_NAME;
 		villain.otherName = UPDATED_OTHER_NAME;
 		villain.picture = UPDATED_PICTURE;
@@ -496,7 +496,7 @@ public class VillainResourceTests {
 	}
 
 	public static Villain createPartiallyUpdatedVillain() {
-		Villain villain = createDefaultVillian();
+		var villain = createDefaultVillian();
 		villain.picture = UPDATED_PICTURE;
 		villain.powers = UPDATED_POWERS;
 

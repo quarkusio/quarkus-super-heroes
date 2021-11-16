@@ -6,8 +6,8 @@ import java.util.Random;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -24,7 +24,7 @@ public class Villain extends PanacheEntity {
 	public String otherName;
 
 	@NotNull
-	@Min(1)
+	@Positive
 	public Integer level;
 
 	public String picture;
@@ -33,11 +33,10 @@ public class Villain extends PanacheEntity {
 	public String powers;
 
 	public static Optional<Villain> findRandom() {
-		long countVillains = count();
+		var countVillains = count();
 
 		if (countVillains > 0) {
-			Random random = new Random();
-			int randomVillain = random.nextInt((int) countVillains);
+			var randomVillain = new Random().nextInt((int) countVillains);
 			return findAll().page(randomVillain, 1).firstResultOptional();
 		}
 
@@ -50,15 +49,11 @@ public class Villain extends PanacheEntity {
 		return (
 			"Villain{" +
 				"id=" + this.id +
-				", name='" + this.name +
-				'\'' +
-				", otherName='" + this.otherName +
-				'\'' +
+				", name='" + this.name + '\'' +
+				", otherName='" + this.otherName + '\'' +
 				", level=" + this.level +
-				", picture='" + this.picture +
-				'\'' +
-				", powers='" + this.powers +
-				'\'' +
+				", picture='" + this.picture + '\'' +
+				", powers='" + this.powers + '\'' +
 				'}'
 		);
 	}

@@ -1,4 +1,4 @@
-package io.quarkus.sample.superheroes.villain.rest;
+package io.quarkus.sample.superheroes.hero.rest;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
@@ -17,12 +17,12 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import io.quarkus.sample.superheroes.villain.Villain;
+import io.quarkus.sample.superheroes.hero.Hero;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
 @QuarkusIntegrationTest
 @TestMethodOrder(OrderAnnotation.class)
-public class VillainResourceIT {
+public class HeroResourceIT {
 	private static final int DEFAULT_ORDER = 0;
 	private static final String DEFAULT_NAME = "Super Chocolatine";
 	private static final String UPDATED_NAME = DEFAULT_NAME + " (updated)";
@@ -34,10 +34,9 @@ public class VillainResourceIT {
 	private static final String UPDATED_POWERS = DEFAULT_POWERS + " (updated)";
 	private static final int DEFAULT_LEVEL = 42;
 	private static final int UPDATED_LEVEL = DEFAULT_LEVEL + 1;
-	private static final double LEVEL_MULTIPLIER = 0.5;
 
-	private static final int NB_VILLAINS = 581;
-	private static String villainId;
+	private static final int NB_HEROES = 951;
+	private static String heroId;
 
 	@Test
 	@Order(DEFAULT_ORDER)
@@ -45,25 +44,25 @@ public class VillainResourceIT {
 		given()
 			.when()
 				.accept(TEXT_PLAIN)
-				.get("/api/villains/hello")
+				.get("/api/heroes/hello")
 			.then()
 				.statusCode(200)
-				.body(is("Hello Villain Resource"));
+				.body(is("Hello Hero Resource"));
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotGetUnknownVillain() {
+	public void shouldNotGetUnknownHero() {
 		given()
-			.when().get("/api/villains/{id}", new Random().nextLong())
+			.when().get("/api/heroes/{id}", new Random().nextLong())
 			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldGetRandomVillainFound() {
+	public void shouldGetRandomHeroFound() {
 		given()
-			.when().get("/api/villains/random")
+			.when().get("/api/heroes/random")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
@@ -73,19 +72,19 @@ public class VillainResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void shouldNotAddInvalidItem() {
-		var villain = new Villain();
-		villain.name = null;
-		villain.otherName = DEFAULT_OTHER_NAME;
-		villain.picture = DEFAULT_PICTURE;
-		villain.powers = DEFAULT_POWERS;
-		villain.level = 0;
+		var hero = new Hero();
+		hero.setName(null);
+		hero.setOtherName(DEFAULT_OTHER_NAME);
+		hero.setPicture(DEFAULT_PICTURE);
+		hero.setPowers(DEFAULT_POWERS);
+		hero.setLevel(0);
 
 		given()
 			.when()
-				.body(villain)
+				.body(hero)
 				.contentType(JSON)
 				.accept(JSON)
-				.post("/api/villains")
+				.post("/api/heroes")
 			.then()
 				.statusCode(BAD_REQUEST.getStatusCode());
 	}
@@ -93,20 +92,20 @@ public class VillainResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void shouldNotFullyUpdateInvalidItem() {
-		var villain = new Villain();
-		villain.id = 1L;
-		villain.name = null;
-		villain.otherName = UPDATED_OTHER_NAME;
-		villain.picture = UPDATED_PICTURE;
-		villain.powers = UPDATED_PICTURE;
-		villain.level = 0;
+		var hero = new Hero();
+		hero.setId(1L);
+		hero.setName(null);
+		hero.setOtherName(UPDATED_OTHER_NAME);
+		hero.setPicture(UPDATED_PICTURE);
+		hero.setPowers(UPDATED_PICTURE);
+		hero.setLevel(0);
 
 		given()
 			.when()
-				.body(villain)
+				.body(hero)
 				.contentType(JSON)
 				.accept(JSON)
-				.put("/api/villains/{id}", villain.id)
+				.put("/api/heroes/{id}", hero.getId())
 			.then()
 				.statusCode(BAD_REQUEST.getStatusCode());
 	}
@@ -114,20 +113,20 @@ public class VillainResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void shouldNotPartiallyUpdateInvalidItem() {
-		var villain = new Villain();
-		villain.id = 1L;
-		villain.name = null;
-		villain.otherName = UPDATED_OTHER_NAME;
-		villain.picture = UPDATED_PICTURE;
-		villain.powers = UPDATED_PICTURE;
-		villain.level = 0;
+		var hero = new Hero();
+		hero.setId(1L);
+		hero.setName(null);
+		hero.setOtherName(UPDATED_OTHER_NAME);
+		hero.setPicture(UPDATED_PICTURE);
+		hero.setPowers(UPDATED_PICTURE);
+		hero.setLevel(0);
 
 		given()
 			.when()
-				.body(villain)
+				.body(hero)
 				.contentType(JSON)
 				.accept(JSON)
-				.patch("/api/villains/{id}", villain.id)
+				.patch("/api/heroes/{id}", hero.getId())
 			.then()
 				.statusCode(BAD_REQUEST.getStatusCode());
 	}
@@ -139,7 +138,7 @@ public class VillainResourceIT {
 			.when()
 				.contentType(JSON)
 				.accept(JSON)
-				.post("/api/villains")
+				.post("/api/heroes")
 			.then()
 				.statusCode(BAD_REQUEST.getStatusCode());
 	}
@@ -148,33 +147,33 @@ public class VillainResourceIT {
 	@Order(DEFAULT_ORDER)
 	public void shouldNotFullyUpdateNullItem() {
 		given()
-				.when()
+			.when()
 				.contentType(JSON)
 				.accept(JSON)
 				.body("")
-			.put("/api/villains/{id}", 1L)
-				.then()
+				.put("/api/heroes/{id}", 1L)
+			.then()
 				.statusCode(BAD_REQUEST.getStatusCode());
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void shouldNotFullyUpdateNotFoundItem() {
-		Villain villain = new Villain();
-		villain.id = -1L;
-		villain.name = UPDATED_NAME;
-		villain.otherName = UPDATED_OTHER_NAME;
-		villain.picture = UPDATED_PICTURE;
-		villain.powers = UPDATED_POWERS;
-		villain.level = UPDATED_LEVEL;
+		Hero hero = new Hero();
+		hero.setId(-1L);
+		hero.setName(UPDATED_NAME);
+		hero.setOtherName(UPDATED_OTHER_NAME);
+		hero.setPicture(UPDATED_PICTURE);
+		hero.setPowers(UPDATED_POWERS);
+		hero.setLevel(UPDATED_LEVEL);
 
 		given()
 			.when()
 				.contentType(JSON)
 				.accept(JSON)
-				.body(villain)
-			.put("/api/villains/{id}", -1L)
-				.then()
+				.body(hero)
+				.put("/api/heroes/{id}", -1L)
+			.then()
 				.statusCode(NOT_FOUND.getStatusCode());
 	}
 
@@ -186,7 +185,7 @@ public class VillainResourceIT {
 				.contentType(JSON)
 				.accept(JSON)
 				.body("")
-				.patch("/api/villains/{id}", 1L)
+				.patch("/api/heroes/{id}", 1L)
 			.then()
 				.statusCode(BAD_REQUEST.getStatusCode());
 	}
@@ -194,16 +193,16 @@ public class VillainResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void shouldNotPartiallyUpdateNotFoundItem() {
-		Villain villain = new Villain();
-		villain.picture = DEFAULT_PICTURE;
-		villain.powers = DEFAULT_POWERS;
+		Hero hero = new Hero();
+		hero.setPicture(DEFAULT_PICTURE);
+		hero.setPowers(DEFAULT_POWERS);
 
 		given()
 			.when()
 				.contentType(JSON)
 				.accept(JSON)
-				.body(villain)
-				.patch("/api/villains/{id}", -1L)
+				.body(hero)
+				.patch("/api/heroes/{id}", -1L)
 			.then()
 				.statusCode(NOT_FOUND.getStatusCode());
 	}
@@ -211,29 +210,29 @@ public class VillainResourceIT {
 	@Test
 	@Order(1)
 	public void shouldGetInitialItems() {
-		get("/api/villains")
+		get("/api/heroes")
 			.then()
-			.statusCode(OK.getStatusCode())
-			.contentType(JSON)
-			.body("size()", is(NB_VILLAINS));
+				.statusCode(OK.getStatusCode())
+				.contentType(JSON)
+				.body("size()", is(NB_HEROES));
 	}
 
 	@Test
 	@Order(2)
 	public void shouldAddAnItem() {
-		Villain villain = new Villain();
-		villain.name = DEFAULT_NAME;
-		villain.otherName = DEFAULT_OTHER_NAME;
-		villain.picture = DEFAULT_PICTURE;
-		villain.powers = DEFAULT_POWERS;
-		villain.level = DEFAULT_LEVEL;
+		Hero hero = new Hero();
+		hero.setName(DEFAULT_NAME);
+		hero.setOtherName(DEFAULT_OTHER_NAME);
+		hero.setPicture(DEFAULT_PICTURE);
+		hero.setPowers(DEFAULT_POWERS);
+		hero.setLevel(DEFAULT_LEVEL);
 
 		String location = given()
 			.when()
-				.body(villain)
+				.body(hero)
 				.contentType(JSON)
 				.accept(JSON)
-				.post("/api/villains")
+				.post("/api/heroes")
 			.then()
 				.statusCode(CREATED.getStatusCode())
 				.extract()
@@ -241,80 +240,80 @@ public class VillainResourceIT {
 
 		assertThat(location)
 			.isNotBlank()
-			.contains("/api/villains");
+			.contains("/api/heroes");
 
 		// Stores the id
 		String[] segments = location.split("/");
-		villainId = segments[segments.length - 1];
+		heroId = segments[segments.length - 1];
 
-		assertThat(villainId)
+		assertThat(heroId)
 			.isNotNull();
 
 		given()
-			.when().get("/api/villains/{id}", villainId)
+			.when().get("/api/heroes/{id}", heroId)
 			.then()
 				.contentType(JSON)
 				.statusCode(OK.getStatusCode())
 				.body("name", is(DEFAULT_NAME))
 				.body("otherName", is(DEFAULT_OTHER_NAME))
-				.body("level", is((int) (DEFAULT_LEVEL * LEVEL_MULTIPLIER)))
+				.body("level", is(DEFAULT_LEVEL))
 				.body("picture", is(DEFAULT_PICTURE))
 				.body("powers", is(DEFAULT_POWERS));
 
-		get("/api/villains")
+		get("/api/heroes")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-			.body("size()", is(NB_VILLAINS + 1));
+				.body("size()", is(NB_HEROES + 1));
 	}
 
 	@Test
 	@Order(3)
 	public void shouldFullyUpdateAnItem() {
-		Villain villain = new Villain();
-		villain.id = Long.valueOf(villainId);
-		villain.name = UPDATED_NAME;
-		villain.otherName = UPDATED_OTHER_NAME;
-		villain.picture = UPDATED_PICTURE;
-		villain.powers = UPDATED_POWERS;
-		villain.level = UPDATED_LEVEL;
+		Hero hero = new Hero();
+		hero.setId(Long.valueOf(heroId));
+		hero.setName(UPDATED_NAME);
+		hero.setOtherName(UPDATED_OTHER_NAME);
+		hero.setPicture(UPDATED_PICTURE);
+		hero.setPowers(UPDATED_POWERS);
+		hero.setLevel(UPDATED_LEVEL);
 
 		given()
 			.when()
-				.body(villain)
+				.body(hero)
 				.contentType(JSON)
 				.accept(JSON)
-				.put("/api/villains/{id}", villain.id)
+				.put("/api/heroes/{id}", hero.getId())
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
 
-		get("/api/villains")
+		get("/api/heroes")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body("size()", is(NB_VILLAINS + 1));
+				.body("size()", is(NB_HEROES + 1));
 	}
 
 	@Test
 	@Order(4)
 	public void shouldPartiallyUpdateAnItem() {
-		Villain villain = new Villain();
-		villain.picture = DEFAULT_PICTURE;
-		villain.powers = DEFAULT_POWERS;
+		Hero hero = new Hero();
+		hero.setPicture(DEFAULT_PICTURE);
+		hero.setPowers(DEFAULT_POWERS);
 
 		given()
 			.when()
-				.body(villain)
+				.body(hero)
 				.contentType(JSON)
 				.accept(JSON)
-				.patch("/api/villains/{id}", villainId)
+				.patch("/api/heroes/{id}", heroId)
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
 				.body(
 					"$", notNullValue(),
-					"id", is(Integer.parseInt(villainId)),
+					"id", is(Integer.parseInt(heroId)),
 					"name", is(UPDATED_NAME),
 					"otherName", is(UPDATED_OTHER_NAME),
 					"level", is(UPDATED_LEVEL),
@@ -322,39 +321,39 @@ public class VillainResourceIT {
 					"powers", is(DEFAULT_POWERS)
 				);
 
-		get("/api/villains")
+		get("/api/heroes")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body("size()", is(NB_VILLAINS + 1));
+				.body("size()", is(NB_HEROES + 1));
 	}
 
 	@Test
 	@Order(5)
-	public void shouldDeleteVillain() {
+	public void shouldDeleteHero() {
 		given()
-			.when().delete("/api/villains/{id}", villainId)
+			.when().delete("/api/heroes/{id}", heroId)
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
 
-		get("/api/villains")
+		get("/api/heroes")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body("size()", is(NB_VILLAINS));
+				.body("size()", is(NB_HEROES));
 	}
 
 	@Test
 	@Order(6)
-	public void shouldDeleteAllVillains() {
+	public void shouldDeleteAllHeros() {
 		given()
-			.when().delete("/api/villains/")
+			.when().delete("/api/heroes/")
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
 
-		get("/api/villains")
+		get("/api/heroes")
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
@@ -362,9 +361,9 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(7)
-	public void shouldGetRandomVillainNotFound() {
+	public void shouldGetRandomHeroNotFound() {
 		given()
-			.when().get("/api/villains/random")
+			.when().get("/api/heroes/random")
 			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
 
