@@ -1,0 +1,25 @@
+package io.quarkus.sample.superheroes.fight.client;
+
+import java.util.Optional;
+import java.util.function.Predicate;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
+
+class Is404Exception implements Predicate<Throwable> {
+	static final Is404Exception IS_404 = new Is404Exception();
+
+	private Is404Exception() {
+
+	}
+
+	@Override
+	public boolean test(Throwable throwable) {
+		return Optional.ofNullable(throwable)
+			.filter(t -> t instanceof WebApplicationException)
+			.map(WebApplicationException.class::cast)
+			.map(WebApplicationException::getResponse)
+			.filter(response -> response.getStatus() == Status.NOT_FOUND.getStatusCode())
+			.isPresent();
+	}
+}
