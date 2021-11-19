@@ -81,19 +81,13 @@ public class VillainResource {
 		description = "Gets all villains",
 		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class, type = SchemaType.ARRAY))
 	)
-	@APIResponse(
-		responseCode = "204",
-		description = "No villains"
-	)
-	public Response getAllVillains() {
+	public List<Villain> getAllVillains() {
 		List<Villain> villains = Optional.ofNullable(this.service.findAllVillains())
 			.orElseGet(List::of);
 
 		this.logger.debugf("Total number of villains: %d", villains.size());
 
-		return !villains.isEmpty() ?
-		       Response.ok(villains).build() :
-		       Response.noContent().build();
+		return villains;
 	}
 
 	@GET

@@ -4,8 +4,10 @@ import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.Response.Status.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
@@ -248,8 +250,8 @@ public class VillainResourceTests {
 
 		get("/api/villains")
 			.then()
-				.statusCode(NO_CONTENT.getStatusCode())
-				.body(blankOrNullString());
+				.statusCode(OK.getStatusCode())
+				.body("$.size()", is(0));
 
 		verify(this.villainService).findAllVillains();
 		verifyNoMoreInteractions(this.villainService);
@@ -262,8 +264,8 @@ public class VillainResourceTests {
 
 		get("/api/villains")
 			.then()
-				.statusCode(NO_CONTENT.getStatusCode())
-				.body(blankOrNullString());
+				.statusCode(OK.getStatusCode())
+				.body("$.size()", is(0));
 
 		verify(this.villainService).findAllVillains();
 		verifyNoMoreInteractions(this.villainService);

@@ -8,8 +8,7 @@ The following table lists the available REST endpoints. The [OpenAPI document](o
 
 | Path | HTTP method | Response Status | Response Object | Description |
 | ---- | ----------- | --------------- | --------------- | ----------- |
-| `/api/villains` | `GET` | `200` | [`List<Villain>`](src/main/java/io/quarkus/sample/superheroes/villain/Villain.java) | All Villains, assuming there is at least 1 |
-| `/api/villains` | `GET` | `204` | | No Villains |
+| `/api/villains` | `GET` | `200` | [`List<Villain>`](src/main/java/io/quarkus/sample/superheroes/villain/Villain.java) | All Villains. Empty array (`[]`) if none. |
 | `/api/villains` | `POST` | `201` | | New Villain created. `Location` header contains URL to retrieve Villain |
 | `/api/villains` | `POST` | `400` | | Invalid Villain passed in request body (or no request body found) |
 | `/api/villains` | `DELETE` | `204` | | Deletes all Villains |

@@ -3,6 +3,7 @@ package io.quarkus.sample.superheroes.hero.rest;
 import static javax.ws.rs.core.MediaType.*;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -83,19 +84,9 @@ public class HeroResource {
 		description = "Gets all heroes",
 		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Hero.class, type = SchemaType.ARRAY))
 	)
-	@APIResponse(
-		responseCode = "204",
-		description = "No Heroes"
-	)
-	public Uni<Response> getAllHeroes() {
+	public Uni<List<Hero>> getAllHeroes() {
 		return this.heroService.findAllHeroes()
-			.map(heroes -> {
-				this.logger.debugf("Total number of heroes: %d", heroes.size());
-
-				return !heroes.isEmpty() ?
-				       Response.ok(heroes).build() :
-				       Response.noContent().build();
-			});
+			.invoke(heroes -> this.logger.debugf("Total number of heroes: %d", heroes.size()));
 	}
 
 	@GET

@@ -5,8 +5,7 @@ import static io.restassured.http.ContentType.JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.*;
 
 import java.util.Random;
 
@@ -355,8 +354,8 @@ public class HeroResourceIT {
 
 		get("/api/heroes")
 			.then()
-				.statusCode(NO_CONTENT.getStatusCode())
-				.body(blankOrNullString());
+				.statusCode(OK.getStatusCode())
+				.body("$.size()", is(0));
 	}
 
 	@Test

@@ -8,8 +8,7 @@ The following table lists the available REST endpoints. The [OpenAPI document](o
 
 | Path | HTTP method | Response Status | Response Object | Description |
 | ---- | ----------- | --------------- | --------------- | ----------- |
-| `/api/heroes` | `GET` | `200` | [`List<Hero>`](src/main/java/io/quarkus/sample/superheroes/hero/Hero.java) | All Heroes, assuming there is at least 1 |
-| `/api/heroes` | `GET` | `204` | | No Heroes |
+| `/api/heroes` | `GET` | `200` | [`List<Hero>`](src/main/java/io/quarkus/sample/superheroes/hero/Hero.java) | All Heroes. Empty array (`[]`) if none. |
 | `/api/heroes` | `POST` | `201` | | New Hero created. `Location` header contains URL to retrieve Hero |
 | `/api/heroes` | `POST` | `400` | | Invalid Hero passed in request body (or no request body found) |
 | `/api/heroes` | `DELETE` | `204` | | Deletes all Heroes |
