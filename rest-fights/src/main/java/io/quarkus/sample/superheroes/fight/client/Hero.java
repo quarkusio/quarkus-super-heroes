@@ -59,4 +59,14 @@ public class Hero {
 	public void setPowers(String powers) {
 		this.powers = powers;
 	}
+
+	@Override
+	public String toString() {
+		return "Hero{" +
+			"name='" + this.name + '\'' +
+			", level=" + this.level +
+			", picture='" + this.picture + '\'' +
+			", powers='" + this.powers + '\'' +
+			'}';
+	}
 }

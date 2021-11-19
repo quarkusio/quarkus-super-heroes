@@ -19,6 +19,9 @@ public interface FightConfig {
 		String teamName();
 		HeroFallback fallback();
 
+		@WithDefault("20")
+		int adjustBound();
+
 		interface HeroFallback {
 			String name();
 			int level();
@@ -32,6 +35,9 @@ public interface FightConfig {
 		String teamName();
 		String clientBaseUrl();
 		VillainFallback fallback();
+
+		@WithDefault("20")
+		int adjustBound();
 
 		interface VillainFallback {
 			String name();

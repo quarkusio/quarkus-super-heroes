@@ -1,4 +1,4 @@
-package io.quarkus.sample.superheroes.fight.client;
+package io.quarkus.sample.superheroes.fight;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;

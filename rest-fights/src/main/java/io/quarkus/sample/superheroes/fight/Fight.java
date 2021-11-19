@@ -60,8 +60,9 @@ public class Fight extends PanacheEntity {
 
 	@Override
 	public String toString() {
-		return "Fight{" + "fightDate=" + this.fightDate +
-			", id=" + this.id + '}' +
+		return "Fight{" +
+			"fightDate=" + this.fightDate +
+			", id=" + this.id +
 			", winnerName='" + this.winnerName + '\'' +
 			", winnerLevel=" + this.winnerLevel +
 			", winnerPicture='" + this.winnerPicture + '\'' +
@@ -69,6 +70,7 @@ public class Fight extends PanacheEntity {
 			", loserLevel=" + this.loserLevel +
 			", loserPicture='" + this.loserPicture + '\'' +
 			", winnerTeam='" + this.winnerTeam + '\'' +
-			", loserTeam='" + this.loserTeam + '\'';
+			", loserTeam='" + this.loserTeam + '\'' +
+			'}';
 	}
 }

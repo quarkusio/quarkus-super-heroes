@@ -4,24 +4,16 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 
 import java.util.Map;
 
-import io.quarkus.sample.superheroes.fight.client.InjectWireMock;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager.TestInjector.AnnotatedAndMatchesType;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 
 public class HeroesVillainsWiremockServer implements QuarkusTestResourceLifecycleManager {
-	private WireMockServer wireMockServer;
+	private final WireMockServer wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
 
 	@Override
 	public Map<String, String> start() {
-		this.wireMockServer = new WireMockServer(
-			wireMockConfig()
-				.dynamicPort()
-				.notifier(new ConsoleNotifier(true))
-		);
-
 		this.wireMockServer.start();
 
 		return Map.of(
@@ -32,9 +24,7 @@ public class HeroesVillainsWiremockServer implements QuarkusTestResourceLifecycl
 
 	@Override
 	public void stop() {
-		if (this.wireMockServer != null) {
-			this.wireMockServer.stop();
-		}
+		this.wireMockServer.stop();
 	}
 
 	@Override

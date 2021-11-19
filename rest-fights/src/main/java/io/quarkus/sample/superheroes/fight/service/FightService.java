@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Random;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.reactive.messaging.Channel;
@@ -70,58 +72,80 @@ public class FightService {
 	}
 
 	Uni<Hero> fallbackRandomHero() {
-		this.logger.warn("Falling back on Hero");
-
 		return Uni.createFrom().item(
 			new Hero(
 				this.fightConfig.hero().fallback().name(),
 				this.fightConfig.hero().fallback().level(),
 				this.fightConfig.hero().fallback().picture(),
 				this.fightConfig.hero().fallback().powers()
-			)
-		);
+			))
+			.invoke(h -> this.logger.warn("Falling back on Hero"));
 	}
 
 	Uni<Villain> fallbackRandomVillain() {
-		this.logger.warn("Falling back on Villain");
-
 		return Uni.createFrom().item(
 			new Villain(
 				this.fightConfig.villain().fallback().name(),
 				this.fightConfig.villain().fallback().level(),
 				this.fightConfig.villain().fallback().picture(),
 				this.fightConfig.villain().fallback().powers()
-			)
-		);
+			))
+			.invoke(v -> this.logger.warn("Falling back on Villain"));
+	}
+
+	public Uni<Fight> performFight(@NotNull @Valid Fighters fighters) {
+		return determineWinner(fighters)
+			.chain(this::persistFight);
 	}
 
 	@ReactiveTransactional
-	public Uni<Fight> persistFight(Fighters fighters) {
-		// Amazingly fancy logic to determine the winner...
-		Fight fight;
-
-		int heroAdjust = this.random.nextInt(20);
-		int villainAdjust = this.random.nextInt(20);
-
-		if ((fighters.getHero().getLevel() + heroAdjust) > (fighters.getVillain().getLevel() + villainAdjust)) {
-			fight = heroWon(fighters);
-		}
-		else if (fighters.getHero().getLevel() < fighters.getVillain().getLevel()) {
-			fight = villainWon(fighters);
-		}
-		else {
-			fight = this.random.nextBoolean() ? heroWon(fighters) : villainWon(fighters);
-		}
-
-		fight.fightDate = Instant.now();
-
+	Uni<Fight> persistFight(Fight fight) {
 		return Fight.persist(fight)
 			.replaceWith(fight)
 			.chain(this.emitter::send)
 			.replaceWith(fight);
 	}
 
-	private Fight heroWon(Fighters fighters) {
+	Uni<Fight> determineWinner(Fighters fighters) {
+		// Amazingly fancy logic to determine the winner...
+		return Uni.createFrom().item(() -> {
+				Fight fight;
+
+				if (shouldHeroWin(fighters)) {
+					fight = heroWonFight(fighters);
+				}
+				else if (shouldVillainWin(fighters)) {
+					fight = villainWonFight(fighters);
+				}
+				else {
+					fight = getRandomWinner(fighters);
+				}
+
+				fight.fightDate = Instant.now();
+
+				return fight;
+			}
+		);
+	}
+
+	boolean shouldHeroWin(Fighters fighters) {
+		int heroAdjust = this.random.nextInt(this.fightConfig.hero().adjustBound());
+		int villainAdjust = this.random.nextInt(this.fightConfig.hero().adjustBound());
+
+		return (fighters.getHero().getLevel() + heroAdjust) > (fighters.getVillain().getLevel() + villainAdjust);
+	}
+
+	boolean shouldVillainWin(Fighters fighters) {
+		return fighters.getHero().getLevel() < fighters.getVillain().getLevel();
+	}
+
+	Fight getRandomWinner(Fighters fighters) {
+		return this.random.nextBoolean() ?
+		       heroWonFight(fighters) :
+		       villainWonFight(fighters);
+	}
+
+	Fight heroWonFight(Fighters fighters) {
 		this.logger.info("Yes, Hero won :o)");
 
 		Fight fight = new Fight();
@@ -137,7 +161,7 @@ public class FightService {
 		return fight;
 	}
 
-	private Fight villainWon(Fighters fighters) {
+	Fight villainWonFight(Fighters fighters) {
 		this.logger.info("Gee, Villain won :o(");
 
 		Fight fight = new Fight();

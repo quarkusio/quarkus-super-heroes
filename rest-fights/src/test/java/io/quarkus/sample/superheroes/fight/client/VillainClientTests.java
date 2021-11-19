@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServer;
+import io.quarkus.sample.superheroes.fight.InjectWireMock;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -23,7 +24,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
 @QuarkusTest
-@QuarkusTestResource(value = HeroesVillainsWiremockServer.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(HeroesVillainsWiremockServer.class)
 class VillainClientTests {
 	private static final String VILLAIN_API = "/api/villains/random";
 	private static final String DEFAULT_VILLAIN_NAME = "Super Chocolatine";

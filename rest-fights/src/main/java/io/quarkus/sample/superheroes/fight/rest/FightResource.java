@@ -127,8 +127,8 @@ public class FightResource {
 		responseCode = "400",
 		description = "Invalid fighters passed in (or no request body found)"
 	)
-	public Uni<Fight> doFight(@NotNull @Valid Fighters fighters) {
-		return this.service.persistFight(fighters);
+	public Uni<Fight> perform(@NotNull @Valid Fighters fighters) {
+		return this.service.performFight(fighters);
 	}
 
 	@GET
