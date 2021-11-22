@@ -9,7 +9,7 @@ import io.quarkus.test.common.QuarkusTestResourceLifecycleManager.TestInjector.A
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 
-public class HeroesVillainsWiremockServer implements QuarkusTestResourceLifecycleManager {
+public class HeroesVillainsWiremockServerResource implements QuarkusTestResourceLifecycleManager {
 	private final WireMockServer wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
 
 	@Override

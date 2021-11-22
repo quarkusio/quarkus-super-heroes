@@ -1,5 +1,6 @@
 package io.quarkus.sample.superheroes.fight;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -10,9 +11,11 @@ import io.quarkus.sample.superheroes.fight.client.Villain;
 @Schema(description = "A fight between one hero and one villain")
 public class Fighters {
 	@NotNull
+	@Valid
 	private Hero hero;
 
 	@NotNull
+	@Valid
 	private Villain villain;
 
 	public Fighters(Hero hero, Villain villain) {

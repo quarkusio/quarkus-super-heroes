@@ -50,8 +50,11 @@ public class FightService {
 	}
 
 	public Uni<Fighters> findRandomFighters() {
-		Uni<Hero> hero = findRandomHero();
-		Uni<Villain> villain = findRandomVillain();
+		Uni<Hero> hero = findRandomHero()
+			.onItem().ifNull().continueWith(this::createFallbackHero);
+
+		Uni<Villain> villain = findRandomVillain()
+			.onItem().ifNull().continueWith(this::createFallbackVillain);
 
 		return Uni.combine()
 			.all()
@@ -72,25 +75,31 @@ public class FightService {
 	}
 
 	Uni<Hero> fallbackRandomHero() {
-		return Uni.createFrom().item(
-			new Hero(
-				this.fightConfig.hero().fallback().name(),
-				this.fightConfig.hero().fallback().level(),
-				this.fightConfig.hero().fallback().picture(),
-				this.fightConfig.hero().fallback().powers()
-			))
+		return Uni.createFrom().item(this::createFallbackHero)
 			.invoke(h -> this.logger.warn("Falling back on Hero"));
 	}
 
+	private Hero createFallbackHero() {
+		return new Hero(
+			this.fightConfig.hero().fallback().name(),
+			this.fightConfig.hero().fallback().level(),
+			this.fightConfig.hero().fallback().picture(),
+			this.fightConfig.hero().fallback().powers()
+		);
+	}
+
 	Uni<Villain> fallbackRandomVillain() {
-		return Uni.createFrom().item(
-			new Villain(
-				this.fightConfig.villain().fallback().name(),
-				this.fightConfig.villain().fallback().level(),
-				this.fightConfig.villain().fallback().picture(),
-				this.fightConfig.villain().fallback().powers()
-			))
+		return Uni.createFrom().item(this::createFallbackVillain)
 			.invoke(v -> this.logger.warn("Falling back on Villain"));
+	}
+
+	private Villain createFallbackVillain() {
+		return new Villain(
+			this.fightConfig.villain().fallback().name(),
+			this.fightConfig.villain().fallback().level(),
+			this.fightConfig.villain().fallback().picture(),
+			this.fightConfig.villain().fallback().powers()
+		);
 	}
 
 	public Uni<Fight> performFight(@NotNull @Valid Fighters fighters) {
@@ -130,7 +139,7 @@ public class FightService {
 
 	boolean shouldHeroWin(Fighters fighters) {
 		int heroAdjust = this.random.nextInt(this.fightConfig.hero().adjustBound());
-		int villainAdjust = this.random.nextInt(this.fightConfig.hero().adjustBound());
+		int villainAdjust = this.random.nextInt(this.fightConfig.villain().adjustBound());
 
 		return (fighters.getHero().getLevel() + heroAdjust) > (fighters.getVillain().getLevel() + villainAdjust);
 	}

@@ -54,16 +54,14 @@ public class VillainResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void shouldNotGetUnknownVillain() {
-		given()
-			.when().get("/api/villains/{id}", new Random().nextLong())
+		get("/api/villains/{id}", new Random().nextLong())
 			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void shouldGetRandomVillainFound() {
-		given()
-			.when().get("/api/villains/random")
+		get("/api/villains/random")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
@@ -209,7 +207,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
-	@Order(1)
+	@Order(DEFAULT_ORDER + 1)
 	public void shouldGetInitialItems() {
 		get("/api/villains")
 			.then()
@@ -219,7 +217,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
-	@Order(2)
+	@Order(DEFAULT_ORDER + 2)
 	public void shouldAddAnItem() {
 		Villain villain = new Villain();
 		villain.name = DEFAULT_NAME;
@@ -250,8 +248,7 @@ public class VillainResourceIT {
 		assertThat(villainId)
 			.isNotNull();
 
-		given()
-			.when().get("/api/villains/{id}", villainId)
+		get("/api/villains/{id}", villainId)
 			.then()
 				.contentType(JSON)
 				.statusCode(OK.getStatusCode())
@@ -269,7 +266,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
-	@Order(3)
+	@Order(DEFAULT_ORDER + 3)
 	public void shouldFullyUpdateAnItem() {
 		Villain villain = new Villain();
 		villain.id = Long.valueOf(villainId);
@@ -297,7 +294,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
-	@Order(4)
+	@Order(DEFAULT_ORDER + 4)
 	public void shouldPartiallyUpdateAnItem() {
 		Villain villain = new Villain();
 		villain.picture = DEFAULT_PICTURE;
@@ -330,10 +327,9 @@ public class VillainResourceIT {
 	}
 
 	@Test
-	@Order(5)
+	@Order(DEFAULT_ORDER + 5)
 	public void shouldDeleteVillain() {
-		given()
-			.when().delete("/api/villains/{id}", villainId)
+		delete("/api/villains/{id}", villainId)
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
@@ -346,10 +342,9 @@ public class VillainResourceIT {
 	}
 
 	@Test
-	@Order(6)
+	@Order(DEFAULT_ORDER + 6)
 	public void shouldDeleteAllVillains() {
-		given()
-			.when().delete("/api/villains/")
+		delete("/api/villains/")
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
@@ -361,7 +356,7 @@ public class VillainResourceIT {
 	}
 
 	@Test
-	@Order(7)
+	@Order(DEFAULT_ORDER + 7)
 	public void shouldGetRandomVillainNotFound() {
 		given()
 			.when().get("/api/villains/random")

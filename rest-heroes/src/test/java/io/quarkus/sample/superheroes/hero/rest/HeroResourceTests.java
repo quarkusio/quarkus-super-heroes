@@ -2,7 +2,6 @@ package io.quarkus.sample.superheroes.hero.rest;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -44,9 +43,7 @@ public class HeroResourceTests {
 
 	@Test
 	public void helloEndpoint() {
-		given()
-				.accept(TEXT_PLAIN)
-				.when().get("/api/heroes/hello")
+		get("/api/heroes/hello")
 			.then()
 				.statusCode(200)
 				.body(is("Hello Hero Resource"));
@@ -59,9 +56,9 @@ public class HeroResourceTests {
 		when(this.heroService.findHeroById(eq(DEFAULT_ID)))
 			.thenReturn(Uni.createFrom().nullItem());
 
-		given()
-			.when().get("/api/heroes/{id}", DEFAULT_ID)
-			.then().statusCode(NOT_FOUND.getStatusCode());
+		get("/api/heroes/{id}", DEFAULT_ID)
+			.then()
+			.statusCode(NOT_FOUND.getStatusCode());
 
 		verify(this.heroService).findHeroById(eq(DEFAULT_ID));
 		verifyNoMoreInteractions(this.heroService);
@@ -72,9 +69,9 @@ public class HeroResourceTests {
 		when(this.heroService.findRandomHero())
 			.thenReturn(Uni.createFrom().nullItem());
 
-		given()
-			.when().get("/api/heroes/random")
-			.then().statusCode(NOT_FOUND.getStatusCode());
+		get("/api/heroes/random")
+			.then()
+			.statusCode(NOT_FOUND.getStatusCode());
 
 		verify(this.heroService).findRandomHero();
 		verifyNoMoreInteractions(this.heroService);
@@ -85,8 +82,7 @@ public class HeroResourceTests {
 		when(this.heroService.findRandomHero())
 			.thenReturn(Uni.createFrom().item(createDefaultVillian()));
 
-		given()
-			.when().get("/api/heroes/random")
+		get("/api/heroes/random")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
@@ -434,8 +430,7 @@ public class HeroResourceTests {
 	public void shouldDeleteHero() {
 		when(this.heroService.deleteHero(eq(DEFAULT_ID))).thenReturn(Uni.createFrom().voidItem());
 
-		given()
-			.when().delete("/api/heroes/{id}", DEFAULT_ID)
+		delete("/api/heroes/{id}", DEFAULT_ID)
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
@@ -448,11 +443,10 @@ public class HeroResourceTests {
 	public void shouldDeleteAllHeros() {
 		when(this.heroService.deleteAllHeroes()).thenReturn(Uni.createFrom().voidItem());
 
-		given()
-			.when().delete("/api/heroes")
+		delete("/api/heroes")
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
-			.body(blankOrNullString());
+				.body(blankOrNullString());
 
 		verify(this.heroService).deleteAllHeroes();
 		verifyNoMoreInteractions(this.heroService);
@@ -460,12 +454,8 @@ public class HeroResourceTests {
 
 	@Test
 	public void shouldPingOpenAPI() {
-		given()
-			.when()
-				.accept(JSON)
-				.get("/q/openapi")
-			.then()
-				.statusCode(OK.getStatusCode());
+		get("/q/openapi")
+			.then().statusCode(OK.getStatusCode());
 	}
 
 	private static Hero createDefaultVillian() {

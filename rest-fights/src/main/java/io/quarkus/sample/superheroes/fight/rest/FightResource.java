@@ -4,6 +4,7 @@ import static javax.ws.rs.core.MediaType.*;
 import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRAY;
 
 import java.time.Duration;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -16,7 +17,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -49,10 +49,12 @@ public class FightResource {
 	}
 
 	private Uni<Fighters> addDelay(Uni<Fighters> fighters) {
-		return fighters
-			.onItem()
-			.delayIt()
-			.by(Duration.ofMillis(this.fightConfig.process().milliseconds()));
+		long delayMillis = this.fightConfig.process().delayMillis();
+
+		return (delayMillis > 0) ?
+		       fighters.onItem().delayIt().by(Duration.ofMillis(delayMillis))
+			       .invoke(() -> this.logger.debugf("Adding delay of %d millis to request", delayMillis)) :
+		       fighters;
 	}
 
 	@GET
@@ -62,7 +64,7 @@ public class FightResource {
 		responseCode = "200",
 		description = "Gets a random Hero and Villain fighter"
 	)
-	@Timeout(500)
+//	@Timeout(1000)
 	public Uni<Fighters> getRandomFighters() {
 		return addDelay(
 			this.service.findRandomFighters()
@@ -74,22 +76,12 @@ public class FightResource {
 	@Operation(summary = "Returns all the fights")
 	@APIResponse(
 		responseCode = "200",
-		description = "Gets all fights",
+		description = "Gets all fights, or empty list if none",
 		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Fight.class, type = ARRAY))
 	)
-	@APIResponse(
-		responseCode = "204",
-		description = "No Fights"
-	)
-	public Uni<Response> getAllFights() {
+	public Uni<List<Fight>> getAllFights() {
 		return this.service.findAllFights()
-			.map(fights -> {
-				this.logger.debugf("Total number of fights: %d", fights.size());
-
-				return !fights.isEmpty() ?
-				       Response.ok(fights).build() :
-				       Response.noContent().build();
-			});
+			.invoke(fights -> this.logger.debugf("Total number of fights: %d", fights.size()));
 	}
 
 	@GET

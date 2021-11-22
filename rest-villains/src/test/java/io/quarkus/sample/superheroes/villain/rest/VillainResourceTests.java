@@ -1,8 +1,7 @@
 package io.quarkus.sample.superheroes.villain.rest;
 
 import static io.restassured.RestAssured.*;
-import static io.restassured.http.ContentType.JSON;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static io.restassured.http.ContentType.*;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -46,11 +45,10 @@ public class VillainResourceTests {
 
 	@Test
 	public void helloEndpoint() {
-		given()
-				.accept(TEXT_PLAIN)
-			.when().get("/api/villains/hello")
+		get("/api/villains/hello")
 			.then()
-				.statusCode(200)
+				.statusCode(OK.getStatusCode())
+				.contentType(TEXT)
 				.body(is("Hello Villain Resource"));
 
 		verifyNoInteractions(this.villainService);
@@ -61,8 +59,7 @@ public class VillainResourceTests {
 		when(this.villainService.findVillainById(eq(DEFAULT_ID)))
 			.thenReturn(Optional.empty());
 
-		given()
-			.when().get("/api/villains/{id}", DEFAULT_ID)
+		get("/api/villains/{id}", DEFAULT_ID)
 			.then().statusCode(NOT_FOUND.getStatusCode());
 
 		verify(this.villainService).findVillainById(eq(DEFAULT_ID));
@@ -74,8 +71,7 @@ public class VillainResourceTests {
 		when(this.villainService.findRandomVillain())
 			.thenReturn(Optional.empty());
 
-		given()
-			.when().get("/api/villains/random")
+		get("/api/villains/random")
 			.then().statusCode(NOT_FOUND.getStatusCode());
 
 		verify(this.villainService).findRandomVillain();
@@ -87,8 +83,7 @@ public class VillainResourceTests {
 		when(this.villainService.findRandomVillain())
 			.thenReturn(Optional.of(createDefaultVillian()));
 
-		given()
-			.when().get("/api/villains/random")
+		get("/api/villains/random")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
@@ -438,8 +433,7 @@ public class VillainResourceTests {
 			.when(this.villainService)
 			.deleteVillain(eq(DEFAULT_ID));
 
-		given()
-			.when().delete("/api/villains/{id}", DEFAULT_ID)
+		delete("/api/villains/{id}", DEFAULT_ID)
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
@@ -454,8 +448,7 @@ public class VillainResourceTests {
 			.when(this.villainService)
 			.deleteAllVillains();
 
-		given()
-			.when().delete("/api/villains")
+		delete("/api/villains")
 			.then()
 			.statusCode(NO_CONTENT.getStatusCode())
 			.body(blankOrNullString());

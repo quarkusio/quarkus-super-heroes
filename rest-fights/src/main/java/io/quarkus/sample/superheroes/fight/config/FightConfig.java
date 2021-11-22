@@ -11,7 +11,7 @@ public interface FightConfig {
 
 	interface Process {
 		@WithDefault("0")
-		long milliseconds();
+		long delayMillis();
 	}
 
 	interface Hero {

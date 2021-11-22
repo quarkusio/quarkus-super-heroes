@@ -52,16 +52,14 @@ public class HeroResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void shouldNotGetUnknownHero() {
-		given()
-			.when().get("/api/heroes/{id}", new Random().nextLong())
+		get("/api/heroes/{id}", new Random().nextLong())
 			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void shouldGetRandomHeroFound() {
-		given()
-			.when().get("/api/heroes/random")
+		get("/api/heroes/random")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
@@ -207,7 +205,7 @@ public class HeroResourceIT {
 	}
 
 	@Test
-	@Order(1)
+	@Order(DEFAULT_ORDER + 1)
 	public void shouldGetInitialItems() {
 		get("/api/heroes")
 			.then()
@@ -217,7 +215,7 @@ public class HeroResourceIT {
 	}
 
 	@Test
-	@Order(2)
+	@Order(DEFAULT_ORDER + 2)
 	public void shouldAddAnItem() {
 		Hero hero = new Hero();
 		hero.setName(DEFAULT_NAME);
@@ -248,8 +246,7 @@ public class HeroResourceIT {
 		assertThat(heroId)
 			.isNotNull();
 
-		given()
-			.when().get("/api/heroes/{id}", heroId)
+		get("/api/heroes/{id}", heroId)
 			.then()
 				.contentType(JSON)
 				.statusCode(OK.getStatusCode())
@@ -267,7 +264,7 @@ public class HeroResourceIT {
 	}
 
 	@Test
-	@Order(3)
+	@Order(DEFAULT_ORDER + 3)
 	public void shouldFullyUpdateAnItem() {
 		Hero hero = new Hero();
 		hero.setId(Long.valueOf(heroId));
@@ -295,7 +292,7 @@ public class HeroResourceIT {
 	}
 
 	@Test
-	@Order(4)
+	@Order(DEFAULT_ORDER + 4)
 	public void shouldPartiallyUpdateAnItem() {
 		Hero hero = new Hero();
 		hero.setPicture(DEFAULT_PICTURE);
@@ -328,10 +325,9 @@ public class HeroResourceIT {
 	}
 
 	@Test
-	@Order(5)
+	@Order(DEFAULT_ORDER + 5)
 	public void shouldDeleteHero() {
-		given()
-			.when().delete("/api/heroes/{id}", heroId)
+		delete("/api/heroes/{id}", heroId)
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
@@ -344,10 +340,9 @@ public class HeroResourceIT {
 	}
 
 	@Test
-	@Order(6)
+	@Order(DEFAULT_ORDER + 6)
 	public void shouldDeleteAllHeros() {
-		given()
-			.when().delete("/api/heroes/")
+		delete("/api/heroes/")
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
@@ -359,10 +354,9 @@ public class HeroResourceIT {
 	}
 
 	@Test
-	@Order(7)
+	@Order(DEFAULT_ORDER + 7)
 	public void shouldGetRandomHeroNotFound() {
-		given()
-			.when().get("/api/heroes/random")
+		get("/api/heroes/random")
 			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
 

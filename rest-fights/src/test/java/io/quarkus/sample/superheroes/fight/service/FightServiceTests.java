@@ -216,14 +216,8 @@ class FightServiceTests {
 
 		assertThat(fighters)
 			.isNotNull()
-			.extracting(
-				Fighters::getHero,
-				Fighters::getVillain
-			)
-			.containsExactly(
-				null,
-				null
-			);
+			.usingRecursiveComparison()
+			.isEqualTo(new Fighters(createFallbackHero(), createFallbackVillain()));
 
 		verify(this.heroClient).findRandomHero();
 		verify(this.villainClient).findRandomVillain();
@@ -249,7 +243,7 @@ class FightServiceTests {
 		assertThat(fighters)
 			.isNotNull()
 			.usingRecursiveComparison()
-			.isEqualTo(new Fighters(null, createDefaultVillain()));
+			.isEqualTo(new Fighters(createFallbackHero(), createDefaultVillain()));
 
 		verify(this.heroClient).findRandomHero();
 		verify(this.villainClient).findRandomVillain();
@@ -275,7 +269,7 @@ class FightServiceTests {
 		assertThat(fighters)
 			.isNotNull()
 			.usingRecursiveComparison()
-			.isEqualTo(new Fighters(createDefaultHero(), null));
+			.isEqualTo(new Fighters(createDefaultHero(), createFallbackVillain()));
 
 		verify(this.heroClient).findRandomHero();
 		verify(this.villainClient).findRandomVillain();
