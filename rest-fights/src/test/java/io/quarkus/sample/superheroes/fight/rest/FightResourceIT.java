@@ -120,7 +120,7 @@ public class FightResourceIT {
 	private static final int NB_FIGHTS = 3;
 
 	@InjectWireMock
-	WireMockServer server;
+	WireMockServer wireMockServer;
 
 	@InjectKafkaConsumer
 	KafkaConsumer<String, Fight> fightsConsumer;
@@ -133,7 +133,7 @@ public class FightResourceIT {
 	@BeforeEach
 	public void beforeEach() {
 		// Reset WireMock
-		this.server.resetAll();
+		this.wireMockServer.resetAll();
 	}
 
 	@Test
@@ -155,12 +155,12 @@ public class FightResourceIT {
 
 	@Test
 	public void getRandomFightersHeroFallback() {
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(serverError())
 		);
 
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(VILLAIN_API_URI))
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultVillainJson()))
 		);
@@ -183,12 +183,12 @@ public class FightResourceIT {
 				"villain.powers", is(DEFAULT_VILLAIN.getPowers())
 			);
 
-		this.server.verify(4,
+		this.wireMockServer.verify(4,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 
-		this.server.verify(1,
+		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
@@ -196,12 +196,12 @@ public class FightResourceIT {
 
 	@Test
 	public void getRandomFightersVillainFallback() {
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
 		);
 
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(VILLAIN_API_URI))
 				.willReturn(serverError())
 		);
@@ -224,12 +224,12 @@ public class FightResourceIT {
 				"villain.powers", is(FALLBACK_VILLAIN.getPowers())
 			);
 
-		this.server.verify(1,
+		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 
-		this.server.verify(4,
+		this.wireMockServer.verify(4,
 			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
@@ -237,12 +237,12 @@ public class FightResourceIT {
 
 	@Test
 	public void getRandomFightersHeroNotFound() {
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(notFound())
 		);
 
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(VILLAIN_API_URI))
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultVillainJson()))
 		);
@@ -265,12 +265,12 @@ public class FightResourceIT {
 				"villain.powers", is(DEFAULT_VILLAIN.getPowers())
 			);
 
-		this.server.verify(1,
+		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 
-		this.server.verify(1,
+		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
@@ -278,12 +278,12 @@ public class FightResourceIT {
 
 	@Test
 	public void getRandomFightersVillainNotFound() {
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
 		);
 
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(VILLAIN_API_URI))
 				.willReturn(notFound())
 		);
@@ -306,12 +306,12 @@ public class FightResourceIT {
 				"villain.powers", is(FALLBACK_VILLAIN.getPowers())
 			);
 
-		this.server.verify(1,
+		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 
-		this.server.verify(1,
+		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
@@ -319,12 +319,12 @@ public class FightResourceIT {
 
 	@Test
 	public void getRandomFightersHeroAndVillainNotFound() {
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(notFound())
 		);
 
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(VILLAIN_API_URI))
 				.willReturn(notFound())
 		);
@@ -347,12 +347,12 @@ public class FightResourceIT {
 				"villain.powers", is(FALLBACK_VILLAIN.getPowers())
 			);
 
-		this.server.verify(1,
+		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 
-		this.server.verify(1,
+		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
@@ -360,12 +360,12 @@ public class FightResourceIT {
 
 	@Test
 	public void getRandomFightersHeroAndVillainFallback() {
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(serverError())
 		);
 
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(VILLAIN_API_URI))
 				.willReturn(serverError())
 		);
@@ -388,12 +388,12 @@ public class FightResourceIT {
 				"villain.powers", is(FALLBACK_VILLAIN.getPowers())
 			);
 
-		this.server.verify(4,
+		this.wireMockServer.verify(4,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 
-		this.server.verify(4,
+		this.wireMockServer.verify(4,
 			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
@@ -402,12 +402,12 @@ public class FightResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void getRandomFightersAllOk() {
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
 		);
 
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(VILLAIN_API_URI))
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultVillainJson()))
 		);
@@ -430,12 +430,12 @@ public class FightResourceIT {
 				"villain.powers", is(DEFAULT_VILLAIN.getPowers())
 			);
 
-		this.server.verify(1,
+		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 
-		this.server.verify(1,
+		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
