@@ -22,8 +22,8 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>${quarkus.version}</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-	  <testcontainers.version>1.16.2</testcontainers.version>
-	  <wiremock.version>2.31.0</wiremock.version>
+    <testcontainers.version>1.16.2</testcontainers.version>
+    <wiremock.version>2.31.0</wiremock.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -73,10 +73,10 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-rest-client-reactive-jackson</artifactId>
     </dependency>
-	  <dependency>
-		  <groupId>io.quarkus</groupId>
-		  <artifactId>quarkus-rest-client-reactive</artifactId>
-	  </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-rest-client-reactive</artifactId>
+    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
@@ -89,52 +89,52 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
     </dependency>
-	  <dependency>
-		  <groupId>io.quarkus</groupId>
-		  <artifactId>quarkus-config-yaml</artifactId>
-	  </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-jacoco</artifactId>
+    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>
     </dependency>
-	  <dependency>
-		  <groupId>io.quarkus</groupId>
-		  <artifactId>quarkus-junit5-mockito</artifactId>
-		  <scope>test</scope>
-	  </dependency>
-	  <dependency>
-		  <groupId>io.quarkus</groupId>
-		  <artifactId>quarkus-panache-mock</artifactId>
-		  <scope>test</scope>
-	  </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-junit5-mockito</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-panache-mock</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
       <scope>test</scope>
     </dependency>
-	  <dependency>
-		  <groupId>org.assertj</groupId>
-		  <artifactId>assertj-core</artifactId>
-		  <scope>test</scope>
-	  </dependency>
-	  <dependency>
-		  <groupId>com.github.tomakehurst</groupId>
-		  <artifactId>wiremock-jre8</artifactId>
-		  <scope>test</scope>
-		  <version>${wiremock.version}</version>
-	  </dependency>
-	  <dependency>
-		  <groupId>io.smallrye.reactive</groupId>
-		  <artifactId>smallrye-reactive-messaging-in-memory</artifactId>
-		  <scope>test</scope>
-	  </dependency>
-	  <dependency>
-		  <groupId>org.testcontainers</groupId>
-		  <artifactId>kafka</artifactId>
-		  <version>${testcontainers.version}</version>
-		  <scope>test</scope>
-	  </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-jre8</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.smallrye.reactive</groupId>
+      <artifactId>smallrye-reactive-messaging-in-memory</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>kafka</artifactId>
+      <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -170,38 +170,38 @@
           </systemPropertyVariables>
         </configuration>
       </plugin>
-	    <plugin>
-		    <artifactId>maven-failsafe-plugin</artifactId>
-		    <version>${surefire-plugin.version}</version>
-		    <executions>
-			    <execution>
-				    <goals>
-					    <goal>integration-test</goal>
-					    <goal>verify</goal>
-				    </goals>
-				    <configuration>
-					    <systemPropertyVariables>
-						    <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
-						    <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-						    <maven.home>${maven.home}</maven.home>
-					    </systemPropertyVariables>
-				    </configuration>
-			    </execution>
-		    </executions>
-	    </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${surefire-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+            <configuration>
+              <systemPropertyVariables>
+                <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+                <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                <maven.home>${maven.home}</maven.home>
+              </systemPropertyVariables>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-	<profiles>
-		<profile>
-			<id>native</id>
-			<activation>
-				<property>
-					<name>native</name>
-				</property>
-			</activation>
-			<properties>
-				<quarkus.package.type>native</quarkus.package.type>
-			</properties>
-		</profile>
-	</profiles>
+  <profiles>
+    <profile>
+      <id>native</id>
+      <activation>
+        <property>
+          <name>native</name>
+        </property>
+      </activation>
+      <properties>
+        <quarkus.package.type>native</quarkus.package.type>
+      </properties>
+    </profile>
+  </profiles>
 </project>

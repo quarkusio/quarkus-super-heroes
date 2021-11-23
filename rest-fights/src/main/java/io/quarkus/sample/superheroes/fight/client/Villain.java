@@ -5,6 +5,9 @@ import javax.validation.constraints.NotNull;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+/**
+ * POJO representing a Villain response from the Villain service
+ */
 @Schema(description = "The villain fighting against the hero")
 public class Villain {
 	@NotEmpty

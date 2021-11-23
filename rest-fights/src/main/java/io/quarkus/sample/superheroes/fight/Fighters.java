@@ -8,6 +8,9 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 
+/**
+ * Entity class representing Fighters
+ */
 @Schema(description = "A fight between one hero and one villain")
 public class Fighters {
 	@NotNull
@@ -44,6 +47,9 @@ public class Fighters {
 
 	@Override
 	public String toString() {
-		return "Fighters{" + "hero=" + this.hero + ", villain=" + this.villain + '}';
+		return "Fighters{" +
+			"hero=" + this.hero +
+			", villain=" + this.villain +
+			'}';
 	}
 }

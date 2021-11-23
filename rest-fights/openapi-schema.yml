@@ -1,0 +1,206 @@
+---
+openapi: 3.0.3
+info:
+  title: Fights API
+  description: This API performs fights between a Hero and a Villain
+  contact:
+    name: Quarkus
+    url: https://github.com/quarkusio
+  version: "1.0"
+servers:
+- url: http://localhost:8082
+tags:
+- name: fights
+- name: hello
+paths:
+  /api/fights:
+    get:
+      tags:
+      - fights
+      summary: Returns all the fights
+      responses:
+        "200":
+          description: "Gets all fights, or empty list if none"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fight'
+    post:
+      tags:
+      - fights
+      summary: Initiates a fight
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Fighters'
+      responses:
+        "200":
+          description: The fight
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fight'
+        "400":
+          description: Invalid fighters passed in (or no request body found)
+  /api/fights/hello:
+    get:
+      tags:
+      - hello
+      summary: Ping hello
+      responses:
+        "200":
+          description: Ping hello
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/fights/randomfighters:
+    get:
+      tags:
+      - fights
+      summary: Returns random fighters
+      responses:
+        "200":
+          description: Gets a random Hero and Villain fighter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fighters'
+  /api/fights/{id}:
+    get:
+      tags:
+      - fights
+      summary: Returns a fight for a given identifier
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        "200":
+          description: Gets a fight for a given id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hero'
+        "404":
+          description: The fight is not found for a given identifier
+components:
+  schemas:
+    Fight:
+      description: Each fight has a winner and a loser
+      required:
+      - fightDate
+      - winnerName
+      - winnerLevel
+      - winnerPicture
+      - loserName
+      - loserLevel
+      - loserPicture
+      - winnerTeam
+      - loserTeam
+      type: object
+      properties:
+        id:
+          format: int64
+          type: integer
+        fightDate:
+          format: date-time
+          type: string
+          nullable: false
+        winnerName:
+          minLength: 1
+          type: string
+          nullable: false
+        winnerLevel:
+          format: int32
+          type: integer
+          nullable: false
+        winnerPicture:
+          minLength: 1
+          type: string
+          nullable: false
+        loserName:
+          minLength: 1
+          type: string
+          nullable: false
+        loserLevel:
+          format: int32
+          type: integer
+          nullable: false
+        loserPicture:
+          minLength: 1
+          type: string
+          nullable: false
+        winnerTeam:
+          minLength: 1
+          type: string
+          nullable: false
+        loserTeam:
+          minLength: 1
+          type: string
+          nullable: false
+    Fighters:
+      description: A fight between one hero and one villain
+      required:
+      - hero
+      - villain
+      type: object
+      properties:
+        hero:
+          allOf:
+          - $ref: '#/components/schemas/Hero'
+          - nullable: false
+        villain:
+          allOf:
+          - $ref: '#/components/schemas/Villain'
+          - nullable: false
+    Hero:
+      description: The hero fighting against the villain
+      required:
+      - name
+      - level
+      - picture
+      type: object
+      properties:
+        name:
+          minLength: 1
+          type: string
+          nullable: false
+        level:
+          format: int32
+          type: integer
+          nullable: false
+        picture:
+          minLength: 1
+          type: string
+          nullable: false
+        powers:
+          type: string
+    Villain:
+      description: The villain fighting against the hero
+      required:
+      - name
+      - level
+      - picture
+      type: object
+      properties:
+        name:
+          minLength: 1
+          type: string
+          nullable: false
+        level:
+          format: int32
+          type: integer
+          nullable: false
+        picture:
+          minLength: 1
+          type: string
+          nullable: false
+        powers:
+          type: string

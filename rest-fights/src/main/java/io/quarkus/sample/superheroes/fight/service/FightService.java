@@ -1,6 +1,8 @@
 package io.quarkus.sample.superheroes.fight.service;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 
@@ -9,10 +11,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.eclipse.microprofile.faulttolerance.Fallback;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.jboss.logging.Logger;
 
 import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
+import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.Hero;
@@ -24,21 +27,37 @@ import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
 
+/**
+ * Business logic for the Fight service
+ */
 @ApplicationScoped
 public class FightService {
-	private final Logger logger;
 	private final HeroClient heroClient;
 	private final VillainClient villainClient;
 	private final MutinyEmitter<Fight> emitter;
 	private final FightConfig fightConfig;
 	private final Random random = new Random();
 
-	public FightService(Logger logger, HeroClient heroClient, VillainClient villainClient, @Channel("fights") MutinyEmitter<Fight> emitter, FightConfig fightConfig) {
-		this.logger = logger;
+	public FightService(HeroClient heroClient, VillainClient villainClient, @Channel("fights") MutinyEmitter<Fight> emitter, FightConfig fightConfig) {
 		this.heroClient = heroClient;
 		this.villainClient = villainClient;
 		this.emitter = emitter;
 		this.fightConfig = fightConfig;
+	}
+
+	/**
+	 * Adds a pre-configured delay to a response. Can be used to showcase/demo how to add delays as well as how to use fault tolerance.
+	 * @param fighters The {@link Fighters}.
+	 * @return A {@link Uni} with a configured delay added
+	 * @see FightConfig#process()
+	 */
+	Uni<Fighters> addDelay(Uni<Fighters> fighters) {
+		long delayMillis = this.fightConfig.process().delayMillis();
+
+		return (delayMillis > 0) ?
+		       fighters.onItem().delayIt().by(Duration.ofMillis(delayMillis))
+			       .invoke(() -> Log.debugf("Adding delay of %d millis to request", delayMillis)) :
+		       fighters;
 	}
 
 	public Uni<List<Fight>> findAllFights() {
@@ -49,6 +68,7 @@ public class FightService {
 		return Fight.findById(id);
 	}
 
+	@Timeout(value = 4, unit = ChronoUnit.SECONDS)
 	public Uni<Fighters> findRandomFighters() {
 		Uni<Hero> hero = findRandomHero()
 			.onItem().ifNull().continueWith(this::createFallbackHero);
@@ -56,27 +76,30 @@ public class FightService {
 		Uni<Villain> villain = findRandomVillain()
 			.onItem().ifNull().continueWith(this::createFallbackVillain);
 
-		return Uni.combine()
+		return addDelay(Uni.combine()
 			.all()
 			.unis(hero, villain)
-			.combinedWith(Fighters::new);
+			.combinedWith(Fighters::new)
+		);
 	}
 
+	@Timeout(value = 2, unit = ChronoUnit.SECONDS)
 	@Fallback(fallbackMethod = "fallbackRandomHero")
 	Uni<Hero> findRandomHero() {
 		return this.heroClient.findRandomHero()
-			.invoke(hero -> this.logger.debugf("Got random hero: %s", hero));
+			.invoke(hero -> Log.debugf("Got random hero: %s", hero));
 	}
 
+	@Timeout(value = 2, unit = ChronoUnit.SECONDS)
 	@Fallback(fallbackMethod = "fallbackRandomVillain")
 	Uni<Villain> findRandomVillain() {
 		return this.villainClient.findRandomVillain()
-			.invoke(villain -> this.logger.debugf("Got random villain: %s", villain));
+			.invoke(villain -> Log.debugf("Got random villain: %s", villain));
 	}
 
 	Uni<Hero> fallbackRandomHero() {
 		return Uni.createFrom().item(this::createFallbackHero)
-			.invoke(h -> this.logger.warn("Falling back on Hero"));
+			.invoke(h -> Log.warn("Falling back on Hero"));
 	}
 
 	private Hero createFallbackHero() {
@@ -90,7 +113,7 @@ public class FightService {
 
 	Uni<Villain> fallbackRandomVillain() {
 		return Uni.createFrom().item(this::createFallbackVillain)
-			.invoke(v -> this.logger.warn("Falling back on Villain"));
+			.invoke(v -> Log.warn("Falling back on Villain"));
 	}
 
 	private Villain createFallbackVillain() {
@@ -155,7 +178,7 @@ public class FightService {
 	}
 
 	Fight heroWonFight(Fighters fighters) {
-		this.logger.info("Yes, Hero won :o)");
+		Log.info("Yes, Hero won :o)");
 
 		Fight fight = new Fight();
 		fight.winnerName = fighters.getHero().getName();
@@ -171,7 +194,7 @@ public class FightService {
 	}
 
 	Fight villainWonFight(Fighters fighters) {
-		this.logger.info("Gee, Villain won :o(");
+		Log.info("Gee, Villain won :o(");
 
 		Fight fight = new Fight();
 		fight.winnerName = fighters.getVillain().getName();

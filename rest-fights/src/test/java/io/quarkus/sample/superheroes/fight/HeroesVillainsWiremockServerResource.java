@@ -9,6 +9,10 @@ import io.quarkus.test.common.QuarkusTestResourceLifecycleManager.TestInjector.A
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 
+/**
+ * Quarkus {@link QuarkusTestResourceLifecycleManager} wrapping a {@link WireMockServer}, binding it's base url to both the heros and villains services, and exposing it to tests that want to inject it via {@link InjectWireMock}.
+ * @see InjectWireMock
+ */
 public class HeroesVillainsWiremockServerResource implements QuarkusTestResourceLifecycleManager {
 	private final WireMockServer wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
 

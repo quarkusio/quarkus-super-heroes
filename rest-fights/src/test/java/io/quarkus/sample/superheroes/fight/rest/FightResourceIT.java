@@ -45,6 +45,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
+/**
+ * Integration tests for the application as a whole. Orders tests in an order to faciliate a scenario of interactions
+ * <p>
+ *   Uses wiremock to stub responses and verify interactions with the hero and villain services.
+ * </p>
+ * <p>
+ *   Uses an external container image for Kafka
+ * </p>
+ * @see HeroesVillainsWiremockServerResource
+ * @see KafkaBrokerResource
+ */
 @QuarkusIntegrationTest
 @QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
 @QuarkusTestResource(value = KafkaBrokerResource.class, restrictToAnnotatedClass = true)
@@ -123,9 +134,6 @@ public class FightResourceIT {
 	public void beforeEach() {
 		// Reset WireMock
 		this.server.resetAll();
-
-		// Reset kafka consumer
-		this.fightsConsumer.unsubscribe();
 	}
 
 	@Test
@@ -493,8 +501,6 @@ public class FightResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 1)
 	public void performFightHeroWins() {
-		this.fightsConsumer.subscribe(List.of("fights"));
-
 		given()
 			.when()
 				.contentType(JSON)
@@ -570,8 +576,6 @@ public class FightResourceIT {
 			)
 		);
 
-		this.fightsConsumer.subscribe(List.of("fights"));
-
 		given()
 			.when()
 				.contentType(JSON)
@@ -601,7 +605,7 @@ public class FightResourceIT {
 		var records = this.fightsConsumer.poll(Duration.ofSeconds(10)).records("fights");
 		var fight = StreamSupport.stream(records.spliterator(), false)
 			.map(ConsumerRecord::value)
-			.reduce((first, second) -> second);
+			.findFirst();
 
 		assertThat(fight)
 			.isNotNull()

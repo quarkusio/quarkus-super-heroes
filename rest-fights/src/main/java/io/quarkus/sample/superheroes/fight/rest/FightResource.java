@@ -3,7 +3,6 @@ package io.quarkus.sample.superheroes.fight.rest;
 import static javax.ws.rs.core.MediaType.*;
 import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRAY;
 
-import java.time.Duration;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -23,53 +22,27 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.jboss.logging.Logger;
 
+import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.Hero;
-import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.quarkus.sample.superheroes.fight.service.FightService;
 
 import io.smallrye.common.annotation.NonBlocking;
 import io.smallrye.mutiny.Uni;
 
+/**
+ * JAX-RS API endpoints with {@code /api/fights} as the base URI for all endpoints
+ */
 @Path("/api/fights")
 @Produces(APPLICATION_JSON)
 @Tag(name = "fights")
 public class FightResource {
-	private final Logger logger;
 	private final FightService service;
-	private final FightConfig fightConfig;
 
-	public FightResource(Logger logger, FightService service, FightConfig fightConfig) {
-		this.logger = logger;
+	public FightResource(FightService service) {
 		this.service = service;
-		this.fightConfig = fightConfig;
-	}
-
-	private Uni<Fighters> addDelay(Uni<Fighters> fighters) {
-		long delayMillis = this.fightConfig.process().delayMillis();
-
-		return (delayMillis > 0) ?
-		       fighters.onItem().delayIt().by(Duration.ofMillis(delayMillis))
-			       .invoke(() -> this.logger.debugf("Adding delay of %d millis to request", delayMillis)) :
-		       fighters;
-	}
-
-	@GET
-	@Path("/randomfighters")
-	@Operation(summary = "Returns random fighters")
-	@APIResponse(
-		responseCode = "200",
-		description = "Gets a random Hero and Villain fighter"
-	)
-//	@Timeout(1000)
-	public Uni<Fighters> getRandomFighters() {
-		return addDelay(
-			this.service.findRandomFighters()
-				.invoke(fighters -> this.logger.debugf("Got random fighters: %s", fighters))
-		);
 	}
 
 	@GET
@@ -81,7 +54,19 @@ public class FightResource {
 	)
 	public Uni<List<Fight>> getAllFights() {
 		return this.service.findAllFights()
-			.invoke(fights -> this.logger.debugf("Total number of fights: %d", fights.size()));
+			.invoke(fights -> Log.debugf("Total number of fights: %d", fights.size()));
+	}
+
+	@GET
+	@Path("/randomfighters")
+	@Operation(summary = "Returns random fighters")
+	@APIResponse(
+		responseCode = "200",
+		description = "Gets a random Hero and Villain fighter"
+	)
+	public Uni<Fighters> getRandomFighters() {
+		return this.service.findRandomFighters()
+			.invoke(fighters -> Log.debugf("Got random fighters: %s", fighters));
 	}
 
 	@GET
@@ -99,11 +84,11 @@ public class FightResource {
 	public Uni<Response> getFight(@Parameter(name = "id", required = true) @PathParam("id") Long id) {
 		return this.service.findFightById(id)
 			.onItem().ifNotNull().transform(f -> {
-				this.logger.debugf("Found fight: %s", f);
+				Log.debugf("Found fight: %s", f);
 				return Response.ok(f).build();
 			})
 			.onItem().ifNull().continueWith(() -> {
-				this.logger.debugf("No fight found with id %d", id);
+				Log.debugf("No fight found with id %d", id);
 				return Response.status(Status.NOT_FOUND).build();
 			});
 	}

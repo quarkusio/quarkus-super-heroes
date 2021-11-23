@@ -23,6 +23,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
+/**
+ * Tests for the {@link VillainClient}. Uses wiremock to stub responses and verify interactions.
+ * @see HeroesVillainsWiremockServerResource
+ */
 @QuarkusTest
 @QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
 class VillainClientTests {

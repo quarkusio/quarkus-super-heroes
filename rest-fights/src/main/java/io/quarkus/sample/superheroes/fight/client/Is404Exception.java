@@ -6,6 +6,9 @@ import java.util.function.Predicate;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
+/**
+ * {@link Predicate} for determining if a {@link Throwable} received from a rest client represents an HTTP {@code 404}.
+ */
 class Is404Exception implements Predicate<Throwable> {
 	static final Is404Exception IS_404 = new Is404Exception();
 

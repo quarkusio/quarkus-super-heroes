@@ -28,6 +28,9 @@ import io.quarkus.test.junit.mockito.InjectMock;
 
 import io.smallrye.mutiny.Uni;
 
+/**
+ * Tests the resource layer ({@link FightResource} specifically).
+ */
 @QuarkusTest
 public class FightResourceTests {
 	private static final long DEFAULT_FIGHT_ID = 1L;

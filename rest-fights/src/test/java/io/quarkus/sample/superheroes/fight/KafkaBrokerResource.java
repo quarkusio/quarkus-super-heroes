@@ -1,5 +1,6 @@
 package io.quarkus.sample.superheroes.fight;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -16,6 +17,10 @@ import io.quarkus.test.common.QuarkusTestResourceLifecycleManager.TestInjector.A
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+/**
+ * Quarkus {@link QuarkusTestResourceLifecycleManager} wrapping a {@link KafkaContainer}, binding the {@code kafka.bootstrap.servers}, and exposing it to tests that want to inject it via {@link InjectKafkaConsumer}.
+ * @see InjectKafkaConsumer
+ */
 public class KafkaBrokerResource implements QuarkusTestResourceLifecycleManager {
 	private KafkaConsumer<String, Fight> fightConsumer;
 	private final KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka"));
@@ -27,14 +32,21 @@ public class KafkaBrokerResource implements QuarkusTestResourceLifecycleManager 
 
 		this.kafka.start();
 		this.fightConsumer = new KafkaConsumer<>(consumerConfig(), new StringDeserializer(), new ObjectMapperDeserializer<>(Fight.class, objectMapper));
+		this.fightConsumer.subscribe(List.of("fights"));
 
 		return Map.of("kafka.bootstrap.servers", this.kafka.getBootstrapServers());
 	}
 
 	@Override
 	public void stop() {
-		this.fightConsumer.close();
-		this.kafka.close();
+		if (this.fightConsumer != null) {
+			this.fightConsumer.unsubscribe();
+			this.fightConsumer.close();
+		}
+
+		if (this.kafka != null) {
+			this.kafka.close();
+		}
 	}
 
 	private Properties consumerConfig() {

@@ -11,6 +11,9 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
 
+/**
+ * JPA entity class for a Fight. Re-used in the API layer
+ */
 @Entity
 @Schema(description = "Each fight has a winner and a loser")
 public class Fight extends PanacheEntity {
