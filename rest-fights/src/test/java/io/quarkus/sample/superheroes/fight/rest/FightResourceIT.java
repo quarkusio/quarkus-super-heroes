@@ -14,6 +14,8 @@ import static org.junit.jupiter.params.ParameterizedTest.*;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -28,6 +30,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource;
@@ -154,7 +157,10 @@ public class FightResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersHeroFallback() {
+		resetCircuitBreakersToClosedState();
+
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(serverError())
@@ -195,7 +201,10 @@ public class FightResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersVillainFallback() {
+		resetCircuitBreakersToClosedState();
+
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
@@ -236,6 +245,7 @@ public class FightResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersHeroNotFound() {
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
@@ -277,7 +287,10 @@ public class FightResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersVillainNotFound() {
+		resetCircuitBreakersToClosedState();
+
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
@@ -318,7 +331,10 @@ public class FightResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersHeroAndVillainNotFound() {
+		resetCircuitBreakersToClosedState();
+
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(notFound())
@@ -359,7 +375,10 @@ public class FightResourceIT {
 	}
 
 	@Test
+	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersHeroAndVillainFallback() {
+		resetCircuitBreakersToClosedState();
+
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(serverError())
@@ -400,8 +419,10 @@ public class FightResourceIT {
 	}
 
 	@Test
-	@Order(DEFAULT_ORDER)
+	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersAllOk() {
+		resetCircuitBreakersToClosedState();
+
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
@@ -499,7 +520,7 @@ public class FightResourceIT {
 	}
 
 	@Test
-	@Order(DEFAULT_ORDER + 1)
+	@Order(DEFAULT_ORDER + 2)
 	public void performFightHeroWins() {
 		given()
 			.when()
@@ -559,7 +580,7 @@ public class FightResourceIT {
 	}
 
 	@Test
-	@Order(DEFAULT_ORDER + 2)
+	@Order(DEFAULT_ORDER + 3)
 	public void performFightVillainWins() {
 		var fighters = new Fighters(
 			new Hero(
@@ -667,6 +688,69 @@ public class FightResourceIT {
 			)
 			.extract()
 			.body().jsonPath().getList(".", Fight.class);
+	}
+
+	/**
+	 * Reset the circuit breakers so they are in closed state
+	 */
+	private void resetCircuitBreakersToClosedState() {
+		try {
+			// Sleep the necessary delay duration for the breaker to moved into the half-open position
+			TimeUnit.SECONDS.sleep(2);
+		}
+		catch (InterruptedException ex) {
+			Log.error(ex.getMessage(), ex);
+		}
+
+		// Reset all the mocks on the WireMockServer
+		this.wireMockServer.resetAll();
+
+		// Stub successful requests
+		this.wireMockServer.stubFor(
+			WireMock.get(urlEqualTo(HERO_API_URI))
+				.willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
+		);
+
+		this.wireMockServer.stubFor(
+			WireMock.get(urlEqualTo(VILLAIN_API_URI))
+				.willReturn(okForContentType(APPLICATION_JSON, getDefaultVillainJson()))
+		);
+
+		// The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
+		IntStream.rangeClosed(0, 8)
+			.forEach(i ->
+				get("/api/fights/randomfighters")
+					.then()
+					.statusCode(OK.getStatusCode())
+					.contentType(JSON)
+					.body(
+						"$", notNullValue(),
+						"hero", notNullValue(),
+						"hero.name", is(DEFAULT_HERO.getName()),
+						"hero.level", is(DEFAULT_HERO.getLevel()),
+						"hero.picture", is(DEFAULT_HERO.getPicture()),
+						"hero.powers", is(DEFAULT_HERO.getPowers()),
+						"villain", notNullValue(),
+						"villain.name", is(DEFAULT_VILLAIN.getName()),
+						"villain.level", is(DEFAULT_VILLAIN.getLevel()),
+						"villain.picture", is(DEFAULT_VILLAIN.getPicture()),
+						"villain.powers", is(DEFAULT_VILLAIN.getPowers())
+					)
+			);
+
+		// Verify successful requests
+		this.wireMockServer.verify(9,
+			getRequestedFor(urlEqualTo(HERO_API_URI))
+				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+		);
+
+		this.wireMockServer.verify(9,
+			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
+				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+		);
+
+		// Reset all the mocks on the WireMockServer
+		this.wireMockServer.resetAll();
 	}
 
 	private static Stream<Fighters> invalidFighters() {

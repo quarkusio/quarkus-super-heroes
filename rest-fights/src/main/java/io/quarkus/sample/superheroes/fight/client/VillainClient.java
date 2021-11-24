@@ -1,16 +1,20 @@
 package io.quarkus.sample.superheroes.fight.client;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.CompletionStage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
+import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.jboss.resteasy.reactive.client.impl.UniInvoker;
 
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 
+import io.smallrye.faulttolerance.api.CircuitBreakerName;
 import io.smallrye.mutiny.Uni;
 
 /**
@@ -30,15 +34,30 @@ public class VillainClient {
 	}
 
 	/**
-	 * Finds a random {@link Villain}
-	 * @return A random {@link Villain}
+	 * Gets a Villain from the Villain service wrapped with a recovery on a {@code 404} error. Also wrapped in a {@link CircuitBreaker}.
+	 * @return The Villain
 	 */
-	public Uni<Villain> findRandomVillain() {
+	@CircuitBreaker(requestVolumeThreshold = 8, failureRatio = 0.5, delay = 2, delayUnit = ChronoUnit.SECONDS)
+	@CircuitBreakerName("findRandomVillain")
+	CompletionStage<Villain> getRandomVillain() {
+		// Want the 404 handling to be part of the circuit breaker
+		// This means that the 404 responses aren't considered errors by the circuit breaker
 		return this.villainClient
 			.request(MediaType.APPLICATION_JSON_TYPE)
 			.rx(UniInvoker.class)
 			.get(Villain.class)
 			.onFailure(Is404Exception.IS_404).recoverWithNull()
+			.subscribeAsCompletionStage();
+	}
+
+	/**
+	 * Finds a random {@link Villain}. The retry logic is applied to the result of the {@link CircuitBreaker}, meaning that retries that return failures could trigger the breaker to open.
+	 * @return A random {@link Villain}
+	 */
+	public Uni<Villain> findRandomVillain() {
+		// The CompletionState is important so that on retry the Uni re-subscribes to a new
+		// CompletionStage rather than the original one (which has already completed)
+		return Uni.createFrom().completionStage(this::getRandomVillain)
 			.onFailure().retry().withBackOff(Duration.ofMillis(200)).atMost(3);
 	}
 }

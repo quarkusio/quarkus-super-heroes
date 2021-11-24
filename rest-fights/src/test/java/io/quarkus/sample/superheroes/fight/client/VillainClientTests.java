@@ -6,10 +6,13 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
+import java.util.stream.IntStream;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 
+import org.eclipse.microprofile.faulttolerance.exceptions.CircuitBreakerOpenException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +24,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import io.smallrye.faulttolerance.api.CircuitBreakerMaintenance;
+import io.smallrye.faulttolerance.api.CircuitBreakerState;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
 /**
@@ -44,7 +49,7 @@ class VillainClientTests {
 	);
 
 	@InjectWireMock
-	WireMockServer server;
+	WireMockServer wireMockServer;
 
 	@Inject
 	VillainClient villainClient;
@@ -52,40 +57,52 @@ class VillainClientTests {
 	@Inject
 	ObjectMapper objectMapper;
 
+	@Inject
+	CircuitBreakerMaintenance circuitBreakerMaintenance;
+
 	@BeforeEach
 	public void beforeEach() {
-		this.server.resetAll();
+		this.wireMockServer.resetAll();
+	}
+
+	@AfterEach
+	public void afterEach() {
+		// Reset all circuit breaker counts after each test
+		this.circuitBreakerMaintenance.resetAll();
 	}
 
 	@Test
 	public void findsRandom() {
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			get(urlEqualTo(VILLAIN_API))
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultVillainJson()))
 		);
 
-		var villain = this.villainClient.findRandomVillain()
-			.subscribe().withSubscriber(UniAssertSubscriber.create())
-			.assertSubscribed()
-			.awaitItem(Duration.ofSeconds(5))
-			.getItem();
+		IntStream.range(0, 5)
+			.forEach(i -> {
+				var villain = this.villainClient.findRandomVillain()
+					.subscribe().withSubscriber(UniAssertSubscriber.create())
+					.assertSubscribed()
+					.awaitItem(Duration.ofSeconds(5))
+					.getItem();
 
-		assertThat(villain)
-			.isNotNull()
-			.extracting(
-				Villain::getName,
-				Villain::getLevel,
-				Villain::getPicture,
-				Villain::getPowers
-			)
-			.containsExactly(
-				DEFAULT_VILLAIN_NAME,
-				DEFAULT_VILLAIN_LEVEL,
-				DEFAULT_VILLAIN_PICTURE,
-				DEFAULT_VILLAIN_POWERS
-			);
+				assertThat(villain)
+					.isNotNull()
+					.extracting(
+						Villain::getName,
+						Villain::getLevel,
+						Villain::getPicture,
+						Villain::getPowers
+					)
+					.containsExactly(
+						DEFAULT_VILLAIN_NAME,
+						DEFAULT_VILLAIN_LEVEL,
+						DEFAULT_VILLAIN_PICTURE,
+						DEFAULT_VILLAIN_POWERS
+					);
+			});
 
-		this.server.verify(1,
+		this.wireMockServer.verify(5,
 			getRequestedFor(urlEqualTo(VILLAIN_API))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
@@ -93,18 +110,21 @@ class VillainClientTests {
 
 	@Test
 	public void recoversFrom404() {
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			get(urlEqualTo(VILLAIN_API))
 				.willReturn(notFound())
 		);
 
-		this.villainClient.findRandomVillain()
-			.subscribe().withSubscriber(UniAssertSubscriber.create())
-			.assertSubscribed()
-			.awaitItem(Duration.ofSeconds(5))
-			.assertItem(null);
+		IntStream.range(0, 5)
+			.forEach(i ->
+				this.villainClient.findRandomVillain()
+					.subscribe().withSubscriber(UniAssertSubscriber.create())
+					.assertSubscribed()
+					.awaitItem(Duration.ofSeconds(5))
+					.assertItem(null)
+			);
 
-		this.server.verify(1,
+		this.wireMockServer.verify(5,
 			getRequestedFor(urlEqualTo(VILLAIN_API))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
@@ -112,18 +132,51 @@ class VillainClientTests {
 
 	@Test
 	public void doesntRecoverFrom500() {
-		this.server.stubFor(
+		this.wireMockServer.stubFor(
 			get(urlEqualTo(VILLAIN_API))
 				.willReturn(serverError())
 		);
 
-		this.villainClient.findRandomVillain()
+		// The way the circuit breaker works is that you have to fire at least requestVolumeThreshold
+		// requests at the breaker before it starts to trip
+		// This is so it can fill its window
+
+		// Circuit breaker should trip after 2 calls to findRandomVillain
+		// 1 Call = 1 actual call + 3 fallbacks = 4 total calls
+		assertThat(this.circuitBreakerMaintenance.currentState("findRandomVillain"))
+			.isEqualTo(CircuitBreakerState.CLOSED);
+
+		// First 2 calls (and 3 subsequent retries) should just fail with WebApplicationException
+		// While making actual calls to the service
+		IntStream.rangeClosed(1, 2)
+			.forEach(i ->
+				this.villainClient.findRandomVillain()
+					.subscribe().withSubscriber(UniAssertSubscriber.create())
+					.assertSubscribed()
+					.awaitFailure(Duration.ofSeconds(5))
+					.assertFailedWith(WebApplicationException.class)
+			);
+
+		// Next call should trip the breaker
+		// The breaker should not make an actual call
+		var ex = this.villainClient.findRandomVillain()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
 			.assertSubscribed()
 			.awaitFailure(Duration.ofSeconds(5))
-			.assertFailedWith(WebApplicationException.class);
+			.getFailure();
 
-		this.server.verify(4,
+		assertThat(ex)
+			.isNotNull()
+			.isExactlyInstanceOf(CircuitBreakerOpenException.class)
+			.hasMessage("CircuitBreaker[%s#getRandomVillain] circuit breaker is open", VillainClient.class.getName());
+
+		// Verify that the breaker is open
+		assertThat(this.circuitBreakerMaintenance.currentState("findRandomVillain"))
+			.isEqualTo(CircuitBreakerState.OPEN);
+
+		// Verify that the server only saw 8 actual requests
+		// (2 "real" requests and 3 retries each)
+		this.wireMockServer.verify(8,
 			getRequestedFor(urlEqualTo(VILLAIN_API))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
