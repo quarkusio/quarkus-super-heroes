@@ -6,26 +6,24 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.websocket.OnClose;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.eclipse.microprofile.reactive.messaging.Channel;
-
 import io.quarkus.logging.Log;
 
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.subscription.Cancellable;
 
 @ServerEndpoint("/stats/team")
 @ApplicationScoped
 public class TeamStatsWebSocket {
-	@Channel("team-stats")
-	Multi<Double> stream;
-
 	private final List<Session> sessions = new CopyOnWriteArrayList<>();
 	private Cancellable cancellable;
+
+	@Inject
+	TeamStatsChannelHolder teamStatsChannelHolder;
 
 	@OnOpen
 	public void onOpen(Session session) {
@@ -39,7 +37,7 @@ public class TeamStatsWebSocket {
 
 	@PostConstruct
 	public void subscribe() {
-		this.cancellable = this.stream
+		this.cancellable = this.teamStatsChannelHolder.getTeamStats()
 			.map(ratio -> Double.toString(ratio))
 			.subscribe().with(ratio -> this.sessions.forEach(session -> write(session, ratio)));
 	}
@@ -50,6 +48,8 @@ public class TeamStatsWebSocket {
 	}
 
 	private void write(Session session, String text) {
+		Log.infof("Writing message %s", text);
+
 		session.getAsyncRemote().sendText(text, result -> {
 			if (result.getException() != null) {
 				Log.error("Unable to write message to web socket", result.getException());

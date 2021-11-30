@@ -2,6 +2,7 @@ package io.quarkus.sample.superheroes.statistics.endpoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,12 +19,13 @@ import javax.inject.Inject;
 import javax.websocket.ClientEndpoint;
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
+import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
@@ -44,10 +46,15 @@ class TopWinnerWebSocketTests {
 	URI uri;
 
 	@InjectMock
-	WinnerStatsChannelHolder winnerStatsChannelHolder;
+	TopWinnerStatsChannelHolder topWinnerStatsChannelHolder;
 
 	@Inject
 	ObjectMapper objectMapper;
+
+	@BeforeEach
+	public void beforeEach() {
+		MESSAGES.clear();
+	}
 
 	@Test
 	public void runTest() throws DeploymentException, IOException, InterruptedException {
@@ -67,8 +74,7 @@ class TopWinnerWebSocketTests {
 		var delayedItemsMulti = Multi.createFrom().items(TopWinnerWebSocketTests::createItems)
 			.onItem().call(scores -> Uni.createFrom().nullItem().onItem().delayIt().until(o -> delayedUni));
 
-		Mockito.when(this.winnerStatsChannelHolder.getWinners())
-			.thenReturn(delayedItemsMulti);
+		when(this.topWinnerStatsChannelHolder.getWinners()).thenReturn(delayedItemsMulti);
 
 		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(Client.class, this.uri)) {
 			assertThat(MESSAGES.poll(10, TimeUnit.SECONDS))
@@ -117,6 +123,11 @@ class TopWinnerWebSocketTests {
 		void message(String msg) {
 			Log.infof("Got message: %s", msg);
 			MESSAGES.add(msg);
+		}
+
+		@OnClose
+		public void onClose(Session session) {
+			MESSAGES.clear();
 		}
 	}
 }

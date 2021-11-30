@@ -5,17 +5,15 @@ import javax.inject.Inject;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
 
-import io.quarkus.sample.superheroes.statistics.domain.Score;
-
 import io.smallrye.mutiny.Multi;
 
 @ApplicationScoped
-public class WinnerStatsChannelHolder {
+class TeamStatsChannelHolder {
 	@Inject
-	@Channel("winner-stats")
-	Multi<Iterable<Score>> winners;
+	@Channel("team-stats")
+	Multi<Double> teamStats;
 
-	public Multi<Iterable<Score>> getWinners() {
-		return this.winners;
+	Multi<Double> getTeamStats() {
+		return this.teamStats;
 	}
 }

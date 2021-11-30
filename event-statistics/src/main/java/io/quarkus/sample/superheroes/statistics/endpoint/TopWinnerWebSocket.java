@@ -21,13 +21,13 @@ import io.smallrye.mutiny.unchecked.Unchecked;
 @ApplicationScoped
 public class TopWinnerWebSocket {
 	private final ObjectMapper mapper;
-	private final WinnerStatsChannelHolder winnerStatsChannelHolder;
+	private final TopWinnerStatsChannelHolder topWinnerStatsChannelHolder;
 	private final List<Session> sessions = new CopyOnWriteArrayList<>();
 	private Cancellable cancellable;
 
-	public TopWinnerWebSocket(ObjectMapper mapper, WinnerStatsChannelHolder winnerStatsChannelHolder) {
+	public TopWinnerWebSocket(ObjectMapper mapper, TopWinnerStatsChannelHolder topWinnerStatsChannelHolder) {
 		this.mapper = mapper;
-		this.winnerStatsChannelHolder = winnerStatsChannelHolder;
+		this.topWinnerStatsChannelHolder = topWinnerStatsChannelHolder;
 	}
 
 	@OnOpen
@@ -42,7 +42,7 @@ public class TopWinnerWebSocket {
 
 	@PostConstruct
 	public void subscribe() {
-		this.cancellable = this.winnerStatsChannelHolder.getWinners()
+		this.cancellable = this.topWinnerStatsChannelHolder.getWinners()
 			.map(Unchecked.function(this.mapper::writeValueAsString))
 			.subscribe().with(serialized -> this.sessions.forEach(session -> write(session, serialized)));
 	}
