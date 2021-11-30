@@ -11,13 +11,9 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.eclipse.microprofile.reactive.messaging.Channel;
-
 import io.quarkus.logging.Log;
-import io.quarkus.sample.superheroes.statistics.domain.Score;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.subscription.Cancellable;
 import io.smallrye.mutiny.unchecked.Unchecked;
 
@@ -25,13 +21,13 @@ import io.smallrye.mutiny.unchecked.Unchecked;
 @ApplicationScoped
 public class TopWinnerWebSocket {
 	private final ObjectMapper mapper;
-	private final Multi<Iterable<Score>> winners;
+	private final WinnerStatsChannelHolder winnerStatsChannelHolder;
 	private final List<Session> sessions = new CopyOnWriteArrayList<>();
 	private Cancellable cancellable;
 
-	public TopWinnerWebSocket(ObjectMapper mapper, @Channel("winner-stats") Multi<Iterable<Score>> winners) {
+	public TopWinnerWebSocket(ObjectMapper mapper, WinnerStatsChannelHolder winnerStatsChannelHolder) {
 		this.mapper = mapper;
-		this.winners = winners;
+		this.winnerStatsChannelHolder = winnerStatsChannelHolder;
 	}
 
 	@OnOpen
@@ -46,8 +42,8 @@ public class TopWinnerWebSocket {
 
 	@PostConstruct
 	public void subscribe() {
-		this.cancellable = this.winners
-			.map(Unchecked.function(scores -> this.mapper.writeValueAsString(scores)))
+		this.cancellable = this.winnerStatsChannelHolder.getWinners()
+			.map(Unchecked.function(this.mapper::writeValueAsString))
 			.subscribe().with(serialized -> this.sessions.forEach(session -> write(session, serialized)));
 	}
 
@@ -57,6 +53,8 @@ public class TopWinnerWebSocket {
 	}
 
 	private void write(Session session, String text) {
+		Log.infof("Writing message %s", text);
+
 		session.getAsyncRemote().sendText(text, result -> {
 			if (result.getException() != null) {
 				Log.error("Unable to write message to web socket", result.getException());

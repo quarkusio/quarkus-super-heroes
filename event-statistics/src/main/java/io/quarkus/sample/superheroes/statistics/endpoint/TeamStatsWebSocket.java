@@ -6,7 +6,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.websocket.OnClose;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -22,7 +21,6 @@ import io.smallrye.mutiny.subscription.Cancellable;
 @ServerEndpoint("/stats/team")
 @ApplicationScoped
 public class TeamStatsWebSocket {
-	@Inject
 	@Channel("team-stats")
 	Multi<Double> stream;
 
