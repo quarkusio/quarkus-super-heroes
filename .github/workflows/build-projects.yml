@@ -9,18 +9,35 @@ on:
       - main
 
 jobs:
-  build-java11:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        java: ['11', '17']
+    name: Build Java ${{ matrix.java }}
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 11
+      - name: Setup Java
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
+          java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: mvn clean verify
         run: ./mvnw -B clean verify
 
+#  build-java11:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Set up JDK 11
+#        uses: actions/setup-java@v2
+#        with:
+#          java-version: '11'
+#          distribution: 'temurin'
+#      - name: mvn clean verify
+#        run: ./mvnw -B clean verify
+#
 #  build-native-java11:
 #    runs-on: ubuntu-latest
 #    steps:
@@ -32,19 +49,19 @@ jobs:
 #          distribution: 'temurin'
 #      - name: mvn clean verify
 #        run: ./mvnw -B clean verify -Pnative
-
-  build-java17:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: mvn clean verify
-        run: ./mvnw -B clean verify
-
+#
+#  build-java17:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v2
+#        with:
+#          java-version: '17'
+#          distribution: 'temurin'
+#      - name: mvn clean verify
+#        run: ./mvnw -B clean verify
+#
 #  build-native-java17:
 #    runs-on: ubuntu-latest
 #    steps:
