@@ -58,7 +58,7 @@ public class TeamStatsWebSocketIT {
 		// Set up the client to connect to the socket
 		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(Client.class, this.uri)) {
 			// Make sure client connected
-			assertThat(MESSAGES.poll(2, TimeUnit.MINUTES))
+			assertThat(MESSAGES.poll(5, TimeUnit.MINUTES))
 				.isNotNull()
 				.isEqualTo("CONNECT");
 
@@ -70,7 +70,7 @@ public class TeamStatsWebSocketIT {
 
 			// Wait for our messages to appear in the queue
 			await()
-				.atMost(Duration.ofMinutes(2))
+				.atMost(Duration.ofMinutes(5))
 				.until(() -> MESSAGES.size() == sampleFights.size());
 
 			System.out.println("Messages received by test: " + MESSAGES);
