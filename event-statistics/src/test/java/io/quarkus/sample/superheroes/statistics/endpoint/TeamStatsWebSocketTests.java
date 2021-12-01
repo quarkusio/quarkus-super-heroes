@@ -40,8 +40,6 @@ import io.smallrye.mutiny.Uni;
  */
 @QuarkusTest
 class TeamStatsWebSocketTests {
-	private static final BlockingQueue<String> MESSAGES = new LinkedBlockingQueue<>();
-
 	@TestHTTPResource("/stats/team")
 	URI uri;
 
@@ -50,6 +48,9 @@ class TeamStatsWebSocketTests {
 
 	@Test
 	public void teamStatsWebSocketTestScenario() throws DeploymentException, IOException, InterruptedException {
+		// Set up the Queue to handle the messages
+		var messages = new LinkedBlockingQueue<String>();
+		
 		// Set up a single consumer latch
 		// It will wait for the client to connect and subscribe to the stream before emitting items
 		var latch = new CountDownLatch(1);
@@ -72,9 +73,9 @@ class TeamStatsWebSocketTests {
 		when(this.teamStatsChannelHolder.getTeamStats()).thenReturn(delayedItemsMulti);
 
 		// Set up the client to connect to the socket
-		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(Client.class, this.uri)) {
+		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(new Client(messages), this.uri)) {
 			// Make sure client connected
-			assertThat(MESSAGES.poll(5, TimeUnit.MINUTES))
+			assertThat(messages.poll(5, TimeUnit.MINUTES))
 				.isNotNull()
 				.isEqualTo("CONNECT");
 
@@ -88,12 +89,12 @@ class TeamStatsWebSocketTests {
 			// Wait for our messages to appear in the queue
 			await()
 				.atMost(Duration.ofMinutes(5))
-				.until(() -> MESSAGES.size() == expectedItems.size());
+				.until(() -> messages.size() == expectedItems.size());
 
-			System.out.println("Messages received by test: " + MESSAGES);
+			System.out.println("Messages received by test: " + messages);
 
 			// Perform assertions that all expected messages were received
-			assertThat(MESSAGES)
+			assertThat(messages)
 				.containsExactlyElementsOf(expectedItems);
 		}
 	}
@@ -103,20 +104,26 @@ class TeamStatsWebSocketTests {
 	}
 
 	@ClientEndpoint
-	private static class Client {
+	private class Client {
+		private final BlockingQueue<String> messages;
+
+		private Client(BlockingQueue<String> messages) {
+			this.messages = messages;
+		}
+
 		@OnOpen
 		public void open(Session session) {
-			MESSAGES.add("CONNECT");
+			this.messages.add("CONNECT");
 		}
 
 		@OnMessage
 		void message(String msg) {
-			MESSAGES.add(msg);
+			this.messages.add(msg);
 		}
 
 		@OnClose
 		public void onClose(Session session) {
-			MESSAGES.clear();
+			this.messages.clear();
 		}
 	}
 }

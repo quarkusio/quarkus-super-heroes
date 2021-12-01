@@ -45,7 +45,6 @@ public class TeamStatsWebSocketIT {
 	private static final String HERO_TEAM_NAME = "heroes";
 	private static final String VILLAIN_TEAM_NAME = "villains";
 	private static final String VILLAIN_NAME = "Darth Vader";
-	private static final BlockingQueue<String> MESSAGES = new LinkedBlockingQueue<>();
 
 	@TestHTTPResource("/stats/team")
 	URI uri;
@@ -55,10 +54,13 @@ public class TeamStatsWebSocketIT {
 
 	@Test
 	public void teamStatsWebSocketTestScenario() throws DeploymentException, IOException, InterruptedException {
+		// Set up the Queue to handle the messages
+		var messages = new LinkedBlockingQueue<String>();
+		
 		// Set up the client to connect to the socket
-		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(Client.class, this.uri)) {
+		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(new Client(messages), this.uri)) {
 			// Make sure client connected
-			assertThat(MESSAGES.poll(5, TimeUnit.MINUTES))
+			assertThat(messages.poll(5, TimeUnit.MINUTES))
 				.isNotNull()
 				.isEqualTo("CONNECT");
 
@@ -71,48 +73,48 @@ public class TeamStatsWebSocketIT {
 			// Wait for our messages to appear in the queue
 			await()
 				.atMost(Duration.ofMinutes(5))
-				.until(() -> MESSAGES.size() == sampleFights.size());
+				.until(() -> messages.size() == sampleFights.size());
 
-			System.out.println("Messages received by test: " + MESSAGES);
+			System.out.println("Messages received by test: " + messages);
 
 			// Perform assertions that all expected messages were received
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo(String.valueOf((double) 1/1));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo(String.valueOf((double) 1/2));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo(String.valueOf((double) 2/3));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo(String.valueOf((double) 2/4));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo(String.valueOf((double) 3/5));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo(String.valueOf((double) 3/6));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo(String.valueOf((double) 4/7));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo(String.valueOf((double) 4/8));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo(String.valueOf((double) 5/9));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo(String.valueOf((double) 5/10));
 		}
@@ -143,20 +145,26 @@ public class TeamStatsWebSocketIT {
 	}
 
 	@ClientEndpoint
-	private static class Client {
+	private class Client {
+		private final BlockingQueue<String> messages;
+
+		private Client(BlockingQueue<String> messages) {
+			this.messages = messages;
+		}
+		
 		@OnOpen
 		public void open(Session session) {
-			MESSAGES.add("CONNECT");
+			this.messages.add("CONNECT");
 		}
 
 		@OnMessage
 		void message(String msg) {
-			MESSAGES.add(msg);
+			this.messages.add(msg);
 		}
 
 		@OnClose
 		public void onClose(Session session) {
-			MESSAGES.clear();
+			this.messages.clear();
 		}
 	}
 }

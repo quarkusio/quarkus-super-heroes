@@ -45,7 +45,6 @@ public class TopWinnerWebSocketIT {
 	private static final String HERO_TEAM_NAME = "heroes";
 	private static final String VILLAIN_TEAM_NAME = "villains";
 	private static final String VILLAIN_NAME = "Darth Vader";
-	private static final BlockingQueue<String> MESSAGES = new LinkedBlockingQueue<>();
 
 	@TestHTTPResource("/stats/winners")
 	URI uri;
@@ -55,10 +54,13 @@ public class TopWinnerWebSocketIT {
 
 	@Test
 	public void topWinnerWebSocketTestScenario() throws DeploymentException, IOException, InterruptedException {
+		// Set up the Queue to handle the messages
+		var messages = new LinkedBlockingQueue<String>();
+
 		// Set up the client to connect to the socket
-		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(Client.class, this.uri)) {
+		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(new Client(messages), this.uri)) {
 			// Make sure client connected
-			assertThat(MESSAGES.poll(5, TimeUnit.MINUTES))
+			assertThat(messages.poll(5, TimeUnit.MINUTES))
 				.isNotNull()
 				.isEqualTo("CONNECT");
 
@@ -71,48 +73,48 @@ public class TopWinnerWebSocketIT {
 			// Wait for our messages to appear in the queue
 			await()
 				.atMost(Duration.ofMinutes(5))
-				.until(() -> MESSAGES.size() == sampleFights.size());
+				.until(() -> messages.size() == sampleFights.size());
 
-			System.out.println("Messages received by test: " + MESSAGES);
+			System.out.println("Messages received by test: " + messages);
 
 			// Perform assertions that all expected messages were received
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo("[%s]", createJsonString(HERO_NAME, 1));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 1), createJsonString(VILLAIN_NAME, 1));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 2), createJsonString(VILLAIN_NAME, 1));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 2), createJsonString(VILLAIN_NAME, 2));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 3), createJsonString(VILLAIN_NAME, 2));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 3), createJsonString(VILLAIN_NAME, 3));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 4), createJsonString(VILLAIN_NAME, 3));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 4), createJsonString(VILLAIN_NAME, 4));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 5), createJsonString(VILLAIN_NAME, 4));
 
-			assertThat(MESSAGES.poll())
+			assertThat(messages.poll())
 				.isNotNull()
 				.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 5), createJsonString(VILLAIN_NAME, 5));
 		}
@@ -147,20 +149,26 @@ public class TopWinnerWebSocketIT {
 	}
 
 	@ClientEndpoint
-	private static class Client {
+	private class Client {
+		private final BlockingQueue<String> messages;
+
+		private Client(BlockingQueue<String> messages) {
+			this.messages = messages;
+		}
+
 		@OnOpen
 		public void open(Session session) {
-			MESSAGES.add("CONNECT");
+			this.messages.add("CONNECT");
 		}
 
 		@OnMessage
 		void message(String msg) {
-			MESSAGES.add(msg);
+			this.messages.add(msg);
 		}
 
 		@OnClose
 		public void onClose(Session session) {
-			MESSAGES.clear();
+			this.messages.clear();
 		}
 	}
 }
