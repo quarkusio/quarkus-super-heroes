@@ -1,7 +1,7 @@
 # Quarkus Superheroes Sample
 
 This is a sample application demonstrating Quarkus features and best practices. The application allows superheroes to fight against supervillains. The application consists of several microservices, communicating either synchronously via REST or asynchronously using Kafka:
-- [Super Hero UI](ui-super-heroes)
+- [Super Hero Battle UI](ui-super-heroes)
     - An Angular application to pick up a random superhero, a random supervillain, and makes them fight.
     - The Super Hero UI is exposed via Quarkus and invokes the Fight REST API.
 - [Villain REST API](rest-villains)

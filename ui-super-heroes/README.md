@@ -1,75 +1,21 @@
-# Angular UI
+# Superheroes Battle UI
 
-This project was generated with [Angular CLI](https://cli.angular.io/) version 8.3.5.
+## Table of Contents
+- [Introduction](#introduction)
+- [Running the Application](#running-the-application)
 
-## Setup
+## Introduction
+This is the main user interface for the application. The application is an Angular application but is also packaged as a Quarkus application for convenience.
 
-Make sure you have [Node JS](https://nodejs.org) installed and [Angular CLI](https://github.com/angular/angular-cli)
+![ui-super-heroes](images/ui-super-heroes.png)
 
-```
-$ ng version
+The main UI allows you to pick up one random Hero and Villain by clicking on "New Fighters." Then it’s just a matter of clicking on "Fight!" to get them to fight. The table at the bottom shows the list of the previous fights.
 
-Angular CLI: 8.3.5
-Node: 12.10.0
-```
+![main-ui](images/main-ui.png)
 
-If you need to update the version of Angular CLI you can run
+## Running the Application
+First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Fights Service](../rest-fights) - the [Event Statistics Service](../event-statistics) is optional).
 
-``` 
-npm install -g @angular/cli
-```
+This application runs on port `8080`.
 
-## Angular CLI commands
-
-### Initiliaze
-
-```
-$ ng new super-heroes --directory super-heroes-ui --prefix hero --routing false --skipTests true --inlineStyle true --commit false --minimal true --style css
-```
-
-### Admin components
-
-```
-$ ng generate component fight-list --spec false --inline-style true
-$ ng generate component fight --spec false --inline-style true
-```
-
-### Material design
-
-```
-$ ng add @angular/material
-```
-
-### Swagger Codegen
-
-```
-$ swagger-codegen generate -i http://localhost:8082/openapi -l typescript-angular -o src/app/shared
-```
-
-
-
-## Angular CLI documentation
-
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+From the `quarkus-super-heroes/ui-super-heroes` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application's UI will be exposed at http://localhost:8080 and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at http://localhost:8080/q/dev.
