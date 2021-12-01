@@ -124,7 +124,7 @@ class TopWinnerWebSocketTests {
 	}
 
 	@ClientEndpoint
-	public static class Client {
+	private static class Client {
 		@OnOpen
 		public void open(Session session) {
 			MESSAGES.add("CONNECT");
