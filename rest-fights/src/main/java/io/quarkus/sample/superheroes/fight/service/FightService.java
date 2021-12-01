@@ -178,7 +178,7 @@ public class FightService {
 	}
 
 	Fight heroWonFight(Fighters fighters) {
-		Log.info("Yes, Hero won :o)");
+		Log.infof("Yes, Hero %s won over %s :o)", fighters.getHero().getName(), fighters.getVillain().getName());
 
 		Fight fight = new Fight();
 		fight.winnerName = fighters.getHero().getName();
@@ -194,7 +194,7 @@ public class FightService {
 	}
 
 	Fight villainWonFight(Fighters fighters) {
-		Log.info("Gee, Villain won :o(");
+		Log.infof("Gee, Villain %s won over %s :o(", fighters.getVillain().getName(), fighters.getHero().getName());
 
 		Fight fight = new Fight();
 		fight.winnerName = fighters.getVillain().getName();
