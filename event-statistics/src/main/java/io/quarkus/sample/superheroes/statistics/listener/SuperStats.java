@@ -7,12 +7,13 @@ import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import org.jboss.logging.Logger;
 
 import io.quarkus.sample.superheroes.statistics.domain.Fight;
-import io.quarkus.sample.superheroes.statistics.domain.Ranking;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
-import io.quarkus.sample.superheroes.statistics.domain.TeamStats;
 
 import io.smallrye.mutiny.Multi;
 
+/**
+ * Consumer of {@link Fight} events from Kafka. There are 2 consumers for performing different aggregations. Each consumer writes out to its own in-memory channel.
+ */
 @ApplicationScoped
 public class SuperStats {
 	private static final Logger LOGGER = Logger.getLogger(SuperStats.class);
@@ -20,13 +21,26 @@ public class SuperStats {
 	private final Ranking topWinners = new Ranking(10);
 	private final TeamStats stats = new TeamStats();
 
+	/**
+	 * Transforms the {@link Fight} stream into a stream of ratios. Each ratio indicates the running percentage of battles won by heroes.
+	 * @param results The {@link Fight} continuous stream
+	 * @return A continuous stream of percentages of battles won by heroes sent to the {@code team-stats} in-memory channel.
+	 */
 	@Incoming("fights")
 	@Outgoing("team-stats")
 	public Multi<Double> computeTeamStats(Multi<Fight> results) {
 		return results.map(this.stats::add)
-			.invoke(stats -> LOGGER.infof("Fight received. Computed the team statistics: %d", stats));
+			.invoke(stats -> LOGGER.debugf("Fight received. Computed the team statistics: %,.010f", stats));
 	}
 
+	/**
+	 * Transforms the {@link Fight} stream into a running stream of top winners.
+	 * <p>
+	 *   The incoming stream is first grouped by {@link Fight#getWinnerName}. Then the number of wins for that winner is computed.
+	 * </p>
+	 * @param results The {@link Fight} continuous stream
+	 * @return A continuous stream of the top 10 winners and the number of wins for each winner
+	 */
 	@Incoming("fights")
 	@Outgoing("winner-stats")
 	public Multi<Iterable<Score>> computeTopWinners(Multi<Fight> results) {
@@ -37,7 +51,7 @@ public class SuperStats {
 					.filter(score -> score.getName() != null)
 			)
 			.map(this.topWinners::onNewScore)
-			.invoke(topScores -> LOGGER.infof("Fight received. Computed the top winners: %s", topScores));
+			.invoke(topScores -> LOGGER.debugf("Fight received. Computed the top winners: %s", topScores));
 	}
 
 	private Score incrementScore(Score score, Fight fight) {

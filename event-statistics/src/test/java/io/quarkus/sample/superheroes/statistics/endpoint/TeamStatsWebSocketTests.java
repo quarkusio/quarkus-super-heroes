@@ -25,7 +25,6 @@ import javax.websocket.Session;
 
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.logging.Log;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
@@ -33,6 +32,12 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
+/**
+ * Tests for the {@link TeamStatsWebSocket} class.
+ * <p>
+ *   These tests mock the {@link TeamStatsChannelHolder#getTeamStats()} method to return pre-defined input and then set up a sample WebSocket client to listen to messages sent by the server. Each message received is placed into a {@link BlockingQueue} so that message content can be asserted once the expected number of messages have been received.
+ * </p>
+ */
 @QuarkusTest
 class TeamStatsWebSocketTests {
 	private static final BlockingQueue<String> MESSAGES = new LinkedBlockingQueue<>();
@@ -44,7 +49,9 @@ class TeamStatsWebSocketTests {
 	TeamStatsChannelHolder teamStatsChannelHolder;
 
 	@Test
-	public void runTest() throws DeploymentException, IOException, InterruptedException {
+	public void teamStatsWebSocketTestScenario() throws DeploymentException, IOException, InterruptedException {
+		// Set up a single consumer latch
+		// It will wait for the client to connect and subscribe to the stream before emitting items
 		var latch = new CountDownLatch(1);
 		var delayedUni = Uni.createFrom().voidItem()
 			.onItem().delayIt().until(x -> {
@@ -61,14 +68,17 @@ class TeamStatsWebSocketTests {
 		var delayedItemsMulti = Multi.createFrom().items(TeamStatsWebSocketTests::createItems)
 			.onItem().call(items -> Uni.createFrom().nullItem().onItem().delayIt().until(o -> delayedUni));
 
+		// Mock TeamStatsChannelHolder.getTeamStats() to return the delayed Multi
 		when(this.teamStatsChannelHolder.getTeamStats()).thenReturn(delayedItemsMulti);
 
+		// Set up the client to connect to the socket
 		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(Client.class, this.uri)) {
+			// Make sure client connected
 			assertThat(MESSAGES.poll(10, TimeUnit.SECONDS))
 				.isNotNull()
 				.isEqualTo("CONNECT");
 
-			// We're connected - trigger the Multi subscription
+			// Client has connected - trigger the Multi subscription
 			latch.countDown();
 
 			var expectedItems = createItems()
@@ -80,8 +90,9 @@ class TeamStatsWebSocketTests {
 				.atMost(Duration.ofSeconds(30))
 				.until(() -> MESSAGES.size() == expectedItems.size());
 
-			Log.infof("Messages received by test: %s", MESSAGES);
+			System.out.println("Messages received by test: " + MESSAGES);
 
+			// Perform assertions that all expected messages were received
 			assertThat(MESSAGES)
 				.containsExactlyElementsOf(expectedItems);
 		}
@@ -100,7 +111,6 @@ class TeamStatsWebSocketTests {
 
 		@OnMessage
 		void message(String msg) {
-			Log.infof("Got message: %s", msg);
 			MESSAGES.add(msg);
 		}
 

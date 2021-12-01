@@ -17,6 +17,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.subscription.Cancellable;
 import io.smallrye.mutiny.unchecked.Unchecked;
 
+/**
+ * WebSocket endpoint for the {@code /stats/winners} endpoint. Exposes the {@code winner-stats} channel over the socket to anyone listening.
+ * <p>
+ *   Uses constructor injection over field injection to show how it is done.
+ * </p>
+ * @see TopWinnerStatsChannelHolder
+ */
 @ServerEndpoint("/stats/winners")
 @ApplicationScoped
 public class TopWinnerWebSocket {
@@ -56,8 +63,10 @@ public class TopWinnerWebSocket {
 		Log.infof("Writing message %s", text);
 
 		session.getAsyncRemote().sendText(text, result -> {
-			if (result.getException() != null) {
-				Log.error("Unable to write message to web socket", result.getException());
+			var ex = result.getException();
+
+			if (ex != null) {
+				Log.error("Unable to write message to web socket", ex);
 			}
 		});
 	}

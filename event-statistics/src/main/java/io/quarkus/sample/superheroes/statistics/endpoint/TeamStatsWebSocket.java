@@ -16,6 +16,13 @@ import io.quarkus.logging.Log;
 
 import io.smallrye.mutiny.subscription.Cancellable;
 
+/**
+ * WebSocket endpoint for the {@code /stats/team} endpoint. Exposes the {@code team-stats} channel over the socket to anyone listening.
+ * <p>
+ *   Uses field injection via {@link Inject @Inject} over construction injection to show how it is done
+ * </p>
+ * @see TeamStatsChannelHolder
+ */
 @ServerEndpoint("/stats/team")
 @ApplicationScoped
 public class TeamStatsWebSocket {

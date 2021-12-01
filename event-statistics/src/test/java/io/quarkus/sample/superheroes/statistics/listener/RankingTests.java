@@ -1,9 +1,14 @@
-package io.quarkus.sample.superheroes.statistics.domain;
+package io.quarkus.sample.superheroes.statistics.listener;
 
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import io.quarkus.sample.superheroes.statistics.domain.Score;
+
+/**
+ * Tests for the {@link io.quarkus.sample.superheroes.statistics.listener.Ranking} class. Not a {@link io.quarkus.test.junit.QuarkusTest @QuarkusTest} because the test can simply call the methods with the appropriate input.
+ */
 class RankingTests {
 	private Ranking ranking = new Ranking(3);
 

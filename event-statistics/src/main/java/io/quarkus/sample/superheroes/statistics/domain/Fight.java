@@ -2,13 +2,13 @@ package io.quarkus.sample.superheroes.statistics.domain;
 
 import java.time.Instant;
 
-import io.quarkus.runtime.annotations.RegisterForReflection;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-@RegisterForReflection
+/**
+ * Data class for a fight. Uses <a href="https://projectlombok.org/">Lombok</a> for getters/setters/constructors/etc.
+ */
 @Data
 @AllArgsConstructor
 @Builder

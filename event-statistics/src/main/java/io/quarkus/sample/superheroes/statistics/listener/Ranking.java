@@ -1,4 +1,4 @@
-package io.quarkus.sample.superheroes.statistics.domain;
+package io.quarkus.sample.superheroes.statistics.listener;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,22 +8,29 @@ import java.util.stream.Collectors;
 
 import org.jboss.logging.Logger;
 
-import io.quarkus.runtime.annotations.RegisterForReflection;
+import io.quarkus.sample.superheroes.statistics.domain.Score;
 
-@RegisterForReflection
-public class Ranking {
+/**
+ * Object used to compute a floating &quot;top&quot; winners. The number of winners to keep track of is defined at construction time.
+ */
+class Ranking {
 	private static final Logger LOGGER = Logger.getLogger(Ranking.class);
 	private static final Comparator<Score> SCORE_COMPARATOR = Comparator.comparingInt(s -> -1 * s.getScore());
 
 	private final List<Score> topScores;
 	private final int max;
 
-	public Ranking(int size) {
+	Ranking(int size) {
 		this.max = size;
 		this.topScores = new ArrayList<>(this.max);
 	}
 
-	public synchronized Iterable<Score> onNewScore(Score score) {
+	/**
+	 * Records a new {@link Score}
+	 * @param score The {@link Score} received
+	 * @return The current list of floating top winners and their scores
+	 */
+	synchronized Iterable<Score> onNewScore(Score score) {
 		LOGGER.debugf("Adding score: %s", score);
 
 		// Remove one if the name already exists
@@ -32,12 +39,13 @@ public class Ranking {
 		// Add the score
 		this.topScores.add(score);
 
-		// Limit the list to max size
+		// Sort the list and limit it to the max size
 		var sortedScores = this.topScores.stream()
 			.sorted(SCORE_COMPARATOR)
 			.limit(this.max)
 			.collect(Collectors.toUnmodifiableList());
 
+		// Rebuild the list
 		this.topScores.clear();
 		this.topScores.addAll(sortedScores);
 

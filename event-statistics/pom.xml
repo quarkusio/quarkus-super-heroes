@@ -12,9 +12,9 @@
   <version>1.0.0-SNAPSHOT</version>
   <name>Quarkus Sample :: Super-Heroes :: Statistics Microservice</name>
   <properties>
-	  <awaitility.version>4.1.1</awaitility.version>
+    <awaitility.version>4.1.1</awaitility.version>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
-	  <lombok.version>1.18.22</lombok.version>
+    <lombok.version>1.18.22</lombok.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
@@ -65,37 +65,32 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-health</artifactId>
     </dependency>
-	  <dependency>
-		  <groupId>org.projectlombok</groupId>
-		  <artifactId>lombok</artifactId>
-		  <version>${lombok.version}</version>
-		  <scope>provided</scope>
-	  </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>
     </dependency>
-	  <dependency>
-		  <groupId>io.quarkus</groupId>
-		  <artifactId>quarkus-junit5-mockito</artifactId>
-		  <scope>test</scope>
-	  </dependency>
-	  <dependency>
-		  <groupId>org.assertj</groupId>
-		  <artifactId>assertj-core</artifactId>
-		  <scope>test</scope>
-	  </dependency>
-	  <dependency>
-		  <groupId>io.smallrye.reactive</groupId>
-		  <artifactId>smallrye-reactive-messaging-in-memory</artifactId>
-		  <scope>test</scope>
-	  </dependency>
-	  <dependency>
-		  <groupId>org.awaitility</groupId>
-		  <artifactId>awaitility</artifactId>
-		  <scope>test</scope>
-	  </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-junit5-mockito</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -119,13 +114,13 @@
         <version>${compiler-plugin.version}</version>
         <configuration>
           <parameters>${maven.compiler.parameters}</parameters>
-	        <annotationProcessorPaths>
-		        <path>
-			        <groupId>org.projectlombok</groupId>
-			        <artifactId>lombok</artifactId>
-			        <version>${lombok.version}</version>
-		        </path>
-	        </annotationProcessorPaths>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
       <plugin>
@@ -138,25 +133,25 @@
           </systemPropertyVariables>
         </configuration>
       </plugin>
-	    <plugin>
-		    <artifactId>maven-failsafe-plugin</artifactId>
-		    <version>${surefire-plugin.version}</version>
-		    <executions>
-			    <execution>
-				    <goals>
-					    <goal>integration-test</goal>
-					    <goal>verify</goal>
-				    </goals>
-				    <configuration>
-					    <systemPropertyVariables>
-						    <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
-						    <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-						    <maven.home>${maven.home}</maven.home>
-					    </systemPropertyVariables>
-				    </configuration>
-			    </execution>
-		    </executions>
-	    </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${surefire-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+            <configuration>
+              <systemPropertyVariables>
+                <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+                <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                <maven.home>${maven.home}</maven.home>
+              </systemPropertyVariables>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <profiles>

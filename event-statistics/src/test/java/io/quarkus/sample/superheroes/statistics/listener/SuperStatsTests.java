@@ -2,7 +2,6 @@ package io.quarkus.sample.superheroes.statistics.listener;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -11,14 +10,20 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.statistics.domain.Fight;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
-import io.quarkus.sample.superheroes.statistics.domain.TeamStats;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.helpers.test.AssertSubscriber;
 
+/**
+ * Tests for the {@link SuperStats} class. Not a {@link io.quarkus.test.junit.QuarkusTest @QuarkusTest} because the test can simply call the methods with the appropriate input.
+ * <p>
+ *   The listening capabilities will be tested in the integration tests.
+ * </p>
+ */
 class SuperStatsTests {
-	private static final Instant NOW = Instant.now();
+	private static final String HERO_TEAM_NAME = "heroes";
 	private static final String HERO_NAME = "Chewbacca";
+	private static final String VILLAIN_TEAM_NAME = "villains";
 	private static final String VILLAIN_NAME = "Darth Vader";
 	private SuperStats superStats = new SuperStats();
 
@@ -165,14 +170,14 @@ class SuperStatsTests {
 				var fight = Fight.builder();
 
 				if (i % 2 == 0) {
-					fight = fight.winnerTeam("heroes")
-						.loserTeam("villains")
+					fight = fight.winnerTeam(HERO_TEAM_NAME)
+						.loserTeam(VILLAIN_TEAM_NAME)
 						.winnerName(heroName)
 						.loserName(villainName);
 				}
 				else {
-					fight = fight.winnerTeam("villains")
-						.loserTeam("heroes")
+					fight = fight.winnerTeam(VILLAIN_TEAM_NAME)
+						.loserTeam(HERO_TEAM_NAME)
 						.winnerName(villainName)
 						.loserName(heroName);
 				}

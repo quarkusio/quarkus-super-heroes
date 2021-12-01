@@ -27,7 +27,6 @@ import javax.websocket.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -38,6 +37,12 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 
+/**
+ * Tests for the {@link TopWinnerWebSocket} class.
+ * <p>
+ *   These tests mock the {@link TopWinnerStatsChannelHolder#getWinners()} method to return pre-defined input and then set up a sample WebSocket client to listen to messages sent by the server. Each message received is placed into a {@link BlockingQueue} so that message content can be asserted once the expected number of messages have been received.
+ * </p>
+ */
 @QuarkusTest
 class TopWinnerWebSocketTests {
 	private static final BlockingQueue<String> MESSAGES = new LinkedBlockingQueue<>();
@@ -57,7 +62,9 @@ class TopWinnerWebSocketTests {
 	}
 
 	@Test
-	public void runTest() throws DeploymentException, IOException, InterruptedException {
+	public void topWinnerWebSocketTestScenario() throws DeploymentException, IOException, InterruptedException {
+		// Set up a single consumer latch
+		// It will wait for the client to connect and subscribe to the stream before emitting items
 		var latch = new CountDownLatch(1);
 		var delayedUni = Uni.createFrom().voidItem().onItem().delayIt()
 			.until(x -> {
@@ -74,14 +81,17 @@ class TopWinnerWebSocketTests {
 		var delayedItemsMulti = Multi.createFrom().items(TopWinnerWebSocketTests::createItems)
 			.onItem().call(scores -> Uni.createFrom().nullItem().onItem().delayIt().until(o -> delayedUni));
 
+		// Mock TopWinnerStatsChannelHolder.getWinners() to return the delayed Multi
 		when(this.topWinnerStatsChannelHolder.getWinners()).thenReturn(delayedItemsMulti);
 
+		// Set up the client to connect to the socket
 		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(Client.class, this.uri)) {
+			// Make sure client connected
 			assertThat(MESSAGES.poll(10, TimeUnit.SECONDS))
 				.isNotNull()
 				.isEqualTo("CONNECT");
 
-			// We're connected - trigger the Multi subscription
+			// Client has connected - trigger the Multi subscription
 			latch.countDown();
 
 			var expectedItems = createItems().collect(Collectors.toList());
@@ -91,8 +101,9 @@ class TopWinnerWebSocketTests {
 				.atMost(Duration.ofSeconds(30))
 				.until(() -> MESSAGES.size() == expectedItems.size());
 
-			Log.infof("Messages received by test: %s", MESSAGES);
+			System.out.println("Messages received by test: " + MESSAGES);
 
+			// Perform assertions that all expected messages were received
 			expectedItems.stream()
 				.map(Unchecked.function(this.objectMapper::writeValueAsString))
 				.forEach(expectedMsg ->
@@ -121,7 +132,6 @@ class TopWinnerWebSocketTests {
 
 		@OnMessage
 		void message(String msg) {
-			Log.infof("Got message: %s", msg);
 			MESSAGES.add(msg);
 		}
 
