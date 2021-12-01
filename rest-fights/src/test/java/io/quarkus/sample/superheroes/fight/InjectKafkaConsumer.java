@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  *     }
  *   </pre>
  * </p>
- * @see KafkaBrokerResource
+ * @see KafkaConsumerResource
  */
 @Target({ METHOD, CONSTRUCTOR, FIELD })
 @Retention(RUNTIME)

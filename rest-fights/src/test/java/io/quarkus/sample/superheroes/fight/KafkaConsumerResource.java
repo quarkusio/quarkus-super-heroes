@@ -19,10 +19,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
- * Quarkus {@link QuarkusTestResourceLifecycleManager} binding the {@code kafka.bootstrap.servers}, and exposing it to tests that want to inject it via {@link InjectKafkaConsumer}.
+ * Quarkus {@link QuarkusTestResourceLifecycleManager}. Listens to the {@link DevServicesContext#ContextAware} event to bind a {@link KafkaConsumer} to the {@code kafka.bootstrap.servers} address used by <a href="https://quarkus.io/guides/kafka-dev-services">Quarkus Dev Services for Kafka</a>.
+ * <p>
+ *   The {@link KafkaConsumer} can then be injected into any tests via the {@link InjectKafkaConsumer} annotation.
+ * </p>
  * @see InjectKafkaConsumer
  */
-public class KafkaBrokerResource implements QuarkusTestResourceLifecycleManager, DevServicesContext.ContextAware {
+public class KafkaConsumerResource implements QuarkusTestResourceLifecycleManager, DevServicesContext.ContextAware {
 	private static final AtomicReference<Map<String, String>> DEV_SERVICES_PROPERTIES = new AtomicReference<>(new HashMap<>());
 	private KafkaConsumer<String, Fight> fightConsumer;
 

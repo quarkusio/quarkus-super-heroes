@@ -36,7 +36,7 @@ import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource;
 import io.quarkus.sample.superheroes.fight.InjectKafkaConsumer;
 import io.quarkus.sample.superheroes.fight.InjectWireMock;
-import io.quarkus.sample.superheroes.fight.KafkaBrokerResource;
+import io.quarkus.sample.superheroes.fight.KafkaConsumerResource;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -57,11 +57,11 @@ import com.github.tomakehurst.wiremock.client.WireMock;
  *   Uses an external container image for Kafka
  * </p>
  * @see HeroesVillainsWiremockServerResource
- * @see KafkaBrokerResource
+ * @see io.quarkus.sample.superheroes.fight.KafkaConsumerResource
  */
 @QuarkusIntegrationTest
 @QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
-@QuarkusTestResource(value = KafkaBrokerResource.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(value = KafkaConsumerResource.class, restrictToAnnotatedClass = true)
 @TestMethodOrder(OrderAnnotation.class)
 public class FightResourceIT {
 	private static final int DEFAULT_ORDER = 0;
