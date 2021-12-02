@@ -1,0 +1,41 @@
+name: Deploy JVM Container images
+
+on:
+  push:
+    branches:
+      - main
+
+#on:
+#  workflow_run:
+#    workflows:
+#      - Build and test JVM
+#    branches:
+#      - main
+#    types:
+#      - completed
+
+jobs:
+  push-jvm-images:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['11', '17']
+    name: Deploy JVM container images for Java ${{ matrix.java }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Java
+          uses: actions/setup-java@v2
+          with:
+            java-version: ${{ matrix.java }}
+            distribution: 'temurin'
+            cache: 'maven'
+      - name: Create env vars
+        run: |
+          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
+          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      - name: Print env vars
+        run: echo "QUARKUS_VERSION = ${{ env.QUARKUS_VERSION }}" && echo "APP_VERSION = ${{ env.APP_VERSION }}"
+#      - name: Push container images
+#        run: ./mvnw clean package -DskipTests -Dmaven.compiler.release=${{ matrix.java }} -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.tag= -Dquarkus.container-image.username=${{ secrets.QUAY_REPO_USERNAME }} -Dquarkus.container-image.password=${{ secrets.QUAY_REPO_TOKEN }}
