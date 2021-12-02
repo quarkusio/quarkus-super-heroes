@@ -26,11 +26,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup Java
-          uses: actions/setup-java@v2
-          with:
-            java-version: ${{ matrix.java }}
-            distribution: 'temurin'
-            cache: 'maven'
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'maven'
       - name: Create env vars
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
