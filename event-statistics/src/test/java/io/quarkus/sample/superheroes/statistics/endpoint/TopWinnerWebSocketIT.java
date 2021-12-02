@@ -39,7 +39,7 @@ import io.quarkus.test.junit.QuarkusIntegrationTest;
  * </p>
  */
 @QuarkusIntegrationTest
-@QuarkusTestResource(KafkaProducerResource.class)
+@QuarkusTestResource(value = KafkaProducerResource.class, restrictToAnnotatedClass = true)
 public class TopWinnerWebSocketIT {
 	private static final String HERO_NAME = "Chewbacca";
 	private static final String HERO_TEAM_NAME = "heroes";
