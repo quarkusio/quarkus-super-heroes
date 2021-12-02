@@ -1,4 +1,4 @@
-name: Build and test projects
+name: Build and test JVM
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-jvm:
     runs-on: ubuntu-latest
     strategy:
 #      max-parallel: 1
@@ -26,16 +26,3 @@ jobs:
           distribution: 'temurin'
       - name: mvn clean verify
         run: ./mvnw -B clean verify -Dquarkus.http.host=0.0.0.0 -Dquarkus.http.test-port=0
-
-  build-native:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup GraalVM
-        uses: ayltai/setup-graalvm@v1
-        with:
-          java-version: 11
-          graalvm-version: 21.3.0
-          native-image: true
-      - name: mvn clean verify
-        run: ./mvnw -B clean verify -Dquarkus.http.host=0.0.0.0 -Dquarkus.http.test-port=0 -Pnative
