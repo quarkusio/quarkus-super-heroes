@@ -19,5 +19,11 @@ jobs:
           java-version: 11
           graalvm-version: 21.3.0
           native-image: true
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
       - name: mvn clean verify
         run: ./mvnw -B clean verify -Dquarkus.http.host=0.0.0.0 -Dquarkus.http.test-port=0 -Pnative
