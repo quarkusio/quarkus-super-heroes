@@ -25,6 +25,6 @@ jobs:
         with:
           path: ~/.m2/repository
           key: setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: setup-java-${{ runner.os }}-maven-
+          restore-keys: setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
       - name: mvn clean verify
         run: ./mvnw -B clean verify -Dquarkus.http.host=0.0.0.0 -Dquarkus.http.test-port=0 -Pnative
