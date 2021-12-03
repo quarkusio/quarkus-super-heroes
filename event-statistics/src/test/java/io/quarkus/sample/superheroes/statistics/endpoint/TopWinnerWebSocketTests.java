@@ -17,12 +17,15 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.websocket.ClientEndpoint;
+import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
-import javax.websocket.Session;
 
+import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.statistics.domain.Score;
@@ -79,7 +82,7 @@ class TopWinnerWebSocketTests {
 		when(this.topWinnerStatsChannelHolder.getWinners()).thenReturn(delayedItemsMulti);
 
 		// Set up the client to connect to the socket
-		try (var session = ContainerProvider.getWebSocketContainer().connectToServer(new Client(messages), this.uri)) {
+		try (var session = ContainerProvider.getWebSocketContainer().connectToServer(new EndpointTestClient(messages), this.uri)) {
 			// Make sure client connected
 			assertThat(messages.poll(5, TimeUnit.MINUTES))
 				.isNotNull()
@@ -118,21 +121,34 @@ class TopWinnerWebSocketTests {
 	}
 
 	@ClientEndpoint
-	private class Client {
+	class EndpointTestClient {
+		private final Logger logger = Logger.getLogger(EndpointTestClient.class);
 		private final BlockingQueue<String> messages;
 
-		private Client(BlockingQueue<String> messages) {
+		EndpointTestClient(BlockingQueue<String> messages) {
 			this.messages = messages;
 		}
-		
+
 		@OnOpen
-		public void open(Session session) {
+		public void open() {
+			this.logger.info("Opening socket");
 			this.messages.offer("CONNECT");
 		}
 
 		@OnMessage
-		void message(String msg) {
+		public void message(String msg) {
+			this.logger.infof("Got message: %s", msg);
 			this.messages.offer(msg);
+		}
+
+		@OnClose
+		public void close(CloseReason closeReason) {
+			this.logger.infof("Closing socket: %s", closeReason);
+		}
+
+		@OnError
+		public void error(Throwable error) {
+			this.logger.errorf(error, "Socket closed with error");
 		}
 	}
 }
