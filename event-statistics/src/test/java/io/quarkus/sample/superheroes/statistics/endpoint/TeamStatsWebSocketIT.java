@@ -16,7 +16,6 @@ import java.util.stream.IntStream;
 import javax.websocket.ClientEndpoint;
 import javax.websocket.ContainerProvider;
 import javax.websocket.DeploymentException;
-import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -154,17 +153,12 @@ public class TeamStatsWebSocketIT {
 		
 		@OnOpen
 		public void open(Session session) {
-			this.messages.add("CONNECT");
+			this.messages.offer("CONNECT");
 		}
 
 		@OnMessage
 		void message(String msg) {
-			this.messages.add(msg);
-		}
-
-		@OnClose
-		public void onClose(Session session) {
-			this.messages.clear();
+			this.messages.offer(msg);
 		}
 	}
 }
