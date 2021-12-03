@@ -79,18 +79,18 @@ jobs:
             -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
             -Dquarkus.container-image.additional-tags=${{ env.ADDITIONAL_TAGS }}
 
-      - name: Push native container image
-        run: |
-          ./mvnw -B package -Pnative -DskipTests\
-            -Dmaven.compiler.release=${{ matrix.java }} \
-            -Dquarkus.http.host=0.0.0.0 \
-            -Dquarkus.http.test-port=0 \
-#            -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:21.3-java${{ matrix.java }} \
-#            -Dquarkus.native.container-build=true \
-            -Dquarkus.native.reuse-existing=true \
-#            -Dquarkus.container-image.build=true \
-            -Dquarkus.container-image.push=true \
-            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
-            -Dquarkus.container-image.additional-tags=${{ env.ADDITIONAL_TAGS }} \
-            -Dquarkus.container-image.username=${{ secrets.QUAY_REPO_USERNAME }} \
-            -Dquarkus.container-image.password=${{ secrets.QUAY_REPO_TOKEN }}
+#      - name: Push native container image
+#        run: |
+#          ./mvnw -B package -Pnative -DskipTests\
+#            -Dmaven.compiler.release=${{ matrix.java }} \
+#            -Dquarkus.http.host=0.0.0.0 \
+#            -Dquarkus.http.test-port=0 \
+##            -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:21.3-java${{ matrix.java }} \
+##            -Dquarkus.native.container-build=true \
+#            -Dquarkus.native.reuse-existing=true \
+##            -Dquarkus.container-image.build=true \
+#            -Dquarkus.container-image.push=true \
+#            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
+#            -Dquarkus.container-image.additional-tags=${{ env.ADDITIONAL_TAGS }} \
+#            -Dquarkus.container-image.username=${{ secrets.QUAY_REPO_USERNAME }} \
+#            -Dquarkus.container-image.password=${{ secrets.QUAY_REPO_TOKEN }}
