@@ -121,11 +121,11 @@ class TopWinnerWebSocketTests {
 	}
 
 	@ClientEndpoint
-	class EndpointTestClient {
+	private class EndpointTestClient {
 		private final Logger logger = Logger.getLogger(EndpointTestClient.class);
 		private final BlockingQueue<String> messages;
 
-		EndpointTestClient(BlockingQueue<String> messages) {
+		private EndpointTestClient(BlockingQueue<String> messages) {
 			this.messages = messages;
 		}
 
@@ -148,7 +148,7 @@ class TopWinnerWebSocketTests {
 
 		@OnError
 		public void error(Throwable error) {
-			this.logger.errorf(error, "Socket closed with error");
+			this.logger.errorf(error, "Socket encountered error");
 		}
 	}
 }
