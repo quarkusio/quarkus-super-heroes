@@ -44,7 +44,7 @@ jobs:
       - name: Create container tag
         run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV
 #      - name: Build and test native image
-#        run: ./mvnw -B clean verify -Pnative -Dquarkus.http.host=0.0.0.0 -Dquarkus.http.test-port=0
+#        run: ./mvnw -B clean verify -Pnative -Dquarkus.http.host=0.0.0.0 -Dquarkus.http.test-port=0 -Dmaven.compiler.release=${{ matrix.java }}
       - name: Build test and push native image
         run: |
           ./mvnw -B clean verify -Pnative \
@@ -53,7 +53,6 @@ jobs:
             -Dquarkus.http.test-port=0 \
             -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel:21.3-java${{ matrix.java }} \
             -Dquarkus.native.container-build=true \
-#            -Dquarkus.native.reuse-existing=true \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=true \
             -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
