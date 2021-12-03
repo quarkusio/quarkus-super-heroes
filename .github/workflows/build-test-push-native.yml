@@ -35,22 +35,27 @@ jobs:
           java-version: ${{ matrix.java }}
           graalvm-version: 21.3.0
           native-image: true
+
       - name: Cache local Maven repository
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
           key: setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+
       - name: Create env vars
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
       - name: Create container tags
         run: |
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV &&
           echo "ADDITIONAL_TAGS=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
+
 #      - name: Build and test native image
 #        run: ./mvnw -B clean verify -Pnative -Dquarkus.http.host=0.0.0.0 -Dquarkus.http.test-port=0 -Dmaven.compiler.release=${{ matrix.java }}
+
       - name: Build and test native image
         run: |
           ./mvnw -B clean verify -Pnative \
