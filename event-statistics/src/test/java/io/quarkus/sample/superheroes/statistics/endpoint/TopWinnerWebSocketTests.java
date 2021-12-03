@@ -80,7 +80,7 @@ class TopWinnerWebSocketTests {
 		when(this.topWinnerStatsChannelHolder.getWinners()).thenReturn(delayedItemsMulti);
 
 		// Set up the client to connect to the socket
-		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(new Client(messages), this.uri)) {
+		try (var session = ContainerProvider.getWebSocketContainer().connectToServer(new Client(messages), this.uri)) {
 			// Make sure client connected
 			assertThat(messages.poll(5, TimeUnit.MINUTES))
 				.isNotNull()

@@ -6,12 +6,12 @@ import static org.awaitility.Awaitility.await;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.ContainerProvider;
@@ -58,14 +58,14 @@ public class TopWinnerWebSocketIT {
 		var messages = new LinkedBlockingQueue<String>();
 
 		// Set up the client to connect to the socket
-		try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(new Client(messages), this.uri)) {
+		try (var session = ContainerProvider.getWebSocketContainer().connectToServer(new Client(messages), this.uri)) {
 			// Make sure client connected
 			assertThat(messages.poll(5, TimeUnit.MINUTES))
 				.isNotNull()
 				.isEqualTo("CONNECT");
 
 			// Create 10 fights, split between heroes and villains winning
-			var sampleFights = createSampleFights().collect(Collectors.toList());
+			var sampleFights = createSampleFights();
 			sampleFights.stream()
 				.map(fight -> new ProducerRecord<String, Fight>("fights", fight))
 				.forEach(this.fightsProducer::send);
@@ -124,7 +124,7 @@ public class TopWinnerWebSocketIT {
 		return String.format("{\"name\":\"%s\",\"score\":%d}", name, score);
 	}
 
-	private Stream<Fight> createSampleFights() {
+	private static List<Fight> createSampleFights() {
 		return IntStream.range(0, 10)
 			.mapToObj(i -> {
 				var heroName = HERO_NAME;
@@ -145,7 +145,7 @@ public class TopWinnerWebSocketIT {
 				}
 
 				return fight.build();
-			});
+			}).collect(Collectors.toList());
 	}
 
 	@ClientEndpoint
