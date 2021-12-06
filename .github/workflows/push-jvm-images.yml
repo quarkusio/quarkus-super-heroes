@@ -1,4 +1,4 @@
-name: Deploy JVM Container images
+name: Push JVM Container images
 
 on:
   workflow_run:
@@ -15,8 +15,16 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        java: ['11', '17']
-    name: Push JVM container images for Java ${{ matrix.java }}
+        java:
+          - '11'
+          - '17'
+        project:
+          - 'event-statistics'
+          - 'rest-fights'
+          - 'rest-heroes'
+          - 'rest-villains'
+          - 'ui-super-heroes'
+    name: "push-jvm-images-${{ matrix.project }}-java-${{ matrix.java }}"
     steps:
       - uses: actions/checkout@v2
       - name: Setup Java
@@ -28,13 +36,20 @@ jobs:
       - name: Create env vars
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV &&
+          if [[ ${{ matrix.java }} == '17' ]]; then
+            echo "JVM_DOCKERFILE=Dockerfile.jvm17" >> "$GITHUB_ENV"
+          else
+            echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV"
+          fi
       - name: Create container tag
         run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV
       - name: Push container images
+        working-directory: ${{ matrix.project }}
         run: |
           ./mvnw package -DskipTests \
             -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dquarkus.docker.dockerfile-jvm-path=src/main/docker/${{ env.JVM_DOCKERFILE }} \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=true \
             -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \

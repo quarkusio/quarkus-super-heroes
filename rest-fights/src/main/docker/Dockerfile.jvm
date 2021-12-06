@@ -1,5 +1,5 @@
 ####
-# This Dockerfile is used in order to build a container that runs the Quarkus application in JVM mode
+# This Dockerfile is used in order to build a container that runs the Quarkus application in JVM mode with Java 11
 #
 # Before building the container image run:
 #
@@ -11,14 +11,14 @@
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/rest-fights-jvm
+# docker run -i --rm -p 8082:8082 quarkus/rest-fights-jvm
 #
 # If you want to include the debug port into your docker image
-# you will have to expose the debug port (default 5005) like this :  EXPOSE 8080 5005
+# you will have to expose the debug port (default 5005) like this :  EXPOSE 8082 5005
 #
 # Then run the container using :
 #
-# docker run -i --rm -p 8080:8080 -p 5005:5005 -e JAVA_ENABLE_DEBUG="true" quarkus/rest-fights-jvm
+# docker run -i --rm -p 8082:8082 -p 5005:5005 -e JAVA_ENABLE_DEBUG="true" quarkus/rest-fights-jvm
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4 
@@ -48,7 +48,7 @@ COPY --chown=1001 target/quarkus-app/*.jar /deployments/
 COPY --chown=1001 target/quarkus-app/app/ /deployments/app/
 COPY --chown=1001 target/quarkus-app/quarkus/ /deployments/quarkus/
 
-EXPOSE 8080
+EXPOSE 8082
 USER 1001
 
 ENTRYPOINT [ "/deployments/run-java.sh" ]
