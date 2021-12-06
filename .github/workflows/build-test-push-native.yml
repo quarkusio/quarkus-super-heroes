@@ -83,7 +83,6 @@ jobs:
 
       - name: "save-image-${{ matrix.project }}-java-${{ matrix.java }}"
         uses: ishworkh/docker-image-artifact-upload@v1
-        working-directory: ${{ matrix.project }}
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
@@ -126,7 +125,6 @@ jobs:
 
       - name: "get-saved-image-${{ matrix.project }}-java-${{ matrix.java }}"
         uses: ishworkh/docker-image-artifact-download@v1
-        working-directory: ${{ matrix.project }}
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
