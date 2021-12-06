@@ -18,7 +18,7 @@ on:
 
 jobs:
   build-test-native:
-#    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
+    #    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -35,12 +35,13 @@ jobs:
     name: "build-test-native-${{ matrix.project }}-java-${{ matrix.java }}"
     steps:
       - uses: actions/checkout@v2
-#      - name: Setup Java
-#        uses: actions/setup-java@v2
-#        with:
-#          java-version: ${{ matrix.java }}
-#          distribution: temurin
-#          cache: maven
+
+      #      - name: Setup Java
+      #        uses: actions/setup-java@v2
+      #        with:
+      #          java-version: ${{ matrix.java }}
+      #          distribution: temurin
+      #          cache: maven
       - name: Setup GraalVM
         uses: ayltai/setup-graalvm@v1
         with:
@@ -103,6 +104,7 @@ jobs:
     name: "push-native-images-${{ matrix.project }}-java-${{ matrix.java }}"
     steps:
       - uses: actions/checkout@v2
+
       - name: Setup GraalVM
         uses: ayltai/setup-graalvm@v1
         with:
@@ -110,33 +112,33 @@ jobs:
           graalvm-version: 21.3.0
           native-image: true
 
-    - name: Create env vars
-      run: |
-        echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
-        echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      - name: Create env vars
+        run: |
+          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
+          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
-    - name: Create container tags
-      run: |
-        echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV &&
-        echo "ADDITIONAL_TAGS=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
+      - name: Create container tags
+        run: |
+          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV &&
+          echo "ADDITIONAL_TAGS=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
 
-    - name: "get-saved-image-${{ matrix.project }}-java-${{ matrix.java }}"
-      uses: ishworkh/docker-image-artifact-download@v1
-      with:
-        image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
+      - name: "get-saved-image-${{ matrix.project }}-java-${{ matrix.java }}"
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
-    - name: Login to quay
-      uses: docker/login-action@v1
-      with:
-        registry: quay.io
-        username: ${{ secrets.QUAY_REPO_USERNAME }}
-        password: ${{ secrets.QUAY_REPO_TOKEN }}
+      - name: Login to quay
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_REPO_USERNAME }}
+          password: ${{ secrets.QUAY_REPO_TOKEN }}
 
-    - name: Tag image
-      run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAGS }}"
+      - name: Tag image
+        run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAGS }}"
 
-    - name: Push image
-      run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
+      - name: "push-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
+        run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
 
 #    - name: "push-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
 #      working-directory: ${{ matrix.project }}
