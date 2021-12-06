@@ -60,9 +60,13 @@ jobs:
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV &&
           echo "ADDITIONAL_TAGS=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
 
-      - name: "build-test-native-${{ matrix.project }}-java-${{ matrix.java }}"
+      - name: "build-test-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
-        run: ./mvnw -B clean verify -Pnative -Dquarkus.http.host=0.0.0.0 -Dmaven.compiler.release=${{ matrix.java }}
+        run: |
+          ./mvnw -B clean verify -Pnative \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dquarkus.devservices.timeout=PT5M
 
       - name: "build-test-native-container-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
