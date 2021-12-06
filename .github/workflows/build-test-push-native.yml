@@ -36,26 +36,26 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Java
-        uses: actions/setup-java@v2
+#      - name: Setup Java
+#        uses: actions/setup-java@v2
+#        with:
+#          java-version: ${{ matrix.java }}
+#          distribution: temurin
+#          cache: maven
+
+      - name: Setup GraalVM
+        uses: ayltai/setup-graalvm@v1
         with:
           java-version: ${{ matrix.java }}
-          distribution: temurin
-          cache: maven
+          graalvm-version: 21.3.0
+          native-image: true
 
-      #      - name: Setup GraalVM
-      #        uses: ayltai/setup-graalvm@v1
-      #        with:
-      #          java-version: ${{ matrix.java }}
-      #          graalvm-version: 21.3.0
-      #          native-image: true
-      #
-      #      - name: Cache local Maven repository
-      #        uses: actions/cache@v2
-      #        with:
-      #          path: ~/.m2/repository
-      #          key: setup-java-${{ runner.os }}-maven-${{ hashFiles('${{ matrix.project }}/pom.xml') }}
-      #          restore-keys: setup-java-${{ runner.os }}-maven-${{ hashFiles('${{ matrix.project }}/pom.xml') }}
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: setup-java-${{ runner.os }}-maven-${{ hashFiles('${{ matrix.project }}/pom.xml') }}
+          restore-keys: setup-java-${{ runner.os }}-maven-${{ hashFiles('${{ matrix.project }}/pom.xml') }}
 
       - name: Create env vars
         run: |
@@ -67,22 +67,21 @@ jobs:
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV && \
           echo "ADDITIONAL_TAGS=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
 
-      #      - name: "build-test-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
-      #        working-directory: ${{ matrix.project }}
-      #        run: |
-      #          ./mvnw -B clean verify -Pnative \
-      #            -Dquarkus.http.host=0.0.0.0 \
-      #            -Dmaven.compiler.release=${{ matrix.java }} \
-      #            -Dquarkus.devservices.timeout=PT10M
+      - name: "build-test-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
+        working-directory: ${{ matrix.project }}
+        run: |
+          ./mvnw -B clean verify -Pnative \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }}
 
       - name: "build-test-native-container-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: |
-          ./mvnw -B clean verify -Pnative \
+          ./mvnw -B package -DskipTests -Pnative \
             -Dmaven.compiler.release=${{ matrix.java }} \
-            -Dquarkus.devservices.timeout=PT10M \
             -Dquarkus.http.host=0.0.0.0 \
             -Dquarkus.native.container-build=true \
+            -Dquarkus.native.reuse-existing=true \
             -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-native-image:21.3-java${{ matrix.java }} \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=false \
