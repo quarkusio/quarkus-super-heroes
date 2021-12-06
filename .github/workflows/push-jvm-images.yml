@@ -2,7 +2,8 @@ name: Push JVM Container images
 
 on:
   workflow_run:
-    workflows: ["Build and test JVM"]
+    workflows:
+      - "Build and test JVM"
     branches:
       - main
     types:
@@ -44,7 +45,7 @@ jobs:
           fi
       - name: Create container tag
         run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV
-      - name: Push container images
+      - name: "push-jvm-images-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: |
           ./mvnw package -DskipTests \
