@@ -18,7 +18,7 @@ on:
 
 jobs:
   build-test-native:
-    #    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
+#    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -72,7 +72,7 @@ jobs:
 
       - name: "build-test-native-container-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
-        run: ./mvnw -B verify -Pnative \
+        run: ./mvnw -B package integration-test -Pnative \
           -Dmaven.compiler.release=${{ matrix.java }} \
           -Dquarkus.http.host=0.0.0.0 \
           -Dquarkus.native.reuse-existing=true \
@@ -83,10 +83,12 @@ jobs:
 
       - name: "save-image-${{ matrix.project }}-java-${{ matrix.java }}"
         uses: ishworkh/docker-image-artifact-upload@v1
+        working-directory: ${{ matrix.project }}
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   push-native-images:
+#    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
     needs: build-test-native
     runs-on: ubuntu-latest
     strategy:
@@ -124,20 +126,24 @@ jobs:
 
       - name: "get-saved-image-${{ matrix.project }}-java-${{ matrix.java }}"
         uses: ishworkh/docker-image-artifact-download@v1
+        working-directory: ${{ matrix.project }}
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
       - name: Login to quay
         uses: docker/login-action@v1
+        working-directory: ${{ matrix.project }}
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
           password: ${{ secrets.QUAY_REPO_TOKEN }}
 
       - name: Tag image
+        working-directory: ${{ matrix.project }}
         run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAGS }}"
 
       - name: "push-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
+        working-directory: ${{ matrix.project }}
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
 
 #    - name: "push-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
