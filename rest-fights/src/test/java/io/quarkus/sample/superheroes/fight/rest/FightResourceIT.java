@@ -60,8 +60,8 @@ import com.github.tomakehurst.wiremock.client.WireMock;
  * @see io.quarkus.sample.superheroes.fight.KafkaConsumerResource
  */
 @QuarkusIntegrationTest
-@QuarkusTestResource(value = HeroesVillainsWiremockServerResource.class, parallel = true)
-@QuarkusTestResource(value = KafkaConsumerResource.class, restrictToAnnotatedClass = true, parallel = true)
+@QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
+@QuarkusTestResource(value = KafkaConsumerResource.class, restrictToAnnotatedClass = true)
 @TestMethodOrder(OrderAnnotation.class)
 public class FightResourceIT {
 	private static final int DEFAULT_ORDER = 0;
