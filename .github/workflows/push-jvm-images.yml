@@ -51,8 +51,10 @@ jobs:
             echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV"
           fi
 
-      - name: Create container tag
-        run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV
+      - name: Create container tags
+        run: |
+          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV &&
+          echo "ADDITIONAL_TAGS=java${{ matrix.java }}-latest" >> $GITHUB_ENV
 
       - name: "create-test-jvm-image-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
@@ -65,7 +67,7 @@ jobs:
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=false \
             -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
-            -Dquarkus.container-image.additional-tags=java${{ matrix.java }}-latest
+            -Dquarkus.container-image.additional-tags=${{ env.ADDITIONAL_TAGS }}
 
       - name: "save-jvm-image-${{ matrix.project }}-java-${{ matrix.java }}"
         uses: ishworkh/docker-image-artifact-upload@v1
@@ -104,8 +106,10 @@ jobs:
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV && \
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
-      - name: Create container tag
-        run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV
+      - name: Create container tags
+        run: |
+          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV &&
+          echo "ADDITIONAL_TAGS=java${{ matrix.java }}-latest" >> $GITHUB_ENV
 
       - name: "get-saved-image-${{ matrix.project }}-java-${{ matrix.java }}"
         uses: ishworkh/docker-image-artifact-download@v1
