@@ -45,7 +45,7 @@ jobs:
           fi
       - name: Create container tag
         run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV
-      - name: "push-jvm-images-${{ matrix.project }}-java-${{ matrix.java }}"
+      - name: "push-jvm-image-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: |
           ./mvnw package -DskipTests \

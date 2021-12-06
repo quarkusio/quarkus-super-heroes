@@ -1,17 +1,20 @@
 name: Build test and push native image
 
-#on:
-#  push:
-#    branches:
-#      - main
+env:
+  IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
+
 on:
-  workflow_run:
-    workflows:
-      - "Build and test JVM"
+  push:
     branches:
       - main
-    types:
-      - completed
+#on:
+#  workflow_run:
+#    workflows:
+#      - "Build and test JVM"
+#    branches:
+#      - main
+#    types:
+#      - completed
 
 jobs:
   build-test-native:
@@ -52,19 +55,102 @@ jobs:
           key: setup-java-${{ runner.os }}-maven-${{ hashFiles('${{ matrix.project }}/pom.xml') }}
           restore-keys: setup-java-${{ runner.os }}-maven-${{ hashFiles('${{ matrix.project }}/pom.xml') }}
 
-#      - name: Create env vars
-#        run: |
-#          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
-#          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-#
-#      - name: Create container tags
-#        run: |
-#          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV &&
-#          echo "ADDITIONAL_TAGS=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
+      - name: Create env vars
+        run: |
+          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
+          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+      - name: Create container tags
+        run: |
+          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV &&
+          echo "ADDITIONAL_TAGS=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
 
       - name: "build-test-native-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: ./mvnw -B clean verify -Pnative -Dquarkus.http.host=0.0.0.0 -Dmaven.compiler.release=${{ matrix.java }}
+
+      - name: "build-test-native-container-${{ matrix.project }}-java-${{ matrix.java }}"
+        working-directory: ${{ matrix.project }}
+        run: ./mvnw -B verify -Pnative \
+          -Dmaven.compiler.release=${{ matrix.java }} \
+          -Dquarkus.http.host=0.0.0.0 \
+          -Dquarkus.native.reuse-existing=true \
+          -Dquarkus.native.container-build=true \
+          -Dquarkus.container-image.build=true \
+          -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
+          -Dquarkus.container-image.additional-tags=${{ env.ADDITIONAL_TAGS }}
+
+      - name: "save-image-${{ matrix.project }}-java-${{ matrix.java }}"
+        uses: ishworkh/docker-image-artifact-upload@v1
+        with:
+          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
+
+  push-native-images:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
+    needs: build-test-native
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '11'
+          - '17'
+        project:
+          - 'event-statistics'
+          - 'rest-fights'
+          - 'rest-heroes'
+          - 'rest-villains'
+          - 'ui-super-heroes'
+    name: "push-native-images-${{ matrix.project }}-java-${{ matrix.java }}"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup GraalVM
+          uses: ayltai/setup-graalvm@v1
+          with:
+            java-version: ${{ matrix.java }}
+            graalvm-version: 21.3.0
+            native-image: true
+
+    - name: Create env vars
+      run: |
+        echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
+        echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+    - name: Create container tags
+      run: |
+        echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV &&
+        echo "ADDITIONAL_TAGS=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
+
+    - name: "get-saved-image-${{ matrix.project }}-java-${{ matrix.java }}"
+      uses: ishworkh/docker-image-artifact-download@v1
+      with:
+        image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
+
+    - name: Login to quay
+      uses: docker/login-action@v1
+      with:
+        registry: quay.io
+        username: ${{ secrets.QUAY_REPO_USERNAME }}
+        password: ${{ secrets.QUAY_REPO_TOKEN }}
+
+    - name: Tag image
+      run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAGS }}"
+
+    - name: Push image
+      run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
+
+#    - name: "push-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
+#      working-directory: ${{ matrix.project }}
+#      run: ./mvnw -B verify -Pnative -DskipTests \
+#        -Dmaven.compiler.release=${{ matrix.java }} \
+#        -Dquarkus.http.host=0.0.0.0 \
+#        -Dquarkus.native.container-build=true \
+#        -Dquarkus.container-image.build=true \
+#        -Dquarkus.container-image.push=true \
+#        -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
+#        -Dquarkus.container-image.additional-tags=${{ env.ADDITIONAL_TAGS }} \
+#        -Dquarkus.container-image.username=${{ secrets.QUAY_REPO_USERNAME }} \
+#        -Dquarkus.container-image.password=${{ secrets.QUAY_REPO_TOKEN }}
 #
 #      - name: Build and test native image
 #        run: |
