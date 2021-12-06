@@ -45,10 +45,10 @@ jobs:
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          if [[ ${{ matrix.java }} == '17' ]]; then 
-            echo "JVM_DOCKERFILE=Dockerfile.jvm17" >> "$GITHUB_ENV" 
+          if [[ ${{ matrix.java }} == '11' ]]; then 
+            echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV" 
           else
-            echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV"
+            echo "JVM_DOCKERFILE=Dockerfile.jvm${{ matrix.java }}" >> "$GITHUB_ENV"
           fi
 
       - name: Create container tags
