@@ -3,22 +3,22 @@ name: Build test and push native image
 env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
 
-on:
-  push:
-    branches:
-      - main
 #on:
-#  workflow_run:
-#    workflows:
-#      - "Build and test JVM"
+#  push:
 #    branches:
 #      - main
-#    types:
-#      - completed
+on:
+  workflow_run:
+    workflows:
+      - "Build and test JVM"
+    branches:
+      - main
+    types:
+      - completed
 
 jobs:
   build-test-native:
-    #    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -74,7 +74,7 @@ jobs:
             -Dquarkus.http.host=0.0.0.0 \
             -Dmaven.compiler.release=${{ matrix.java }}
 
-      - name: "build-test-native-container-${{ matrix.project }}-java-${{ matrix.java }}"
+      - name: "build-native-container-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: |
           ./mvnw -B package -DskipTests -Pnative \
@@ -88,13 +88,13 @@ jobs:
             -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
             -Dquarkus.container-image.additional-tags=${{ env.ADDITIONAL_TAGS }}
 
-      - name: "save-image-${{ matrix.project }}-java-${{ matrix.java }}"
+      - name: "save-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   push-native-images:
-    #    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
     needs: build-test-native
     runs-on: ubuntu-latest
     strategy:

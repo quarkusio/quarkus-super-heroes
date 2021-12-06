@@ -1,5 +1,8 @@
 name: Push JVM Container images
 
+env:
+  IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
+
 on:
   workflow_run:
     workflows:
@@ -10,8 +13,8 @@ on:
       - completed
 
 jobs:
-  push-jvm-images:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  build-test-jvm-images:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -25,35 +28,99 @@ jobs:
           - 'rest-heroes'
           - 'rest-villains'
           - 'ui-super-heroes'
-    name: "push-jvm-images-${{ matrix.project }}-java-${{ matrix.java }}"
+    name: "build-jvm-images-${{ matrix.project }}-java-${{ matrix.java }}"
     steps:
       - uses: actions/checkout@v2
+
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
           cache: maven
+
       - name: Create env vars
         run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          if [[ ${{ matrix.java }} == '17' ]]; then
-            echo "JVM_DOCKERFILE=Dockerfile.jvm17" >> "$GITHUB_ENV"
-          else
-            echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV"
+          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV && \
+          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV && \
+          if [[ ${{ matrix.java }} == '17' ]]; then \
+            echo "JVM_DOCKERFILE=Dockerfile.jvm17" >> "$GITHUB_ENV" \
+          else \
+            echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV" \
           fi
+
       - name: Create container tag
         run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV
-      - name: "push-jvm-image-${{ matrix.project }}-java-${{ matrix.java }}"
+
+      - name: "create-test-jvm-image-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: |
-          ./mvnw package -DskipTests \
+#          ./mvnw verify \
+          ./mvnw clean package -DskipTests \
             -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dquarkus.http.host=0.0.0.0 \
             -Dquarkus.docker.dockerfile-jvm-path=src/main/docker/${{ env.JVM_DOCKERFILE }} \
             -Dquarkus.container-image.build=true \
-            -Dquarkus.container-image.push=true \
+            -Dquarkus.container-image.push=false \
             -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
-            -Dquarkus.container-image.additional-tags=java${{ matrix.java }}-latest \
-            -Dquarkus.container-image.username=${{ secrets.QUAY_REPO_USERNAME }} \
-            -Dquarkus.container-image.password=${{ secrets.QUAY_REPO_TOKEN }}
+            -Dquarkus.container-image.additional-tags=java${{ matrix.java }}-latest
+
+      - name: "save-jvm-image-${{ matrix.project }}-java-${{ matrix.java }}"
+        uses: ishworkh/docker-image-artifact-upload@v1
+        with:
+          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
+
+  push-jvm-images:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
+    needs: build-test-jvm-images
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+        matrix:
+          java:
+            - '11'
+            - '17'
+          project:
+            - 'event-statistics'
+            - 'rest-fights'
+            - 'rest-heroes'
+            - 'rest-villains'
+            - 'ui-super-heroes'
+    name: "push-jvm-images-${{ matrix.project }}-java-${{ matrix.java }}"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: temurin
+          cache: maven
+
+      - name: Create env vars
+        run: |
+          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV && \
+          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+      - name: Create container tag
+        run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV
+
+      - name: "get-saved-image-${{ matrix.project }}-java-${{ matrix.java }}"
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
+
+      - name: Login to quay
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_REPO_USERNAME }}
+          password: ${{ secrets.QUAY_REPO_TOKEN }}
+
+      - name: Tag image
+        working-directory: ${{ matrix.project }}
+        run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAGS }}"
+
+      - name: "push-jvm-image-${{ matrix.project }}-java-${{ matrix.java }}"
+        working-directory: ${{ matrix.project }}
+        run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
