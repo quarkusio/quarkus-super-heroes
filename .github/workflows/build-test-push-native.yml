@@ -52,12 +52,12 @@ jobs:
 
       - name: Create env vars
         run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
+          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV && \
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Create container tags
         run: |
-          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV &&
+          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV && \
           echo "ADDITIONAL_TAGS=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
 
       - name: "build-test-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
@@ -66,17 +66,18 @@ jobs:
           ./mvnw -B clean verify -Pnative \
             -Dquarkus.http.host=0.0.0.0 \
             -Dmaven.compiler.release=${{ matrix.java }} \
-            -Dquarkus.devservices.timeout=PT5M
+            -Dquarkus.devservices.timeout=PT10M
 
       - name: "build-test-native-container-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: |
           ./mvnw -B verify -Pnative \
             -Dmaven.compiler.release=${{ matrix.java }} \
-            -Dquarkus.devservices.timeout=PT5M \
+            -Dquarkus.devservices.timeout=PT10M \
             -Dquarkus.http.host=0.0.0.0 \
             -Dquarkus.native.reuse-existing=true \
             -Dquarkus.native.container-build=true \
+            -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-native-image:21.3-java${{ matrix.java }} \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
             -Dquarkus.container-image.additional-tags=${{ env.ADDITIONAL_TAGS }}
