@@ -77,20 +77,6 @@ jobs:
       - name: Output Java Version
         run: java -version
 
-#      - name: Setup GraalVM
-#        uses: ayltai/setup-graalvm@v1
-#        with:
-#          java-version: ${{ matrix.java }}
-#          graalvm-version: 21.3.0
-#          native-image: true
-#
-#      - name: Cache local Maven repository
-#        uses: actions/cache@v2
-#        with:
-#          path: ~/.m2/repository
-#          key: setup-java-${{ runner.os }}-maven-${{ hashFiles('${{ matrix.project }}/pom.xml') }}
-#          restore-keys: setup-java-${{ runner.os }}-maven-${{ hashFiles('${{ matrix.project }}/pom.xml') }}
-
       - name: Create env vars
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV && \
