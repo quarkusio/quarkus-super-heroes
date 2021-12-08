@@ -11,6 +11,7 @@
         - [Villain Client](#villain-client)
 - [Testing](#testing) 
 - [Running the Application](#running-the-application)
+- [Running Locally via Docker Compose](#running-locally-via-docker-compose)
 
 ## Introduction
 This is the Fight REST API microservice. It is a reactive HTTP microservice exposing an API for performing fights between [Heroes](../rest-heroes) and [Villains](../rest-villains). Each fight is persisted into a PostgreSQL database and can be retrieved via the REST API. This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with reactive endpoints and [Quarkus Hibernate Reactive with Panache's active record pattern](http://quarkus.io/guides/hibernate-reactive-panache).
@@ -19,15 +20,15 @@ This is the Fight REST API microservice. It is a reactive HTTP microservice expo
 
 The following table lists the available REST endpoints. The [OpenAPI document](openapi-schema.yml) for the REST endpoints is also available.
 
-| Path | HTTP method | Response Status | Response Object | Description |
-| ---- | ----------- | --------------- | --------------- | ----------- |
-| `/api/fights` | `GET` | `200` | [`List<Fight>`](src/main/java/io/quarkus/sample/superheroes/fight/Fight.java) | All Fights. Empty array (`[]`) if none. |
-| `/api/fights` | `POST` | `200` | [`Fight`](src/main/java/io/quarkus/sample/superheroes/fight/Fight.java) | Performs a fight. |
-| `/api/fights` | `POST` | `400` | | Invalid [`Fighters`](src/main/java/io/quarkus/sample/superheroes/fight/Fighters.java) passed in request body (or no request body found) |
-| `/api/fights/randomfighters` | `GET` | `200` | [`Fighters`](src/main/java/io/quarkus/sample/superheroes/fight/Fighters.java) | Finds random fighters |
-| `/api/fights/{id}` | `GET` | `200` | [`Fight`](src/main/java/io/quarkus/sample/superheroes/fight/Fight.java) | Fight with id == `{id}` |
-| `/api/fights/{id}` | `GET` | `404` | | No Fight with id == `{id}` found |
-| `/api/fights/hello` | `GET` | `200` | `String` | Ping "hello" endpoint |
+| Path                         | HTTP method | Response Status | Response Object                                                               | Description                                                                                                                             |
+|------------------------------|-------------|-----------------|-------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| `/api/fights`                | `GET`       | `200`           | [`List<Fight>`](src/main/java/io/quarkus/sample/superheroes/fight/Fight.java) | All Fights. Empty array (`[]`) if none.                                                                                                 |
+| `/api/fights`                | `POST`      | `200`           | [`Fight`](src/main/java/io/quarkus/sample/superheroes/fight/Fight.java)       | Performs a fight.                                                                                                                       |
+| `/api/fights`                | `POST`      | `400`           |                                                                               | Invalid [`Fighters`](src/main/java/io/quarkus/sample/superheroes/fight/Fighters.java) passed in request body (or no request body found) |
+| `/api/fights/randomfighters` | `GET`       | `200`           | [`Fighters`](src/main/java/io/quarkus/sample/superheroes/fight/Fighters.java) | Finds random fighters                                                                                                                   |
+| `/api/fights/{id}`           | `GET`       | `200`           | [`Fight`](src/main/java/io/quarkus/sample/superheroes/fight/Fight.java)       | Fight with id == `{id}`                                                                                                                 |
+| `/api/fights/{id}`           | `GET`       | `404`           |                                                                               | No Fight with id == `{id}` found                                                                                                        |
+| `/api/fights/hello`          | `GET`       | `200`           | `String`                                                                      | Ping "hello" endpoint                                                                                                                   |
 
 ## Configuration
 The [`FightConfig`](src/main/java/io/quarkus/sample/superheroes/fight/config/FightConfig.java) stores all the application-specific configuration that can be overridden at runtime.
@@ -66,3 +67,49 @@ First you need to start up all of the downstream services ([Heroes Service](../r
 The application runs on port `8082` (defined by `quarkus.http.port` in [`application.properties`](src/main/resources/application.properties)).
 
 From the `quarkus-super-heroes/rest-fights` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application will be exposed at http://localhost:8082 and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at http://localhost:8082/q/dev.
+
+**NOTE:** Running the application outside of Quarkus dev mode requires standing up a PostgreSQL instance and an Apache Kafka instance and binding them to the app.
+
+Furthermore, since this service also communicates with additional downstream services ([rest-heroes](../rest-heroes) and [rest-villains](../rest-villains)), those would need to be stood up as well, although this service does have fallbacks in case those other services aren't available.
+
+By default, the application is configured with the following:
+
+| Description             | Environment Variable                  | Java Property                         | Value                                         |
+|-------------------------|---------------------------------------|---------------------------------------|-----------------------------------------------|
+| Database URL            | `QUARKUS_DATASOURCE_REACTIVE_URL`     | `quarkus.datasource.reactive.url`     | `postgresql://localhost:5432/fights_database` |
+| Database username       | `QUARKUS_DATASOURCE_USERNAME`         | `quarkus.datasource.username`         | `superfight`                                  |
+| Database password       | `QUARKUS_DATASOURCE_PASSWORD`         | `quarkus.datasource.password`         | `superfight`                                  |
+| Kafka Bootstrap servers | `KAFKA_BOOTSTRAP_SERVERS`             | `kafka.bootstrap.servers`             | `PLAINTEXT://localhost:9092`                  |
+| Heroes Service URL      | `quarkus.rest-client.hero-client.url` | `quarkus.rest-client.hero-client.url` | `http://localhost:8083`                       |
+| Villains Service URL    | `fight.villain.client-base-url`       | `fight.villain.client-base-url`       | `http://localhost:8084`                       |
+
+## Running Locally via Docker Compose
+Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-fights`](https://quay.io/repository/quarkus-super-heroes/rest-fights?tab=tags). 
+
+First, start the required infrastructure by running (be sure to run from the `quarkus-super-heroes/rest-fights` directory) `docker-compose -f infrastructure/docker-compose.infra.yml up`.
+
+Once that starts, then start one of the 4 versions of the application:
+
+| Description                  | Image                  | Docker Compose Run Command                                            |
+|------------------------------|------------------------|-----------------------------------------------------------------------|
+| JVM Java 11                  | `java11-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm11.yml up`    |
+| JVM Java 17                  | `java17-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm17.yml up`    |
+| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f infrastructure/docker-compose.app-native11.yml up` |
+| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f infrastructure/docker-compose.app-native17.yml up` |
+
+These Docker Compose files are meant for standing up this application and the required database only. If you want to stand up this application and its downstream services, first start the required infrastructure by running (be sure to run from the `quarkus-super-heroes/rest-fights` directory) `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.infra.downstream.yml up`.
+
+Once all of the infrastructure starts, then use one of these commands (be sure to run from the `quarkus-super-heroes/rest-fights` directory):
+
+| Description                  | Image                  | Docker Compose Run Command                                                                                                                                                                                |
+|------------------------------|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| JVM Java 11                  | `java11-latest`        | `docker-compose -f ../rest-villains/infrastructure/docker-compose.app-jvm11.yml -f ../rest-heroes/infrastructure/docker-compose.app-jvm11.yml -f infrastructure/docker-compose.app-jvm11.yml up`          |
+| JVM Java 17                  | `java17-latest`        | `docker-compose -f ../rest-villains/infrastructure/docker-compose.app-jvm17.yml -f ../rest-heroes/infrastructure/docker-compose.app-jvm17.yml -f infrastructure/docker-compose.app-jvm17.yml up`          |
+| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f ../rest-villains/infrastructure/docker-compose.app-native11.yml -f ../rest-heroes/infrastructure/docker-compose.app-native11.yml -f infrastructure/docker-compose.app-native11.yml up` |
+| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f ../rest-villains/infrastructure/docker-compose.app-native17.yml -f ../rest-heroes/infrastructure/docker-compose.app-native17.yml -f infrastructure/docker-compose.app-native17.yml up` |
+
+If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
+
+Once started the application will be exposed at `http://localhost:8082`.
+
+When finished, `CTRL-C` both of the terminals running `docker-compose`. If you are going to try out the different versions you can leave the infrastructure up while stopping and re-starting the applications. When complete it might be a good idea to run `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.infra.downstream.yml down --remove-orphans`.

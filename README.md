@@ -1,5 +1,11 @@
 # Quarkus Superheroes Sample
 
+## Table of Contents
+- [Introduction](#introduction)
+- [Running Locally via Docker Compose](#running-locally-via-docker-compose)
+
+## Introduction
+
 This is a sample application demonstrating Quarkus features and best practices. The application allows superheroes to fight against supervillains. The application consists of several microservices, communicating either synchronously via REST or asynchronously using Kafka:
 - [Super Hero Battle UI](ui-super-heroes)
     - An Angular application to pick up a random superhero, a random supervillain, and makes them fight.
@@ -25,3 +31,23 @@ Here is an architecture diagram of the application:
 
 The main UI allows you to pick one random Hero and Villain by clicking on _New Fighters_. Then, click _Fight!_ to start the battle. The table at the bottom shows the list of previous fights.
 ![Fight screen](images/fight-screen.png)
+
+## Running Locally via Docker Compose
+Pre-built images for all of the applications in the system can be found at [`quay.io/quarkus-super-heroes`](http://quay.io/quarkus-super-heroes).
+
+First, start the required infrastructure by running (be sure to run from the root project directory) `docker-compose -f rest-fights/infrastructure/docker-compose.infra.yml -f rest-fights/infrastructure/docker-compose.infra.downstream.yml up --remove-orphans`.
+
+Once that starts, then start one of the 4 versions of the application:
+
+| Description                  | Image                  | Docker Compose Run Command                                                                                                                                                                                                                                                                                                                           |
+|------------------------------|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| JVM Java 11                  | `java11-latest`        | `docker-compose -f rest-villains/infrastructure/docker-compose.app-jvm11.yml -f rest-heroes/infrastructure/docker-compose.app-jvm11.yml -f rest-fights/infrastructure/docker-compose.app-jvm11.yml -f event-statistics/infrastructure/docker-compose.app-jvm11.yml -f ui-super-heroes/infrastructure/docker-compose.app-jvm11.yml up`                |
+| JVM Java 17                  | `java17-latest`        | `docker-compose -f rest-villains/infrastructure/docker-compose.app-jvm17.yml -f rest-heroes/infrastructure/docker-compose.app-jvm17.yml -f rest-fights/infrastructure/docker-compose.app-jvm17.yml -f event-statistics/infrastructure/docker-compose.app-jvm17.yml -f ui-super-heroes/infrastructure/docker-compose.app-jvm17.yml up`                |
+| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f rest-villains/infrastructure/docker-compose.app-native11.yml -f rest-heroes/infrastructure/docker-compose.app-native11.yml -f rest-fights/infrastructure/docker-compose.app-native11.yml -f event-statistics/infrastructure/docker-compose.app-native11.yml -f ui-super-heroes/infrastructure/docker-compose.app-native11.yml up` |
+| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f rest-villains/infrastructure/docker-compose.app-native17.yml -f rest-heroes/infrastructure/docker-compose.app-native17.yml -f rest-fights/infrastructure/docker-compose.app-native17.yml -f event-statistics/infrastructure/docker-compose.app-native17.yml -f ui-super-heroes/infrastructure/docker-compose.app-native17.yml up` |
+
+There is a [`watch-services.sh`](scripts/watch-services.sh) script that can be run in a separate terminal that will watch the startup of all the services and report when they are all up.
+
+Once started the main application will be exposed at `http://localhost:8080`. If you want to watch the [Event Statistics UI](event-statistics), that will be available at `http://localhost:8082`.
+
+When finished, `CTRL-C` both of the terminals running `docker-compose`. If you are going to try out the different versions you can leave the infrastructure up while stopping and re-starting the applications. When complete it might be a good idea to run `docker-compose -f rest-fights/infrastructure/docker-compose.infra.yml -f rest-fights/infrastructure/docker-compose.infra.downstream.yml down --remove-orphans`.

@@ -5,7 +5,7 @@
 - [Running the Application](#running-the-application)
 
 ## Introduction
-This is the main user interface for the application. The application is an Angular application but is also packaged as a Quarkus application for convenience.
+This is the main user interface for the application. The application is an Angular application but is packaged as a Quarkus application for convenience.
 
 ![ui-super-heroes](images/ui-super-heroes.png)
 

@@ -6,6 +6,7 @@
     - [Winner Stats](#winner-stats)
 - [Testing](#testing) 
 - [Running the Application](#running-the-application)
+- [Running Locally via Docker Compose](#running-locally-via-docker-compose)
 
 ## Introduction
 This is the event statistics microservice. It is an event-driven microservice, listening for fight event messages on an [Apache Kafka](https://kafka.apache.org/) topic utilizing [SmallRye Reactive Messaging](https://quarkus.io/guides/kafka).
@@ -54,3 +55,29 @@ This application has a full suite of tests, including an integration test suite 
 The application runs on port `8085` (defined by `quarkus.http.port` in [`application.properties`](src/main/resources/application.properties)).
 
 From the `quarkus-super-heroes/event-statistics` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application's UI will be exposed at http://localhost:8085 and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at http://localhost:8085/q/dev. 
+
+**NOTE:** Running the application outside of Quarkus dev mode requires standing up an Apache Kafka instance and binding it to the app.
+
+By default, the application is configured with the following:
+
+| Description             | Environment Variable      | Java Property             | Value                        |
+|-------------------------|---------------------------|---------------------------|------------------------------|
+| Kafka Bootstrap servers | `KAFKA_BOOTSTRAP_SERVERS` | `kafka.bootstrap.servers` | `PLAINTEXT://localhost:9092` |
+
+## Running Locally via Docker Compose
+Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/event-statistics`](https://quay.io/repository/quarkus-super-heroes/event-statistics?tab=tags). 
+
+First, start the required infrastructure by running (be sure to run from the `quarkus-super-heroes/event-statistics` directory) `docker-compose -f infrastructure/docker-compose.infra.yml up`.
+
+Once that starts, then start one of the 4 versions of the application:
+
+| Description                  | Image                  | Docker Compose Run Command                                            |
+|------------------------------|------------------------|-----------------------------------------------------------------------|
+| JVM Java 11                  | `java11-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm11.yml up`    |
+| JVM Java 17                  | `java17-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm17.yml up`    |
+| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f infrastructure/docker-compose.app-native11.yml up` |
+| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f infrastructure/docker-compose.app-native17.yml up` |
+
+These Docker Compose files are meant for standing up this application and the required Kafka broker only. If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
+
+Once started the application will be exposed at `http://localhost:8082`.
