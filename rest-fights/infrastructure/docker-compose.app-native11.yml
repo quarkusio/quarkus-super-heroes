@@ -1,0 +1,28 @@
+version: "3"
+services:
+  rest-fights-native-java11:
+    image: quay.io/quarkus-super-heroes/rest-fights:native-java11-latest
+    container_name: rest-fights-native-java11
+    depends_on:
+      - fights-db
+      - fights-kafka
+      - rest-heroes-native-java11
+      - rest-villains-native-java11
+    ports:
+      - "8082:8082"
+    environment:
+      QUARKUS_DATASOURCE_REACTIVE_URL: postgresql://fights-db:5432/fights_database
+      KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://fights-kafka:9092
+      quarkus.hibernate-orm.database.generation: none
+      quarkus.hibernate-orm.sql-load-script: no-file
+      quarkus.rest-client.hero-client.url: http://rest-heroes-native-java11:8083
+      fight.villain.client-base-url: http://rest-villains-native-java11:8084
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
+        reservations:
+          memory: 256M
+          cpus: '0.5'

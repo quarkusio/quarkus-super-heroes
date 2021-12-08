@@ -1,0 +1,16 @@
+version: "3"
+services:
+  ui-super-heroes-native-java11:
+    image: quay.io/quarkus-super-heroes/ui-super-heroes:native-java11-latest
+    container_name: ui-super-heroes-native-java11
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
