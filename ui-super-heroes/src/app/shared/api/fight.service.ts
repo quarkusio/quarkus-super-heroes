@@ -24,11 +24,10 @@ import {URI} from '../model/uRI';
 import {BASE_PATH} from '../variables';
 import {Configuration} from '../configuration';
 
-
 @Injectable()
 export class FightService {
 
-  protected basePath = 'http://localhost:8082';
+  protected basePath = (window as any).NG_CONFIG.API_BASE_URL;
   public defaultHeaders = new HttpHeaders();
   public configuration = new Configuration();
 

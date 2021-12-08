@@ -13,30 +13,42 @@ The main UI allows you to pick up one random Hero and Villain by clicking on "Ne
 
 ![main-ui](images/main-ui.png)
 
+
 ## Building the Application
 
-Environment variables can be injected into the build. The
+Environment variables can be injected into the build using the
 [ngx-env](https://github.com/chihab/ngx-env) plugin. Remember, these are pulled
 in at build time and are inserted as string literals in the resulting JS files.
 Variables must start with the `NG_APP` prefix, e.g `NG_APP_MY_URL=http://localhost:1234`.
 
-A hot reloading Angular development server can be started like so:
+Production builds are served using a Node.js server. This server serves
+the compiled Angular application and an `env.js` file. This `env.js` file is
+generated at startup, and adds a `window.NG_CONFIG` property that the Angular
+application can read from.
+
+Currently the `env.js` will expose just the `API_BASE_URL` that's set at runtime.
 
 ```bash
-NG_APP_MY_URL=http://localhost:8282 npm start
+API_BASE_URL=http://localhost:8282 ./package.sh
 ```
 
-Production builds are placed into the *main/resources/META-INF* folder and
-served directly by Quarkus. To build the application and copy the resulting
-build into *main/resources/META-INF* run:
+## Local Development
 
-```bash
-NG_APP_MY_URL=http://localhost:8282 ./package.sh
+Use the following command:
+
 ```
+API_BASE_URL=http://localhost:8181 HTTP_PORT=8080 npm run dev
+```
+
+This starts the Angular hot reloading server at http://localhost:4200, and the
+Node.js server to supply the `env.js` file. The Angular server on port 4200
+will proxy the request for `env.js` to the Node.js server on port 8080. The
+Node.js server port can be changed by setting the `HTTP_PORT` variable.
 
 ## Running the Application
 First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Fights Service](../rest-fights) - the [Event Statistics Service](../event-statistics) is optional).
 
-This application runs on port `8080`.
-
-From the `quarkus-super-heroes/ui-super-heroes` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application's UI will be exposed at http://localhost:8080 and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at http://localhost:8080/q/dev.
+Follow the steps above section, *Building the Application*. Start the service
+using the command `HTTP_PORT=8080 API_BASE_URL=http://localhost:8181 npm start`.
+Replace the `API_BASE_URL` with the appropriate Fights Service hostname and
+port.
