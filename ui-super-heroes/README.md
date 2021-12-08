@@ -43,7 +43,9 @@ API_BASE_URL=http://localhost:8181 HTTP_PORT=8080 npm run dev
 This starts the Angular hot reloading server at http://localhost:4200, and the
 Node.js server to supply the `env.js` file. The Angular server on port 4200
 will proxy the request for `env.js` to the Node.js server on port 8080. The
-Node.js server port can be changed by setting the `HTTP_PORT` variable.
+Node.js server port can be changed by setting the `HTTP_PORT` variable. The
+`ng.proxy.config.json` file will need to be updated with the new Node.js server
+port number if you deviate from 8080.
 
 ## Running the Application
 First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Fights Service](../rest-fights) - the [Event Statistics Service](../event-statistics) is optional).
