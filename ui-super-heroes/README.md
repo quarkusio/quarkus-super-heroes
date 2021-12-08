@@ -13,6 +13,27 @@ The main UI allows you to pick up one random Hero and Villain by clicking on "Ne
 
 ![main-ui](images/main-ui.png)
 
+## Building the Application
+
+Environment variables can be injected into the build. The
+[ngx-env](https://github.com/chihab/ngx-env) plugin. Remember, these are pulled
+in at build time and are inserted as string literals in the resulting JS files.
+Variables must start with the `NG_APP` prefix, e.g `NG_APP_MY_URL=http://localhost:1234`.
+
+A hot reloading Angular development server can be started like so:
+
+```bash
+NG_APP_MY_URL=http://localhost:8282 npm start
+```
+
+Production builds are placed into the *main/resources/META-INF* folder and
+served directly by Quarkus. To build the application and copy the resulting
+build into *main/resources/META-INF* run:
+
+```bash
+NG_APP_MY_URL=http://localhost:8282 ./package.sh
+```
+
 ## Running the Application
 First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Fights Service](../rest-fights) - the [Event Statistics Service](../event-statistics) is optional).
 
