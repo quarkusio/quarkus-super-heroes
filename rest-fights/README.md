@@ -90,7 +90,7 @@ First, start the required infrastructure by running (be sure to run from the `qu
 
 Once that starts, then start one of the 4 versions of the application:
 
-| Description                  | Image                  | Docker Compose Run Command                                            |
+| Description                  | Image Tag              | Docker Compose Run Command                                            |
 |------------------------------|------------------------|-----------------------------------------------------------------------|
 | JVM Java 11                  | `java11-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm11.yml up`    |
 | JVM Java 17                  | `java17-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm17.yml up`    |
@@ -101,7 +101,7 @@ These Docker Compose files are meant for standing up this application and the re
 
 Once all of the infrastructure starts, then use one of these commands (be sure to run from the `quarkus-super-heroes/rest-fights` directory):
 
-| Description                  | Image                  | Docker Compose Run Command                                                                                                                                                                                |
+| Description                  | Image Tag              | Docker Compose Run Command                                                                                                                                                                                |
 |------------------------------|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | JVM Java 11                  | `java11-latest`        | `docker-compose -f ../rest-villains/infrastructure/docker-compose.app-jvm11.yml -f ../rest-heroes/infrastructure/docker-compose.app-jvm11.yml -f infrastructure/docker-compose.app-jvm11.yml up`          |
 | JVM Java 17                  | `java17-latest`        | `docker-compose -f ../rest-villains/infrastructure/docker-compose.app-jvm17.yml -f ../rest-heroes/infrastructure/docker-compose.app-jvm17.yml -f infrastructure/docker-compose.app-jvm17.yml up`          |

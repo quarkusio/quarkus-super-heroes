@@ -71,7 +71,7 @@ First, start the required infrastructure by running (be sure to run from the `qu
 
 Once that starts, then start one of the 4 versions of the application:
 
-| Description                  | Image                  | Docker Compose Run Command                                            |
+| Description                  | Image Tag              | Docker Compose Run Command                                            |
 |------------------------------|------------------------|-----------------------------------------------------------------------|
 | JVM Java 11                  | `java11-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm11.yml up`    |
 | JVM Java 17                  | `java17-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm17.yml up`    |
