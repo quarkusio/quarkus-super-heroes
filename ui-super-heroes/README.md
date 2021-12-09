@@ -25,8 +25,10 @@ Production builds are served using a Node.js server. This server serves the comp
 
 Currently, the `env.js` will expose just the `API_BASE_URL` that's set at runtime. This will control the base URL to connect to the [fights](../rest-fights) service. The default if unset is http://localhost:8082.
 
+You also need to make sure the angular CLI is installed (`npm install @angular/cli@12.2.8`).
+
 ```bash
-./package.sh
+npm run build
 ```
 
 ## Local Development
@@ -41,17 +43,17 @@ This starts the Angular hot reloading server at http://localhost:4200, and the N
 The Node.js server port can be changed by setting the `HTTP_PORT` variable. The `ng.proxy.config.json` file will need to be updated with the new Node.js server port number if you deviate from 8080.
 
 ## Running the Application
-First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Fights Service](../rest-fights). The [Event Statistics Service](../event-statistics) is optional).
+1. First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Fights Service](../rest-fights). 
+    - The [Event Statistics Service](../event-statistics) is optional.
+2. Follow the steps above section, *Building the Application*.
+3. Start the service using the command `npm start`.
+    - Replace the `API_BASE_URL` with the appropriate [Fights Service](../rest-fights) hostname and port.
+       > The default is http://localhost:8082, which is the default for the fights service.
+    - There is also a container image available that you can use instead:
 
-Follow the steps above section, *Building the Application*. Start the service using the command `npm start`. Replace the `API_BASE_URL` with the appropriate Fights Service hostname and port (default is http://localhost:8082, which is the default for the fights service).
-
-You also need to make sure the angular CLI is install (`npm install @angular/cli@12.2.8`).
-
-There is also a container image available that you can use:
-
-```bash
-docker run -p 8080:8080 quay.io/quarkus-super-heroes/ui-super-heroes:latest
-```
+       ```bash
+       docker run -p 8080:8080 quay.io/quarkus-super-heroes/ui-super-heroes:latest
+       ```
 
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/ui-super-heroes`](https://quay.io/repository/quarkus-super-heroes/ui-super-heroes?tab=tags). 
