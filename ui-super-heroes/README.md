@@ -8,7 +8,7 @@
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
 
 ## Introduction
-This is the main user interface for the application. The application is an Angular application but is packaged as a Quarkus application for convenience.
+This is the main user interface for the application. The application is an Angular application served via Node.js.
 
 ![ui-super-heroes](images/ui-super-heroes.png)
 
