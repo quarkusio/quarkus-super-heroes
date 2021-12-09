@@ -3,10 +3,10 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/vcs-url: <<unknown>>
     app.openshift.io/connects-to: villains-db
-    app.quarkus.io/commit-id: cfd714275c94dffbe6190278111de54ebf0d0c62
-    app.quarkus.io/build-timestamp: 2021-12-09 - 21:21:05 +0000
+    app.openshift.io/vcs-url: <<unknown>>
+    app.quarkus.io/commit-id: cafa6f0ba19793190720e0cb6cd3c11725ff5e9d
+    app.quarkus.io/build-timestamp: 2021-12-09 - 21:45:29 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -33,16 +33,16 @@ apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   annotations:
-    app.openshift.io/vcs-url: <<unknown>>
     app.openshift.io/connects-to: villains-db
-    app.quarkus.io/commit-id: cfd714275c94dffbe6190278111de54ebf0d0c62
-    app.quarkus.io/build-timestamp: 2021-12-09 - 21:21:05 +0000
+    app.openshift.io/vcs-url: <<unknown>>
+    app.quarkus.io/commit-id: cafa6f0ba19793190720e0cb6cd3c11725ff5e9d
+    app.quarkus.io/build-timestamp: 2021-12-09 - 21:45:29 +0000
   labels:
     app: rest-villains
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: villains-service
   name: rest-villains
 spec:
   dockerImageRepository: quay.io/quarkus-super-heroes/rest-villains
@@ -51,10 +51,10 @@ apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
   annotations:
-    app.openshift.io/vcs-url: <<unknown>>
     app.openshift.io/connects-to: villains-db
-    app.quarkus.io/commit-id: cfd714275c94dffbe6190278111de54ebf0d0c62
-    app.quarkus.io/build-timestamp: 2021-12-09 - 21:21:05 +0000
+    app.openshift.io/vcs-url: <<unknown>>
+    app.quarkus.io/commit-id: cafa6f0ba19793190720e0cb6cd3c11725ff5e9d
+    app.quarkus.io/build-timestamp: 2021-12-09 - 21:45:29 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -63,22 +63,22 @@ metadata:
     app: rest-villains
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: villains-service
   name: rest-villains
 spec:
   replicas: 1
   selector:
     app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: villains-service
   template:
     metadata:
       annotations:
-        app.openshift.io/vcs-url: <<unknown>>
         app.openshift.io/connects-to: villains-db
-        app.quarkus.io/commit-id: cfd714275c94dffbe6190278111de54ebf0d0c62
-        app.quarkus.io/build-timestamp: 2021-12-09 - 21:21:05 +0000
+        app.openshift.io/vcs-url: <<unknown>>
+        app.quarkus.io/commit-id: cafa6f0ba19793190720e0cb6cd3c11725ff5e9d
+        app.quarkus.io/build-timestamp: 2021-12-09 - 21:45:29 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -87,8 +87,8 @@ spec:
         app: rest-villains
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/name: rest-villains
-        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/version: java17-latest
+        app.kubernetes.io/part-of: villains-service
     spec:
       containers:
         - env:
@@ -131,10 +131,10 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   annotations:
-    app.openshift.io/vcs-url: <<unknown>>
     app.openshift.io/connects-to: villains-db
-    app.quarkus.io/commit-id: cfd714275c94dffbe6190278111de54ebf0d0c62
-    app.quarkus.io/build-timestamp: 2021-12-09 - 21:21:05 +0000
+    app.openshift.io/vcs-url: <<unknown>>
+    app.quarkus.io/commit-id: cafa6f0ba19793190720e0cb6cd3c11725ff5e9d
+    app.quarkus.io/build-timestamp: 2021-12-09 - 21:45:29 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -156,8 +156,8 @@ metadata:
   labels:
     app: rest-villains
 data:
-  quarkus.hibernate-orm.database.generation: none
-  quarkus.hibernate-orm.sql-load-script: no-file
+#  quarkus.hibernate-orm.database.generation: none
+#  quarkus.hibernate-orm.sql-load-script: no-file
   quarkus.datasource.jdbc.url: jdbc:postgresql://villains-db:5432/villains_database
 ---
 apiVersion: v1
@@ -1581,6 +1581,7 @@ kind: Deployment
 metadata:
   labels:
     app: villains-db
+    app.kubernetes.io/part-of: villains-service
   name: villains-db
 spec:
   replicas: 1
@@ -1603,14 +1604,14 @@ spec:
           volumeMounts:
             - name: postgresql-data
               mountPath: /var/lib/postgresql/data
-            - name: config-data
-              mountPath: /docker-entrypoint-initdb.d
+#            - name: config-data
+#              mountPath: /docker-entrypoint-initdb.d
       volumes:
         - name: postgresql-data
           emptyDir: {}
-        - name: config-data
-          configMap:
-            name: villains-db-init
+#        - name: config-data
+#          configMap:
+#            name: villains-db-init
 ---
 apiVersion: v1
 kind: Service
