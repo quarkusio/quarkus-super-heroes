@@ -14,6 +14,7 @@ kind: Deployment
 metadata:
   labels:
     app: villains-db
+    app.kubernetes.io/part-of: villains-service
   name: villains-db
 spec:
   replicas: 1
@@ -36,14 +37,14 @@ spec:
           volumeMounts:
             - name: postgresql-data
               mountPath: /var/lib/postgresql/data
-            - name: config-data
-              mountPath: /docker-entrypoint-initdb.d
+#            - name: config-data
+#              mountPath: /docker-entrypoint-initdb.d
       volumes:
         - name: postgresql-data
           emptyDir: {}
-        - name: config-data
-          configMap:
-            name: villains-db-init
+#        - name: config-data
+#          configMap:
+#            name: villains-db-init
 ---
 apiVersion: v1
 kind: Service
