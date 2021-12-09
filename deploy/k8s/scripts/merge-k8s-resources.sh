@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Merge k8s resources from the app output (target/kubernetes/openshift.yml and target/kubernetes/kubernetes.yml)
-# along with things in deploy/k8s
+# Merge k8s resources from all the apps (deploy/*.yml)
 
 deploy_dir=deploy
 
@@ -14,13 +13,13 @@ do
     for proj in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
     do
       echo "Processing project $proj for ${kind}-java${versopn}"
-      cat $proj/deploy/${kind}-java${version}-kubernetes.yml >> $deploy_dir/${kind}-java${version}-kubernetes.yml
-      cat $proj/deploy/${kind}-java${version}-openshift.yml >> $deploy_dir/${kind}-java${version}-openshift.yml
+      cat $proj/deploy/${kind}-java${version}-kubernetes.yml >> $deploy_dir/all-${kind}-java${version}-kubernetes.yml
+      cat $proj/deploy/${kind}-java${version}-openshift.yml >> $deploy_dir/all-${kind}-java${version}-openshift.yml
     done
 
-    cat ui-super-heroes/deploy/app-kubernetes.yml >> $deploy_dir/${kind}-java${version}-kubernetes.yml
-    cat ui-super-heroes/deploy/app-kubernetes.yml >> $deploy_dir/${kind}-java${version}-openshift.yml
-    cat ui-super-heroes/deploy/route.yml >> $deploy_dir/${kind}-java${version}-openshift.yml
+    cat ui-super-heroes/deploy/app-kubernetes.yml >> $deploy_dir/all-${kind}-java${version}-kubernetes.yml
+    cat ui-super-heroes/deploy/app-kubernetes.yml >> $deploy_dir/all-${kind}-java${version}-openshift.yml
+    cat ui-super-heroes/deploy/route.yml >> $deploy_dir/all-${kind}-java${version}-openshift.yml
   done
 done
 
