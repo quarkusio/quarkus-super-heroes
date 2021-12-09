@@ -5,12 +5,9 @@ USER 1001
 
 # Add application sources
 COPY --chown=1001:1001 . $HOME
-#COPY --chown=1001:1001 package*.json $HOME
 
 # Install the dependencies
-# RUN npm install
 RUN npm install @angular/cli@12.2.8 && \
-#    npm ci --only=production && \
     npm run build && \
     npm prune --production
 
@@ -28,7 +25,6 @@ USER 1001
 
 # Copy the application source and build artifacts from the builder image to this one
 COPY --chown=1001:1001 --from=builder $HOME $HOME
-#COPY --chown=1001:1001 . $HOME
 
 # Expose the http port
 EXPOSE $HTTP_PORT
