@@ -47,10 +47,10 @@ jobs:
         run: |
           ./mvnw package -DskipTests \
             -Dquarkus.container-image.tag=java${{ matrix.java }}-latest \
-            -Dquarkus.kubernetes.annotations."app.quarkus.io/vcs-url"=${{ env.GITHUB_SERVER_URL }}/${{ env.GITHUB_REPOSITORY }} \
-            -Dquarkus.kubernetes.annotations."app.quarkus.io/vcs-ref"=${{ env.GITHUB_REF_NAME }} \
-            -Dquarkus.openshift.annotations."app.openshift.io/vcs-url"=${{ env.GITHUB_SERVER_URL }}/${{ env.GITHUB_REPOSITORY }} \
-            -Dquarkus.openshift.annotations."app.openshift.io/vcs-ref"=${{ env.GITHUB_REF_NAME }}
+            -Dquarkus.kubernetes.annotations."app.quarkus.io/vcs-url"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
+            -Dquarkus.kubernetes.annotations."app.quarkus.io/vcs-ref"=$GITHUB_REF_NAME \
+            -Dquarkus.openshift.annotations."app.openshift.io/vcs-url"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
+            -Dquarkus.openshift.annotations."app.openshift.io/vcs-ref"=$GITHUB_REF_NAME
 
       - name: Generate infra k8s resources
         working-directory: ${{ matrix.project}}

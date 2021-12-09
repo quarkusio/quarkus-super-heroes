@@ -14,7 +14,7 @@ cat $app_dir/kubernetes.yml > $kubernetes_result
 cat $app_dir/openshift.yml > $openshift_result
 
 # Now append in all .yml files in the deploy/k8s directory
-for f in ../*.yml
+for f in deploy/k8s/*.yml
 do
   echo "---" >> $kubernetes_result
   echo "---" >> $openshift_result
