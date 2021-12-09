@@ -48,6 +48,6 @@ Once that starts, then start one of the 4 versions of the application:
 
 There is a [`watch-services.sh`](scripts/watch-services.sh) script that can be run in a separate terminal that will watch the startup of all the services and report when they are all up.
 
-Once started the main application will be exposed at `http://localhost:8080`. If you want to watch the [Event Statistics UI](event-statistics), that will be available at `http://localhost:8082`.
+Once started the main application will be exposed at `http://localhost:8080`. If you want to watch the [Event Statistics UI](event-statistics), that will be available at `http://localhost:8085`.
 
 When finished, `CTRL-C` both of the terminals running `docker-compose`. If you are going to try out the different versions you can leave the infrastructure up while stopping and re-starting the applications. When complete it might be a good idea to run `docker-compose -f rest-fights/infrastructure/docker-compose.infra.yml -f rest-fights/infrastructure/docker-compose.infra.downstream.yml down --remove-orphans`.
