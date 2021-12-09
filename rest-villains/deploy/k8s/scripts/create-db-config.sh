@@ -1,7 +1,7 @@
 #!/bin/bash
 
-config_file=../db-config.yml
-init_db_dir=../../../infrastructure/db-init
+config_file=deploy/k8s/db-config.yml
+init_db_dir=infrastructure/db-init
 init_db_file=${init_db_dir}/initialize-database.sql
 init_tables_file=${init_db_dir}/initialize-tables.sql
 

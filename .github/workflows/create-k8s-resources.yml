@@ -53,12 +53,12 @@ jobs:
             -Dquarkus.openshift.annotations."app.openshift.io/vcs-ref"=${{ env.GITHUB_REF_NAME }}
 
       - name: Generate infra k8s resources
-        working-directory: ${{ matrix.project}}/deploy/k8s/scripts
-        run: create-db-config.sh
+        working-directory: ${{ matrix.project}}
+        run: deploy/k8s/scripts/create-db-config.sh
 
       - name: Merge k8s resources
-        working-directory: ${{ matrix.project }}/deploy/k8s/scripts
-        run: merge-k8s-resources.sh ${{ matrix.kind }} ${{ matrix.java }}
+        working-directory: ${{ matrix.project }}
+        run: deploy/k8s/scripts/merge-k8s-resources.sh ${{ matrix.kind }} ${{ matrix.java }}
 
       - name: Commit generated resources
         uses: EndBug/add-and-commit@v7

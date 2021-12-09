@@ -5,9 +5,9 @@
 
 kind=$1
 java_version=$2
-app_dir=../../../target/kubernetes
-kubernetes_result=../../${kind}-java${java_version}-kubernetes.yml
-openshift_result=../../${kind}-java${java_version}-openshift.yml
+app_dir=target/kubernetes
+kubernetes_result=deploy/${kind}-java${java_version}-kubernetes.yml
+openshift_result=deploy/${kind}-java${java_version}-openshift.yml
 
 # Start with what the app generated
 cat $app_dir/kubernetes.yml > $kubernetes_result
