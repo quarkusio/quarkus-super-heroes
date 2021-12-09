@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: villains-db-config
+  labels:
+    app: villains-db
+data:
+  POSTGRES_DB: villains_database
+  POSTGRES_USER: superbad
+  POSTGRES_PASSWORD: superbad
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: villains-db
+  name: villains-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: postgresql
+  template:
+    metadata:
+      labels:
+        name: postgresql
+    spec:
+      containers:
+        - image: postgres:13
+          name: postgresql
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: villains-db-config
+          volumeMounts:
+            - name: postgresql-data
+              mountPath: /var/lib/postgresql/data
+            - name: config-data
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: postgresql-data
+          emptyDir: {}
+        - name: config-data
+          configMap:
+            name: villains-db-init
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: villains-db
+  name: villains-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: postgresql
+  type: ClusterIP
