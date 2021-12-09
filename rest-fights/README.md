@@ -86,27 +86,27 @@ By default, the application is configured with the following:
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-fights`](https://quay.io/repository/quarkus-super-heroes/rest-fights?tab=tags). 
 
-First, start the required infrastructure by running (be sure to run from the `quarkus-super-heroes/rest-fights` directory) `docker-compose -f infrastructure/docker-compose.infra.yml up`.
+Pick one of the 4 versions of the application from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
 
-Once that starts, then start one of the 4 versions of the application:
+   > **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
 
-| Description                  | Image Tag              | Docker Compose Run Command                                            |
-|------------------------------|------------------------|-----------------------------------------------------------------------|
-| JVM Java 11                  | `java11-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm11.yml up`    |
-| JVM Java 17                  | `java17-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm17.yml up`    |
-| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f infrastructure/docker-compose.app-native11.yml up` |
-| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f infrastructure/docker-compose.app-native17.yml up` |
+| Description                  | Image Tag              | Docker Compose Run Command                                                                                                        |
+|------------------------------|------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| JVM Java 11                  | `java11-latest`        | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.app-jvm11.yml up --remove-orphans`    |
+| JVM Java 17                  | `java17-latest`        | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.app-jvm17.yml up --remove-orphans`    |
+| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.app-native11.yml up --remove-orphans` |
+| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.app-native17.yml up --remove-orphans` |
 
-These Docker Compose files are meant for standing up this application and the required database only. If you want to stand up this application and its downstream services, first start the required infrastructure by running (be sure to run from the `quarkus-super-heroes/rest-fights` directory) `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.infra.downstream.yml up`.
+These Docker Compose files are meant for standing up this application and the required database and Kafka broker only. If you want to stand up this application and its downstream services, pick one of the 4 versions from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
 
-Once all of the infrastructure starts, then use one of these commands (be sure to run from the `quarkus-super-heroes/rest-fights` directory):
+   > **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
 
-| Description                  | Image Tag              | Docker Compose Run Command                                                                                                                                                                                |
-|------------------------------|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| JVM Java 11                  | `java11-latest`        | `docker-compose -f ../rest-villains/infrastructure/docker-compose.app-jvm11.yml -f ../rest-heroes/infrastructure/docker-compose.app-jvm11.yml -f infrastructure/docker-compose.app-jvm11.yml up`          |
-| JVM Java 17                  | `java17-latest`        | `docker-compose -f ../rest-villains/infrastructure/docker-compose.app-jvm17.yml -f ../rest-heroes/infrastructure/docker-compose.app-jvm17.yml -f infrastructure/docker-compose.app-jvm17.yml up`          |
-| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f ../rest-villains/infrastructure/docker-compose.app-native11.yml -f ../rest-heroes/infrastructure/docker-compose.app-native11.yml -f infrastructure/docker-compose.app-native11.yml up` |
-| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f ../rest-villains/infrastructure/docker-compose.app-native17.yml -f ../rest-heroes/infrastructure/docker-compose.app-native17.yml -f infrastructure/docker-compose.app-native17.yml up` |
+| Description                  | Image Tag              | Docker Compose Run Command                                                                                                                                                                                                                                                                                                  |
+|------------------------------|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| JVM Java 11                  | `java11-latest`        | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.infra.downstream.yml -f ../rest-villains/infrastructure/docker-compose.app-jvm11.yml -f ../rest-heroes/infrastructure/docker-compose.app-jvm11.yml -f infrastructure/docker-compose.app-jvm11.yml up --remove-orphans`          |
+| JVM Java 17                  | `java17-latest`        | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.infra.downstream.yml -f ../rest-villains/infrastructure/docker-compose.app-jvm17.yml -f ../rest-heroes/infrastructure/docker-compose.app-jvm17.yml -f infrastructure/docker-compose.app-jvm17.yml up --remove-orphans`          |
+| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.infra.downstream.yml -f ../rest-villains/infrastructure/docker-compose.app-native11.yml -f ../rest-heroes/infrastructure/docker-compose.app-native11.yml -f infrastructure/docker-compose.app-native11.yml up --remove-orphans` |
+| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.infra.downstream.yml -f ../rest-villains/infrastructure/docker-compose.app-native17.yml -f ../rest-heroes/infrastructure/docker-compose.app-native17.yml -f infrastructure/docker-compose.app-native17.yml up --remove-orphans` |
 
 If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 

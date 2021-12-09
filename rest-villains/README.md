@@ -47,16 +47,16 @@ From the `quarkus-super-heroes/rest-villains` directory, simply run `./mvnw quar
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-villains`](https://quay.io/repository/quarkus-super-heroes/rest-villains?tab=tags). 
 
-First, start the required infrastructure by running (be sure to run from the `quarkus-super-heroes/rest-villains` directory) `docker-compose -f infrastructure/docker-compose.infra.yml up`.
+Pick one of the 4 versions of the application from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-villains` directory.
 
-Once that starts, then start one of the 4 versions of the application:
+   > **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
 
-| Description                  | Image Tag              | Docker Compose Run Command                                            |
-|------------------------------|------------------------|-----------------------------------------------------------------------|
-| JVM Java 11                  | `java11-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm11.yml up`    |
-| JVM Java 17                  | `java17-latest`        | `docker-compose -f infrastructure/docker-compose.app-jvm17.yml up`    |
-| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f infrastructure/docker-compose.app-native11.yml up` |
-| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f infrastructure/docker-compose.app-native17.yml up` |
+| Description                  | Image Tag              | Docker Compose Run Command                                                                                                        |
+|------------------------------|------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| JVM Java 11                  | `java11-latest`        | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.app-jvm11.yml up --remove-orphans`    |
+| JVM Java 17                  | `java17-latest`        | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.app-jvm17.yml up --remove-orphans`    |
+| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.app-native11.yml up --remove-orphans` |
+| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.app-native17.yml up --remove-orphans` |
 
 These Docker Compose files are meant for standing up this application and the required database only. If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
