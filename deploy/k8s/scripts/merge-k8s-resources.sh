@@ -12,13 +12,14 @@ do
   do
     for proj in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
     do
-      echo "Processing project $proj for ${kind}-java${versopn}"
+      echo "Processing project $proj for ${kind}-java${version}"
       echo "---" >> $deploy_dir/all-${kind}-java${version}-kubernetes.yml
       echo "---" >> $deploy_dir/all-${kind}-java${version}-openshift.yml
       cat $proj/deploy/${kind}-java${version}-kubernetes.yml >> $deploy_dir/all-${kind}-java${version}-kubernetes.yml
       cat $proj/deploy/${kind}-java${version}-openshift.yml >> $deploy_dir/all-${kind}-java${version}-openshift.yml
     done
 
+    echo "Processing project ui-super-heroes for ${kind}-java${version}"
     echo "---" >> $deploy_dir/all-${kind}-java${version}-kubernetes.yml
     echo "---" >> $deploy_dir/all-${kind}-java${version}-openshift.yml
 
