@@ -111,5 +111,3 @@ These Docker Compose files are meant for standing up this application and the re
 If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
 Once started the application will be exposed at `http://localhost:8082`.
-
-When finished, `CTRL-C` both of the terminals running `docker-compose`. If you are going to try out the different versions you can leave the infrastructure up while stopping and re-starting the applications. When complete it might be a good idea to run `docker-compose -f infrastructure/docker-compose.infra.yml -f infrastructure/docker-compose.infra.downstream.yml down --remove-orphans`.
