@@ -8,7 +8,7 @@ FROM registry.access.redhat.com/ubi8/nodejs-16:1 as builder
 COPY . $HOME
 
 # Install the dependencies
-RUN npm install @angular/cli@12.2.8 && \
+RUN npm install && \
     npm run build && \
     npm prune --production
 

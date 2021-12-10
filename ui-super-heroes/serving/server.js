@@ -15,7 +15,7 @@ writeFileSync(join(STATIC_DIR, 'env.js'), `window.NG_CONFIG={ API_BASE_URL: "${A
 app.use(express.static(STATIC_DIR))
 
 // Return the index.html for /
-app.get('/', (req, res) => res.sendFile(join(__dirname, '../dist/index.html')))
+app.get('/', (req, res) => res.sendFile(join(STATIC_DIR, 'index.html')))
 
 app.listen(HTTP_PORT, '0.0.0.0', () => {
   log(`express server listening on ${HTTP_PORT}`)
