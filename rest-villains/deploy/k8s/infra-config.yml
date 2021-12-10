@@ -5,9 +5,21 @@ metadata:
   labels:
     app: villains-db
 data:
-  POSTGRES_DB: villains_database
-  POSTGRES_USER: superbad
-  POSTGRES_PASSWORD: superbad
+  POSTGRESQL_DATABASE: villains_database
+  POSTGRESQL_USERNAME: superbad
+  POSTGRESQL_PASSWORD: superbad
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: villains-db-init
+  labels:
+    app: villains-db
+data:
+  get-data.sh: |-
+    #!/bin/bash
+    
+    curl https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/main/rest-villains/infrastructure/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -15,31 +27,37 @@ metadata:
   labels:
     app: villains-db
     app.kubernetes.io/part-of: villains-service
+    app.openshift.io/runtime: postgresql
   name: villains-db
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: postgresql
+      name: villains-db
   template:
     metadata:
       labels:
-        name: postgresql
+        name: villains-db
     spec:
       containers:
-        - image: postgres:13
-          name: postgresql
+        - image: bitnami/postgresql:13
+          name: villains-db
           ports:
             - containerPort: 5432
           envFrom:
             - configMapRef:
                 name: villains-db-config
           volumeMounts:
-            - name: postgresql-data
-              mountPath: /var/lib/postgresql/data
+            - name: villains-db-data
+              mountPath: /bitnami/postgresql
+            - name: villains-db-init
+              mountPath: /docker-entrypoint-preinitdb.d
       volumes:
-        - name: postgresql-data
+        - name: villains-db-data
           emptyDir: {}
+        - name: villains-db-init
+          configMap:
+            name: villains-db-init
 ---
 apiVersion: v1
 kind: Service
@@ -53,5 +71,5 @@ spec:
       protocol: TCP
       targetPort: 5432
   selector:
-    name: postgresql
+    name: villains-db
   type: ClusterIP

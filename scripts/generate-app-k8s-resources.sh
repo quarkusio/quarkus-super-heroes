@@ -9,8 +9,10 @@ do_build() {
   echo "Generating app config for tag $tag"
   $proj/mvnw -f $proj clean package -DskipTests \
     -Dquarkus.container-image.tag=$tag \
+    -Dquarkus.kubernetes.version=$tag \
     -Dquarkus.kubernetes.annotations."app.quarkus.io/vcs-url"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.kubernetes.annotations."app.quarkus.io/vcs-ref"=$GITHUB_REF_NAME \
+    -Dquarkus.openshift.version=$tag \
     -Dquarkus.openshift.annotations."app.openshift.io/vcs-url"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.openshift.annotations."app.openshift.io/vcs-ref"=$GITHUB_REF_NAME
 }
