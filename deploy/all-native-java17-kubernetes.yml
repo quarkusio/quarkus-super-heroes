@@ -3,8 +3,8 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.quarkus.io/commit-id: 6af097bdbf620c1a8b89d9416ff1ca7fc860d1d4
-    app.quarkus.io/build-timestamp: 2021-12-10 - 18:46:46 +0000
+    app.quarkus.io/commit-id: b6bdc19b4779366eaf636efc8a292cbbfdb5973a
+    app.quarkus.io/build-timestamp: 2021-12-10 - 20:25:45 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -30,8 +30,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.quarkus.io/commit-id: 6af097bdbf620c1a8b89d9416ff1ca7fc860d1d4
-    app.quarkus.io/build-timestamp: 2021-12-10 - 18:46:46 +0000
+    app.quarkus.io/commit-id: b6bdc19b4779366eaf636efc8a292cbbfdb5973a
+    app.quarkus.io/build-timestamp: 2021-12-10 - 20:25:45 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -52,8 +52,8 @@ spec:
   template:
     metadata:
       annotations:
-        app.quarkus.io/commit-id: 6af097bdbf620c1a8b89d9416ff1ca7fc860d1d4
-        app.quarkus.io/build-timestamp: 2021-12-10 - 18:46:46 +0000
+        app.quarkus.io/commit-id: b6bdc19b4779366eaf636efc8a292cbbfdb5973a
+        app.quarkus.io/build-timestamp: 2021-12-10 - 20:25:45 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -70,9 +70,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          envFrom:
-            - configMapRef:
-                name: rest-villains-config
+            - name: SMALLRYE_CONFIG_LOCATIONS
+              value: /mnt/app-config-map
           image: quay.io/quarkus-super-heroes/rest-villains:native-java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -100,13 +99,22 @@ spec:
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 10
+          volumeMounts:
+            - mountPath: /mnt/app-config-map
+              name: app-config-map
+              readOnly: false
+      volumes:
+        - configMap:
+            name: rest-villains-config
+            optional: false
+          name: app-config-map
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    app.quarkus.io/commit-id: 6af097bdbf620c1a8b89d9416ff1ca7fc860d1d4
-    app.quarkus.io/build-timestamp: 2021-12-10 - 18:46:46 +0000
+    app.quarkus.io/commit-id: b6bdc19b4779366eaf636efc8a292cbbfdb5973a
+    app.quarkus.io/build-timestamp: 2021-12-10 - 20:25:45 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -143,9 +151,21 @@ metadata:
   labels:
     app: villains-db
 data:
-  POSTGRES_DB: villains_database
-  POSTGRES_USER: superbad
-  POSTGRES_PASSWORD: superbad
+  POSTGRESQL_DATABASE: villains_database
+  POSTGRESQL_USERNAME: superbad
+  POSTGRESQL_PASSWORD: superbad
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: villains-db-init
+  labels:
+    app: villains-db
+data:
+  get-data.sh: |-
+    #!/bin/bash
+    
+    curl https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/main/rest-villains/infrastructure/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -153,31 +173,37 @@ metadata:
   labels:
     app: villains-db
     app.kubernetes.io/part-of: villains-service
+    app.openshift.io/runtime: postgresql
   name: villains-db
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: postgresql
+      name: villains-db
   template:
     metadata:
       labels:
-        name: postgresql
+        name: villains-db
     spec:
       containers:
-        - image: postgres:13
-          name: postgresql
+        - image: bitnami/postgresql:13
+          name: villains-db
           ports:
             - containerPort: 5432
           envFrom:
             - configMapRef:
                 name: villains-db-config
           volumeMounts:
-            - name: postgresql-data
-              mountPath: /var/lib/postgresql/data
+            - name: villains-db-data
+              mountPath: /bitnami/postgresql
+            - name: villains-db-init
+              mountPath: /docker-entrypoint-preinitdb.d
       volumes:
-        - name: postgresql-data
+        - name: villains-db-data
           emptyDir: {}
+        - name: villains-db-init
+          configMap:
+            name: villains-db-init
 ---
 apiVersion: v1
 kind: Service
@@ -191,7 +217,7 @@ spec:
       protocol: TCP
       targetPort: 5432
   selector:
-    name: postgresql
+    name: villains-db
   type: ClusterIP
 ---
 apiVersion: apps/v1
