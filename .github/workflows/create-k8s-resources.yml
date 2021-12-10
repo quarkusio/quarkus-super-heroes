@@ -6,7 +6,16 @@ env:
 concurrency: create-k8s-resources=${{ github.ref }}
 
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "Push Container images"
+    branches:
+      - main
+    types:
+      - completed
+
+#on:
+#  workflow_dispatch:
 
 jobs:
   create-k8s-resources:
