@@ -226,3 +226,59 @@ spec:
   selector:
     name: postgresql
   type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ui-super-heroes
+    app.openshift.io/runtime: nodejs
+  name: ui-super-heroes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ui-super-heroes
+      deployment: ui-super-heroes
+  template:
+    metadata:
+      labels:
+        app: ui-super-heroes
+        deployment: ui-super-heroes
+    spec:
+      containers:
+        - image: quay.io/quarkus-super-heroes/ui-super-heroes:latest
+          name: ui-super-heroes
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: ui-super-heroes
+  name: ui-super-heroes
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: ui-super-heroes
+    deployment: ui-super-heroes
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: ui-super-heroes
+  labels:
+    app: ui-super-heroes
+spec:
+  to:
+    kind: Service
+    name: ui-super-heroes
+    weight: 100
+  port:
+    targetPort: 8080-tcp

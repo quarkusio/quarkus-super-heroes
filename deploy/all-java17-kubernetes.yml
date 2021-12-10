@@ -3,10 +3,8 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: villains-db
-    app.openshift.io/vcs-url: <<unknown>>
     app.quarkus.io/commit-id: c915d00410fce2832cec2348a0552cf31c429d31
-    app.quarkus.io/build-timestamp: 2021-12-10 - 17:04:41 +0000
+    app.quarkus.io/build-timestamp: 2021-12-10 - 17:05:08 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -14,9 +12,8 @@ metadata:
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/version: java17-latest
     app: rest-villains
-    app.openshift.io/runtime: quarkus
   name: rest-villains
 spec:
   ports:
@@ -26,69 +23,46 @@ spec:
   selector:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/version: java17-latest
   type: ClusterIP
 ---
-apiVersion: image.openshift.io/v1
-kind: ImageStream
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   annotations:
-    app.openshift.io/connects-to: villains-db
-    app.openshift.io/vcs-url: <<unknown>>
     app.quarkus.io/commit-id: c915d00410fce2832cec2348a0552cf31c429d31
-    app.quarkus.io/build-timestamp: 2021-12-10 - 17:04:41 +0000
-  labels:
-    app: rest-villains
-    app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java11-latest
-    app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
-  name: rest-villains
-spec:
-  dockerImageRepository: quay.io/quarkus-super-heroes/rest-villains
----
-apiVersion: apps.openshift.io/v1
-kind: DeploymentConfig
-metadata:
-  annotations:
-    app.openshift.io/connects-to: villains-db
-    app.openshift.io/vcs-url: <<unknown>>
-    app.quarkus.io/commit-id: c915d00410fce2832cec2348a0552cf31c429d31
-    app.quarkus.io/build-timestamp: 2021-12-10 - 17:04:41 +0000
+    app.quarkus.io/build-timestamp: 2021-12-10 - 17:05:08 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
     prometheus.io/scheme: http
   labels:
     app: rest-villains
-    app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java11-latest
-    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/name: rest-villains
   name: rest-villains
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/version: java11-latest
-    app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
+    matchLabels:
+      app.kubernetes.io/part-of: villains-service
+      app.kubernetes.io/version: java17-latest
+      app.kubernetes.io/name: rest-villains
   template:
     metadata:
       annotations:
-        app.openshift.io/connects-to: villains-db
-        app.openshift.io/vcs-url: <<unknown>>
         app.quarkus.io/commit-id: c915d00410fce2832cec2348a0552cf31c429d31
-        app.quarkus.io/build-timestamp: 2021-12-10 - 17:04:41 +0000
+        app.quarkus.io/build-timestamp: 2021-12-10 - 17:05:08 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
         prometheus.io/scheme: http
       labels:
         app: rest-villains
-        app.openshift.io/runtime: quarkus
-        app.kubernetes.io/version: java11-latest
-        app.kubernetes.io/name: rest-villains
         app.kubernetes.io/part-of: villains-service
+        app.kubernetes.io/version: java17-latest
+        app.kubernetes.io/name: rest-villains
     spec:
       containers:
         - env:
@@ -99,8 +73,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: rest-villains-config
-          image: quay.io/quarkus-super-heroes/rest-villains:java11-latest
-          imagePullPolicy: IfNotPresent
+          image: quay.io/quarkus-super-heroes/rest-villains:java17-latest
+          imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -126,37 +100,30 @@ spec:
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 10
-  triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-          - rest-villains
-        from:
-          kind: ImageStreamTag
-          name: rest-villains:1.0
-      type: ImageChange
 ---
-apiVersion: route.openshift.io/v1
-kind: Route
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   annotations:
-    app.openshift.io/connects-to: villains-db
-    app.openshift.io/vcs-url: <<unknown>>
     app.quarkus.io/commit-id: c915d00410fce2832cec2348a0552cf31c429d31
-    app.quarkus.io/build-timestamp: 2021-12-10 - 17:04:41 +0000
+    app.quarkus.io/build-timestamp: 2021-12-10 - 17:05:08 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/version: java17-latest
     app: rest-villains
-    app.openshift.io/runtime: quarkus
   name: rest-villains
 spec:
-  port:
-    targetPort: 8084
-  to:
-    kind: Service
-    name: rest-villains
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: rest-villains
+                port:
+                  name: http
+            path: /
+            pathType: Prefix
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -225,4 +192,46 @@ spec:
       targetPort: 5432
   selector:
     name: postgresql
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ui-super-heroes
+    app.openshift.io/runtime: nodejs
+  name: ui-super-heroes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ui-super-heroes
+      deployment: ui-super-heroes
+  template:
+    metadata:
+      labels:
+        app: ui-super-heroes
+        deployment: ui-super-heroes
+    spec:
+      containers:
+        - image: quay.io/quarkus-super-heroes/ui-super-heroes:latest
+          name: ui-super-heroes
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: ui-super-heroes
+  name: ui-super-heroes
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: ui-super-heroes
+    deployment: ui-super-heroes
   type: ClusterIP
