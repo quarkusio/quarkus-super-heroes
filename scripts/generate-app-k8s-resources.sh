@@ -7,6 +7,7 @@ do_build() {
   local tag="${kind}java${version}-latest"
 
   echo "Generating app config for tag $tag"
+  set -x
   $proj/mvnw -f $proj clean package -DskipTests \
     -Dquarkus.container-image.tag="$tag" \
     -Dquarkus.kubernetes.version="$tag" \
@@ -15,6 +16,8 @@ do_build() {
     -Dquarkus.openshift.version="$tag" \
     -Dquarkus.openshift.annotations."app.openshift.io/vcs-url"="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
     -Dquarkus.openshift.annotations."app.openshift.io/vcs-ref"="$GITHUB_REF_NAME"
+
+  set +x
 
   echo "Generated $proj/target/kubernetes/openshift.yml="
   cat $proj/target/kubernetes/openshift.yml
