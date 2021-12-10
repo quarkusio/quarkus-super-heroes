@@ -5,8 +5,8 @@ metadata:
   annotations:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-url: <<unknown>>
-    app.quarkus.io/commit-id: 6eff3f59a1bbd3457ce006f5cdbae529464dd2fe
-    app.quarkus.io/build-timestamp: 2021-12-10 - 20:57:45 +0000
+    app.quarkus.io/commit-id: 540a683423f4286317ded7371f36bf96a7c123e0
+    app.quarkus.io/build-timestamp: 2021-12-10 - 21:14:23 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -35,13 +35,13 @@ metadata:
   annotations:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-url: <<unknown>>
-    app.quarkus.io/commit-id: 6eff3f59a1bbd3457ce006f5cdbae529464dd2fe
-    app.quarkus.io/build-timestamp: 2021-12-10 - 20:57:45 +0000
+    app.quarkus.io/commit-id: 540a683423f4286317ded7371f36bf96a7c123e0
+    app.quarkus.io/build-timestamp: 2021-12-10 - 21:14:23 +0000
   labels:
     app: rest-villains
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: java11-latest
   name: rest-villains
 spec:
@@ -53,8 +53,8 @@ metadata:
   annotations:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-url: <<unknown>>
-    app.quarkus.io/commit-id: 6eff3f59a1bbd3457ce006f5cdbae529464dd2fe
-    app.quarkus.io/build-timestamp: 2021-12-10 - 20:57:45 +0000
+    app.quarkus.io/commit-id: 540a683423f4286317ded7371f36bf96a7c123e0
+    app.quarkus.io/build-timestamp: 2021-12-10 - 21:14:23 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -62,23 +62,23 @@ metadata:
   labels:
     app: rest-villains
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: java11-latest
   name: rest-villains
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: java11-latest
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: villains-db
         app.openshift.io/vcs-url: <<unknown>>
-        app.quarkus.io/commit-id: 6eff3f59a1bbd3457ce006f5cdbae529464dd2fe
-        app.quarkus.io/build-timestamp: 2021-12-10 - 20:57:45 +0000
+        app.quarkus.io/commit-id: 540a683423f4286317ded7371f36bf96a7c123e0
+        app.quarkus.io/build-timestamp: 2021-12-10 - 21:14:23 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -86,8 +86,8 @@ spec:
       labels:
         app: rest-villains
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/name: rest-villains
+        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/version: java11-latest
     spec:
       containers:
@@ -126,6 +126,15 @@ spec:
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 10
+  triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - rest-villains
+        from:
+          kind: ImageStreamTag
+          name: rest-villains:1.0
+      type: ImageChange
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -133,8 +142,8 @@ metadata:
   annotations:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-url: <<unknown>>
-    app.quarkus.io/commit-id: 6eff3f59a1bbd3457ce006f5cdbae529464dd2fe
-    app.quarkus.io/build-timestamp: 2021-12-10 - 20:57:45 +0000
+    app.quarkus.io/commit-id: 540a683423f4286317ded7371f36bf96a7c123e0
+    app.quarkus.io/build-timestamp: 2021-12-10 - 21:14:23 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -243,6 +252,9 @@ metadata:
   labels:
     app: ui-super-heroes
     app.openshift.io/runtime: nodejs
+    app.kubernetes.io/part-of: super-heroes
+  annotations:
+    app.openshift.io/connects-to: rest-fights
   name: ui-super-heroes
 spec:
   replicas: 1
