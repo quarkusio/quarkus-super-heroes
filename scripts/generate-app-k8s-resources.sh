@@ -18,9 +18,6 @@ do_build() {
     -Dquarkus.openshift.annotations."app.openshift.io/vcs-ref"="$GITHUB_REF_NAME"
 
   set +x
-
-  echo "Generated $proj/target/kubernetes/openshift.yml="
-  cat $proj/target/kubernetes/openshift.yml
 }
 
 copy_resource() {

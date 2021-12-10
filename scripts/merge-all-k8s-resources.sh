@@ -26,8 +26,8 @@ do
     echo "---" >> $kubernetes_result
     echo "---" >> $openshift_result
 
-    cat ui-super-heroes/deploy/app-kubernetes.yml >> $kubernetes_result
-    cat ui-super-heroes/deploy/app-kubernetes.yml >> $openshift_result
+    cat ui-super-heroes/deploy/app.yml >> $kubernetes_result
+    cat ui-super-heroes/deploy/app.yml >> $openshift_result
 
     echo "---" >> $openshift_result
     cat ui-super-heroes/deploy/route.yml >> $openshift_result
