@@ -8,83 +8,31 @@ concurrency: create-k8s-resources=${{ github.ref }}
 on:
   workflow_dispatch:
 
-#  workflow_run:
-#    workflows:
-#      - "Build and test JVM"
-#    types:
-#      - completed
-
 jobs:
-  create-indv-k8s-resources:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        kind:
-          - jvm
-          - native
-        java:
-          - '11'
-          - '17'
-        project:
-#          - event-statistics
-#          - rest-fights
-#          - rest-heroes
-          - rest-villains
-    name: "create-k8s-resources-${{ matrix.project }}-${{ matrix.kind }}-java-${{ matrix.java }}"
+  create-k8s-resources:
     steps:
       - uses: actions/checkout@v2
 
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
-          java-version: ${{ matrix.java }}
+          java-version: 17
           distribution: temurin
           cache: maven
 
-      - name: Output env vars
-        run: echo "$GITHUB_REF_NAME - $GITHUB_SERVER_URL/$GITHUB_REPOSITORY"
-
       - name: Generate application k8s resources
-        working-directory: ${{ matrix.project }}
-        run: |
-          ./mvnw package -DskipTests \
-            -Dquarkus.container-image.tag=java${{ matrix.java }}-latest \
-            -Dquarkus.kubernetes.annotations."app.quarkus.io/vcs-url"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
-            -Dquarkus.kubernetes.annotations."app.quarkus.io/vcs-ref"=$GITHUB_REF_NAME \
-            -Dquarkus.openshift.annotations."app.openshift.io/vcs-url"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
-            -Dquarkus.openshift.annotations."app.openshift.io/vcs-ref"=$GITHUB_REF_NAME
+        run: scripts/generate-app-k8s-resources.sh
 
-##      - name: Generate infra k8s resources
-##        working-directory: ${{ matrix.project}}
-##        run: deploy/k8s/scripts/create-db-config.sh
-#
-#      - name: Merge k8s resources
-#        working-directory: ${{ matrix.project }}
-#        run: deploy/k8s/scripts/merge-k8s-resources.sh ${{ matrix.kind }} ${{ matrix.java }}
-#
-#      - name: Commit generated resources
-#        uses: EndBug/add-and-commit@v7
-#        with:
-#          default_author: github_actions
-#          message: Generate ${{ matrix.kind }}-java${{ matrix.java }} k8s resources for ${{ matrix.project }}
-#          add: '["${{ matrix.project }}/deploy/${{ matrix.kind }}-java${{ matrix.java }}-kubernetes.yml", "${{ matrix.project }}/deploy/${{ matrix.kind }}-java${{ matrix.java }}-openshift.yml"]'
-#          pathspec_error_handling: exitImmediately
-#
-#  create-all-k8s-resources:
-#    needs: create-indv-k8s-resources
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v2
-#
-#      - name: Merge all k8s resources
-#        run: deploy/k8s/scripts/merge-k8s-resources.sh
-#
-#      - name: Commit generated resources
-#        uses: EndBug/add-and-commit@v7
-#        with:
-#          default_author: github_actions
-#          message: Generate merged k8s resources
-#          add: '["deploy/all-*-kubernetes.yml", "deploy/all-*-openshift.yml"]'
-#          pathspec_error_handling: exitImmediately
+      - name: Merge application k8s resources
+        run: scripts/merge-app-k8s-resources.sh
+
+      - name: Merge all applications k8s resources
+        run: scripts/merge-all-k8s-resources.sh
+
+      - name: Commit generated resources
+        uses: EndBug/add-and-commit@v7
+        with:
+          default_author: github_actions
+          message: Generate k8s resources
+          add: '**/deploy/*.yml'
+          pathspec_error_handling: exitImmediately
