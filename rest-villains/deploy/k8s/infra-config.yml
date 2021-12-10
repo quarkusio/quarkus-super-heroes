@@ -1,13 +1,14 @@
 apiVersion: v1
-kind: ConfigMap
+kind: Secret
+type: Opaque
 metadata:
   name: villains-db-config
   labels:
     app: villains-db
 data:
-  POSTGRESQL_DATABASE: villains_database
-  POSTGRESQL_USERNAME: superbad
-  POSTGRESQL_PASSWORD: superbad
+  POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
+  POSTGRESQL_USERNAME: c3VwZXJiYWQ=
+  POSTGRESQL_PASSWORD: c3VwZXJiYWQ=
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -45,7 +46,7 @@ spec:
           ports:
             - containerPort: 5432
           envFrom:
-            - configMapRef:
+            - secretRef:
                 name: villains-db-config
           volumeMounts:
             - name: villains-db-data
