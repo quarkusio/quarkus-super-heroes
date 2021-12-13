@@ -60,7 +60,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Mask secrets
-        run: "::add-mask::${{ github.event.inputs.token }}"
+        run: |
+          echo '::echo::off'
+          echo '::add-mask::${{ github.event.inputs.token }}'
 
       - uses: actions/checkout@v2
 
