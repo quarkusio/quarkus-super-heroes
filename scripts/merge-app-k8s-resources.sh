@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # Merge k8s resources from the app output (deploy/k8s/gen/app-*.yml)
 # along with things in deploy/k8s

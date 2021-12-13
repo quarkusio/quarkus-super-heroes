@@ -8,8 +8,9 @@ do_build() {
 
   echo "Generating app config for tag $tag"
   set -x
-  $proj/mvnw -f $proj versions:set clean package -DskipTests \
-    -DnewVersion=$tag -DprocessAllModules \
+  ./mvnw versions:set -DnewVersion=$tag -DprocessAllModules
+
+  $proj/mvnw -f $proj/pom.xml clean package -DskipTests \
     -Dquarkus.container-image.tag=$tag \
     -Dquarkus.kubernetes.version=$tag \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \

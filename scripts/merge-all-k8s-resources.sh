@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # Merge k8s resources from all the apps (deploy/*.yml)
 
