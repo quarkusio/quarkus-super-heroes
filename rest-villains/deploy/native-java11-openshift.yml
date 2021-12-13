@@ -6,8 +6,8 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: 86d1b19d0725af9c8158a1ebea8e39e1bdbde386
-    app.quarkus.io/build-timestamp: 2021-12-13 - 17:18:00 +0000
+    app.quarkus.io/commit-id: a0b3dec0217d522a233aab8f83ce698379d2d86d
+    app.quarkus.io/build-timestamp: 2021-12-13 - 17:41:39 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -37,14 +37,14 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: 86d1b19d0725af9c8158a1ebea8e39e1bdbde386
-    app.quarkus.io/build-timestamp: 2021-12-13 - 17:18:00 +0000
+    app.quarkus.io/commit-id: a0b3dec0217d522a233aab8f83ce698379d2d86d
+    app.quarkus.io/build-timestamp: 2021-12-13 - 17:41:39 +0000
   labels:
     app: rest-villains
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/name: rest-villains
   name: rest-villains
 spec:
   dockerImageRepository: quay.io/quarkus-super-heroes/rest-villains
@@ -56,8 +56,8 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: 86d1b19d0725af9c8158a1ebea8e39e1bdbde386
-    app.quarkus.io/build-timestamp: 2021-12-13 - 17:18:00 +0000
+    app.quarkus.io/commit-id: a0b3dec0217d522a233aab8f83ce698379d2d86d
+    app.quarkus.io/build-timestamp: 2021-12-13 - 17:41:39 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -65,24 +65,24 @@ metadata:
   labels:
     app: rest-villains
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/name: rest-villains
   name: rest-villains
 spec:
   replicas: 1
   selector:
+    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/name: rest-villains
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: villains-db
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        app.quarkus.io/commit-id: 86d1b19d0725af9c8158a1ebea8e39e1bdbde386
-        app.quarkus.io/build-timestamp: 2021-12-13 - 17:18:00 +0000
+        app.quarkus.io/commit-id: a0b3dec0217d522a233aab8f83ce698379d2d86d
+        app.quarkus.io/build-timestamp: 2021-12-13 - 17:41:39 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -90,9 +90,9 @@ spec:
       labels:
         app: rest-villains
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/name: rest-villains
         app.kubernetes.io/version: native-java11-latest
         app.kubernetes.io/part-of: villains-service
-        app.kubernetes.io/name: rest-villains
     spec:
       containers:
         - env:
@@ -137,7 +137,7 @@ spec:
           - rest-villains
         from:
           kind: ImageStreamTag
-          name: rest-villains:1.0
+          name: rest-villains:native-java11-latest
       type: ImageChange
 ---
 apiVersion: route.openshift.io/v1
@@ -147,8 +147,8 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: 86d1b19d0725af9c8158a1ebea8e39e1bdbde386
-    app.quarkus.io/build-timestamp: 2021-12-13 - 17:18:00 +0000
+    app.quarkus.io/commit-id: a0b3dec0217d522a233aab8f83ce698379d2d86d
+    app.quarkus.io/build-timestamp: 2021-12-13 - 17:41:39 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -162,94 +162,6 @@ spec:
   to:
     kind: Service
     name: rest-villains
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: rest-villains-config
-  labels:
-    app: rest-villains
-data:
-#  quarkus.hibernate-orm.database.generation: none
-#  quarkus.hibernate-orm.sql-load-script: no-file
-  quarkus.datasource.jdbc.url: jdbc:postgresql://villains-db:5432/villains_database
----
-apiVersion: v1
-kind: Secret
-type: Opaque
-metadata:
-  name: villains-db-config
-  labels:
-    app: villains-db
-data:
-  POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
-  POSTGRESQL_USERNAME: c3VwZXJiYWQ=
-  POSTGRESQL_PASSWORD: c3VwZXJiYWQ=
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: villains-db-init
-  labels:
-    app: villains-db
-data:
-  get-data.sh: |-
-    #!/bin/bash
-    
-    curl https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/main/rest-villains/infrastructure/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: villains-db
-    app.kubernetes.io/part-of: villains-service
-    app.openshift.io/runtime: postgresql
-  name: villains-db
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: villains-db
-  template:
-    metadata:
-      labels:
-        name: villains-db
-    spec:
-      containers:
-        - image: bitnami/postgresql:13
-          name: villains-db
-          ports:
-            - containerPort: 5432
-          envFrom:
-            - secretRef:
-                name: villains-db-config
-          volumeMounts:
-            - name: villains-db-data
-              mountPath: /bitnami/postgresql
-            - name: villains-db-init
-              mountPath: /docker-entrypoint-preinitdb.d
-      volumes:
-        - name: villains-db-data
-          emptyDir: {}
-        - name: villains-db-init
-          configMap:
-            name: villains-db-init
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: villains-db
-  name: villains-db
-spec:
-  ports:
-    - port: 5432
-      protocol: TCP
-      targetPort: 5432
-  selector:
-    name: villains-db
-  type: ClusterIP
 ---
 apiVersion: v1
 kind: ConfigMap
