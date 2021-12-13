@@ -10,7 +10,7 @@ on:
         type: string
         description: OpenShift server API url
         required: true
-      token:
+      OCP_TOKEN:
         type: string
         description: OpenShift API token
         required: true
@@ -58,13 +58,9 @@ concurrency:
 jobs:
   deploy-to-openshift:
     runs-on: ubuntu-latest
+    env:
+      OCP_TOKEN: ${{ github.event.inputs.OCP_TOKEN }}
     steps:
-      - name: Turn off echoing
-        run: |
-          echo $GITHUB_EVENT_PATH
-          OCP_TOKEN=$(jq -r '.inputs.token' $GITHUB_EVENT_PATH)
-          echo "::add-mask::$OCP_TOKEN"
-
       - uses: actions/checkout@v2
 
       - name: OpenShift login
@@ -72,7 +68,6 @@ jobs:
         with:
           openshift_server_url: ${{ github.event.inputs.server_api_url }}
           openshift_token: $OCP_TOKEN
-#          openshift_token: ${{ github.event.inputs.token }}
           insecure_skip_tls_verify: ${{ github.event.inputs.insecure_skip_tls_verify }}
           namespace: ${{ github.event.inputs.namespace }}
 
