@@ -61,19 +61,17 @@ jobs:
     steps:
       - name: Turn off echoing
         run: |
-          echo "::set-output name=action_echo::disabled"
-          echo "::echo::off"
+          OCP_TOKEN=$(cat $GITHUB_EVENT_PATH | jq '.inputs.token' | sed 's/"//g' )
+          echo "::add-mask::OCP_TOKEN="
 
       - uses: actions/checkout@v2
-
-      - name: Mask
-        run: echo "::add-mask::${{ github.event.inputs.token }}"
 
       - name: OpenShift login
         uses: redhat-actions/oc-login@v1
         with:
           openshift_server_url: ${{ github.event.inputs.server_api_url }}
-          openshift_token: ${{ github.event.inputs.token }}
+          openshift_token: $OCP_TOKEN
+#          openshift_token: ${{ github.event.inputs.token }}
           insecure_skip_tls_verify: ${{ github.event.inputs.insecure_skip_tls_verify }}
           namespace: ${{ github.event.inputs.namespace }}
 
