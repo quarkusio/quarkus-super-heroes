@@ -1,4 +1,4 @@
-name: Push Container images
+name: Build and Push Container images
 
 env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
@@ -231,11 +231,11 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Setup Java
-          uses: actions/setup-java@v2
-          with:
-            java-version: 17
-            distribution: temurin
-            cache: maven
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
 
       - name: Create env vars
         run: echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
