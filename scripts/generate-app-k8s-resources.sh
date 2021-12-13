@@ -40,6 +40,7 @@ process_project() {
 
   do_build $proj $version $kind
   copy_resource $project "kubernetes" $version $kind
+  copy_resource $project "minikube" $version $kind
   copy_resource $project "openshift" $version $kind
 }
 

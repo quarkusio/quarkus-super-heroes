@@ -40,6 +40,7 @@ do
     for kind in "" "native-"
     do
       process_project $project "kubernetes" $javaVersion $kind
+      process_project $project "minikube" $javaVersion $kind
       process_project $project "openshift" $javaVersion $kind
     done
   done
