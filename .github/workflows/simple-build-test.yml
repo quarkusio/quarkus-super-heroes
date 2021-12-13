@@ -1,0 +1,63 @@
+name: Basic build and test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}, pr = ${{ github.event.pull_request.id }}"
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-test-jvm:
+    runs-on: ubuntu-latest
+    # Skip main in forks
+    # Skip draft PRs and those with WIP in the subject, rerun as soon as its removed
+    if: "(!endsWith(github.ref, '/main')) && ( \
+            github.event_name != 'pull_request' || ( \
+              github.event.pull_request.draft == false && \
+              github.event.pull_request.state != 'closed' && \
+              contains(github.event.pull_request.title, 'wip ') == false && \
+              contains(github.event.pull_request.title, '[wip]') == false && \
+              (
+                github.event.action != 'edited' || \
+                contains(github.event.changes.title.from, 'wip ') || \
+                contains(github.event.changes.title.from, '[wip]') \
+              ) \
+            ) \
+          )"
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '11'
+          - '17'
+        project:
+          - event-statistics
+          - rest-fights
+          - rest-heroes
+          - rest-villains
+    name: "build-test-${{ matrix.project }}-java-${{ matrix.java }}"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Java ${{ matrix.java }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: temurin
+          cache: maven
+
+      - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
+        working-directory: ${{ matrix.project }}
+        run: ./mvnw -B clean verify -Dquarkus.http.host=0.0.0.0 -Dmaven.compiler.release=${{ matrix.java }}
