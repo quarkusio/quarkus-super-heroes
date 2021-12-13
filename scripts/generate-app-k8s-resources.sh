@@ -12,6 +12,7 @@ do_build() {
 
   $proj/mvnw -f $proj/pom.xml versions:set clean package -DskipTests \
     -DnewVersion=$tag \
+    -Dmaven.compiler.release=17 \
     -Dquarkus.container-image.tag=$tag \
     -Dquarkus.kubernetes.version=$tag \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
