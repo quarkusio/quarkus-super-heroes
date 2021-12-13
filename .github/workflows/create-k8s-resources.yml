@@ -34,7 +34,12 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Output status
-        run: echo "Event = ${{ github.event.workflow_run }}, conclusion = ${{ github.event.workflow_run.conclusion }}, event name = ${{ github.event_name }}"
+        run: |
+          echo "Event = ${{ github.event.workflow_run }}" && \
+          echo "conclusion = ${{ github.event.workflow_run.conclusion }}" && \
+          echo "event name = ${{ github.event_name }}" && \
+          echo "event ref = ${{ github.event.ref }}" && \
+          echo "ref = ${{ github.ref }}"
 
       - name: Setup Java
         uses: actions/setup-java@v2
