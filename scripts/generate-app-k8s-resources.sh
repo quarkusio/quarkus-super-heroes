@@ -45,6 +45,8 @@ process_project() {
 
 for project in "rest-villains" #"rest-heroes" "rest-fights" "event-statistics"
 do
+  rm -rf $proj/deploy/k8s/gen
+
   for javaVersion in 11 17
   do
     for kind in "" "native-"
