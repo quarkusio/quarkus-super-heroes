@@ -59,6 +59,9 @@ jobs:
   deploy-to-openshift:
     runs-on: ubuntu-latest
     steps:
+      - name: Mask secrets
+        run: echo "::add-mask::${{ github.event.inputs.token }}"
+
       - uses: actions/checkout@v2
 
       - name: OpenShift login
