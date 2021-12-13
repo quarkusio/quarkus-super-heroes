@@ -131,12 +131,33 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup GraalVM
-        uses: ayltai/setup-graalvm@v1
+      - name: Cache and restore Maven artifacts
+        id: check-mvn-cache
+        uses: actions/cache@v2
         with:
+          path: ~/.m2/repository
+          key: setup-java-${{ runner.os }}-maven-${{ hashFiles('${{ matrix.project }}/pom.xml') }}
+
+      - name: Cache and restore Mandrel distro
+        id: check-mandrel-cache
+        uses: actions/cache@v2
+        with:
+          path: java_package-${{ matrix.java }}.tar.gz
+          key: mandrel-distro-${{ env.MANDREL_VERSION }}-${{ matrix.java }}
+
+      - name: Download Mandrel
+        if: steps.check-mandrel-cache.outputs.cache-hit != 'true'
+        run: |
+          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${MANDREL_VERSION}/mandrel-java${{ matrix.java }}-linux-amd64-${MANDREL_VERSION}.tar.gz"
+          wget -q -O java_package-${{ matrix.java }}.tar.gz $download_url
+
+      - name: Setup Maven+OpenJDK Distro
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'jdkfile'
+          jdkFile: java_package-${{ matrix.java }}.tar.gz
           java-version: ${{ matrix.java }}
-          graalvm-version: 21.3.0
-          native-image: true
+          architecture: x64
 
       - name: Create env vars
         run: |
