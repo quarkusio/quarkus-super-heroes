@@ -3,22 +3,32 @@ name: Create k8s resources
 env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
 
-concurrency: create-k8s-resources=${{ github.ref }}
+on:
+  workflow_run:
+    workflows:
+      - "Build and Push Container images"
+    branches:
+      - main
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      manual_run:
+        type: choice
+        description: "Manually run workflow?"
+        required: true
+        default: "false"
+        options:
+          - true
+          - false
 
-#on:
-#  workflow_run:
-#    workflows:
-#      - "Push Container images"
-#    branches:
-#      - main
-#    types:
-#      - completed
-
-#on:
-#  workflow_dispatch:
+concurrency:
+  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}, pr = ${{ github.event.pull_request.id }}"
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   create-k8s-resources:
+    if: (${{ github.event.workflow_run.conclusion == 'success' }} || ${{ github.event.inputs.manual_run == 'true' }}) && ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
