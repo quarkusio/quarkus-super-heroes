@@ -5,6 +5,7 @@ metadata:
   name: villains-db-config
   labels:
     app: villains-db
+    application: villains-service
 data:
   POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
   POSTGRESQL_USERNAME: c3VwZXJiYWQ=
@@ -16,6 +17,7 @@ metadata:
   name: villains-db-init
   labels:
     app: villains-db
+    application: villains-service
 data:
   get-data.sh: |-
     #!/bin/bash
@@ -27,6 +29,7 @@ kind: Deployment
 metadata:
   labels:
     app: villains-db
+    application: villains-service
     app.kubernetes.io/part-of: villains-service
     app.openshift.io/runtime: postgresql
   name: villains-db
@@ -38,6 +41,7 @@ spec:
   template:
     metadata:
       labels:
+        application: villains-service
         name: villains-db
     spec:
       containers:
@@ -65,6 +69,7 @@ kind: Service
 metadata:
   labels:
     name: villains-db
+    application: villains-service
   name: villains-db
 spec:
   ports:

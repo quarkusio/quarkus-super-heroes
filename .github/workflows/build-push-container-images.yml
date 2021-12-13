@@ -46,6 +46,7 @@ jobs:
           cache: maven
 
       - name: Create env vars
+        working-directory: ${{ matrix.project }}
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV &&
@@ -56,6 +57,7 @@ jobs:
           fi
 
       - name: Create container tags
+        working-directory: ${{ matrix.project }}
         run: |
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV &&
           echo "ADDITIONAL_TAG=java${{ matrix.java }}-latest" >> $GITHUB_ENV
@@ -124,15 +126,14 @@ jobs:
           java-version: ${{ matrix.java }}
           architecture: x64
 
-      - name: Output Java Version
-        run: java -version
-
       - name: Create env vars
+        working-directory: ${{ matrix.project }}
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV && \
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Create container tags
+        working-directory: ${{ matrix.project }}
         run: |
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV && \
           echo "ADDITIONAL_TAG=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
