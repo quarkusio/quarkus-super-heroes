@@ -1,0 +1,90 @@
+name: Deploy to OpenShift
+
+env:
+  IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_api_url:
+        type: string
+        description: OpenShift server API url
+        required: true
+      token:
+        type: string
+        description: The API token
+        required: true
+      namespace:
+        type: string
+        description: The OpenShift namespace/project
+        required: true
+      insecure_skip_tls_verify:
+        type: boolean
+        description: Whether to skip the TLS verification
+        required: true
+        default: false
+      project:
+        type: choice
+        description: Which project to deploy
+        required: true
+        default: 'all'
+        options:
+          - all
+          - event-statistics
+          - rest-fights
+          - rest-heroes
+          - rest-villains
+      java-version:
+        type: choice
+        description: Which Java version of the project to deploy?
+        required: true
+        default: '17'
+        options:
+          - '11'
+          - '17'
+      kind:
+        type: choice
+        description: Which version of the project to deploy?
+        required: true
+        default: 'JVM'
+        options:
+          - JVM
+          - native
+
+concurrency:
+  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}, pr = ${{ github.event.pull_request.id }}"
+  cancel-in-progress: false
+
+jobs:
+  deploy-to-openshift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: OpenShift login
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ github.event.inputs.server_api_url }}
+          openshift_token: ${{ github.event.inputs.token }}
+          insecure_skip_tls_verify: ${{ github.event.inputs.insecure_skip_tls_verify }}
+          namespace: ${{ github.event.inputs.namespace }}
+
+      - name: Calculate deploy filename (JVM)
+        if: github.event.input.kind == 'JVM'
+        run: echo "DEPLOY_FILENAME=java${{ github.event.input.java-version }}-openshift.yml" >> $GITHUB_ENV
+
+      - name: Calculate deploy filename (native)
+        if: github.event.input.kind == 'native'
+        run: echo "DEPLOY_FILENAME=native-java${{ github.event.input.java-version }}-openshift.yml" >> $GITHUB_ENV
+
+      - name: Deploy all to OpenShift
+        if: github.event.input.project == 'all'
+        shell: bash
+        working-directory: deploy
+        run: oc apply -f ${{ env.DEPLOY_FILENAME }}
+
+      - name: Deploy ${{ github.event.input.project }} to OpenShift
+        if: github.event.input.project != 'all'
+        shell: bash
+        working-directory: ${{ github.event.input.project }}/deploy
+        run: oc apply -f ${{ env.DEPLOY_FILENAME }}
