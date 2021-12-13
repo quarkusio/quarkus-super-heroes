@@ -12,15 +12,6 @@ on:
     types:
       - completed
   workflow_dispatch:
-    inputs:
-      manual_run:
-        type: choice
-        description: "Manually run workflow?"
-        required: true
-        default: "false"
-        options:
-          - true
-          - false
 
 concurrency:
   group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}, pr = ${{ github.event.pull_request.id }}"
@@ -28,18 +19,10 @@ concurrency:
 
 jobs:
   create-k8s-resources:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
+    if: (${{ github.event_name == 'workflow_dispatch' }} || (${{ github.event_name == 'workflow_run' }} && ${{ github.event.workflow_run.conclusion == 'success' }})) && ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Output status
-        run: |
-          echo "Event = ${{ github.event.workflow_run }}" && \
-          echo "conclusion = ${{ github.event.workflow_run.conclusion }}" && \
-          echo "event name = ${{ github.event_name }}" && \
-          echo "event ref = ${{ github.event.ref }}" && \
-          echo "ref = ${{ github.ref }}"
 
       - name: Setup Java
         uses: actions/setup-java@v2
