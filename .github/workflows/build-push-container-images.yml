@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   build-test-jvm-images:
-    if: ${{ ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main' }}
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -81,7 +81,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   build-test-native-images:
-    if: ${{ ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main' }}
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -165,7 +165,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   push-app-images:
-    if: ${{ ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main' }}
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     needs:
       - build-test-jvm-images
       - build-test-native-images
@@ -196,11 +196,13 @@ jobs:
           cache: maven
 
       - name: Create env vars
+        working-directory: ${{ matrix.project }}
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Create container tags
+        working-directory: ${{ matrix.project }}
         run: |
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-${{ matrix.kind }}java${{ matrix.java }}" >> $GITHUB_ENV &&
           echo "ADDITIONAL_TAG=${{ matrix.kind }}java${{ matrix.java }}-latest" >> $GITHUB_ENV
@@ -226,7 +228,7 @@ jobs:
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
 
   build-push-ui-image:
-    if: ${{ ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main' }}
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     needs: push-app-images
     runs-on: ubuntu-latest
     steps:
