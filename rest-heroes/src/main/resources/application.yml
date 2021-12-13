@@ -1,4 +1,6 @@
 quarkus:
+  application:
+    name: rest-heroes
   hibernate-orm:
     database:
       generation: drop-and-create
@@ -16,9 +18,27 @@ quarkus:
     info-contact-url: https://github.com/quarkusio
     servers: "http://localhost:${quarkus.http.port}"
   container-image:
+    builder: docker
     registry: quay.io
     group: quarkus-super-heroes
-    name: rest-heroes
+    name: "${quarkus.application.name}"
+  kubernetes:
+    part-of: heroes-service
+    env:
+      configmaps: "${quarkus.application.name}-config"
+    labels:
+      app: "${quarkus.application.name}"
+  openshift:
+    expose: true
+    part-of: "${quarkus.kubernetes.part-of}"
+    route:
+      expose: true
+    annotations:
+      "app.openshift.io/connects-to": heroes-db
+    env:
+      configmaps: "${quarkus.kubernetes.env.configmaps}"
+    labels:
+      app: "${quarkus.kubernetes.labels.app}"
 
 "%prod":
   quarkus:

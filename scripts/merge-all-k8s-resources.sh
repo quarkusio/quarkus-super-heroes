@@ -15,7 +15,7 @@ do
     minikube_result="$deploy_dir/all-${kind}java${version}-minikube.yml"
     openshift_result="$deploy_dir/all-${kind}java${version}-openshift.yml"
 
-    for proj in "rest-villains" #"rest-heroes" "rest-fights" "event-statistics"
+    for proj in "rest-villains" "rest-heroes" #"rest-fights" "event-statistics"
     do
       echo "Processing project $proj for ${kind}java${version}"
       set -x

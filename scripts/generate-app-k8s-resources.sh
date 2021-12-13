@@ -8,9 +8,10 @@ do_build() {
 
   echo "Generating app config for tag $tag"
   set -x
-  ./mvnw versions:set -DnewVersion=$tag -DprocessAllModules
+  rm -rf $proj/target
 
-  $proj/mvnw -f $proj/pom.xml clean package -DskipTests \
+  $proj/mvnw -f $proj/pom.xml versions:set clean package -DskipTests \
+    -DnewVersion=$tag \
     -Dquarkus.container-image.tag=$tag \
     -Dquarkus.kubernetes.version=$tag \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
@@ -46,7 +47,7 @@ process_project() {
   copy_resource $project "openshift" $version $kind
 }
 
-for project in "rest-villains" #"rest-heroes" "rest-fights" "event-statistics"
+for project in "rest-villains" "rest-heroes" #"rest-fights" "event-statistics"
 do
   rm -rf $proj/deploy/k8s/gen
 
