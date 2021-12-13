@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   build-test-jvm-images:
-    if: ${{ (github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')) && github.ref == 'refs/heads/main' }}
+    if: ${{ ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -79,7 +79,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   build-test-native-images:
-    if: ${{ (github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')) && github.ref == 'refs/heads/main' }}
+    if: ${{ ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -164,7 +164,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   push-app-images:
-    if: ${{ (github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')) && github.ref == 'refs/heads/main' }}
+    if: ${{ ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main' }}
     needs:
       - build-test-jvm-images
       - build-test-native-images
@@ -225,7 +225,7 @@ jobs:
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
 
   build-push-ui-image:
-    if: ${{ (github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')) && github.ref == 'refs/heads/main' }}
+    if: ${{ ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main' }}
     needs: push-app-images
     runs-on: ubuntu-latest
     steps:
