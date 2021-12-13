@@ -28,10 +28,13 @@ concurrency:
 
 jobs:
   create-k8s-resources:
-    if: (${{ github.event.workflow_run.conclusion == 'success' }} || ${{ github.event.inputs.manual_run == 'true' }}) && ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Output status
+        run: echo "Event = ${{ github.event }}"
 
       - name: Setup Java
         uses: actions/setup-java@v2
