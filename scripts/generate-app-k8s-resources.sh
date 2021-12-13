@@ -43,9 +43,11 @@ process_project() {
   local kind=$3
 
   do_build $proj $version $kind
-  copy_resource $project "kubernetes" $version $kind
-  copy_resource $project "minikube" $version $kind
-  copy_resource $project "openshift" $version $kind
+
+  for deployment_type in "kubernetes" "minikube" "openshift"
+  do
+    copy_resource $project $deployment_type $version $kind
+  done
 }
 
 for project in "rest-villains" "rest-heroes" #"rest-fights" "event-statistics"
