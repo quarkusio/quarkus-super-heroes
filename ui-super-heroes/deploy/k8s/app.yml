@@ -4,6 +4,7 @@ kind: Deployment
 metadata:
   labels:
     app: ui-super-heroes
+    application: super-heroes
     app.openshift.io/runtime: nodejs
     app.kubernetes.io/part-of: super-heroes
   annotations:
@@ -24,16 +25,38 @@ spec:
       containers:
         - image: quay.io/quarkus-super-heroes/ui-super-heroes:latest
           name: ui-super-heroes
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
           ports:
             - containerPort: 8080
               protocol: TCP
               name: http
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     name: ui-super-heroes
+    application: super-heroes
   name: ui-super-heroes
 spec:
   ports:

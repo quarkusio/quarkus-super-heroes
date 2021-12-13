@@ -30,7 +30,8 @@ do
     cat $ui_super_heroes_k8s_dir/app.yml >> $minikube_result
     cat $ui_super_heroes_k8s_dir/app.yml >> $openshift_result
 
-    echo "---" >> $openshift_result
+    cat $ui_super_heroes_k8s_dir/ingress.yml >> $kubernetes_result
+    cat $ui_super_heroes_k8s_dir/ingress.yml >> $minikube_result
     cat $ui_super_heroes_k8s_dir/route.yml >> $openshift_result
   done
 done
