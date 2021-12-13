@@ -61,8 +61,9 @@ jobs:
     steps:
       - name: Turn off echoing
         run: |
-          OCP_TOKEN=$(cat $GITHUB_EVENT_PATH | jq '.inputs.token' | sed 's/"//g' )
-          echo "::add-mask::OCP_TOKEN="
+          echo $GITHUB_EVENT_PATH
+          OCP_TOKEN=$(jq -r '.inputs.token' $GITHUB_EVENT_PATH)
+          echo "::add-mask::$OCP_TOKEN"
 
       - uses: actions/checkout@v2
 
