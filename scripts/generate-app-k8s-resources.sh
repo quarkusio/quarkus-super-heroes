@@ -50,7 +50,7 @@ process_project() {
   done
 }
 
-for project in "rest-villains" "rest-heroes" #"rest-fights" "event-statistics"
+for project in "rest-villains" "rest-heroes" "rest-fights" #"event-statistics"
 do
   rm -rf $proj/deploy/k8s/gen
 

@@ -28,7 +28,7 @@ process_project() {
   done
 }
 
-for project in "rest-villains" "rest-heroes" #"rest-fights" "event-statistics"
+for project in "rest-villains" "rest-heroes" "rest-fights" #"event-statistics"
 do
   # Delete everything currently there
   set -x
@@ -39,9 +39,10 @@ do
   do
     for kind in "" "native-"
     do
-      process_project $project "kubernetes" $javaVersion $kind
-      process_project $project "minikube" $javaVersion $kind
-      process_project $project "openshift" $javaVersion $kind
+      for deployment_type in "kubernetes" "minikube" "openshift"
+      do
+        process_project $project $deployment_type $javaVersion $kind
+      done
     done
   done
 done
