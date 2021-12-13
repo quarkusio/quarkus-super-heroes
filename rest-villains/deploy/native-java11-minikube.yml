@@ -5,8 +5,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: 60eb340247d0507745f44c3c2e2f4c5d2833128a
-    app.quarkus.io/build-timestamp: 2021-12-13 - 18:10:52 +0000
+    app.quarkus.io/commit-id: df15538e0d45c18a8a03ef1940a777f5d36ac45d
+    app.quarkus.io/build-timestamp: 2021-12-13 - 21:26:41 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -16,6 +16,7 @@ metadata:
     app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: native-java11-latest
     app: rest-villains
+    application: villains-service
   name: rest-villains
 spec:
   ports:
@@ -35,8 +36,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: 60eb340247d0507745f44c3c2e2f4c5d2833128a
-    app.quarkus.io/build-timestamp: 2021-12-13 - 18:10:52 +0000
+    app.quarkus.io/commit-id: df15538e0d45c18a8a03ef1940a777f5d36ac45d
+    app.quarkus.io/build-timestamp: 2021-12-13 - 21:26:41 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -46,6 +47,7 @@ metadata:
     app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: native-java11-latest
     app: rest-villains
+    application: villains-service
   name: rest-villains
 spec:
   replicas: 1
@@ -59,8 +61,8 @@ spec:
       annotations:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        app.quarkus.io/commit-id: 60eb340247d0507745f44c3c2e2f4c5d2833128a
-        app.quarkus.io/build-timestamp: 2021-12-13 - 18:10:52 +0000
+        app.quarkus.io/commit-id: df15538e0d45c18a8a03ef1940a777f5d36ac45d
+        app.quarkus.io/build-timestamp: 2021-12-13 - 21:26:41 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -70,6 +72,7 @@ spec:
         app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/version: native-java11-latest
         app: rest-villains
+        application: villains-service
     spec:
       containers:
         - env:
@@ -114,13 +117,14 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: 60eb340247d0507745f44c3c2e2f4c5d2833128a
-    app.quarkus.io/build-timestamp: 2021-12-13 - 18:10:52 +0000
+    app.quarkus.io/commit-id: df15538e0d45c18a8a03ef1940a777f5d36ac45d
+    app.quarkus.io/build-timestamp: 2021-12-13 - 21:26:41 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: native-java11-latest
     app: rest-villains
+    application: villains-service
   name: rest-villains
 spec:
   rules:
@@ -140,6 +144,7 @@ metadata:
   name: rest-villains-config
   labels:
     app: rest-villains
+    application: villains-service
 data:
   quarkus.hibernate-orm.database.generation: none
   quarkus.hibernate-orm.sql-load-script: no-file
@@ -152,6 +157,7 @@ metadata:
   name: villains-db-config
   labels:
     app: villains-db
+    application: villains-service
 data:
   POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
   POSTGRESQL_USERNAME: c3VwZXJiYWQ=
@@ -163,6 +169,7 @@ metadata:
   name: villains-db-init
   labels:
     app: villains-db
+    application: villains-service
 data:
   get-data.sh: |-
     #!/bin/bash
@@ -174,6 +181,7 @@ kind: Deployment
 metadata:
   labels:
     app: villains-db
+    application: villains-service
     app.kubernetes.io/part-of: villains-service
     app.openshift.io/runtime: postgresql
   name: villains-db
@@ -185,6 +193,7 @@ spec:
   template:
     metadata:
       labels:
+        application: villains-service
         name: villains-db
     spec:
       containers:
@@ -212,6 +221,7 @@ kind: Service
 metadata:
   labels:
     name: villains-db
+    application: villains-service
   name: villains-db
 spec:
   ports:
