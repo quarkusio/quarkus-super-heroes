@@ -59,14 +59,15 @@ jobs:
   deploy-to-openshift:
     runs-on: ubuntu-latest
     steps:
-      - name: Mask secrets
+      - name: Turn off echoing
         run: |
-          echo '::set-output name=action_echo::disabled'
-          echo '::echo::off'
-          OCP_TOKEN="${{ github.event.inputs.token }}"
-          echo '::add-mask::$OCP_TOKEN'
+          echo "::set-output name=action_echo::disabled"
+          echo "::echo::off"
 
       - uses: actions/checkout@v2
+
+      - name: Mask
+        run: echo "::add-mask::${{ github.event.inputs.token }}"
 
       - name: OpenShift login
         uses: redhat-actions/oc-login@v1
