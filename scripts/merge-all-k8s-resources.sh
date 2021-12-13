@@ -11,9 +11,9 @@ for kind in "" "native-"
 do
   for version in 11 17
   do
-    kubernetes_result="$deploy_dir/all-${kind}java${version}-kubernetes.yml"
-    minikube_result="$deploy_dir/all-${kind}java${version}-minikube.yml"
-    openshift_result="$deploy_dir/all-${kind}java${version}-openshift.yml"
+    kubernetes_result="$deploy_dir/${kind}java${version}-kubernetes.yml"
+    minikube_result="$deploy_dir/${kind}java${version}-minikube.yml"
+    openshift_result="$deploy_dir/${kind}java${version}-openshift.yml"
 
     for proj in "rest-villains" "rest-heroes" #"rest-fights" "event-statistics"
     do
