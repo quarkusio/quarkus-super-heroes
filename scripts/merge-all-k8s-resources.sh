@@ -3,6 +3,7 @@
 # Merge k8s resources from all the apps (deploy/*.yml)
 
 deploy_dir=deploy
+ui_super_heroes_k8s_dir=ui-super-heroes/deploy/k8s
 
 rm -rf $deploy_dir/*.yml
 
@@ -26,10 +27,10 @@ do
     echo "---" >> $kubernetes_result
     echo "---" >> $openshift_result
 
-    cat ui-super-heroes/deploy/app.yml >> $kubernetes_result
-    cat ui-super-heroes/deploy/app.yml >> $openshift_result
+    cat $ui_super_heroes_k8s_dir/app.yml >> $kubernetes_result
+    cat $ui_super_heroes_k8s_dir/app.yml >> $openshift_result
 
     echo "---" >> $openshift_result
-    cat ui-super-heroes/deploy/route.yml >> $openshift_result
+    cat $ui_super_heroes_k8s_dir/route.yml >> $openshift_result
   done
 done
