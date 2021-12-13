@@ -62,7 +62,9 @@ jobs:
       - name: Mask secrets
         run: |
           echo '::set-output name=action_echo::disabled'
-          echo '::add-mask::${{ github.event.inputs.token }}'
+          echo '::echo::off'
+          OCP_TOKEN="${{ github.event.inputs.token }}"
+          echo '::add-mask::$OCP_TOKEN'
 
       - uses: actions/checkout@v2
 
