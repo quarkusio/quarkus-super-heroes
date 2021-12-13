@@ -20,7 +20,7 @@ on:
         required: true
       insecure_skip_tls_verify:
         type: boolean
-        description: Skip the TLS verification?
+        description: Skip TLS verification?
         required: true
         default: false
       project:
@@ -71,11 +71,11 @@ jobs:
 
       - name: Calculate deploy filename (JVM)
         if: github.event.inputs.kind == 'JVM'
-        run: echo "DEPLOY_FILENAME=java${{ github.event.input.java-version }}-openshift.yml" >> $GITHUB_ENV
+        run: echo "DEPLOY_FILENAME=java${{ github.event.inputs.java-version }}-openshift.yml" >> $GITHUB_ENV
 
       - name: Calculate deploy filename (native)
         if: github.event.inputs.kind == 'native'
-        run: echo "DEPLOY_FILENAME=native-java${{ github.event.input.java-version }}-openshift.yml" >> $GITHUB_ENV
+        run: echo "DEPLOY_FILENAME=native-java${{ github.event.inputs.java-version }}-openshift.yml" >> $GITHUB_ENV
 
       - name: Deploy all to OpenShift
         if: github.event.inputs.project == 'all'
