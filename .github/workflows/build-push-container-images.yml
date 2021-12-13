@@ -48,7 +48,7 @@ jobs:
       - name: Create env vars
         working-directory: ${{ matrix.project }}
         run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
+          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV &&
           if [[ ${{ matrix.java }} == '11' ]]; then 
             echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV" 
@@ -129,7 +129,7 @@ jobs:
       - name: Create env vars
         working-directory: ${{ matrix.project }}
         run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV && \
+          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV && \
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Create container tags
@@ -197,7 +197,7 @@ jobs:
 
       - name: Create env vars
         run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.version -q -DforceStdout)" >> $GITHUB_ENV &&
+          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Create container tags
