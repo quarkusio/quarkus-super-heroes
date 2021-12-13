@@ -240,6 +240,7 @@ jobs:
           cache: maven
 
       - name: Create env vars
+        working-directory: ui-super-heroes
         run: echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Setup Docker Buildx
