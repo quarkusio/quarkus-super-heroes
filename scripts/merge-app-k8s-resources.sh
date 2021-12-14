@@ -23,12 +23,11 @@ process_project() {
   for f in $proj/deploy/k8s/*.yml
   do
     echo "Appending $f into $result"
-    echo "---" >> $result
     cat "$f" >> $result
   done
 }
 
-for project in "rest-villains" "rest-heroes" "rest-fights" #"event-statistics"
+for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
 do
   # Delete everything currently there
   set -x
