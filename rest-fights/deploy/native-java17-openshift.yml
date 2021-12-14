@@ -3,11 +3,11 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka"
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: bcc55d4f6c34918223922df01972c44f19cabcf0
-    app.quarkus.io/build-timestamp: 2021-12-13 - 23:20:06 +0000
+    app.quarkus.io/commit-id: af5514c678782ddbae21971d653f6814c108a8b8
+    app.quarkus.io/build-timestamp: 2021-12-14 - 14:23:38 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -35,17 +35,17 @@ apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   annotations:
+    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka"
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: bcc55d4f6c34918223922df01972c44f19cabcf0
-    app.quarkus.io/build-timestamp: 2021-12-13 - 23:20:06 +0000
+    app.quarkus.io/commit-id: af5514c678782ddbae21971d653f6814c108a8b8
+    app.quarkus.io/build-timestamp: 2021-12-14 - 14:23:38 +0000
   labels:
     app: rest-fights
     application: fights-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: native-java17-latest
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: native-java17-latest
     app.kubernetes.io/name: rest-fights
   name: rest-fights
 spec:
@@ -55,11 +55,11 @@ apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
   annotations:
+    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka"
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: bcc55d4f6c34918223922df01972c44f19cabcf0
-    app.quarkus.io/build-timestamp: 2021-12-13 - 23:20:06 +0000
+    app.quarkus.io/commit-id: af5514c678782ddbae21971d653f6814c108a8b8
+    app.quarkus.io/build-timestamp: 2021-12-14 - 14:23:38 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -68,24 +68,24 @@ metadata:
     app: rest-fights
     application: fights-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: native-java17-latest
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: native-java17-latest
     app.kubernetes.io/name: rest-fights
   name: rest-fights
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/version: native-java17-latest
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: native-java17-latest
     app.kubernetes.io/name: rest-fights
   template:
     metadata:
       annotations:
+        app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
         app.openshift.io/connects-to: "fights-db,fights-kafka"
         app.openshift.io/vcs-ref: main
-        app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        app.quarkus.io/commit-id: bcc55d4f6c34918223922df01972c44f19cabcf0
-        app.quarkus.io/build-timestamp: 2021-12-13 - 23:20:06 +0000
+        app.quarkus.io/commit-id: af5514c678782ddbae21971d653f6814c108a8b8
+        app.quarkus.io/build-timestamp: 2021-12-14 - 14:23:38 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -94,8 +94,8 @@ spec:
         app: rest-fights
         application: fights-service
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/version: native-java17-latest
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/version: native-java17-latest
         app.kubernetes.io/name: rest-fights
     spec:
       containers:
@@ -134,16 +134,25 @@ spec:
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 10
+  triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - rest-fights
+        from:
+          kind: ImageStreamTag
+          name: rest-fights:java17-latest
+      type: ImageChange
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   annotations:
+    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka"
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: bcc55d4f6c34918223922df01972c44f19cabcf0
-    app.quarkus.io/build-timestamp: 2021-12-13 - 23:20:06 +0000
+    app.quarkus.io/commit-id: af5514c678782ddbae21971d653f6814c108a8b8
+    app.quarkus.io/build-timestamp: 2021-12-14 - 14:23:38 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -254,4 +263,110 @@ spec:
       targetPort: 5432
   selector:
     name: fights-db
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fights-kafka
+    application: fights-service
+    app.kubernetes.io/part-of: fights-service
+    app.openshift.io/runtime: kafka
+  annotations:
+    app.openshift.io/connects-to: fights-zookeeper
+  name: fights-kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: fights-kafka
+  template:
+    metadata:
+      labels:
+        application: fights-service
+        name: fights-kafka
+    spec:
+      containers:
+        - image: quay.io/strimzi/kafka:0.26.0-kafka-2.8.1
+          name: fights-kafka
+          ports:
+            - containerPort: 9092
+          command:
+            - "sh"
+            - "-c"
+            - "bin/kafka-server-start.sh config/server.properties --override listeners=${KAFKA_LISTENERS} --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS} --override zookeeper.connect=${KAFKA_ZOOKEEPER_CONNECT}"
+          env:
+            - name: LOG_DIR
+              value: /tmp/logs
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: PLAINTEXT://fights-kafka:9092
+            - name: KAFKA_LISTENERS
+              value: PLAINTEXT://0.0.0.0:9092
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: fights-zookeeper:2181
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-kafka
+    application: fights-service
+  name: fights-kafka
+spec:
+  ports:
+    - port: 9092
+      protocol: TCP
+      targetPort: 9092
+  selector:
+    name: fights-kafka
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fights-zookeeper
+    application: fights-service
+    app.kubernetes.io/part-of: fights-service
+    app.openshift.io/runtime: kafka
+  name: fights-zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: fights-zookeeper
+  template:
+    metadata:
+      labels:
+        application: fights-service
+        name: fights-zookeeper
+    spec:
+      containers:
+        - image: quay.io/strimzi/kafka:0.26.0-kafka-2.8.1
+          name: fights-zookeeper
+          ports:
+            - containerPort: 2181
+          command:
+            - "sh"
+            - "-c"
+            - "bin/zookeeper-server-start.sh config/zookeeper.properties"
+          env:
+            - name: LOG_DIR
+              value: /tmp/logs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-zookeeper
+    application: fights-service
+  name: fights-zookeeper
+spec:
+  ports:
+    - port: 2181
+      protocol: TCP
+      targetPort: 2181
+  selector:
+    name: fights-zookeeper
   type: ClusterIP

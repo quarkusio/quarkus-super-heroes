@@ -6,28 +6,29 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     app.quarkus.io/commit-id: af5514c678782ddbae21971d653f6814c108a8b8
-    app.quarkus.io/build-timestamp: 2021-12-14 - 14:23:38 +0000
+    app.quarkus.io/build-timestamp: 2021-12-14 - 14:24:20 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
-    prometheus.io/port: "8082"
+    prometheus.io/port: "8085"
     prometheus.io/scheme: http
   labels:
-    app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-java17-latest
-    app: rest-fights
-    application: fights-service
-  name: rest-fights
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: java17-latest
+    app: event-statistics
+    application: event-stats
+  name: event-statistics
 spec:
   ports:
     - name: http
+      nodePort: 30938
       port: 80
-      targetPort: 8082
+      targetPort: 8085
   selector:
-    app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-java17-latest
-  type: ClusterIP
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: java17-latest
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -36,42 +37,42 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     app.quarkus.io/commit-id: af5514c678782ddbae21971d653f6814c108a8b8
-    app.quarkus.io/build-timestamp: 2021-12-14 - 14:23:38 +0000
+    app.quarkus.io/build-timestamp: 2021-12-14 - 14:24:20 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
-    prometheus.io/port: "8082"
+    prometheus.io/port: "8085"
     prometheus.io/scheme: http
   labels:
-    app: rest-fights
-    application: fights-service
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-java17-latest
-    app.kubernetes.io/name: rest-fights
-  name: rest-fights
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: java17-latest
+    app: event-statistics
+    application: event-stats
+  name: event-statistics
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/part-of: fights-service
-      app.kubernetes.io/version: native-java17-latest
-      app.kubernetes.io/name: rest-fights
+      app.kubernetes.io/name: event-statistics
+      app.kubernetes.io/part-of: event-stats
+      app.kubernetes.io/version: java17-latest
   template:
     metadata:
       annotations:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
         app.quarkus.io/commit-id: af5514c678782ddbae21971d653f6814c108a8b8
-        app.quarkus.io/build-timestamp: 2021-12-14 - 14:23:38 +0000
+        app.quarkus.io/build-timestamp: 2021-12-14 - 14:24:20 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
-        prometheus.io/port: "8082"
+        prometheus.io/port: "8085"
         prometheus.io/scheme: http
       labels:
-        app: rest-fights
-        application: fights-service
-        app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/version: native-java17-latest
-        app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/name: event-statistics
+        app.kubernetes.io/part-of: event-stats
+        app.kubernetes.io/version: java17-latest
+        app: event-statistics
+        application: event-stats
     spec:
       containers:
         - env:
@@ -81,29 +82,29 @@ spec:
                   fieldPath: metadata.namespace
           envFrom:
             - configMapRef:
-                name: rest-fights-config
-          image: quay.io/quarkus-super-heroes/rest-fights:native-java17-latest
-          imagePullPolicy: Always
+                name: event-statistics-config
+          image: quay.io/quarkus-super-heroes/event-statistics:java17-latest
+          imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
             httpGet:
               path: /q/health/live
-              port: 8082
+              port: 8085
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 10
-          name: rest-fights
+          name: event-statistics
           ports:
-            - containerPort: 8082
+            - containerPort: 8085
               name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
             httpGet:
               path: /q/health/ready
-              port: 8082
+              port: 8085
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 30
@@ -117,21 +118,21 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     app.quarkus.io/commit-id: af5514c678782ddbae21971d653f6814c108a8b8
-    app.quarkus.io/build-timestamp: 2021-12-14 - 14:23:38 +0000
+    app.quarkus.io/build-timestamp: 2021-12-14 - 14:24:20 +0000
   labels:
-    app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-java17-latest
-    app: rest-fights
-    application: fights-service
-  name: rest-fights
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: java17-latest
+    app: event-statistics
+    application: event-stats
+  name: event-statistics
 spec:
   rules:
     - http:
         paths:
           - backend:
               service:
-                name: rest-fights
+                name: event-statistics
                 port:
                   name: http
             path: /
@@ -140,99 +141,12 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: rest-fights-config
+  name: event-statistics-config
   labels:
-    app: rest-fights
-    application: fights-service
+    app: event-statistics
+    application: event-stats
 data:
-  quarkus.hibernate-orm.database.generation: none
-  quarkus.hibernate-orm.sql-load-script: no-file
-  quarkus.datasource.reactive.url: postgresql://fights-db:5432/fights_database
-  quarkus.rest-client.hero-client.url: http://rest-heroes
-  fight.villain.client-base-url: http://rest-villains
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
----
-apiVersion: v1
-kind: Secret
-type: Opaque
-metadata:
-  name: fights-db-config
-  labels:
-    app: fights-db
-    application: fights-service
-data:
-  POSTGRESQL_DATABASE: ZmlnaHRzX2RhdGFiYXNl
-  POSTGRESQL_USERNAME: c3VwZXJmaWdodA==
-  POSTGRESQL_PASSWORD: c3VwZXJmaWdodA==
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: fights-db-init
-  labels:
-    app: fights-db
-    application: fights-service
-data:
-  get-data.sh: |-
-    #!/bin/bash
-    
-    curl https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/main/rest-fights/infrastructure/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: fights-db
-    application: fights-service
-    app.kubernetes.io/part-of: fights-service
-    app.openshift.io/runtime: postgresql
-  name: fights-db
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: fights-db
-  template:
-    metadata:
-      labels:
-        application: fights-service
-        name: fights-db
-    spec:
-      containers:
-        - image: bitnami/postgresql:13
-          name: fights-db
-          ports:
-            - containerPort: 5432
-          envFrom:
-            - secretRef:
-                name: fights-db-config
-          volumeMounts:
-            - name: fights-db-data
-              mountPath: /bitnami/postgresql
-            - name: fights-db-init
-              mountPath: /docker-entrypoint-preinitdb.d
-      volumes:
-        - name: fights-db-data
-          emptyDir: {}
-        - name: fights-db-init
-          configMap:
-            name: fights-db-init
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: fights-db
-    application: fights-service
-  name: fights-db
-spec:
-  ports:
-    - port: 5432
-      protocol: TCP
-      targetPort: 5432
-  selector:
-    name: fights-db
-  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
