@@ -1,0 +1,232 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: heroes-db
+    application: heroes-service
+  name: heroes-db-config
+data:
+  POSTGRESQL_DATABASE: aGVyb2VzX2RhdGFiYXNl
+  POSTGRESQL_USERNAME: c3VwZXJtYW4=
+  POSTGRESQL_PASSWORD: c3VwZXJtYW4=
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: heroes-db
+    application: heroes-service
+  name: heroes-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: heroes-db
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:33:59 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8083"
+    prometheus.io/scheme: http
+  labels:
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-java11-latest
+    app: rest-heroes
+    application: heroes-service
+  name: rest-heroes
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8083
+  selector:
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-java11-latest
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: heroes-db
+    application: heroes-service
+  name: heroes-db-init
+data:
+  get-data.sh: |-
+    #!/bin/bash
+
+    curl https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/main/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: rest-heroes
+    application: heroes-service
+  name: rest-heroes-config
+data:
+  quarkus.hibernate-orm.database.generation: none
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.reactive.url: postgresql://heroes-db:5432/heroes_database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: heroes-db
+    application: heroes-service
+    app.kubernetes.io/part-of: heroes-service
+    app.openshift.io/runtime: postgresql
+  name: heroes-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: heroes-db
+  template:
+    metadata:
+      labels:
+        name: heroes-db
+        application: heroes-service
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: heroes-db-config
+          image: bitnami/postgresql:13
+          name: heroes-db
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /bitnami/postgresql
+              name: heroes-db-data
+            - mountPath: /docker-entrypoint-preinitdb.d
+              name: heroes-db-init
+      volumes:
+        - emptyDir: {}
+          name: heroes-db-data
+        - configMap:
+            name: heroes-db-init
+          name: heroes-db-init
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:33:59 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8083"
+    prometheus.io/scheme: http
+  labels:
+    app: rest-heroes
+    application: heroes-service
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/version: native-java11-latest
+  name: rest-heroes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: heroes-service
+      app.kubernetes.io/name: rest-heroes
+      app.kubernetes.io/version: native-java11-latest
+  template:
+    metadata:
+      annotations:
+        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+        app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+        app.quarkus.io/build-timestamp: 2021-12-15 - 20:33:59 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
+        prometheus.io/port: "8083"
+        prometheus.io/scheme: http
+      labels:
+        app: rest-heroes
+        application: heroes-service
+        app.kubernetes.io/part-of: heroes-service
+        app.kubernetes.io/name: rest-heroes
+        app.kubernetes.io/version: native-java11-latest
+    spec:
+      containers:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: rest-heroes-config
+          image: quay.io/quarkus-super-heroes/rest-heroes:native-java11-latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8083
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: rest-heroes
+          ports:
+            - containerPort: 8083
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: 8083
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:33:59 +0000
+  labels:
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-java11-latest
+    app: rest-heroes
+    application: heroes-service
+  name: rest-heroes
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: rest-heroes
+                port:
+                  name: http
+            path: /
+            pathType: Prefix

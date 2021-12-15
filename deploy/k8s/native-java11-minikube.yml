@@ -1,0 +1,1156 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: villains-db
+    application: villains-service
+  name: villains-db-config
+data:
+  POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
+  POSTGRESQL_USERNAME: c3VwZXJiYWQ=
+  POSTGRESQL_PASSWORD: c3VwZXJiYWQ=
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:34:41 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8084"
+    prometheus.io/scheme: http
+  labels:
+    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: native-java11-latest
+    app: rest-villains
+    application: villains-service
+  name: rest-villains
+spec:
+  ports:
+    - name: http
+      nodePort: 30526
+      port: 80
+      targetPort: 8084
+  selector:
+    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: native-java11-latest
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: villains-db
+    application: villains-service
+  name: villains-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: villains-db
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: rest-villains
+    application: villains-service
+  name: rest-villains-config
+data:
+  quarkus.hibernate-orm.database.generation: none
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.jdbc.url: jdbc:postgresql://villains-db:5432/villains_database
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: villains-db
+    application: villains-service
+  name: villains-db-init
+data:
+  get-data.sh: |-
+    #!/bin/bash
+
+    curl https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/main/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:34:41 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8084"
+    prometheus.io/scheme: http
+  labels:
+    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: native-java11-latest
+    app: rest-villains
+    application: villains-service
+  name: rest-villains
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rest-villains
+      app.kubernetes.io/part-of: villains-service
+      app.kubernetes.io/version: native-java11-latest
+  template:
+    metadata:
+      annotations:
+        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+        app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+        app.quarkus.io/build-timestamp: 2021-12-15 - 20:34:41 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
+        prometheus.io/port: "8084"
+        prometheus.io/scheme: http
+      labels:
+        app.kubernetes.io/name: rest-villains
+        app.kubernetes.io/part-of: villains-service
+        app.kubernetes.io/version: native-java11-latest
+        app: rest-villains
+        application: villains-service
+    spec:
+      containers:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: rest-villains-config
+          image: quay.io/quarkus-super-heroes/rest-villains:native-java11-latest
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8084
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: rest-villains
+          ports:
+            - containerPort: 8084
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: 8084
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: villains-db
+    application: villains-service
+    app.kubernetes.io/part-of: villains-service
+    app.openshift.io/runtime: postgresql
+  name: villains-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: villains-db
+  template:
+    metadata:
+      labels:
+        application: villains-service
+        name: villains-db
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: villains-db-config
+          image: bitnami/postgresql:13
+          name: villains-db
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /bitnami/postgresql
+              name: villains-db-data
+            - mountPath: /docker-entrypoint-preinitdb.d
+              name: villains-db-init
+      volumes:
+        - emptyDir: {}
+          name: villains-db-data
+        - configMap:
+            name: villains-db-init
+          name: villains-db-init
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:34:41 +0000
+  labels:
+    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: native-java11-latest
+    app: rest-villains
+    application: villains-service
+  name: rest-villains
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: rest-villains
+                port:
+                  name: http
+            path: /
+            pathType: Prefix
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: heroes-db
+    application: heroes-service
+  name: heroes-db-config
+data:
+  POSTGRESQL_DATABASE: aGVyb2VzX2RhdGFiYXNl
+  POSTGRESQL_USERNAME: c3VwZXJtYW4=
+  POSTGRESQL_PASSWORD: c3VwZXJtYW4=
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: heroes-db
+    application: heroes-service
+  name: heroes-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: heroes-db
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:34:56 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8083"
+    prometheus.io/scheme: http
+  labels:
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-java11-latest
+    app: rest-heroes
+    application: heroes-service
+  name: rest-heroes
+spec:
+  ports:
+    - name: http
+      nodePort: 30471
+      port: 80
+      targetPort: 8083
+  selector:
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-java11-latest
+  type: NodePort
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: heroes-db
+    application: heroes-service
+  name: heroes-db-init
+data:
+  get-data.sh: |-
+    #!/bin/bash
+
+    curl https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/main/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: rest-heroes
+    application: heroes-service
+  name: rest-heroes-config
+data:
+  quarkus.hibernate-orm.database.generation: none
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.reactive.url: postgresql://heroes-db:5432/heroes_database
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: heroes-db
+    application: heroes-service
+    app.kubernetes.io/part-of: heroes-service
+    app.openshift.io/runtime: postgresql
+  name: heroes-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: heroes-db
+  template:
+    metadata:
+      labels:
+        name: heroes-db
+        application: heroes-service
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: heroes-db-config
+          image: bitnami/postgresql:13
+          name: heroes-db
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /bitnami/postgresql
+              name: heroes-db-data
+            - mountPath: /docker-entrypoint-preinitdb.d
+              name: heroes-db-init
+      volumes:
+        - emptyDir: {}
+          name: heroes-db-data
+        - configMap:
+            name: heroes-db-init
+          name: heroes-db-init
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:34:56 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8083"
+    prometheus.io/scheme: http
+  labels:
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-java11-latest
+    app: rest-heroes
+    application: heroes-service
+  name: rest-heroes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rest-heroes
+      app.kubernetes.io/part-of: heroes-service
+      app.kubernetes.io/version: native-java11-latest
+  template:
+    metadata:
+      annotations:
+        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+        app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+        app.quarkus.io/build-timestamp: 2021-12-15 - 20:34:56 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
+        prometheus.io/port: "8083"
+        prometheus.io/scheme: http
+      labels:
+        app.kubernetes.io/name: rest-heroes
+        app.kubernetes.io/part-of: heroes-service
+        app.kubernetes.io/version: native-java11-latest
+        app: rest-heroes
+        application: heroes-service
+    spec:
+      containers:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: rest-heroes-config
+          image: quay.io/quarkus-super-heroes/rest-heroes:native-java11-latest
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8083
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: rest-heroes
+          ports:
+            - containerPort: 8083
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: 8083
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:34:56 +0000
+  labels:
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-java11-latest
+    app: rest-heroes
+    application: heroes-service
+  name: rest-heroes
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: rest-heroes
+                port:
+                  name: http
+            path: /
+            pathType: Prefix
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: fights-db
+    application: fights-service
+  name: fights-db-config
+data:
+  POSTGRESQL_DATABASE: ZmlnaHRzX2RhdGFiYXNl
+  POSTGRESQL_USERNAME: c3VwZXJmaWdodA==
+  POSTGRESQL_PASSWORD: c3VwZXJmaWdodA==
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-db
+    application: fights-service
+  name: fights-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: fights-db
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-kafka
+    application: fights-service
+  name: fights-kafka
+spec:
+  ports:
+    - port: 9092
+      protocol: TCP
+      targetPort: 9092
+  selector:
+    name: fights-kafka
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-zookeeper
+    application: fights-service
+  name: fights-zookeeper
+spec:
+  ports:
+    - port: 2181
+      protocol: TCP
+      targetPort: 2181
+  selector:
+    name: fights-zookeeper
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    prometheus.io/port: "8082"
+    prometheus.io/scheme: http
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:35:12 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+  labels:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: native-java11-latest
+    app: rest-fights
+    application: fights-service
+  name: rest-fights
+spec:
+  ports:
+    - name: http
+      nodePort: 30489
+      port: 80
+      targetPort: 8082
+  selector:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: native-java11-latest
+  type: NodePort
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: fights-db
+    application: fights-service
+  name: fights-db-init
+data:
+  get-data.sh: |-
+    #!/bin/bash
+
+    curl https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/main/rest-fights/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: rest-fights
+    application: fights-service
+  name: rest-fights-config
+data:
+  quarkus.hibernate-orm.database.generation: none
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.reactive.url: postgresql://fights-db:5432/fights_database
+  quarkus.rest-client.hero-client.url: http://rest-heroes
+  fight.villain.client-base-url: http://rest-villains
+  kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fights-db
+    application: fights-service
+    app.kubernetes.io/part-of: fights-service
+    app.openshift.io/runtime: postgresql
+  name: fights-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: fights-db
+  template:
+    metadata:
+      labels:
+        application: fights-service
+        name: fights-db
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: fights-db-config
+          image: bitnami/postgresql:13
+          name: fights-db
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /bitnami/postgresql
+              name: fights-db-data
+            - mountPath: /docker-entrypoint-preinitdb.d
+              name: fights-db-init
+      volumes:
+        - emptyDir: {}
+          name: fights-db-data
+        - configMap:
+            name: fights-db-init
+          name: fights-db-init
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.openshift.io/connects-to: fights-zookeeper
+  labels:
+    app: fights-kafka
+    application: fights-service
+    app.kubernetes.io/part-of: fights-service
+    app.openshift.io/runtime: kafka
+  name: fights-kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: fights-kafka
+  template:
+    metadata:
+      labels:
+        application: fights-service
+        name: fights-kafka
+    spec:
+      containers:
+        - command:
+            - sh
+            - -c
+            - "bin/kafka-server-start.sh config/server.properties --override listeners=${KAFKA_LISTENERS}\
+              \ --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS} --override\
+              \ zookeeper.connect=${KAFKA_ZOOKEEPER_CONNECT}"
+          env:
+            - name: LOG_DIR
+              value: /tmp/logs
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: PLAINTEXT://fights-kafka:9092
+            - name: KAFKA_LISTENERS
+              value: PLAINTEXT://0.0.0.0:9092
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: fights-zookeeper:2181
+          image: quay.io/strimzi/kafka:0.26.0-kafka-2.8.1
+          name: fights-kafka
+          ports:
+            - containerPort: 9092
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fights-zookeeper
+    application: fights-service
+    app.kubernetes.io/part-of: fights-service
+    app.openshift.io/runtime: kafka
+  name: fights-zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: fights-zookeeper
+  template:
+    metadata:
+      labels:
+        application: fights-service
+        name: fights-zookeeper
+    spec:
+      containers:
+        - command:
+            - sh
+            - -c
+            - bin/zookeeper-server-start.sh config/zookeeper.properties
+          env:
+            - name: LOG_DIR
+              value: /tmp/logs
+          image: quay.io/strimzi/kafka:0.26.0-kafka-2.8.1
+          name: fights-zookeeper
+          ports:
+            - containerPort: 2181
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    prometheus.io/port: "8082"
+    prometheus.io/scheme: http
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:35:12 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+  labels:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: native-java11-latest
+    app: rest-fights
+    application: fights-service
+  name: rest-fights
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rest-fights
+      app.kubernetes.io/part-of: fights-service
+      app.kubernetes.io/version: native-java11-latest
+  template:
+    metadata:
+      annotations:
+        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+        prometheus.io/port: "8082"
+        prometheus.io/scheme: http
+        app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+        app.quarkus.io/build-timestamp: 2021-12-15 - 20:35:12 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
+      labels:
+        app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/version: native-java11-latest
+        app: rest-fights
+        application: fights-service
+    spec:
+      containers:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: rest-fights-config
+          image: quay.io/quarkus-super-heroes/rest-fights:native-java11-latest
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8082
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: rest-fights
+          ports:
+            - containerPort: 8082
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: 8082
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:35:12 +0000
+  labels:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: native-java11-latest
+    app: rest-fights
+    application: fights-service
+  name: rest-fights
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: rest-fights
+                port:
+                  name: http
+            path: /
+            pathType: Prefix
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    prometheus.io/port: "8085"
+    prometheus.io/scheme: http
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:35:26 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+  labels:
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: native-java11-latest
+    app: event-statistics
+    application: event-stats
+  name: event-statistics
+spec:
+  ports:
+    - name: http
+      nodePort: 30938
+      port: 80
+      targetPort: 8085
+  selector:
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: native-java11-latest
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-kafka
+    application: fights-service
+  name: fights-kafka
+spec:
+  ports:
+    - port: 9092
+      protocol: TCP
+      targetPort: 9092
+  selector:
+    name: fights-kafka
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-zookeeper
+    application: fights-service
+  name: fights-zookeeper
+spec:
+  ports:
+    - port: 2181
+      protocol: TCP
+      targetPort: 2181
+  selector:
+    name: fights-zookeeper
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: event-statistics
+    application: event-stats
+  name: event-statistics-config
+data:
+  kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    prometheus.io/port: "8085"
+    prometheus.io/scheme: http
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:35:26 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+  labels:
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: native-java11-latest
+    app: event-statistics
+    application: event-stats
+  name: event-statistics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: event-statistics
+      app.kubernetes.io/part-of: event-stats
+      app.kubernetes.io/version: native-java11-latest
+  template:
+    metadata:
+      annotations:
+        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+        prometheus.io/port: "8085"
+        prometheus.io/scheme: http
+        app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+        app.quarkus.io/build-timestamp: 2021-12-15 - 20:35:26 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
+      labels:
+        app.kubernetes.io/name: event-statistics
+        app.kubernetes.io/part-of: event-stats
+        app.kubernetes.io/version: native-java11-latest
+        app: event-statistics
+        application: event-stats
+    spec:
+      containers:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: event-statistics-config
+          image: quay.io/quarkus-super-heroes/event-statistics:native-java11-latest
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8085
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: event-statistics
+          ports:
+            - containerPort: 8085
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: 8085
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.openshift.io/connects-to: fights-zookeeper
+  labels:
+    app: fights-kafka
+    application: fights-service
+    app.kubernetes.io/part-of: fights-service
+    app.openshift.io/runtime: kafka
+  name: fights-kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: fights-kafka
+  template:
+    metadata:
+      labels:
+        application: fights-service
+        name: fights-kafka
+    spec:
+      containers:
+        - command:
+            - sh
+            - -c
+            - "bin/kafka-server-start.sh config/server.properties --override listeners=${KAFKA_LISTENERS}\
+              \ --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS} --override\
+              \ zookeeper.connect=${KAFKA_ZOOKEEPER_CONNECT}"
+          env:
+            - name: LOG_DIR
+              value: /tmp/logs
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: PLAINTEXT://fights-kafka:9092
+            - name: KAFKA_LISTENERS
+              value: PLAINTEXT://0.0.0.0:9092
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: fights-zookeeper:2181
+          image: quay.io/strimzi/kafka:0.26.0-kafka-2.8.1
+          name: fights-kafka
+          ports:
+            - containerPort: 9092
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fights-zookeeper
+    application: fights-service
+    app.kubernetes.io/part-of: fights-service
+    app.openshift.io/runtime: kafka
+  name: fights-zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: fights-zookeeper
+  template:
+    metadata:
+      labels:
+        application: fights-service
+        name: fights-zookeeper
+    spec:
+      containers:
+        - command:
+            - sh
+            - -c
+            - bin/zookeeper-server-start.sh config/zookeeper.properties
+          env:
+            - name: LOG_DIR
+              value: /tmp/logs
+          image: quay.io/strimzi/kafka:0.26.0-kafka-2.8.1
+          name: fights-zookeeper
+          ports:
+            - containerPort: 2181
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: e00f36fdbdc7136eee6034551e64a734e239044d
+    app.quarkus.io/build-timestamp: 2021-12-15 - 20:35:26 +0000
+  labels:
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: native-java11-latest
+    app: event-statistics
+    application: event-stats
+  name: event-statistics
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: event-statistics
+                port:
+                  name: http
+            path: /
+            pathType: Prefix
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ui-super-heroes
+    application: super-heroes
+    app.openshift.io/runtime: nodejs
+    app.kubernetes.io/part-of: super-heroes
+  annotations:
+    app.openshift.io/connects-to: rest-fights
+  name: ui-super-heroes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ui-super-heroes
+      deployment: ui-super-heroes
+  template:
+    metadata:
+      labels:
+        app: ui-super-heroes
+        deployment: ui-super-heroes
+    spec:
+      containers:
+        - image: quay.io/quarkus-super-heroes/ui-super-heroes:latest
+          name: ui-super-heroes
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+              name: http
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: ui-super-heroes
+    application: super-heroes
+  name: ui-super-heroes
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8080
+      name: http
+  selector:
+    app: ui-super-heroes
+    deployment: ui-super-heroes
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: ui-super-heroes
+    application: super-heroes
+  name: ui-super-heroes
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: ui-super-heroes
+                port:
+                  name: http
+            path: /
+            pathType: Prefix

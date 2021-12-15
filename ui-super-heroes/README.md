@@ -6,6 +6,7 @@
 - [Local Development](#local-development)
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
+- [Deploying to Kubernetes](#deploying-to-kubernetes)
 
 ## Introduction
 This is the main user interface for the application. The application is an Angular application served via Node.js.
@@ -56,7 +57,7 @@ The Node.js server port can be changed by setting the `HTTP_PORT` variable. The 
        ```
 
 ## Running Locally via Docker Compose
-Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/ui-super-heroes`](https://quay.io/repository/quarkus-super-heroes/ui-super-heroes?tab=tags). 
+Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/ui-super-heroes`](https://quay.io/repository/quarkus-super-heroes/ui-super-heroes?tab=tags).
 
 The application can be started outside of docker compose simply with `docker run -p 8080:8080 quay.io/quarkus-super-heroes/ui-super-heroes:latest`.
 
@@ -69,3 +70,10 @@ docker-compose -f deploy/docker-compose/app.yml up
 If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
 Once started the application will be exposed at `http://localhost:8080`.
+
+## Deploying to Kubernetes
+Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/ui-super-heroes`](https://quay.io/repository/quarkus-super-heroes/ui-super-heroes?tab=tags).
+
+Deployment descriptors for this image are provided in the [`deploy/k8s`](deploy/k8s) directory. There is one for [OpenShift](https://www.openshift.com) ([`app-openshift.yml`](deploy/k8s/app-openshift.yml)), [Minikube](https://minikube.sigs.k8s.io) ([`app-minikube.yml`](deploy/k8s/app-minikube.yml)), and [Kubernetes](https://www.kubernetes.io) ([`app-kubernetes.yml`](deploy/k8s/app-kubernetes.yml)).
+
+These are only the descriptors for this application and not the entire system. If you want to deploy the entire system, [follow these instructions](../README.md#deploying-to-kubernetes).

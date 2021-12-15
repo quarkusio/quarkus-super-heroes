@@ -12,6 +12,7 @@
 - [Testing](#testing) 
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
+- [Deploying to Kubernetes](#deploying-to-kubernetes)
 
 ## Introduction
 This is the Fight REST API microservice. It is a reactive HTTP microservice exposing an API for performing fights between [Heroes](../rest-heroes) and [Villains](../rest-villains). Each fight is persisted into a PostgreSQL database and can be retrieved via the REST API. This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with reactive endpoints and [Quarkus Hibernate Reactive with Panache's active record pattern](http://quarkus.io/guides/hibernate-reactive-panache).
@@ -111,3 +112,32 @@ These Docker Compose files are meant for standing up this application and the re
 If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
 Once started the application will be exposed at `http://localhost:8082`.
+
+## Deploying to Kubernetes
+Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-fights`](https://quay.io/repository/quarkus-super-heroes/rest-fights?tab=tags).
+
+Deployment descriptors for these images are provided in the [`deploy/k8s`](deploy/k8s) directory. There are versions for [OpenShift](https://www.openshift.com), [Minikube](https://minikube.sigs.k8s.io), and [Kubernetes](https://www.kubernetes.io).
+
+Pick one of the 4 versions of the application from the table below and deploy the appropriate descriptor from the [`deploy/k8s` directory](deploy/k8s).
+
+| Description                  | Image Tag              | OpenShift Descriptor                                                    | Minikube Descriptor                                                   | Kubernetes Descriptor                                                     |
+|------------------------------|------------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------------------------|
+| JVM Java 11                  | `java11-latest`        | [`java11-openshift.yml`](deploy/k8s/java11-openshift.yml)               | [`java11-minikube.yml`](deploy/k8s/java11-minikube.yml)               | [`java11-kubernetes.yml`](deploy/k8s/java11-kubernetes.yml)               |
+| JVM Java 17                  | `java17-latest`        | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml)               | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml)               | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml)               |
+| Native compiled with Java 11 | `native-java11-latest` | [`native-java11-openshift.yml`](deploy/k8s/native-java11-openshift.yml) | [`native-java11-minikube.yml`](deploy/k8s/native-java11-minikube.yml) | [`native-java11-kubernetes.yml`](deploy/k8s/native-java11-kubernetes.yml) |
+| Native compiled with Java 17 | `native-java17-latest` | [`native-java17-openshift.yml`](deploy/k8s/native-java17-openshift.yml) | [`native-java17-minikube.yml`](deploy/k8s/native-java17-minikube.yml) | [`native-java17-kubernetes.yml`](deploy/k8s/native-java17-kubernetes.yml) |
+
+The application is exposed outside of the cluster on port `80`.
+
+These are only the descriptors for this application and the required database and Kafka broker only. If you want to deploy this application and its downstream services ([rest-villains](../rest-villains) and [rest-heroes](../rest-heroes)), pick one of the 4 versions of the application from the table below and deploy the appropriate descriptor from the [`rest-fights/deploy/k8s` directory](deploy/k8s).
+
+| Description                  | Image Tag              | OpenShift Descriptor                                                                                  | Minikube Descriptor                                                                                 | Kubernetes Descriptor                                                                                   |
+|------------------------------|------------------------|-------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| JVM Java 11                  | `java11-latest`        | [`java11-openshift-all-downstream.yml`](deploy/k8s/java11-openshift-all-downstream.yml)               | [`java11-minikube-all-downstream.yml`](deploy/k8s/java11-minikube-all-downstream.yml)               | [`java11-kubernetes-all-downstream.yml`](deploy/k8s/java11-kubernetes-all-downstream.yml)               |
+| JVM Java 17                  | `java17-latest`        | [`java17-openshift-all-downstream.yml`](deploy/k8s/java17-openshift-all-downstream.yml)               | [`java17-minikube-all-downstream.yml`](deploy/k8s/java17-minikube-all-downstream.yml)               | [`java17-kubernetes-all-downstream.yml`](deploy/k8s/java17-kubernetes-all-downstream.yml)               |
+| Native compiled with Java 11 | `native-java11-latest` | [`native-java11-openshift-all-downstream.yml`](deploy/k8s/native-java11-openshift-all-downstream.yml) | [`native-java11-minikube-all-downstream.yml`](deploy/k8s/native-java11-minikube-all-downstream.yml) | [`native-java11-kubernetes-all-downstream.yml`](deploy/k8s/native-java11-kubernetes-all-downstream.yml) |
+| Native compiled with Java 17 | `native-java17-latest` | [`native-java17-openshift-all-downstream.yml`](deploy/k8s/native-java17-openshift-all-downstream.yml) | [`native-java17-minikube-all-downstream.yml`](deploy/k8s/native-java17-minikube-all-downstream.yml) | [`native-java17-kubernetes-all-downstream.yml`](deploy/k8s/native-java17-kubernetes-all-downstream.yml) |
+
+Each application is exposed outside of the cluster on port `80`.
+
+If you want to deploy the entire system, [follow these instructions](../README.md#deploying-to-kubernetes).

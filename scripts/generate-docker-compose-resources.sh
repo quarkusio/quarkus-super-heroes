@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 # Create the deploy/docker-compose files for each version of each of the Quarkus services
+# Then add on the ui-super-heroes
 
 INPUT_DIR=partials/docker-compose
 OUTPUT_DIR=deploy/docker-compose
