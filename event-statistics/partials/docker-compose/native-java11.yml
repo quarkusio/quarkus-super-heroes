@@ -1,0 +1,19 @@
+
+  event-statistics-native-java11:
+    image: quay.io/quarkus-super-heroes/event-statistics:native-java11-latest
+    container_name: event-statistics-native-java11
+    depends_on:
+      - fights-kafka
+    ports:
+      - "8085:8085"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://fights-kafka:9092
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
+        reservations:
+          memory: 256M
+          cpus: '0.5'

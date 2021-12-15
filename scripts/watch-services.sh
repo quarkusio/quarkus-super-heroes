@@ -14,10 +14,19 @@ get_status() {
   local port=$1
   local index=$2
   local path=$3
+
+  case "$index" in
+    0) local service_name="event-statistics" ;;
+    1) local service_name="rest-villains" ;;
+    2) local service_name="rest-heroes" ;;
+    3) local service_name="rest-fights" ;;
+    4) local service_name="ui-super-heroes" ;;
+  esac
+
   local url="http://localhost:${port}${path}"
   local command="curl -s -o /dev/null -w \"%{http_code}\" $url"
   local result=$($command)
-  echo "Pinging $url"
+  echo "Pinging $service_name: $url"
 #  echo "result of \"$command\"=\"$result\""
   statuses[$index]=$result
 }

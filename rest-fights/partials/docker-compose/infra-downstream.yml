@@ -1,0 +1,48 @@
+
+  fights-db:
+    image: postgres:13
+    container_name: fights-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ../db-init/initialize-database.sql:/docker-entrypoint-initdb.d/1-init-db.sql
+      - ../db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/2-init-tables.sql
+      - ../db-init/initialize-downstream-databases.sql:/docker-entrypoint-initdb.d/3-init-downstream-dbs.sql
+      - ../../../rest-villains/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/4-init-villains-tables.sql
+      - ../../../rest-heroes/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/5-init-heroes-tables.sql
+    networks:
+      default:
+        aliases:
+          - heroes-db
+          - villains-db
+
+  fights-kafka:
+    image: quay.io/strimzi/kafka:0.26.0-kafka-2.8.1
+    container_name: fights-kafka
+    depends_on:
+      - fights-zookeeper
+    command:
+      - "sh"
+      - "-c"
+      - "bin/kafka-server-start.sh config/server.properties --override listeners=$${KAFKA_LISTENERS} --override advertised.listeners=$${KAFKA_ADVERTISED_LISTENERS} --override zookeeper.connect=$${KAFKA_ZOOKEEPER_CONNECT}"
+    ports:
+      - "9092:9092"
+    environment:
+      LOG_DIR: /tmp/logs
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://fights-kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ZOOKEEPER_CONNECT: fights-zookeeper:2181
+
+  fights-zookeeper:
+    image: quay.io/strimzi/kafka:0.26.0-kafka-2.8.1
+    container_name: fights-zookeeper
+    command:
+      - "sh"
+      - "-c"
+      - "bin/zookeeper-server-start.sh config/zookeeper.properties"
+    ports:
+      - "2181:2181"
+    environment:
+      LOG_DIR: /tmp/logs
