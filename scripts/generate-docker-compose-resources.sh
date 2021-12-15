@@ -3,7 +3,7 @@
 # Create the deploy/docker-compose files for each version of each of the Quarkus services
 # Then add on the ui-super-heroes
 
-INPUT_DIR=partials/docker-compose
+INPUT_DIR=src/main/docker-compose
 OUTPUT_DIR=deploy/docker-compose
 
 create_output_file() {
