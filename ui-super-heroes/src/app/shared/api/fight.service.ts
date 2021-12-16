@@ -39,9 +39,9 @@ export class FightService {
       this.basePath = basePath;
     }
 
-    if (!window.location.host.includes("localhost")) {
-      this.basePath = window.location.protocol + "//" + window.location.host;
-    }
+    // if (!window.location.host.includes("localhost")) {
+    //   this.basePath = window.location.protocol + "//" + window.location.host;
+    // }
 
     if (this.isKubernetes) {
         // If Kubernetes then just replace "ui-super-heroes" with "rest-fights" in the current URL
