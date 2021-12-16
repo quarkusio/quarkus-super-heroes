@@ -75,8 +75,9 @@ spec:
               mountPath: /docker-entrypoint-preinitdb.d
           resources:
             limits:
-              cpu: "1"
               memory: 128Mi
+            requests:
+              memory: 32Mi
       volumes:
         - name: fights-db-data
           emptyDir: {}
@@ -142,8 +143,9 @@ spec:
               value: fights-zookeeper:2181
           resources:
             limits:
-              cpu: "1"
               memory: 768Mi
+            requests:
+              memory: 128Mi
 ---
 apiVersion: v1
 kind: Service
@@ -195,8 +197,9 @@ spec:
               value: /tmp/logs
           resources:
             limits:
-              cpu: "1"
               memory: 256Mi
+            requests:
+              memory: 64Mi
 ---
 apiVersion: v1
 kind: Service

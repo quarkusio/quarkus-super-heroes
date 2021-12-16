@@ -27,8 +27,10 @@ do_build() {
 
   if [[ "$kind" == "native-" ]]; then
     local mem_limit="128Mi"
+    local mem_request="32Mi"
   else
     local mem_limit="768Mi"
+    local mem_request="256Mi"
   fi
 
   echo "Generating app resources for $project/$tag/$deployment_type"
@@ -42,10 +44,12 @@ do_build() {
     -Dquarkus.kubernetes.deployment-target=$deployment_type \
     -Dquarkus.kubernetes.version=$tag \
     -Dquarkus.kubernetes.resources.limits.memory=$mem_limit \
+    -Dquarkus.kubernetes.resources.requests.memory=$mem_request \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-ref\"=$GITHUB_REF_NAME \
     -Dquarkus.openshift.version=$tag \
     -Dquarkus.openshift.resources.limits.memory=$mem_limit \
+    -Dquarkus.openshift.resources.requests.memory=$mem_request \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-ref\"=$GITHUB_REF_NAME
 
