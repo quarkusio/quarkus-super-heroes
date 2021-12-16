@@ -66,8 +66,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: bce5617c6333137d0730a579d97c7850f383f820
-    app.quarkus.io/build-timestamp: 2021-12-16 - 21:11:48 +0000
+    app.quarkus.io/commit-id: 50777925ca6424a958946d28cc10c019394c4b5e
+    app.quarkus.io/build-timestamp: 2021-12-16 - 21:58:33 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -256,8 +256,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: bce5617c6333137d0730a579d97c7850f383f820
-    app.quarkus.io/build-timestamp: 2021-12-16 - 21:11:48 +0000
+    app.quarkus.io/commit-id: 50777925ca6424a958946d28cc10c019394c4b5e
+    app.quarkus.io/build-timestamp: 2021-12-16 - 21:58:33 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -281,8 +281,8 @@ spec:
       annotations:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        app.quarkus.io/commit-id: bce5617c6333137d0730a579d97c7850f383f820
-        app.quarkus.io/build-timestamp: 2021-12-16 - 21:11:48 +0000
+        app.quarkus.io/commit-id: 50777925ca6424a958946d28cc10c019394c4b5e
+        app.quarkus.io/build-timestamp: 2021-12-16 - 21:58:33 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -335,30 +335,3 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    app.quarkus.io/vcs-ref: main
-    app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: bce5617c6333137d0730a579d97c7850f383f820
-    app.quarkus.io/build-timestamp: 2021-12-16 - 21:11:48 +0000
-  labels:
-    app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: java11-latest
-    app: rest-fights
-    application: fights-service
-  name: rest-fights
-spec:
-  rules:
-    - http:
-        paths:
-          - backend:
-              service:
-                name: rest-fights
-                port:
-                  name: http
-            path: /
-            pathType: Prefix
