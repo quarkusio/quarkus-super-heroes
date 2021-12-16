@@ -25,6 +25,12 @@ do_build() {
   local git_repo="${GITHUB_REPOSITORY:=edeandrea/quarkus-super-heroes}"
   local git_ref="${GITHUB_REF_NAME:=main}"
 
+  if [[ "$kind" == "native-" ]]; then
+    local mem_limit="128Mi"
+  else
+    local mem_limit="768Mi"
+  fi
+
   echo "Generating app resources for $project/$tag/$deployment_type"
   set -x
   rm -rf $project/target
@@ -35,9 +41,11 @@ do_build() {
     -Dquarkus.container-image.tag=$tag \
     -Dquarkus.kubernetes.deployment-target=$deployment_type \
     -Dquarkus.kubernetes.version=$tag \
+    -Dquarkus.kubernetes.resources.limits.memory=$mem_limit \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-ref\"=$GITHUB_REF_NAME \
     -Dquarkus.openshift.version=$tag \
+    -Dquarkus.openshift.resources.limits.memory=$mem_limit \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-ref\"=$GITHUB_REF_NAME
 

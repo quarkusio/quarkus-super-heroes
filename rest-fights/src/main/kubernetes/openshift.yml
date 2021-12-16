@@ -73,6 +73,10 @@ spec:
               mountPath: /bitnami/postgresql
             - name: fights-db-init
               mountPath: /docker-entrypoint-preinitdb.d
+          resources:
+            limits:
+              cpu: "1"
+              memory: 128Mi
       volumes:
         - name: fights-db-data
           emptyDir: {}
@@ -136,6 +140,10 @@ spec:
               value: PLAINTEXT://0.0.0.0:9092
             - name: KAFKA_ZOOKEEPER_CONNECT
               value: fights-zookeeper:2181
+          resources:
+            limits:
+              cpu: "1"
+              memory: 768Mi
 ---
 apiVersion: v1
 kind: Service
@@ -185,6 +193,10 @@ spec:
           env:
             - name: LOG_DIR
               value: /tmp/logs
+          resources:
+            limits:
+              cpu: "1"
+              memory: 256Mi
 ---
 apiVersion: v1
 kind: Service

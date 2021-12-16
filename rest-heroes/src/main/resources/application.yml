@@ -29,6 +29,9 @@ quarkus:
     labels:
       app: "${quarkus.application.name}"
       application: "${quarkus.kubernetes.part-of}"
+    resources:
+      limits:
+        cpu: "1"
   openshift:
     part-of: "${quarkus.kubernetes.part-of}"
     route:
@@ -40,6 +43,9 @@ quarkus:
     labels:
       app: "${quarkus.kubernetes.labels.app}"
       application: "${quarkus.openshift.part-of}"
+    resources:
+      limits:
+        cpu: "${quarkus.kubernetes.resources.limits.cpu}"
 
 "%prod":
   quarkus:
