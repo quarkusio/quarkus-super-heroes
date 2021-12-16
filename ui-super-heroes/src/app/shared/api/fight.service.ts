@@ -28,18 +28,24 @@ import {Configuration} from '../configuration';
 export class FightService {
 
   protected basePath = (window as any).NG_CONFIG.API_BASE_URL;
+  protected isKubernetes = (window as any).NG_CONFIG.IS_KUBERNETES;
   public defaultHeaders = new HttpHeaders();
   public configuration = new Configuration();
 
   @Output() emitter = new EventEmitter<Fight>();
 
-
   constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
     if (basePath) {
       this.basePath = basePath;
     }
+
     if (!window.location.host.includes("localhost")) {
       this.basePath = window.location.protocol + "//" + window.location.host;
+    }
+
+    if (this.isKubernetes) {
+        // If Kubernetes then just replace "ui-super-heroes" with "rest-fights" in the current URL
+        this.basePath = window.location.protocol + "//" + window.location.host.replace('ui-super-heroes', 'rest-fights');
     }
 
     if (configuration) {

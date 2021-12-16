@@ -44,7 +44,7 @@ This starts the Angular hot reloading server at http://localhost:4200, and the N
 The Node.js server port can be changed by setting the `HTTP_PORT` variable. The `ng.proxy.config.json` file will need to be updated with the new Node.js server port number if you deviate from 8080.
 
 ## Running the Application
-1. First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Fights Service](../rest-fights). 
+1. First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Fights Service](../rest-fights)). 
     - The [Event Statistics Service](../event-statistics) is optional.
 2. Follow the steps above section, *Building the Application*.
 3. Start the service using the command `npm start`.

@@ -3,16 +3,14 @@
 const express = require('express')
 const log = require('barelog');
 const { join } = require('path');
-// const { writeFileSync } = require('fs');
-const { HTTP_PORT, STATIC_DIR, API_BASE_URL } = require('./config')
+const { HTTP_PORT, API_BASE_URL, IS_KUBERNETES, STATIC_DIR } = require('./config')
 
 const app = express();
 
-// Generate the env.js file inside the dist folder
-// writeFileSync(join(STATIC_DIR, 'env.js'), `window.NG_CONFIG={ API_BASE_URL: "${API_BASE_URL}" }`)
+// Serve requests for the /env.js environment configuration
 app.get('/env.js', (req, res) => {
     res.setHeader('Content-Type', 'application/javascript');
-    res.send(`window.NG_CONFIG={ API_BASE_URL: "${API_BASE_URL}" }`);
+    res.send(`window.NG_CONFIG={ API_BASE_URL: "${API_BASE_URL}", IS_KUBERNETES: ${IS_KUBERNETES} }`);
 })
 
 // Serve files from the configured static directory
