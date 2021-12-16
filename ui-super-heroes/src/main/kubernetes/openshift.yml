@@ -76,3 +76,16 @@ spec:
     app: ui-super-heroes
     deployment: ui-super-heroes
   type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: ui-super-heroes
+  labels:
+    app: ui-super-heroes
+spec:
+  to:
+    kind: Service
+    name: ui-super-heroes
+  port:
+    targetPort: 8080

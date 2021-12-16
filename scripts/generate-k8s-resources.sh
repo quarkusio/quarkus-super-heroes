@@ -33,6 +33,12 @@ do_build() {
     local mem_request="256Mi"
   fi
 
+  if [[ "$deployment_type" == "minikube" ]]; then
+    local expose=false
+  else
+    local expose=true
+  fi
+
   echo "Generating app resources for $project/$tag/$deployment_type"
   set -x
   rm -rf $project/target
@@ -43,11 +49,13 @@ do_build() {
     -Dquarkus.container-image.tag=$tag \
     -Dquarkus.kubernetes.deployment-target=$deployment_type \
     -Dquarkus.kubernetes.version=$tag \
+    -Dquarkus.kubernetes.ingress.expose=$expose \
     -Dquarkus.kubernetes.resources.limits.memory=$mem_limit \
     -Dquarkus.kubernetes.resources.requests.memory=$mem_request \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-ref\"=$GITHUB_REF_NAME \
     -Dquarkus.openshift.version=$tag \
+    -Dquarkus.openshift.route.expose=$expose \
     -Dquarkus.openshift.resources.limits.memory=$mem_limit \
     -Dquarkus.openshift.resources.requests.memory=$mem_request \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
@@ -113,9 +121,7 @@ process_ui_project() {
   local kind=$3
   local project="ui-super-heroes"
   local project_input_directory="$project/$INPUT_DIR"
-  local app_input_file="$project_input_directory/app.yml"
-  local project_route_file="$project_input_directory/route.yml"
-  local project_ingress_file="$project_input_directory/ingress.yml"
+  local input_file="$project_input_directory/${deployment_type}.yml"
   local project_output_file="$project/$OUTPUT_DIR/app-${deployment_type}.yml"
   local all_apps_output_file="$OUTPUT_DIR/${kind}java${javaVersion}-${deployment_type}.yml"
 
@@ -125,25 +131,11 @@ process_ui_project() {
 
   create_output_file $project_output_file
 
-  if [[ -f "$app_input_file" ]]; then
-    echo "Copying app input ($app_input_file) to $project_output_file and $all_apps_output_file"
+  if [[ -f "$input_file" ]]; then
+    echo "Copying app input ($input_file) to $project_output_file and $all_apps_output_file"
     set -x
-    cat $app_input_file >> $project_output_file
-    cat $app_input_file >> $all_apps_output_file
-    set +x
-  fi
-
-  if [[ "$deployment_type" == "openshift" ]]; then
-    echo "Copying $project_route_file to $project_output_file and $all_apps_output_file"
-    set -x
-    cat $project_route_file >> $project_output_file
-    cat $project_route_file >> $all_apps_output_file
-    set +x
-  else
-    echo "Copying $project_ingress_file to $project_output_file and $all_apps_output_file"
-    set -x
-    cat $project_ingress_file >> $project_output_file
-    cat $project_ingress_file >> $all_apps_output_file
+    cat $input_file >> $project_output_file
+    cat $input_file >> $all_apps_output_file
     set +x
   fi
 }
