@@ -33,10 +33,10 @@ do_build() {
     local mem_request="256Mi"
   fi
 
-  if [[ "$deployment_type" == "minikube" ]]; then
-    local expose=false
-  else
+  if [[ "$deployment_type" == "openshift" ]]; then
     local expose=true
+  else
+    local expose=false
   fi
 
   echo "Generating app resources for $project/$tag/$deployment_type"

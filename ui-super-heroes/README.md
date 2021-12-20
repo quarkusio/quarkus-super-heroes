@@ -47,14 +47,16 @@ The Node.js server port can be changed by setting the `HTTP_PORT` variable. The 
 1. First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Fights Service](../rest-fights)). 
     - The [Event Statistics Service](../event-statistics) is optional.
 2. Follow the steps above section, *Building the Application*.
-3. Start the service using the command `npm start`.
-    - Replace the `API_BASE_URL` with the appropriate [Fights Service](../rest-fights) hostname and port.
-       > The default is http://localhost:8082, which is the default for the fights service.
-    - There is also a container image available that you can use instead:
+3. Set the `API_BASE_URL` environment variable with the appropriate [Fights Service](../rest-fights) hostname and port.
+   > By default, the [`rest-fights`](../rest-fights) service runs on port `8082`.
+4. Start the service using the command `npm start`.
+    - You can also set the environment variable `CALCULATE_API_BASE_URL=true` to have it compute the base URL. Only use this option if the UI url is in the form of `ui-super-heroes.somewhere.com`. In this instance, setting `CALCULATE_API_BASE_URL=true` will replace `ui-super-heroes` in the URL with `rest-fights`.
 
-       ```bash
-       docker run -p 8080:8080 quay.io/quarkus-super-heroes/ui-super-heroes:latest
-       ```
+There is also a container image available that you can use instead:
+
+ ```bash
+docker run -p 8080:8080 -e API_BASE_URL=http://localhost:8082 quay.io/quarkus-super-heroes/ui-super-heroes:latest
+```
 
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/ui-super-heroes`](https://quay.io/repository/quarkus-super-heroes/ui-super-heroes?tab=tags).

@@ -20,8 +20,7 @@ FROM registry.access.redhat.com/ubi8/nodejs-16-minimal:1
 # ENV variables
 # API_BASE_URL: URL of service to connect to
 # HTTP_PORT: The http port this service listens on
-ENV API_BASE_URL=http://localhost:8082 \
-    HTTP_PORT=8080 \
+ENV HTTP_PORT=8080 \
     NODE_ENV=production
 
 # Copy the application source and build artifacts from the builder image to this one

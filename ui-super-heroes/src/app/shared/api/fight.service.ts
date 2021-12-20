@@ -28,7 +28,7 @@ import {Configuration} from '../configuration';
 export class FightService {
 
   protected basePath = (window as any).NG_CONFIG.API_BASE_URL;
-  protected isKubernetes = (window as any).NG_CONFIG.IS_KUBERNETES;
+  protected calculateApiBaseUrl = (window as any).NG_CONFIG.CALCULATE_API_BASE_URL;
   public defaultHeaders = new HttpHeaders();
   public configuration = new Configuration();
 
@@ -39,18 +39,19 @@ export class FightService {
       this.basePath = basePath;
     }
 
-    // if (!window.location.host.includes("localhost")) {
-    //   this.basePath = window.location.protocol + "//" + window.location.host;
-    // }
-
-    if (this.isKubernetes) {
-        // If Kubernetes then just replace "ui-super-heroes" with "rest-fights" in the current URL
-        this.basePath = window.location.protocol + "//" + window.location.host.replace('ui-super-heroes', 'rest-fights');
-    }
-
     if (configuration) {
       this.configuration = configuration;
       this.basePath = basePath || configuration.basePath || this.basePath;
+    }
+
+    if (this.calculateApiBaseUrl) {
+      // If calculateApiBaseUrl then just replace "ui-super-heroes" with "rest-fights" in the current URL
+      this.basePath = window.location.protocol + "//" + window.location.host.replace('ui-super-heroes', 'rest-fights');
+    }
+
+    // Fallback to whatever is in the browser if basePath isn't set
+    if (!this.basePath) {
+      this.basePath = window.location.protocol + "//" + window.location.host;
     }
   }
 
