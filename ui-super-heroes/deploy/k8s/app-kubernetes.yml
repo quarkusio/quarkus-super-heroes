@@ -85,10 +85,17 @@ spec:
   rules:
     - http:
         paths:
-          - backend:
+          - path: /api/fights
+            pathType: Prefix
+            backend:
+              service:
+                name: rest-fights
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
               service:
                 name: ui-super-heroes
                 port:
                   name: http
-            path: /
-            pathType: Prefix
