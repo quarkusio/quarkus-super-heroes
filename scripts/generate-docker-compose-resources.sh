@@ -68,7 +68,10 @@ create_output() {
     local downstream_infra_file="$project/$INPUT_DIR/infra-downstream.yml"
     local downstream_project_output_file="$project/$OUTPUT_DIR/${kind}java${javaVersion}-all-downstream.yml"
 
-    create_output_file $downstream_project_output_file
+    if [[ -f "$downstream_project_output_file" ]]; then
+      rm -rf $downstream_project_output_file
+      create_output_file $downstream_project_output_file
+    fi
 
     if [[ -d "$project/deploy/db-init" ]]; then
       set -x
@@ -92,14 +95,14 @@ create_output() {
 
     if [[ -f "rest-villains/$INPUT_DIR/$input_file_name" ]]; then
       set -x
-      cat rest-villains/$INPUT_DIR/$input_file_name >> $project_output_file
+      cat rest-villains/$INPUT_DIR/$input_file_name >> $downstream_project_output_file
       cat rest-villains/$INPUT_DIR/$input_file_name >> $all_apps_output_file
       set +x
     fi
 
     if [[ -f "rest-heroes/$INPUT_DIR/$input_file_name" ]]; then
       set -x
-      cat rest-heroes/$INPUT_DIR/$input_file_name >> $project_output_file
+      cat rest-heroes/$INPUT_DIR/$input_file_name >> $downstream_project_output_file
       cat rest-heroes/$INPUT_DIR/$input_file_name >> $all_apps_output_file
       set +x
     fi
