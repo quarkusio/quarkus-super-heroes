@@ -68,8 +68,30 @@ spec:
     - port: 80
       targetPort: 8080
       name: http
-      nodePort: 32455
   selector:
     app: ui-super-heroes
     deployment: ui-super-heroes
   type: NodePort
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ui-super-heroes
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api/fights
+            pathType: Prefix
+            backend:
+              service:
+                name: rest-fights
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ui-super-heroes
+                port:
+                  name: http

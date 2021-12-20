@@ -18,12 +18,12 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    prometheus.io/port: "8084"
-    prometheus.io/scheme: http
-    app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-    app.quarkus.io/build-timestamp: 2021-12-20 - 14:46:25 +0000
+    app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+    app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:03 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
+    prometheus.io/port: "8084"
+    prometheus.io/scheme: http
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -57,7 +57,7 @@ spec:
       targetPort: 5432
   selector:
     name: villains-db
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -90,12 +90,12 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    prometheus.io/port: "8084"
-    prometheus.io/scheme: http
-    app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-    app.quarkus.io/build-timestamp: 2021-12-20 - 14:46:25 +0000
+    app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+    app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:03 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
+    prometheus.io/port: "8084"
+    prometheus.io/scheme: http
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -115,12 +115,12 @@ spec:
       annotations:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        prometheus.io/port: "8084"
-        prometheus.io/scheme: http
-        app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-        app.quarkus.io/build-timestamp: 2021-12-20 - 14:46:25 +0000
+        app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+        app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:03 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
+        prometheus.io/port: "8084"
+        prometheus.io/scheme: http
       labels:
         app.kubernetes.io/name: rest-villains
         app.kubernetes.io/part-of: villains-service
@@ -242,7 +242,7 @@ spec:
       targetPort: 5432
   selector:
     name: heroes-db
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
@@ -250,8 +250,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-    app.quarkus.io/build-timestamp: 2021-12-20 - 14:46:37 +0000
+    app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+    app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:20 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -351,8 +351,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-    app.quarkus.io/build-timestamp: 2021-12-20 - 14:46:37 +0000
+    app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+    app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:20 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -376,8 +376,8 @@ spec:
       annotations:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-        app.quarkus.io/build-timestamp: 2021-12-20 - 14:46:37 +0000
+        app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+        app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:20 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -458,7 +458,7 @@ spec:
       targetPort: 5432
   selector:
     name: fights-db
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
@@ -474,7 +474,7 @@ spec:
       targetPort: 9092
   selector:
     name: fights-kafka
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
@@ -490,7 +490,7 @@ spec:
       targetPort: 2181
   selector:
     name: fights-zookeeper
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
@@ -498,8 +498,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-    app.quarkus.io/build-timestamp: 2021-12-20 - 14:46:50 +0000
+    app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+    app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:37 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -688,8 +688,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-    app.quarkus.io/build-timestamp: 2021-12-20 - 14:46:50 +0000
+    app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+    app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:37 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -713,8 +713,8 @@ spec:
       annotations:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-        app.quarkus.io/build-timestamp: 2021-12-20 - 14:46:50 +0000
+        app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+        app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:37 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -774,8 +774,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-    app.quarkus.io/build-timestamp: 2021-12-20 - 14:47:02 +0000
+    app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+    app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:54 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -829,7 +829,7 @@ spec:
       targetPort: 2181
   selector:
     name: fights-zookeeper
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -847,8 +847,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-    app.quarkus.io/build-timestamp: 2021-12-20 - 14:47:02 +0000
+    app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+    app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:54 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -872,8 +872,8 @@ spec:
       annotations:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        app.quarkus.io/commit-id: df8947c80bb739d1c75a0b480a797a0d509690cb
-        app.quarkus.io/build-timestamp: 2021-12-20 - 14:47:02 +0000
+        app.quarkus.io/commit-id: f708d8d672c9a8e650e4178364d8360bb57d9fa7
+        app.quarkus.io/build-timestamp: 2021-12-20 - 17:16:54 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -1082,8 +1082,30 @@ spec:
     - port: 80
       targetPort: 8080
       name: http
-      nodePort: 32455
   selector:
     app: ui-super-heroes
     deployment: ui-super-heroes
   type: NodePort
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ui-super-heroes
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api/fights
+            pathType: Prefix
+            backend:
+              service:
+                name: rest-fights
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ui-super-heroes
+                port:
+                  name: http
