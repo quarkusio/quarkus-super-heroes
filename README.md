@@ -2,8 +2,13 @@
 
 ## Table of Contents
 - [Introduction](#introduction)
+- [Project automation](docs/automation.md)
+    - [GitHub action automation](docs/automation.md#github-action-automation)
+    - [Application Resource Generation](docs/automation.md#application-resource-generation)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
 - [Deploying to Kubernetes](#deploying-to-kubernetes)
+    - [Routing](#routing)
+    - [Versions](#versions)
 
 ## Introduction
 
@@ -40,7 +45,7 @@ Pick one of the 4 versions of the application from the table below and execute t
 
    > **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
    >
-   > There is a [`watch-services.sh`](scripts/watch-services.sh) script that can be run in a separate terminal that will watch the startup of all the services and report when they are all up. 
+   > There is a [`watch-services.sh`](scripts/watch-services.sh) script that can be run in a separate terminal that will watch the startup of all the services and report when they are all up and ready to serve requests. 
 
 | Description                  | Image Tag              | Docker Compose Run Command                                                      |
 |------------------------------|------------------------|---------------------------------------------------------------------------------|
@@ -56,12 +61,12 @@ Pre-built images for all of the applications in the system can be found at [`qua
 
 Deployment descriptors for these images are provided in the [`deploy/k8s`](deploy/k8s) directory. There are versions for [OpenShift](https://www.openshift.com), [Minikube](https://quarkus.io/guides/deploying-to-kubernetes#deploying-to-minikube), and [Kubernetes](https://www.kubernetes.io).
 
-The only real difference between the Minikube and Kubernetes descriptors is that all the application `Service`s in the Minikube descriptors use `NodePort` type so that a list of all the applications can be obtained simply by running `minikube service list`.
+The only real difference between the Minikube and Kubernetes descriptors is that all the application `Service`s in the Minikube descriptors use `type: NodePort` so that a list of all the applications can be obtained simply by running `minikube service list`.
 
 ### Routing
 Both the Minikube and Kubernetes descriptors also assume there is an [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) installed and configured. There is a single `Ingress` in the Minikube and Kubernetes descriptors denoting `/` and `/api/fights` paths. You may need to add/update the `host` field in the `Ingress` as well in order for things to work.
 
-Both the [`ui-super-heroes`](ui-super-heroes) and the [`rest-fights`](rest-fights) applications need to be exposed from outside the cluster. On Minikube and Kubernetes, the [`ui-super-heroes`](ui-super-heroes) Angular application communicates back to the same host and port as where it was launched from under the `/api/fights` path. 
+Both the [`ui-super-heroes`](ui-super-heroes) and the [`rest-fights`](rest-fights) applications need to be exposed from outside the cluster. On Minikube and Kubernetes, the [`ui-super-heroes`](ui-super-heroes) Angular application communicates back to the same host and port as where it was launched from under the `/api/fights` path. [See the routing section in the UI project](ui-super-heroes/README.md#routing) for more details.
 
 On OpenShift, the URL containing the `ui-super-heroes` host name is replaced with `rest-fights`. This is because the OpenShift descriptors use `Route` objects for gaining external access to the application. In most cases, no manual updating of the OpenShift descriptors is needed before deploying the system. Everything should work as-is.
 
@@ -70,7 +75,7 @@ Additionally, there is also a `Route` for the [`event-statistics`](event-statist
 ### Versions
 Pick one of the 4 versions of the system from the table below and deploy the appropriate descriptor from the [`deploy/k8s` directory](deploy/k8s). Each descriptor contains all of the resources needed to deploy a particular version of the entire system.
 
-   > **NOTE:*** These descriptors are **NOT** considered to be production-ready. They are basic enough to deploy and run the system with as little configuration as possible. The databases and Kafka broker deployed are not highly-available and do not use any Kubernetes operators for management/monitoring. They also only use ephemeral storage.
+   > **NOTE:** These descriptors are **NOT** considered to be production-ready. They are basic enough to deploy and run the system with as little configuration as possible. The databases and Kafka broker deployed are not highly-available and do not use any Kubernetes operators for management or monitoring. They also only use ephemeral storage.
    >
    > For production-ready Kafka brokers, please see the [Strimzi documentation](https://strimzi.io/) for how to properly deploy and configure production-ready Kafka brokers on Kubernetes.
 
@@ -80,5 +85,3 @@ Pick one of the 4 versions of the system from the table below and deploy the app
 | JVM Java 17                  | `java17-latest`        | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml)               | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml)               | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml)               |
 | Native compiled with Java 11 | `native-java11-latest` | [`native-java11-openshift.yml`](deploy/k8s/native-java11-openshift.yml) | [`native-java11-minikube.yml`](deploy/k8s/native-java11-minikube.yml) | [`native-java11-kubernetes.yml`](deploy/k8s/native-java11-kubernetes.yml) |
 | Native compiled with Java 17 | `native-java17-latest` | [`native-java17-openshift.yml`](deploy/k8s/native-java17-openshift.yml) | [`native-java17-minikube.yml`](deploy/k8s/native-java17-minikube.yml) | [`native-java17-kubernetes.yml`](deploy/k8s/native-java17-kubernetes.yml) |
-
-Each application is exposed outside of the cluster on port `80`.

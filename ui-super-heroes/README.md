@@ -7,6 +7,7 @@
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
 - [Deploying to Kubernetes](#deploying-to-kubernetes)
+    - [Routing](#routing)
 
 ## Introduction
 This is the main user interface for the application. The application is an Angular application served via Node.js.
@@ -79,3 +80,11 @@ Pre-built images for this application can be found at [`quay.io/quarkus-super-he
 Deployment descriptors for this image are provided in the [`deploy/k8s`](deploy/k8s) directory. There is one for [OpenShift](https://www.openshift.com) ([`app-openshift.yml`](deploy/k8s/app-openshift.yml)), [Minikube](https://minikube.sigs.k8s.io) ([`app-minikube.yml`](deploy/k8s/app-minikube.yml)), and [Kubernetes](https://www.kubernetes.io) ([`app-kubernetes.yml`](deploy/k8s/app-kubernetes.yml)).
 
 These are only the descriptors for this application and not the entire system. If you want to deploy the entire system, [follow these instructions](../README.md#deploying-to-kubernetes).
+
+### Routing
+There are 2 environment variables that can be set on this application to control how the Angular UI communicates with the [`rest-fights`](../rest-fights) application:
+
+| Env Var                  | Default Value                                        | Description                                                                                                                                                                                                                                                                                                      |
+|--------------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `API_BASE_URL`           | `undefined`                                          | The base URL for the [`rest-fights`](../rest-fights) application.  Set this to a fully qualified URL (i.e. http://www.example.com or http://somehost.com:someport) to define the URL for the [`rest-fights`](../rest-fights) application.                                                                        |
+| `CALCULATE_API_BASE_URL` | `false` on Minikube/Kubernetes. `true` on OpenShift. | If `true`, look at the URL in the browser and replace the `ui-super-heroes` host name with `rest-fights`. This is because on OpenShift, each application has its own `Route` which exposes a unique hostname within the cluster. On Minikube and Kubernetes, an `Ingress` using different paths is used instead. |
