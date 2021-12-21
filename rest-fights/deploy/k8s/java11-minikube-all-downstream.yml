@@ -16,12 +16,13 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.openshift.io/connects-to: villains-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     prometheus.io/port: "8084"
     prometheus.io/scheme: http
-    app.quarkus.io/commit-id: d33f5f08a6b436d5d45bb0627a7a76fe376330b8
-    app.quarkus.io/build-timestamp: 2021-12-20 - 21:46:32 +0000
+    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
+    app.quarkus.io/build-timestamp: 2021-12-21 - 13:29:08 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
   labels:
@@ -88,12 +89,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    app.openshift.io/connects-to: villains-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     prometheus.io/port: "8084"
     prometheus.io/scheme: http
-    app.quarkus.io/commit-id: d33f5f08a6b436d5d45bb0627a7a76fe376330b8
-    app.quarkus.io/build-timestamp: 2021-12-20 - 21:46:32 +0000
+    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
+    app.quarkus.io/build-timestamp: 2021-12-21 - 13:29:08 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
   labels:
@@ -113,12 +115,13 @@ spec:
   template:
     metadata:
       annotations:
+        app.openshift.io/connects-to: villains-db
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
         prometheus.io/port: "8084"
         prometheus.io/scheme: http
-        app.quarkus.io/commit-id: d33f5f08a6b436d5d45bb0627a7a76fe376330b8
-        app.quarkus.io/build-timestamp: 2021-12-20 - 21:46:32 +0000
+        app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
+        app.quarkus.io/build-timestamp: 2021-12-21 - 13:29:08 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
       labels:
@@ -248,14 +251,15 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.openshift.io/connects-to: heroes-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: d33f5f08a6b436d5d45bb0627a7a76fe376330b8
-    app.quarkus.io/build-timestamp: 2021-12-20 - 21:46:45 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
     prometheus.io/scheme: http
+    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
+    app.quarkus.io/build-timestamp: 2021-12-21 - 13:29:21 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -349,14 +353,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    app.openshift.io/connects-to: heroes-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: d33f5f08a6b436d5d45bb0627a7a76fe376330b8
-    app.quarkus.io/build-timestamp: 2021-12-20 - 21:46:45 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
     prometheus.io/scheme: http
+    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
+    app.quarkus.io/build-timestamp: 2021-12-21 - 13:29:21 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -374,14 +379,15 @@ spec:
   template:
     metadata:
       annotations:
+        app.openshift.io/connects-to: heroes-db
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        app.quarkus.io/commit-id: d33f5f08a6b436d5d45bb0627a7a76fe376330b8
-        app.quarkus.io/build-timestamp: 2021-12-20 - 21:46:45 +0000
-        prometheus.io/scrape: "true"
-        prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
         prometheus.io/scheme: http
+        app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
+        app.quarkus.io/build-timestamp: 2021-12-21 - 13:29:21 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
       labels:
         app.kubernetes.io/name: rest-heroes
         app.kubernetes.io/part-of: heroes-service
@@ -480,14 +486,15 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.openshift.io/connects-to: "fights-db,fights-kafka,rest-villains,rest-heroes"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    prometheus.io/port: "8082"
-    prometheus.io/scheme: http
-    app.quarkus.io/commit-id: d33f5f08a6b436d5d45bb0627a7a76fe376330b8
-    app.quarkus.io/build-timestamp: 2021-12-20 - 21:46:58 +0000
+    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
+    app.quarkus.io/build-timestamp: 2021-12-21 - 13:29:33 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
+    prometheus.io/port: "8082"
+    prometheus.io/scheme: http
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -626,14 +633,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    app.openshift.io/connects-to: "fights-db,fights-kafka,rest-villains,rest-heroes"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    prometheus.io/port: "8082"
-    prometheus.io/scheme: http
-    app.quarkus.io/commit-id: d33f5f08a6b436d5d45bb0627a7a76fe376330b8
-    app.quarkus.io/build-timestamp: 2021-12-20 - 21:46:58 +0000
+    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
+    app.quarkus.io/build-timestamp: 2021-12-21 - 13:29:33 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
+    prometheus.io/port: "8082"
+    prometheus.io/scheme: http
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -651,14 +659,15 @@ spec:
   template:
     metadata:
       annotations:
+        app.openshift.io/connects-to: "fights-db,fights-kafka,rest-villains,rest-heroes"
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        prometheus.io/port: "8082"
-        prometheus.io/scheme: http
-        app.quarkus.io/commit-id: d33f5f08a6b436d5d45bb0627a7a76fe376330b8
-        app.quarkus.io/build-timestamp: 2021-12-20 - 21:46:58 +0000
+        app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
+        app.quarkus.io/build-timestamp: 2021-12-21 - 13:29:33 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
+        prometheus.io/port: "8082"
+        prometheus.io/scheme: http
       labels:
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
