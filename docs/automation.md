@@ -41,6 +41,7 @@ It consists of 4 jobs:
 If any step in any of the jobs fail then the entire workflow fails.
 
 This image is a visual of what the workflow consists of:
+
 ![build-push-images-workflow](../images/build-push-container-images-workflow.png)
 
 ### Build and test JVM container image job
