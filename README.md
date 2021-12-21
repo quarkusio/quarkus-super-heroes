@@ -58,10 +58,16 @@ Deployment descriptors for these images are provided in the [`deploy/k8s`](deplo
 
 The only real difference between the Minikube and Kubernetes descriptors is that all the application `Service`s in the Minikube descriptors use `NodePort` type so that a list of all the applications can be obtained simply by running `minikube service list`.
 
+### Routing
 Both the Minikube and Kubernetes descriptors also assume there is an [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) installed and configured. There is a single `Ingress` in the Minikube and Kubernetes descriptors denoting `/` and `/api/fights` paths. You may need to add/update the `host` field in the `Ingress` as well in order for things to work.
 
-The OpenShift descriptors use `Route`s, so this is not an issue. No manual updating of the OpenShift descriptors is needed before deploying. Everything should work as-is. 
+Both the [`ui-super-heroes`](ui-super-heroes) and the [`rest-fights`](rest-fights) applications need to be exposed from outside the cluster. On Minikube and Kubernetes, the [`ui-super-heroes`](ui-super-heroes) Angular application communicates back to the same host and port as where it was launched from under the `/api/fights` path. 
 
+On OpenShift, the URL containing the `ui-super-heroes` host name is replaced with `rest-fights`. This is because the OpenShift descriptors use `Route` objects for gaining external access to the application. In most cases, no manual updating of the OpenShift descriptors is needed before deploying the system. Everything should work as-is.
+
+Additionally, there is also a `Route` for the [`event-statistics`](event-statistics) application. On Minikube or Kubernetes, you will need to expose the [`event-statistics`](event-statistics) application, either by using an `Ingress` or doing a `kubectl port-forward`. The [`event-statistics`](event-statistics) application runs on port `8085`.
+
+### Versions
 Pick one of the 4 versions of the system from the table below and deploy the appropriate descriptor from the [`deploy/k8s` directory](deploy/k8s). Each descriptor contains all of the resources needed to deploy a particular version of the entire system.
 
    > **NOTE:*** These descriptors are **NOT** considered to be production-ready. They are basic enough to deploy and run the system with as little configuration as possible. The databases and Kafka broker deployed are not highly-available and do not use any Kubernetes operators for management/monitoring. They also only use ephemeral storage.
