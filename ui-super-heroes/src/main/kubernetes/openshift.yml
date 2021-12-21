@@ -5,6 +5,7 @@ metadata:
   labels:
     app: ui-super-heroes
     application: super-heroes
+    system: quarkus-super-heroes
     app.openshift.io/runtime: nodejs
     app.kubernetes.io/part-of: super-heroes
   annotations:
@@ -15,12 +16,13 @@ spec:
   selector:
     matchLabels:
       app: ui-super-heroes
-      deployment: ui-super-heroes
+      application: super-heroes
   template:
     metadata:
       labels:
         app: ui-super-heroes
-        deployment: ui-super-heroes
+        application: super-heroes
+        system: quarkus-super-heroes
     spec:
       containers:
         - image: quay.io/quarkus-super-heroes/ui-super-heroes:latest
@@ -65,6 +67,7 @@ metadata:
   labels:
     name: ui-super-heroes
     application: super-heroes
+    system: quarkus-super-heroes
   name: ui-super-heroes
 spec:
   ports:
@@ -74,7 +77,7 @@ spec:
       name: http
   selector:
     app: ui-super-heroes
-    deployment: ui-super-heroes
+    application: super-heroes
   type: ClusterIP
 ---
 apiVersion: route.openshift.io/v1
@@ -83,6 +86,8 @@ metadata:
   name: ui-super-heroes
   labels:
     app: ui-super-heroes
+    application: super-heroes
+    system: quarkus-super-heroes
 spec:
   to:
     kind: Service

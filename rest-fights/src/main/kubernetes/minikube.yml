@@ -6,6 +6,7 @@ metadata:
   labels:
     app: rest-fights
     application: fights-service
+    system: quarkus-super-heroes
 data:
   quarkus.hibernate-orm.database.generation: none
   quarkus.hibernate-orm.sql-load-script: no-file
@@ -22,6 +23,7 @@ metadata:
   labels:
     app: fights-db
     application: fights-service
+    system: quarkus-super-heroes
 data:
   POSTGRESQL_DATABASE: ZmlnaHRzX2RhdGFiYXNl
   POSTGRESQL_USERNAME: c3VwZXJmaWdodA==
@@ -34,6 +36,7 @@ metadata:
   labels:
     app: fights-db
     application: fights-service
+    system: quarkus-super-heroes
 data:
   get-data.sh: |-
     #!/bin/bash
@@ -46,6 +49,7 @@ metadata:
   labels:
     app: fights-db
     application: fights-service
+    system: quarkus-super-heroes
     app.kubernetes.io/part-of: fights-service
     app.openshift.io/runtime: postgresql
   name: fights-db
@@ -59,6 +63,7 @@ spec:
       labels:
         application: fights-service
         name: fights-db
+        system: quarkus-super-heroes
     spec:
       containers:
         - image: bitnami/postgresql:13
@@ -91,6 +96,7 @@ metadata:
   labels:
     name: fights-db
     application: fights-service
+    system: quarkus-super-heroes
   name: fights-db
 spec:
   ports:
@@ -107,6 +113,7 @@ metadata:
   labels:
     app: fights-kafka
     application: fights-service
+    system: quarkus-super-heroes
     app.kubernetes.io/part-of: fights-service
     app.openshift.io/runtime: kafka
   name: fights-kafka
@@ -120,6 +127,7 @@ spec:
       labels:
         application: fights-service
         name: fights-kafka
+        system: quarkus-super-heroes
     spec:
       containers:
         - image: quay.io/strimzi/kafka:0.26.1-kafka-2.8.1
@@ -147,6 +155,7 @@ metadata:
   labels:
     name: fights-kafka
     application: fights-service
+    system: quarkus-super-heroes
   name: fights-kafka
 spec:
   ports:

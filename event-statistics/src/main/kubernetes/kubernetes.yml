@@ -6,6 +6,7 @@ metadata:
   labels:
     app: event-statistics
     application: event-stats
+    system: quarkus-super-heroes
 data:
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
 ---
@@ -17,6 +18,7 @@ metadata:
     application: fights-service
     app.kubernetes.io/part-of: fights-service
     app.openshift.io/runtime: kafka
+    system: quarkus-super-heroes
   name: fights-kafka
 spec:
   replicas: 1
@@ -28,6 +30,7 @@ spec:
       labels:
         application: fights-service
         name: fights-kafka
+        system: quarkus-super-heroes
     spec:
       containers:
         - image: quay.io/strimzi/kafka:0.26.1-kafka-2.8.1
@@ -55,6 +58,7 @@ metadata:
   labels:
     name: fights-kafka
     application: fights-service
+    system: quarkus-super-heroes
   name: fights-kafka
 spec:
   ports:

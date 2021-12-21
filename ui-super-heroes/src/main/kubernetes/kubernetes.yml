@@ -5,6 +5,7 @@ metadata:
   labels:
     app: ui-super-heroes
     application: super-heroes
+    system: quarkus-super-heroes
     app.openshift.io/runtime: nodejs
     app.kubernetes.io/part-of: super-heroes
   annotations:
@@ -15,12 +16,13 @@ spec:
   selector:
     matchLabels:
       app: ui-super-heroes
-      deployment: ui-super-heroes
+      application: super-heroes
   template:
     metadata:
       labels:
         app: ui-super-heroes
-        deployment: ui-super-heroes
+        application: super-heroes
+        system: quarkus-super-heroes
     spec:
       containers:
         - image: quay.io/quarkus-super-heroes/ui-super-heroes:latest
@@ -62,6 +64,7 @@ metadata:
   labels:
     name: ui-super-heroes
     application: super-heroes
+    system: quarkus-super-heroes
   name: ui-super-heroes
 spec:
   ports:
@@ -71,7 +74,7 @@ spec:
       name: http
   selector:
     app: ui-super-heroes
-    deployment: ui-super-heroes
+    application: super-heroes
   type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
@@ -80,6 +83,7 @@ metadata:
   labels:
     app: ui-super-heroes
     application: super-heroes
+    system: quarkus-super-heroes
   name: ui-super-heroes
 spec:
   rules:
@@ -99,3 +103,5 @@ spec:
                 name: ui-super-heroes
                 port:
                   name: http
+      # The host field may need to be added/updated according to your k8s cluster domain
+      #host: myapp.mydomain.com
