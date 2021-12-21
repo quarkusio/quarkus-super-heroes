@@ -29,10 +29,18 @@ It runs `./mvnw clean verify` on the [`event-statistics`](../event-statistics), 
 ## Build and push container images workflow
 The [Build and push container images](../.github/workflows/build-push-container-images.yml) workflow does pretty much what it sounds like: builds and pushes container images.
 
-It only runs on pushes to the `main` branch after successful completion of the above _Basic building and testing_ workflow.
+It only runs on pushes to the `main` branch after successful completion of the above [_Basic building and testing_](#basic-building-and-testing-workflow) workflow.
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
 
-It consists of 4 jobs. If any step in any of the jobs fail then the entire workflow fails. This image is a visual of what the workflow consists of:
+It consists of 4 jobs: 
+- [_Build and test JVM container image_](#build-and-test-jvm-container-image-job)
+- [_Build and test native container image_](#build-and-test-native-container-image-job)
+- [_Push application container images_](#push-application-container-images-job)
+- [_Build and push UI image_](#build-and-push-ui-image-job)
+
+If any step in any of the jobs fail then the entire workflow fails.
+
+This image is a visual of what the workflow consists of:
 ![build-push-images-workflow](../images/build-push-container-images-workflow.png)
 
 ### Build and test JVM container image job
