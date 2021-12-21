@@ -24,6 +24,8 @@ quarkus:
     name: "${quarkus.application.name}"
   kubernetes:
     part-of: heroes-service
+    annotations:
+      "app.openshift.io/connects-to": heroes-db
     env:
       configmaps: "${quarkus.application.name}-config"
     labels:
