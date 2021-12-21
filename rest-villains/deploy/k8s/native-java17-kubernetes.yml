@@ -5,6 +5,7 @@ metadata:
   labels:
     app: villains-db
     application: villains-service
+    system: quarkus-super-heroes
   name: villains-db-config
 data:
   POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
@@ -19,8 +20,8 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
-    app.quarkus.io/build-timestamp: 2021-12-21 - 13:35:50 +0000
+    app.quarkus.io/commit-id: ba3ba5508fc7bcf4944fac714b0e45dbe6b8c067
+    app.quarkus.io/build-timestamp: 2021-12-21 - 14:21:48 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -31,6 +32,7 @@ metadata:
     app.kubernetes.io/version: native-java17-latest
     app: rest-villains
     application: villains-service
+    system: quarkus-super-heroes
   name: rest-villains
 spec:
   ports:
@@ -49,6 +51,7 @@ metadata:
   labels:
     name: villains-db
     application: villains-service
+    system: quarkus-super-heroes
   name: villains-db
 spec:
   ports:
@@ -65,6 +68,7 @@ metadata:
   labels:
     app: rest-villains
     application: villains-service
+    system: quarkus-super-heroes
   name: rest-villains-config
 data:
   quarkus.hibernate-orm.database.generation: none
@@ -77,6 +81,7 @@ metadata:
   labels:
     app: villains-db
     application: villains-service
+    system: quarkus-super-heroes
   name: villains-db-init
 data:
   get-data.sh: |-
@@ -91,8 +96,8 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
-    app.quarkus.io/build-timestamp: 2021-12-21 - 13:35:50 +0000
+    app.quarkus.io/commit-id: ba3ba5508fc7bcf4944fac714b0e45dbe6b8c067
+    app.quarkus.io/build-timestamp: 2021-12-21 - 14:21:48 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -100,25 +105,26 @@ metadata:
   labels:
     app: rest-villains
     application: villains-service
+    system: quarkus-super-heroes
     app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: native-java17-latest
+    app.kubernetes.io/part-of: villains-service
   name: rest-villains
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: rest-villains
-      app.kubernetes.io/part-of: villains-service
       app.kubernetes.io/version: native-java17-latest
+      app.kubernetes.io/part-of: villains-service
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: villains-db
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
-        app.quarkus.io/build-timestamp: 2021-12-21 - 13:35:50 +0000
+        app.quarkus.io/commit-id: ba3ba5508fc7bcf4944fac714b0e45dbe6b8c067
+        app.quarkus.io/build-timestamp: 2021-12-21 - 14:21:48 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -126,9 +132,10 @@ spec:
       labels:
         app: rest-villains
         application: villains-service
+        system: quarkus-super-heroes
         app.kubernetes.io/name: rest-villains
-        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/version: native-java17-latest
+        app.kubernetes.io/part-of: villains-service
     spec:
       containers:
         - env:
@@ -178,6 +185,7 @@ metadata:
   labels:
     app: villains-db
     application: villains-service
+    system: quarkus-super-heroes
     app.kubernetes.io/part-of: villains-service
     app.openshift.io/runtime: postgresql
   name: villains-db

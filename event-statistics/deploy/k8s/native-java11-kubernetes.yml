@@ -6,8 +6,8 @@ metadata:
     app.openshift.io/connects-to: fights-kafka
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
-    app.quarkus.io/build-timestamp: 2021-12-21 - 13:31:26 +0000
+    app.quarkus.io/commit-id: ba3ba5508fc7bcf4944fac714b0e45dbe6b8c067
+    app.quarkus.io/build-timestamp: 2021-12-21 - 14:17:22 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -18,6 +18,7 @@ metadata:
     app.kubernetes.io/version: native-java11-latest
     app: event-statistics
     application: event-stats
+    system: quarkus-super-heroes
   name: event-statistics
 spec:
   ports:
@@ -36,6 +37,7 @@ metadata:
   labels:
     name: fights-kafka
     application: fights-service
+    system: quarkus-super-heroes
   name: fights-kafka
 spec:
   ports:
@@ -52,6 +54,7 @@ metadata:
   labels:
     app: event-statistics
     application: event-stats
+    system: quarkus-super-heroes
   name: event-statistics-config
 data:
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
@@ -63,8 +66,8 @@ metadata:
     app.openshift.io/connects-to: fights-kafka
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
-    app.quarkus.io/build-timestamp: 2021-12-21 - 13:31:26 +0000
+    app.quarkus.io/commit-id: ba3ba5508fc7bcf4944fac714b0e45dbe6b8c067
+    app.quarkus.io/build-timestamp: 2021-12-21 - 14:17:22 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -72,16 +75,17 @@ metadata:
   labels:
     app: event-statistics
     application: event-stats
-    app.kubernetes.io/part-of: event-stats
+    system: quarkus-super-heroes
     app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/version: native-java11-latest
   name: event-statistics
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/part-of: event-stats
       app.kubernetes.io/name: event-statistics
+      app.kubernetes.io/part-of: event-stats
       app.kubernetes.io/version: native-java11-latest
   template:
     metadata:
@@ -89,8 +93,8 @@ spec:
         app.openshift.io/connects-to: fights-kafka
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
-        app.quarkus.io/build-timestamp: 2021-12-21 - 13:31:26 +0000
+        app.quarkus.io/commit-id: ba3ba5508fc7bcf4944fac714b0e45dbe6b8c067
+        app.quarkus.io/build-timestamp: 2021-12-21 - 14:17:22 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -98,8 +102,9 @@ spec:
       labels:
         app: event-statistics
         application: event-stats
-        app.kubernetes.io/part-of: event-stats
+        system: quarkus-super-heroes
         app.kubernetes.io/name: event-statistics
+        app.kubernetes.io/part-of: event-stats
         app.kubernetes.io/version: native-java11-latest
     spec:
       containers:
@@ -152,6 +157,7 @@ metadata:
     application: fights-service
     app.kubernetes.io/part-of: fights-service
     app.openshift.io/runtime: kafka
+    system: quarkus-super-heroes
   name: fights-kafka
 spec:
   replicas: 1
@@ -163,6 +169,7 @@ spec:
       labels:
         application: fights-service
         name: fights-kafka
+        system: quarkus-super-heroes
     spec:
       containers:
         - command:

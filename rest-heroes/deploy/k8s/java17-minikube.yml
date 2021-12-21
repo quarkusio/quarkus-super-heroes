@@ -5,6 +5,7 @@ metadata:
   labels:
     app: heroes-db
     application: heroes-service
+    system: quarkus-super-heroes
   name: heroes-db-config
 data:
   POSTGRESQL_DATABASE: aGVyb2VzX2RhdGFiYXNl
@@ -18,6 +19,7 @@ metadata:
   labels:
     name: heroes-db
     application: heroes-service
+    system: quarkus-super-heroes
   name: heroes-db
 spec:
   ports:
@@ -35,8 +37,8 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
-    app.quarkus.io/build-timestamp: 2021-12-21 - 13:34:24 +0000
+    app.quarkus.io/commit-id: ba3ba5508fc7bcf4944fac714b0e45dbe6b8c067
+    app.quarkus.io/build-timestamp: 2021-12-21 - 14:20:19 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -47,6 +49,7 @@ metadata:
     app.kubernetes.io/version: java17-latest
     app: rest-heroes
     application: heroes-service
+    system: quarkus-super-heroes
   name: rest-heroes
 spec:
   ports:
@@ -66,6 +69,7 @@ metadata:
   labels:
     app: heroes-db
     application: heroes-service
+    system: quarkus-super-heroes
   name: heroes-db-init
 data:
   get-data.sh: |-
@@ -79,6 +83,7 @@ metadata:
   labels:
     app: rest-heroes
     application: heroes-service
+    system: quarkus-super-heroes
   name: rest-heroes-config
 data:
   quarkus.hibernate-orm.database.generation: none
@@ -91,6 +96,7 @@ metadata:
   labels:
     app: heroes-db
     application: heroes-service
+    system: quarkus-super-heroes
     app.kubernetes.io/part-of: heroes-service
     app.openshift.io/runtime: postgresql
   name: heroes-db
@@ -104,6 +110,7 @@ spec:
       labels:
         name: heroes-db
         application: heroes-service
+        system: quarkus-super-heroes
     spec:
       containers:
         - envFrom:
@@ -137,8 +144,8 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-    app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
-    app.quarkus.io/build-timestamp: 2021-12-21 - 13:34:24 +0000
+    app.quarkus.io/commit-id: ba3ba5508fc7bcf4944fac714b0e45dbe6b8c067
+    app.quarkus.io/build-timestamp: 2021-12-21 - 14:20:19 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -149,6 +156,7 @@ metadata:
     app.kubernetes.io/version: java17-latest
     app: rest-heroes
     application: heroes-service
+    system: quarkus-super-heroes
   name: rest-heroes
 spec:
   replicas: 1
@@ -163,8 +171,8 @@ spec:
         app.openshift.io/connects-to: heroes-db
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
-        app.quarkus.io/commit-id: a9acd68c4e6c8c4c82013a8878266a53d0f1e043
-        app.quarkus.io/build-timestamp: 2021-12-21 - 13:34:24 +0000
+        app.quarkus.io/commit-id: ba3ba5508fc7bcf4944fac714b0e45dbe6b8c067
+        app.quarkus.io/build-timestamp: 2021-12-21 - 14:20:19 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -175,6 +183,7 @@ spec:
         app.kubernetes.io/version: java17-latest
         app: rest-heroes
         application: heroes-service
+        system: quarkus-super-heroes
     spec:
       containers:
         - env:
