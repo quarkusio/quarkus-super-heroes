@@ -62,6 +62,10 @@ jobs:
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV &&
           echo "ADDITIONAL_TAG=java${{ matrix.java }}-latest" >> $GITHUB_ENV
 
+      - name: Log contexts
+        shell: bash
+        run: echo "GitHub context = ${{ toJSON(github) }}"
+
       - name: "create-test-jvm-image-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: |
@@ -137,6 +141,10 @@ jobs:
         run: |
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV && \
           echo "ADDITIONAL_TAG=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
+
+      - name: Log contexts
+        shell: bash
+        run: echo "GitHub context = ${{ toJSON(github) }}"
 
       - name: "build-test-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
