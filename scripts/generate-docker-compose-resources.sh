@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 # Create the deploy/docker-compose files for each version of each of the Quarkus services
 # Then add on the ui-super-heroes
@@ -37,28 +37,20 @@ create_output() {
   fi
 
   if [[ -f "$project_output_file" ]]; then
-    set -x
     rm -rf $project_output_file
-    set +x
   fi
 
   create_output_file $project_output_file
 
   if [[ -f "$infra_input_file" ]]; then
-    set -x
     cat $infra_input_file >> $project_output_file
-    set +x
   fi
 
   if [[ -f "$project_input_file" ]]; then
-    set -x
     cat $project_input_file >> $project_output_file
-    set +x
 
     if [[ "$project" == "event-statistics" || "$project" == "ui-super-heroes" ]]; then
-      set -x
       cat $project_input_file >> $all_apps_output_file
-      set +x
     fi
   fi
 
@@ -74,45 +66,33 @@ create_output() {
     fi
 
     if [[ -d "$project/deploy/db-init" ]]; then
-      set -x
       cp -r $project/deploy/db-init deploy
-      set +x
     fi
 
     if [[ -f "$downstream_infra_file" ]]; then
-      set -x
       cat $downstream_infra_file >> $downstream_project_output_file
       cat $downstream_infra_file | sed 's/..\/..\/..\//..\/..\//g' >> $all_apps_output_file
-      set +x
     fi
 
     if [[ -f "$project_input_file" ]]; then
-      set -x
       cat $project_input_file >> $downstream_project_output_file
       cat $project_input_file >> $all_apps_output_file
-      set +x
     fi
 
     if [[ -f "rest-villains/$INPUT_DIR/$input_file_name" ]]; then
-      set -x
       cat rest-villains/$INPUT_DIR/$input_file_name >> $downstream_project_output_file
       cat rest-villains/$INPUT_DIR/$input_file_name >> $all_apps_output_file
-      set +x
     fi
 
     if [[ -f "rest-heroes/$INPUT_DIR/$input_file_name" ]]; then
-      set -x
       cat rest-heroes/$INPUT_DIR/$input_file_name >> $downstream_project_output_file
       cat rest-heroes/$INPUT_DIR/$input_file_name >> $all_apps_output_file
-      set +x
     fi
   fi
 }
 
-set -x
 rm -rf $OUTPUT_DIR/*.yml
 rm -rf deploy/db-init
-set +x
 
 for javaVersion in 11 17
 do

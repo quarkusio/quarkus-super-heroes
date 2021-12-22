@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 # Create the deploy/k8s files for each java version of each of the Quarkus services
 # Then add on the ui-super-heroes
@@ -40,7 +40,6 @@ do_build() {
   fi
 
   echo "Generating app resources for $project/$tag/$deployment_type"
-  set -x
   rm -rf $project/target
 
   $project/mvnw -f $project/pom.xml versions:set clean package \
@@ -60,8 +59,6 @@ do_build() {
     -Dquarkus.openshift.resources.requests.memory=$mem_request \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-ref\"=$GITHUB_REF_NAME
-
-  set +x
 }
 
 process_quarkus_project() {
@@ -78,9 +75,7 @@ process_quarkus_project() {
   # The build will generate all the resources for the project
   do_build $project $deployment_type $javaVersion $kind
 
-  set -x
   rm -rf $project_output_file
-  set +x
 
   create_output_file $project_output_file
   create_output_file $all_apps_output_file
@@ -88,10 +83,8 @@ process_quarkus_project() {
   # Now merge the generated resources to the top level (deploy/k8s)
   if [[ -f "$app_generated_input_file" ]]; then
     echo "Copying app generated input ($app_generated_input_file) to $project_output_file and $all_apps_output_file"
-    set -x
     cat $app_generated_input_file >> $project_output_file
     cat $app_generated_input_file >> $all_apps_output_file
-    set +x
   fi
 
   if [[ "$project" == "rest-fights" ]]; then
@@ -100,18 +93,14 @@ process_quarkus_project() {
     local villains_output_file="rest-villains/$OUTPUT_DIR/${output_filename}.yml"
     local heroes_output_file="rest-heroes/$OUTPUT_DIR/${output_filename}.yml"
 
-    set -x
     rm -rf $all_downstream_output_file
-    set +x
 
     create_output_file $all_downstream_output_file
 
     echo "Copying ${app_generated_input_file}, ${villains_output_file}, and $heroes_output_file to $all_downstream_output_file"
-    set -x
     cat $villains_output_file >> $all_downstream_output_file
     cat $heroes_output_file >> $all_downstream_output_file
     cat $app_generated_input_file >> $all_downstream_output_file
-    set +x
   fi
 }
 
@@ -125,24 +114,18 @@ process_ui_project() {
   local project_output_file="$project/$OUTPUT_DIR/app-${deployment_type}.yml"
   local all_apps_output_file="$OUTPUT_DIR/${kind}java${javaVersion}-${deployment_type}.yml"
 
-  set -x
   rm -rf $project_output_file
-  set +x
 
   create_output_file $project_output_file
 
   if [[ -f "$input_file" ]]; then
     echo "Copying app input ($input_file) to $project_output_file and $all_apps_output_file"
-    set -x
     cat $input_file >> $project_output_file
     cat $input_file >> $all_apps_output_file
-    set +x
   fi
 }
 
-set -x
 rm -rf $OUTPUT_DIR/*.yml
-set +x
 
 for javaVersion in 11 17
 do
