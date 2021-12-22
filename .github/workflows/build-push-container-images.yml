@@ -15,12 +15,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}, pr = ${{ github.event.pull_request.id }}"
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}"
+  cancel-in-progress: false
 
 jobs:
   build-test-jvm-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.event == 'push') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -62,10 +62,6 @@ jobs:
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV &&
           echo "ADDITIONAL_TAG=java${{ matrix.java }}-latest" >> $GITHUB_ENV
 
-      - name: Log contexts
-        shell: bash
-        run: echo "GitHub context = ${{ toJSON(github) }}"
-
       - name: "create-test-jvm-image-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: |
@@ -85,7 +81,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   build-test-native-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.event == 'push') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -142,10 +138,6 @@ jobs:
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV && \
           echo "ADDITIONAL_TAG=native-java${{ matrix.java }}-latest" >> $GITHUB_ENV
 
-      - name: Log contexts
-        shell: bash
-        run: echo "GitHub context = ${{ toJSON(github) }}"
-
       - name: "build-test-native-image-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: |
@@ -173,7 +165,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   push-app-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.event == 'push') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     needs:
       - build-test-jvm-images
       - build-test-native-images
@@ -236,7 +228,7 @@ jobs:
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
 
   build-push-ui-image:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.event == 'push') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     needs: push-app-images
     runs-on: ubuntu-latest
     steps:

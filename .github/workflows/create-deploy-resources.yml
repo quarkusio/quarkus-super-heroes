@@ -14,12 +14,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}, pr = ${{ github.event.pull_request.id }}"
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}"
+  cancel-in-progress: false
 
 jobs:
   create-deploy-resources:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.event == 'push') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -30,6 +30,10 @@ jobs:
           java-version: 17
           distribution: temurin
           cache: maven
+
+      - name: Log contexts
+        shell: bash
+        run: echo "GitHub context = ${{ toJSON(github) }}"
 
       - name: Create k8s resources
         shell: bash
