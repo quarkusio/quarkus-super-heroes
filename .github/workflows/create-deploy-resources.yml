@@ -22,7 +22,10 @@ jobs:
     if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.event == 'push') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.CICD_TOKEN }}
 
       - name: Setup Java
         uses: actions/setup-java@v2
@@ -30,11 +33,6 @@ jobs:
           java-version: 17
           distribution: temurin
           cache: maven
-
-
-      - name: Log contexts
-        shell: bash
-        run: echo "GitHub context = ${{ toJSON(github) }}"
 
       - name: Create k8s resources
         shell: bash
