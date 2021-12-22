@@ -21,6 +21,9 @@ jobs:
   create-deploy-resources:
     if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.event == 'push') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
     steps:
       - uses: actions/checkout@v2
 
