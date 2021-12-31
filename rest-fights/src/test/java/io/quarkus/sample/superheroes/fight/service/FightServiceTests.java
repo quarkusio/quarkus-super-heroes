@@ -35,7 +35,7 @@ import io.quarkus.test.junit.mockito.InjectSpy;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import io.smallrye.reactive.messaging.connectors.InMemoryConnector;
+import io.smallrye.reactive.messaging.providers.connectors.InMemoryConnector;
 
 /**
  * Tests for the service layer ({@link FightService}).
@@ -70,7 +70,7 @@ class FightServiceTests {
 
 	@Inject
 	@Any
-	InMemoryConnector emitterConnector;
+  InMemoryConnector emitterConnector;
 
 	@InjectMock
 	HeroClient heroClient;
