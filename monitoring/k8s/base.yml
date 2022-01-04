@@ -27,14 +27,19 @@ spec:
           ports:
             - containerPort: 9090
           volumeMounts:
-            - name: prometheus-scrape-configs
-              mountPath: /etc/prometheus
+            - name: prometheus-config
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+            - name: prometheus-data
+              mountPath: /prometheus
           resources:
             limits:
               memory: 128Mi
             requests:
               memory: 32Mi
       volumes:
-        - name: prometheus-scape-configs
+        - name: prometheus-data
+          emptyDir: { }
+        - name: prometheus-config
           configMap:
-            name: prometheus-scrape-configs
+            name: prometheus-config
