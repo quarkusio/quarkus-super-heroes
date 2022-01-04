@@ -34,11 +34,11 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: bd8e13609a6cfa90a1bf846e934a1d35e74fab4a
-    app.quarkus.io/build-timestamp: 2022-01-04 - 20:17:54 +0000
+    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: 6a93ee62cbf11c91b5d98177ffcb28c8528b8e0a
+    app.quarkus.io/build-timestamp: 2022-01-04 - 20:32:54 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -67,11 +67,11 @@ apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: bd8e13609a6cfa90a1bf846e934a1d35e74fab4a
-    app.quarkus.io/build-timestamp: 2022-01-04 - 20:17:54 +0000
+    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: 6a93ee62cbf11c91b5d98177ffcb28c8528b8e0a
+    app.quarkus.io/build-timestamp: 2022-01-04 - 20:32:54 +0000
   labels:
     name: heroes-db
     application: heroes-service
@@ -163,11 +163,11 @@ apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: bd8e13609a6cfa90a1bf846e934a1d35e74fab4a
-    app.quarkus.io/build-timestamp: 2022-01-04 - 20:17:54 +0000
+    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: 6a93ee62cbf11c91b5d98177ffcb28c8528b8e0a
+    app.quarkus.io/build-timestamp: 2022-01-04 - 20:32:54 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -190,11 +190,11 @@ spec:
   template:
     metadata:
       annotations:
-        app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
         app.openshift.io/connects-to: heroes-db
         app.openshift.io/vcs-ref: main
-        app.quarkus.io/commit-id: bd8e13609a6cfa90a1bf846e934a1d35e74fab4a
-        app.quarkus.io/build-timestamp: 2022-01-04 - 20:17:54 +0000
+        app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+        app.quarkus.io/commit-id: 6a93ee62cbf11c91b5d98177ffcb28c8528b8e0a
+        app.quarkus.io/build-timestamp: 2022-01-04 - 20:32:54 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -249,25 +249,16 @@ spec:
               memory: 128Mi
             requests:
               memory: 32Mi
-  triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-          - rest-heroes
-        from:
-          kind: ImageStreamTag
-          name: rest-heroes:native-java11-latest
-      type: ImageChange
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: bd8e13609a6cfa90a1bf846e934a1d35e74fab4a
-    app.quarkus.io/build-timestamp: 2022-01-04 - 20:17:54 +0000
+    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: 6a93ee62cbf11c91b5d98177ffcb28c8528b8e0a
+    app.quarkus.io/build-timestamp: 2022-01-04 - 20:32:54 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
