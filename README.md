@@ -31,7 +31,7 @@ This is a sample application demonstrating Quarkus features and best practices. 
 - [Statistics](event-statistics)
     - Stores statistics about each fight and serves them to an HTML + JQuery UI using [WebSockets](https://quarkus.io/guides/websockets).
 - [Prometheus](https://prometheus.io/)
-    - Polls metrics from the Fight, Hero, and Villain microservices.
+    - Polls metrics from all of the services within the system.
 
 Here is an architecture diagram of the application:
 ![Superheroes architecture diagram](images/application-architecture.png)
