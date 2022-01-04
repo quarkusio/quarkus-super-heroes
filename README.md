@@ -30,7 +30,7 @@ This is a sample application demonstrating Quarkus features and best practices. 
     - Each fight is asynchronously sent, via Kafka, to the Statistics microservice
 - [Statistics](event-statistics)
     - Stores statistics about each fight and serves them to an HTML + JQuery UI using [WebSockets](https://quarkus.io/guides/websockets).
-- Prometheus
+- [Prometheus](https://prometheus.io/)
     - Polls metrics from the Fight, Hero, and Villain microservices.
 
 Here is an architecture diagram of the application:
