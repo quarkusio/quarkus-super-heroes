@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  labels:
+    system: quarkus-super-heroes
+    name: prometheus
+    app.kubernetes.io/part-of: super-heroes
+    app.openshift.io/runtime: prometheus
+  annotations:
+    app.openshift.io/connects-to: ui-super-heroes,rest-fights,rest-villains,rest-heroes,event-statistics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: prometheus
+  template:
+    metadata:
+      labels:
+        system: quarkus-super-heroes
+        name: prometheus
+    spec:
+      containers:
+        - image: quay.io/prometheus/prometheus:v2.32.1
+          name: prometheus
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-scrape-configs
+              mountPath: /etc/prometheus
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
+      volumes:
+        - name: prometheus-scape-configs
+          configMap:
+            name: prometheus-scrape-configs

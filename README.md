@@ -9,6 +9,7 @@
 - [Deploying to Kubernetes](#deploying-to-kubernetes)
     - [Routing](#routing)
     - [Versions](#versions)
+    - [Monitoring](#monitoring)
 
 ## Introduction
 
@@ -47,14 +48,16 @@ Pick one of the 4 versions of the application from the table below and execute t
    >
    > There is a [`watch-services.sh`](scripts/watch-services.sh) script that can be run in a separate terminal that will watch the startup of all the services and report when they are all up and ready to serve requests. 
 
-| Description                  | Image Tag              | Docker Compose Run Command                                                      |
-|------------------------------|------------------------|---------------------------------------------------------------------------------|
-| JVM Java 11                  | `java11-latest`        | `docker-compose -f deploy/docker-compose/java11.yml up --remove-orphans`        |
-| JVM Java 17                  | `java17-latest`        | `docker-compose -f deploy/docker-compose/java17 up --remove-orphans`            |
-| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f deploy/docker-compose/native-java11.yml up --remove-orphans` |
-| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f deploy/docker-compose/native-java17.yml up --remove-orphans` |
+| Description                  | Image Tag              | Docker Compose Run Command                                                      | Docker Compose Run Command with Prometheus Monitoring                                                                   |
+|------------------------------|------------------------|---------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| JVM Java 11                  | `java11-latest`        | `docker-compose -f deploy/docker-compose/java11.yml up --remove-orphans`        | `docker-compose -f deploy/docker-compose/java11.yml -f deploy/docker-compose/prometheus.yml up --remove-orphans`        |
+| JVM Java 17                  | `java17-latest`        | `docker-compose -f deploy/docker-compose/java17 up --remove-orphans`            | `docker-compose -f deploy/docker-compose/java17.yml -f deploy/docker-compose/prometheus.yml up --remove-orphans`        |
+| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f deploy/docker-compose/native-java11.yml up --remove-orphans` | `docker-compose -f deploy/docker-compose/native-java11.yml -f deploy/docker-compose/prometheus.yml up --remove-orphans` |
+| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f deploy/docker-compose/native-java17.yml up --remove-orphans` | `docker-compose -f deploy/docker-compose/native-java17.yml -f deploy/docker-compose/prometheus.yml up --remove-orphans` |
 
 Once started the main application will be exposed at `http://localhost:8080`. If you want to watch the [Event Statistics UI](event-statistics), that will be available at `http://localhost:8085`.
+
+If you launched Prometheus monitoring, Prometheus will be available at `http://localhost:9090`. 
 
 ## Deploying to Kubernetes
 Pre-built images for all of the applications in the system can be found at [`quay.io/quarkus-super-heroes`](http://quay.io/quarkus-super-heroes).
@@ -85,3 +88,12 @@ Pick one of the 4 versions of the system from the table below and deploy the app
 | JVM Java 17                  | `java17-latest`        | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml)               | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml)               | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml)               |
 | Native compiled with Java 11 | `native-java11-latest` | [`native-java11-openshift.yml`](deploy/k8s/native-java11-openshift.yml) | [`native-java11-minikube.yml`](deploy/k8s/native-java11-minikube.yml) | [`native-java11-kubernetes.yml`](deploy/k8s/native-java11-kubernetes.yml) |
 | Native compiled with Java 17 | `native-java17-latest` | [`native-java17-openshift.yml`](deploy/k8s/native-java17-openshift.yml) | [`native-java17-minikube.yml`](deploy/k8s/native-java17-minikube.yml) | [`native-java17-kubernetes.yml`](deploy/k8s/native-java17-kubernetes.yml) |
+
+### Monitoring
+There are also Kubernetes deployment descriptors for Prometheus monitoring in the [`deploy/k8s` directory](deploy/k8s) ([`prometheus-openshift.yml`](deploy/k8s/prometheus-openshift.yml), [`prometheus-minikube.yml`](deploy/k8s/prometheus-minikube.yml), [`prometheus-kubernetes.yml`](deploy/k8s/prometheus-kubernetes.yml)). Each descriptor contains the resources necessary to monitor all of the applications in the system.
+
+The OpenShift descriptor will automatically create a `Route` for Prometheus. On Kubernetes/Minikube you may need to expose the Prometheus service in order to access it from outside your cluster, either by using an `Ingress` or by using `kubectl port-forward`. On Minikube, the Prometheus `Service` is also exposed as a `NodePort`.
+
+   > **NOTE:** These descriptors are **NOT** considered to be production-ready. They are basic enough to deploy Prometheus with as little configuration as possible. It is not highly-available and does not use any [Kubernetes operators](https://operatorhub.io/operator/prometheus) for management or monitoring. It also only uses ephemeral storage.
+   >
+   > For production-ready Prometheus instances, please see the [Prometheus Operator documentation](https://operatorhub.io/operator/prometheus) for how to properly deploy and configure production-ready instances. 

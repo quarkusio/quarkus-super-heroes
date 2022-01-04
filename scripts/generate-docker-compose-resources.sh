@@ -16,7 +16,7 @@ create_output_file() {
   echo 'services:' >> $output_file
 }
 
-create_output() {
+create_project_output() {
   local project=$1
   local filename=$2
   local javaVersion=$3
@@ -91,7 +91,20 @@ create_output() {
   fi
 }
 
+create_monitoring() {
+  local monitoring_name="monitoring"
+
+  echo ""
+  echo "-----------------------------------------"
+  echo "Creating monitoring"
+
+  mkdir -p $OUTPUT_DIR/$monitoring_name
+  cp $monitoring_name/config/*.yml $OUTPUT_DIR/$monitoring_name
+  cp $monitoring_name/docker-compose/*.yml $OUTPUT_DIR
+}
+
 rm -rf $OUTPUT_DIR/*.yml
+rm -rf $OUTPUT_DIR/monitoring
 rm -rf deploy/db-init
 
 for javaVersion in 11 17
@@ -100,9 +113,12 @@ do
   do
     for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
     do
-      create_output $project "${kind}java${javaVersion}" $javaVersion $kind
+      create_project_output $project "${kind}java${javaVersion}" $javaVersion $kind
     done
 
-    create_output "ui-super-heroes" "app" $javaVersion $kind
+    create_project_output "ui-super-heroes" "app" $javaVersion $kind
   done
 done
+
+## Now handle the monitoring
+create_monitoring

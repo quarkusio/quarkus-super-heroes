@@ -125,6 +125,41 @@ process_ui_project() {
   fi
 }
 
+create_monitoring() {
+  local monitoring_name="monitoring"
+  local kubernetes_output="$OUTPUT_DIR/prometheus-kubernetes.yml"
+  local minikube_output="$OUTPUT_DIR/prometheus-minikube.yml"
+  local openshift_output="$OUTPUT_DIR/prometheus-openshift.yml"
+
+  echo ""
+  echo "-----------------------------------------"
+  echo "Creating monitoring"
+
+  for deployment_type in "kubernetes" "minikube" "openshift"
+  do
+    local output_file_name="prometheus-${deployment_type}.yml"
+    local output_file="$OUTPUT_DIR/$output_file_name"
+    local input_dir="$monitoring_name/k8s"
+    create_output_file $output_file
+
+    if [[ -f "$input_dir/scrapeConfig-template.yml" ]]; then
+      echo "Adding scrape config ConfigMap into $output_file"
+      cat "$input_dir/scrapeConfig-template.yml" >> $output_file
+      cat "$monitoring_name/config/prometheus_scrape_configs.yml" | sed 's/^/    /' >> $output_file
+    fi
+
+    if [[ -f "$input_dir/base.yml" ]]; then
+      echo "Adding base config from $input_dir/base.yml into $output_file"
+      cat "$input_dir/base.yml" >> $output_file
+    fi
+
+    if [[ -f "$input_dir/${deployment_type}.yml" ]]; then
+      echo "Adding $deployment_type config from $input_dir/${deployment_type}.yml into $output_file"
+      cat "$input_dir/${deployment_type}.yml" >> $output_file
+    fi
+  done
+}
+
 rm -rf $OUTPUT_DIR/*.yml
 
 for javaVersion in 11 17
@@ -142,3 +177,6 @@ do
     done
   done
 done
+
+## Handle the monitoring
+create_monitoring
