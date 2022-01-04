@@ -48,9 +48,13 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://fights-kafka:9092
       QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: none
       QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: no-file
-      QUARKUS_REST_CLIENT_HERO_CLIENT_URL: http://rest-heroes-java17:8083
-      FIGHT_VILLAIN_CLIENT_BASE_URL: http://rest-villains-java17:8084
+      QUARKUS_REST_CLIENT_HERO_CLIENT_URL: http://rest-heroes:8083
+      FIGHT_VILLAIN_CLIENT_BASE_URL: http://rest-villains:8084
     restart: on-failure
+    networks:
+      default:
+        aliases:
+          - rest-fights
     deploy:
       resources:
         limits:
@@ -72,6 +76,10 @@ services:
       QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: none
       QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: no-file
     restart: on-failure
+    networks:
+      default:
+        aliases:
+          - rest-villains
     deploy:
       resources:
         limits:
@@ -93,6 +101,10 @@ services:
       QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: none
       QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: no-file
     restart: on-failure
+    networks:
+      default:
+        aliases:
+          - rest-heroes
     deploy:
       resources:
         limits:
