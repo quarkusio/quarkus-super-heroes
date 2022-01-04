@@ -142,12 +142,6 @@ create_monitoring() {
     local input_dir="$monitoring_name/k8s"
     create_output_file $output_file
 
-    if [[ -f "$input_dir/scrapeConfig-template.yml" ]]; then
-      echo "Adding scrape config ConfigMap into $output_file"
-      cat "$input_dir/scrapeConfig-template.yml" >> $output_file
-      cat "$monitoring_name/config/prometheus_scrape_configs.yml" | sed 's/^/    /' >> $output_file
-    fi
-
     if [[ -f "$input_dir/base.yml" ]]; then
       echo "Adding base config from $input_dir/base.yml into $output_file"
       cat "$input_dir/base.yml" >> $output_file

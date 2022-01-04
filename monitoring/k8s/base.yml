@@ -1,4 +1,71 @@
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  labels:
+    system: quarkus-super-heroes
+data:
+  prometheus.yml: |2
+    global:
+      scrape_interval: 10s
+      external_labels:
+        system: quarkus-super-heroes
+      
+    scrape_configs:
+      - job_name: prometheus
+        static_configs:
+          - targets: ['localhost:9090']
+      
+      - job_name: heroes
+        metrics_path: /q/metrics
+        honor_labels: true
+        static_configs:
+          - targets: ['rest-heroes']
+            labels:
+              app: rest-heroes
+              application: heroes-service
+              system: quarkus-super-heroes
+      
+      - job_name: villains
+        metrics_path: /q/metrics
+        honor_labels: true
+        static_configs:
+          - targets: ['rest-villains']
+            labels:
+              app: rest-villains
+              application: villains-service
+              system: quarkus-super-heroes
+      
+      - job_name: fights
+        metrics_path: /q/metrics
+        honor_labels: true
+        static_configs:
+          - targets: ['rest-fights']
+            labels:
+              app: rest-fights
+              application: fights-service
+              system: quarkus-super-heroes
+      
+      - job_name: event-stats
+        metrics_path: /q/metrics
+        honor_labels: true
+        static_configs:
+          - targets: ['event-statistics']
+            labels:
+              app: event-statistics
+              application: event-stats
+              system: quarkus-super-heroes
+      
+      - job_name: ui-super-heroes
+        honor_labels: true
+        static_configs:
+          - targets: ['ui-super-heroes']
+            labels:
+              app: ui-super-heroes
+              application: super-heroes
+              system: quarkus-super-heroes
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,8 +95,7 @@ spec:
             - containerPort: 9090
           volumeMounts:
             - name: prometheus-config
-              mountPath: /etc/prometheus/prometheus.yml
-              subPath: prometheus.yml
+              mountPath: /etc/prometheus
             - name: prometheus-data
               mountPath: /prometheus
           resources:
