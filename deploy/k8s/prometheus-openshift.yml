@@ -7,6 +7,7 @@ metadata:
     system: quarkus-super-heroes
 data:
   prometheus.yml: |2
+# The rest of this will be filled in from ../config/prometheus_scrape_configs.yml via the create-deploy-resources workflow
     global:
       scrape_interval: 10s
       external_labels:
@@ -94,17 +95,22 @@ spec:
           ports:
             - containerPort: 9090
           volumeMounts:
-            - name: prometheus-scrape-configs
-              mountPath: /etc/prometheus
+            - name: prometheus-config
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+            - name: prometheus-data
+              mountPath: /prometheus
           resources:
             limits:
               memory: 128Mi
             requests:
               memory: 32Mi
       volumes:
-        - name: prometheus-scape-configs
+        - name: prometheus-data
+          emptyDir: { }
+        - name: prometheus-config
           configMap:
-            name: prometheus-scrape-configs
+            name: prometheus-config
 ---
 apiVersion: v1
 kind: Service
@@ -131,7 +137,7 @@ metadata:
     app.kubernetes.io/part-of: super-heroes
     system: quarkus-super-heroes
     name: prometheus
-  name: rest-villains
+  name: prometheus
 spec:
   port:
     targetPort: 9090
