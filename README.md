@@ -97,3 +97,5 @@ The OpenShift descriptor will automatically create a `Route` for Prometheus. On 
    > **NOTE:** These descriptors are **NOT** considered to be production-ready. They are basic enough to deploy Prometheus with as little configuration as possible. It is not highly-available and does not use any [Kubernetes operators](https://operatorhub.io/operator/prometheus) for management or monitoring. It also only uses ephemeral storage.
    >
    > For production-ready Prometheus instances, please see the [Prometheus Operator documentation](https://operatorhub.io/operator/prometheus) for how to properly deploy and configure production-ready instances. 
+
+The Prometheus configuration also uses static configuration for the applications. Prometheus does support the ability to discover applications via annotations. That is not used here, though, because the name of the namespace would need to be known ahead of time and placed into the Prometheus configuration. There is a [sample configuration file](monitoring/config/prometheus_scrape_configs_k8s.yml) that contains this configuration for reference.
