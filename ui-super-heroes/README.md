@@ -49,7 +49,7 @@ The Node.js server port can be changed by setting the `HTTP_PORT` variable. The 
     - The [Event Statistics Service](../event-statistics) is optional.
 2. Follow the steps above section, *Building the Application*.
 3. Set the `API_BASE_URL` environment variable with the appropriate [Fights Service](../rest-fights) hostname and port.
-   > By default, the [`rest-fights`](../rest-fights) service runs on port `8082`.
+   > By default, the [`rest-fights`](../rest-fights) service runs on port `8082`, so setting `API_BASE_URL=http://localhost:8082` will do.
 4. Start the service using the command `npm start`.
     - You can also set the environment variable `CALCULATE_API_BASE_URL=true` to have it compute the base URL. Only use this option if the UI url is in the form of `ui-super-heroes.somewhere.com`. In this instance, setting `CALCULATE_API_BASE_URL=true` will replace `ui-super-heroes` in the URL with `rest-fights`.
 
