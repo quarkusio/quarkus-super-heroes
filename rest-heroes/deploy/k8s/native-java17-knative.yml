@@ -1,0 +1,85 @@
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    app.openshift.io/connects-to: heroes-db
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+    app.quarkus.io/commit-id: ad792c9a204d1ab4721117e5d6bfe5a71ad0721a
+    app.quarkus.io/build-timestamp: 2022-01-11 - 20:31:28 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8083"
+    prometheus.io/scheme: http
+  labels:
+    app: rest-heroes
+    app.openshift.io/runtime: quarkus
+    application: heroes-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/version: native-java17-latest
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+  name: rest-heroes
+spec:
+  template:
+    metadata:
+      annotations:
+        app.openshift.io/connects-to: heroes-db
+        app.openshift.io/vcs-ref: main
+        app.openshift.io/vcs-url: https://github.com/edeandrea/quarkus-super-heroes
+        app.quarkus.io/commit-id: ad792c9a204d1ab4721117e5d6bfe5a71ad0721a
+        app.quarkus.io/build-timestamp: 2022-01-11 - 20:31:28 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
+        prometheus.io/port: "8083"
+        prometheus.io/scheme: http
+      labels:
+        app: rest-heroes
+        app.openshift.io/runtime: quarkus
+        application: heroes-service
+        system: quarkus-super-heroes
+        app.kubernetes.io/version: native-java17-latest
+        app.kubernetes.io/name: rest-heroes
+        app.kubernetes.io/part-of: heroes-service
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: rest-heroes-config
+          image: quay.io/quarkus-super-heroes/rest-heroes:native-java17-latest
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: null
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: rest-heroes
+          ports:
+            - containerPort: 8083
+              name: http1
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: null
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-autoscaler
