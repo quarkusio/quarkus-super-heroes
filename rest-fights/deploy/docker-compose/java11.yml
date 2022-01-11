@@ -5,12 +5,12 @@ services:
     image: postgres:13
     container_name: fights-db
     ports:
-      - "5432:5432"
+      - "5432"
     environment:
       POSTGRES_PASSWORD: password
     volumes:
-      - ../db-init/initialize-database.sql:/docker-entrypoint-initdb.d/1-init-db.sql
-      - ../db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/2-init-tables.sql
+      - ../../../rest-fights/deploy/db-init/initialize-database.sql:/docker-entrypoint-initdb.d/1-init-db.sql
+      - ../../../rest-fights/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/2-init-tables.sql
 
   fights-kafka:
     image: quay.io/strimzi/kafka:0.27.0-kafka-3.0.0

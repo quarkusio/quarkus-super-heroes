@@ -5,12 +5,12 @@ services:
     image: postgres:13
     container_name: heroes-db
     ports:
-      - "5432:5432"
+      - "5432"
     environment:
       POSTGRES_PASSWORD: password
     volumes:
-      - ./db-init/initialize-database.sql:/docker-entrypoint-initdb.d/1-init-db.sql
-      - ./db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/2-init-tables.sql
+      - ../../../rest-heroes/deploy/db-init/initialize-database.sql:/docker-entrypoint-initdb.d/1-init-db.sql
+      - ../../../rest-heroes/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/2-init-tables.sql
 
   rest-heroes-native-java17:
     image: quay.io/quarkus-super-heroes/rest-heroes:native-java17-latest
