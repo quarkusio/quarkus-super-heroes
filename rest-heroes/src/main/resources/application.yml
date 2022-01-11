@@ -44,6 +44,16 @@ quarkus:
       app: "${quarkus.kubernetes.labels.app}"
       application: "${quarkus.openshift.part-of}"
       system: "${quarkus.kubernetes.labels.system}"
+  knative:
+    part-of: "${quarkus.kubernetes.part-of}"
+    annotations:
+      "app.openshift.io/connects-to": heroes-db
+    env:
+      configmaps: "${quarkus.kubernetes.env.configmaps}"
+    labels:
+      app: "${quarkus.kubernetes.labels.app}"
+      application: "${quarkus.openshift.part-of}"
+      system: "${quarkus.kubernetes.labels.system}"
 
 "%prod":
   quarkus:

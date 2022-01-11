@@ -58,7 +58,13 @@ do_build() {
     -Dquarkus.openshift.resources.limits.memory=$mem_limit \
     -Dquarkus.openshift.resources.requests.memory=$mem_request \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
-    -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-ref\"=$GITHUB_REF_NAME
+    -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-ref\"=$GITHUB_REF_NAME \
+    -Dquarkus.knative.version=$tag \
+    -Dquarkus.knative.labels.\"app.openshift.io/runtime\"=quarkus \
+    -Dquarkus.knative.resources.limits.memory=$mem_limit \
+    -Dquarkus.knative.resources.requests.memory=$mem_request \
+    -Dquarkus.knative.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
+    -Dquarkus.knative.annotations.\"app.openshift.io/vcs-ref\"=$GITHUB_REF_NAME
 }
 
 process_quarkus_project() {
@@ -160,7 +166,7 @@ for javaVersion in 11 17
 do
   for kind in "" "native-"
   do
-    for deployment_type in "kubernetes" "minikube" "openshift"
+    for deployment_type in "kubernetes" "minikube" "openshift" "knative"
     do
       for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
       do
