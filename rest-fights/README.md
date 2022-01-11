@@ -12,6 +12,9 @@
 - [Testing](#testing) 
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
+    - [Only Fights Service](#only-fights-service)
+    - [Fights Service and all Downstream Dependencies](#fights-service-and-all-downstream-dependencies)
+    - [Only Downstream Dependencies](#only-downstream-dependencies)
 - [Deploying to Kubernetes](#deploying-to-kubernetes)
     - [Using pre-built images](#using-pre-built-images)
     - [Deploying directly via Kubernetes Extensions](#deploying-directly-via-kubernetes-extensions)
@@ -71,7 +74,7 @@ The application runs on port `8082` (defined by `quarkus.http.port` in [`applica
 
 From the `quarkus-super-heroes/rest-fights` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application will be exposed at http://localhost:8082 and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at http://localhost:8082/q/dev.
 
-**NOTE:** Running the application outside of Quarkus dev mode requires standing up a PostgreSQL instance and an Apache Kafka instance and binding them to the app.
+**NOTE:** Running the application outside of Quarkus Dev mode Requires standing up a PostgreSQL instance and an Apache Kafka instance and binding them to the app.
 
 Furthermore, since this service also communicates with additional downstream services ([rest-heroes](../rest-heroes) and [rest-villains](../rest-villains)), those would need to be stood up as well, although this service does have fallbacks in case those other services aren't available.
 
@@ -89,6 +92,7 @@ By default, the application is configured with the following:
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-fights`](https://quay.io/repository/quarkus-super-heroes/rest-fights?tab=tags). 
 
+### Only Fights Service
 Pick one of the 4 versions of the application from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
 
    > **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
@@ -100,7 +104,8 @@ Pick one of the 4 versions of the application from the table below and execute t
 | Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f deploy/docker-compose/native-java11.yml up --remove-orphans` |
 | Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f deploy/docker-compose/native-java17.yml up --remove-orphans` |
 
-These Docker Compose files are meant for standing up this application and the required database and Kafka broker only. If you want to stand up this application and its downstream services ([rest-villains](../rest-villains) and [rest-heroes](../rest-heroes)), pick one of the 4 versions from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
+### Fights Service and all Downstream Dependencies
+The above Docker Compose files are meant for standing up this application and the required database and Kafka broker only. If you want to stand up this application and its downstream services ([rest-villains](../rest-villains) and [rest-heroes](../rest-heroes)), pick one of the 4 versions from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
 
    > **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
 
@@ -110,6 +115,18 @@ These Docker Compose files are meant for standing up this application and the re
 | JVM Java 17                  | `java17-latest`        | `docker-compose -f deploy/docker-compose/java17-all-downstream.yml up --remove-orphans`        |
 | Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f deploy/docker-compose/native-java11-all-downstream.yml up --remove-orphans` |
 | Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f deploy/docker-compose/native-java17-all-downstream.yml up --remove-orphans` |
+
+### Only Downstream Dependencies
+If you want to develop the Fights service (i.e. via [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode)) but want to stand up just it's downstream services ([rest-villains](../rest-villains) and [rest-heroes](../rest-heroes)), pick one of the 4 versions from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes` directory.
+
+> **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
+
+| Description                  | Image Tag              | Docker Compose Run Command                                                                                                                           |
+|------------------------------|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| JVM Java 11                  | `java11-latest`        | `docker-compose -f rest-heroes/deploy/docker-compose/java11.yml -f rest-villains/deploy/docker-compose/java11.yml up --remove-orphans`               |
+| JVM Java 17                  | `java17-latest`        | `docker-compose -f rest-heroes/deploy/docker-compose/java17.yml -f rest-villains/deploy/docker-compose/java17.yml up --remove-orphans`               |
+| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f rest-heroes/deploy/docker-compose/native-java11.yml -f rest-villains/deploy/docker-compose/native-java11.yml up --remove-orphans` |
+| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f rest-heroes/deploy/docker-compose/native-java17.yml -f rest-villains/deploy/docker-compose/native-java17.yml up --remove-orphans` |                                                 |
 
 If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 

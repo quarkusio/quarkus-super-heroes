@@ -84,4 +84,7 @@ if [[ "$tries" -gt $max_tries ]]; then
   print_statuses
 else
   echo "All services are now up :)"
+  echo "Super Heroes UI: http://localhost:8080"
+  echo "Event stats: http://localhost:8085"
+  echo "Prometheus (if started): http://localhost:9090"
 fi
