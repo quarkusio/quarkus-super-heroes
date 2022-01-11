@@ -122,9 +122,8 @@ process_ui_project() {
 
   rm -rf $project_output_file
 
-  create_output_file $project_output_file
-
   if [[ -f "$input_file" ]]; then
+    create_output_file $project_output_file
     echo "Copying app input ($input_file) to $project_output_file and $all_apps_output_file"
     cat $input_file >> $project_output_file
     cat $input_file >> $all_apps_output_file
