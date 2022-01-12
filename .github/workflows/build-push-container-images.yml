@@ -192,6 +192,7 @@ jobs:
     needs:
       - build-test-jvm-images
       - build-test-native-images
+      - build-ui-image
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -253,8 +254,9 @@ jobs:
   push-ui-image:
     if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.event == 'push') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
     needs:
+      - build-test-jvm-images
+      - build-test-native-images
       - build-ui-image
-      - push-app-images
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
