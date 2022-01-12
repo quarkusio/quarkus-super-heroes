@@ -2,6 +2,7 @@ name: Build and Push Container images
 
 env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
+  UI_IMAGE_NAME: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes"
   MANDREL_VERSION: "21.3.0.0-Final"
 
 on:
@@ -174,12 +175,12 @@ jobs:
           context: "{{defaultContext}}:ui-super-heroes"
           push: false
           load: true
-          tags: ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:latest
+          tags: ${{ env.UI_IMAGE_NAME }}:latest
 
       - name: Save UI image
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:latest"
+          image: "${{ env.UI_IMAGE_NAME }}:latest"
 
   push-app-images:
     if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.event == 'push') && (github.event.workflow_run.conclusion == 'success'))) && github.ref == 'refs/heads/main'
@@ -267,7 +268,7 @@ jobs:
       - name: Get Saved UI Image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:latest"
+          image: "${{ env.UI_IMAGE_NAME }}:latest"
 
       - name: Login to quay
         uses: docker/login-action@v1
@@ -278,8 +279,8 @@ jobs:
 
       - name: Tag UI image
         working-directory: ui-super-heroes
-        run: "docker tag ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:latest ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}"
+        run: "docker tag ${{ env.UI_IMAGE_NAME }}:latest ${{ env.UI_IMAGE_NAME }}:${{ env.APP_VERSION }}"
 
       - name: Push UI image
         working-directory: ui-super-heroes
-        run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes"
+        run: "docker push -a ${{ env.UI_IMAGE_NAME }}"
