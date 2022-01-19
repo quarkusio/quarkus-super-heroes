@@ -107,16 +107,20 @@ rm -rf $OUTPUT_DIR/*.yml
 rm -rf $OUTPUT_DIR/monitoring
 rm -rf deploy/db-init
 
-for javaVersion in 11 17
+for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
 do
-  for kind in "" "native-"
+  for javaVersion in 11 17
   do
-    for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
+    for kind in "" "native-"
     do
-      create_project_output $project "${kind}java${javaVersion}" $javaVersion $kind
-    done
+      if [[ "$project" == "ui-super-heroes" ]]; then
+        filename="app"
+      else
+        filename="${kind}java${javaVersion}"
+      fi
 
-    create_project_output "ui-super-heroes" "app" $javaVersion $kind
+      create_project_output $project $filename $javaVersion $kind
+    done
   done
 done
 

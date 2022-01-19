@@ -1,6 +1,6 @@
 \c fights_database superfight;
 
-DROP TABLE IF EXISTS Hero;
+DROP TABLE IF EXISTS Fight;
 DROP SEQUENCE IF EXISTS hibernate_sequence;
 
 CREATE SEQUENCE hibernate_sequence START 1 INCREMENT 1;

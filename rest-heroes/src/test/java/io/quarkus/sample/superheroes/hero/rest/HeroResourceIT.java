@@ -34,7 +34,7 @@ public class HeroResourceIT {
 	private static final int DEFAULT_LEVEL = 42;
 	private static final int UPDATED_LEVEL = DEFAULT_LEVEL + 1;
 
-	private static final int NB_HEROES = 951;
+	private static final int NB_HEROES = 100;
 	private static String heroId;
 
 	@Test

@@ -36,7 +36,7 @@ public class VillainResourceIT {
 	private static final int UPDATED_LEVEL = DEFAULT_LEVEL + 1;
 	private static final double LEVEL_MULTIPLIER = 0.5;
 
-	private static final int NB_VILLAINS = 581;
+	private static final int NB_VILLAINS = 100;
 	private static String villainId;
 
 	@Test
