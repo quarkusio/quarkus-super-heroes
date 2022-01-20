@@ -51,10 +51,6 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Setup Docker (macos only)
-        uses: docker-practice/actions-setup-docker@master
-        if: matrix.os == 'macos-latest'
-
       - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}-linux"
         working-directory: ${{ matrix.project }}
         if: matrix.os == 'ubuntu-latest'
