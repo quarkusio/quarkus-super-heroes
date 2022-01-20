@@ -25,13 +25,10 @@ concurrency:
 
 jobs:
   simple-build-test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
         java:
           - '11'
           - '17'
@@ -40,7 +37,7 @@ jobs:
           - rest-fights
           - rest-heroes
           - rest-villains
-    name: "build-test-${{ matrix.project }}-java-${{ matrix.java }}-${{ matrix.os }}"
+    name: "build-test-${{ matrix.project }}-java-${{ matrix.java }}"
     steps:
       - uses: actions/checkout@v2
 
@@ -51,12 +48,6 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}-linux"
+      - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
-        if: matrix.os == 'ubuntu-latest'
         run: ./mvnw -B clean verify -Dquarkus.http.host=0.0.0.0 -Dmaven.compiler.release=${{ matrix.java }}
-
-      - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}-windows"
-        working-directory: ${{ matrix.project }}
-        if: matrix.os == 'windows-latest'
-        run: mvnw.cmd -B clean verify -Dquarkus.http.host=0.0.0.0 -Dmaven.compiler.release=${{ matrix.java }}
