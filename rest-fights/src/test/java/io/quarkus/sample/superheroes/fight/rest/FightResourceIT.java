@@ -485,11 +485,11 @@ public class FightResourceIT {
 			.body(
 				"winnerName", is("Chewbacca"),
 				"winnerLevel", is(5),
-				"winnerPicture", is("https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/characterdata/images/chewbacca--684239239428094811.jpg"),
+				"winnerPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-supes/characterdata/images/chewbacca--684239239428094811.jpg"),
 				"winnerTeam", is(HEROES_TEAM_NAME),
 				"loserName", is("Wanderer"),
 				"loserLevel", is(3),
-				"loserPicture", is("https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/characterdata/images/wanderer-300775911119209178.jpg"),
+				"loserPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-supes/characterdata/images/wanderer-300775911119209178.jpg"),
 				"loserTeam", is(VILLAINS_TEAM_NAME)
 			);
 	}
@@ -663,27 +663,27 @@ public class FightResourceIT {
 				"size()", is(NB_FIGHTS),
 				"[0].winnerName", is("Chewbacca"),
 				"[0].winnerLevel", is(5),
-				"[0].winnerPicture", is("https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/characterdata/images/chewbacca--684239239428094811.jpg"),
+				"[0].winnerPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-supes/characterdata/images/chewbacca--684239239428094811.jpg"),
 				"[0].winnerTeam", is(HEROES_TEAM_NAME),
 				"[0].loserName", is("Wanderer"),
 				"[0].loserLevel", is(3),
-				"[0].loserPicture", is("https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/characterdata/images/wanderer-300775911119209178.jpg"),
+				"[0].loserPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-supes/characterdata/images/wanderer-300775911119209178.jpg"),
 				"[0].loserTeam", is(VILLAINS_TEAM_NAME),
 				"[1].winnerName", is("Galadriel"),
 				"[1].winnerLevel", is(10),
-				"[1].winnerPicture", is("https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/characterdata/images/galadriel--1293733805363806029.jpg"),
+				"[1].winnerPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-supes/characterdata/images/galadriel--1293733805363806029.jpg"),
 				"[1].winnerTeam", is(HEROES_TEAM_NAME),
 				"[1].loserName", is("Darth Vader"),
 				"[1].loserLevel", is(8),
-				"[1].loserPicture", is("https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg"),
+				"[1].loserPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-supes/characterdata/images/anakin-skywalker--8429855148488965479.jpg"),
 				"[1].loserTeam", is(VILLAINS_TEAM_NAME),
 				"[2].winnerName", is("Annihilus"),
 				"[2].winnerLevel", is(23),
-				"[2].winnerPicture", is("https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/characterdata/images/annihilus--751928780106678215.jpg"),
+				"[2].winnerPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-supes/characterdata/images/annihilus--751928780106678215.jpg"),
 				"[2].winnerTeam", is(VILLAINS_TEAM_NAME),
 				"[2].loserName", is("Shikamaru"),
 				"[2].loserLevel", is(1),
-				"[2].loserPicture", is("https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/characterdata/images/nara-shikamaru-1970614934047311432.jpg"),
+				"[2].loserPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-supes/characterdata/images/nara-shikamaru-1970614934047311432.jpg"),
 				"[2].loserTeam", is(HEROES_TEAM_NAME)
 			)
 			.extract()

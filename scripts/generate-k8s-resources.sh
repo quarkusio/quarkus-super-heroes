@@ -22,7 +22,7 @@ do_build() {
   local kind=$4
   local tag="${kind}java${javaVersion}-latest"
   local git_server_url="${GITHUB_SERVER_URL:=https://github.com}"
-  local git_repo="${GITHUB_REPOSITORY:=edeandrea/quarkus-super-heroes}"
+  local git_repo="${GITHUB_REPOSITORY:=quarkusio/quarkus-supes}"
   local git_ref="${GITHUB_REF_NAME:=main}"
 
   if [[ "$kind" == "native-" ]]; then

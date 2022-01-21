@@ -15,7 +15,7 @@ CREATE TABLE Hero (
   PRIMARY KEY (id)
 );
 
--- A 100 record random sample from https://github.com/edeandrea/quarkus-super-heroes/blob/characterdata/all-heroes.sql
+-- A 100 record random sample from https://github.com/quarkusio/quarkus-supes/blob/characterdata/all-heroes.sql
 INSERT INTO hero(id, name, otherName, picture, powers, level)
 VALUES (nextval('hibernate_sequence'), 'The Flash', 'Jay Garrick', 'https://raw.githubusercontent.com/edeandrea/quarkus-super-heroes/characterdata/images/jay-garrick-6169553426034869748.jpg', 'AgilityDurabilityIntelligenceReflexesStaminaSuper SpeedAccelerated HealingAuraDimensional TravelElectricity AbsorptionElectrokinesisEnergy BlastsEnergy ManipulationEnhanced MemoryEnhanced SensesForce FieldsHeat GenerationIndomitable WillInvisibilityLongevityMaster TacticianPhasingSpatial AwarenessJumpWind Control', 6000);
 INSERT INTO hero(id, name, otherName, picture, powers, level)
