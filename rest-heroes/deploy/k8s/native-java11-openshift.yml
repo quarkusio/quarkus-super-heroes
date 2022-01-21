@@ -36,9 +36,9 @@ metadata:
   annotations:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-supes
-    app.quarkus.io/commit-id: 87a5049d37cc0bcc4f55b24ff8d42d84272f2c65
-    app.quarkus.io/build-timestamp: 2022-01-21 - 16:15:32 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 570bf8577f40e763c9dda0b4e0f708f57f574226
+    app.quarkus.io/build-timestamp: 2022-01-21 - 18:18:58 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -69,18 +69,18 @@ metadata:
   annotations:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-supes
-    app.quarkus.io/commit-id: 87a5049d37cc0bcc4f55b24ff8d42d84272f2c65
-    app.quarkus.io/build-timestamp: 2022-01-21 - 16:15:32 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 570bf8577f40e763c9dda0b4e0f708f57f574226
+    app.quarkus.io/build-timestamp: 2022-01-21 - 18:18:58 +0000
   labels:
     name: heroes-db
     application: heroes-service
     system: quarkus-super-heroes
     app: rest-heroes
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   dockerImageRepository: quay.io/quarkus-super-heroes/rest-heroes
@@ -97,7 +97,7 @@ data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-supes/main/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -165,9 +165,9 @@ metadata:
   annotations:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-supes
-    app.quarkus.io/commit-id: 87a5049d37cc0bcc4f55b24ff8d42d84272f2c65
-    app.quarkus.io/build-timestamp: 2022-01-21 - 16:15:32 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 570bf8577f40e763c9dda0b4e0f708f57f574226
+    app.quarkus.io/build-timestamp: 2022-01-21 - 18:18:58 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -177,24 +177,24 @@ metadata:
     application: heroes-service
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   replicas: 1
   selector:
+    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: heroes-db
         app.openshift.io/vcs-ref: main
-        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-supes
-        app.quarkus.io/commit-id: 87a5049d37cc0bcc4f55b24ff8d42d84272f2c65
-        app.quarkus.io/build-timestamp: 2022-01-21 - 16:15:32 +0000
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/commit-id: 570bf8577f40e763c9dda0b4e0f708f57f574226
+        app.quarkus.io/build-timestamp: 2022-01-21 - 18:18:58 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -204,9 +204,9 @@ spec:
         application: heroes-service
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/version: native-java11-latest
         app.kubernetes.io/name: rest-heroes
-        app.kubernetes.io/part-of: heroes-service
     spec:
       containers:
         - env:
@@ -256,9 +256,9 @@ metadata:
   annotations:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-supes
-    app.quarkus.io/commit-id: 87a5049d37cc0bcc4f55b24ff8d42d84272f2c65
-    app.quarkus.io/build-timestamp: 2022-01-21 - 16:15:32 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 570bf8577f40e763c9dda0b4e0f708f57f574226
+    app.quarkus.io/build-timestamp: 2022-01-21 - 18:18:58 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
