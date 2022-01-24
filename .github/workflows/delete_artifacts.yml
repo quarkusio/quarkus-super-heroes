@@ -1,0 +1,16 @@
+name: Delete Calling job's artifacts
+
+on: repository_dispatch
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete artifacts
+        if: github.event.action == 'delete_all_artifacts'
+        uses: christian-korneck/delete-run-artifacts-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          parent_runid: ${{ github.event.client_payload.parent_runid  }}
+          parent_repo: ${{ github.event.client_payload.parent_repo }}
