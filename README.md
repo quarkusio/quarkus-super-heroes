@@ -20,14 +20,16 @@ This is a sample application demonstrating Quarkus features and best practices. 
 - [Villain REST API](rest-villains)
     - A classical HTTP microservice exposing CRUD operations on Villains, stored in a PostgreSQL database.
     - Implemented with blocking endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) and [Quarkus Hibernate ORM with Panache's active record pattern](https://quarkus.io/guides/hibernate-orm-panache).
+    - Favors field injection of beans (`@Inject` annotation) over construction injection.
 - [Hero REST API](rest-heroes)
     - A reactive HTTP microservice exposing CRUD operations on Heroes, stored in a PostgreSQL database.
     - Implemented with reactive endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) and [Quarkus Hibernate Reactive with Panache's repository pattern](http://quarkus.io/guides/hibernate-reactive-panache).
+    - Favors constructor injection of beans over field injection (`@Inject` annotation).
 - [Fight REST API](rest-fights)
     - A REST API invoking the Hero and Villain APIs to get a random superhero and supervillain. Each fight is then stored in a PostgreSQL database.
-    - Implemented with reactive endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) and [Quarkus Hibernate Reactive with Panache's active record pattern](http://quarkus.io/guides/hibernate-reactive-panache).
+    - Implemented with reactive endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) and [Quarkus Hibernate Reactive with Panache's active record pattern](https://quarkus.io/guides/hibernate-reactive-panache#solution-1-using-the-active-record-pattern).
     - Invocations to the Hero and Villain APIs are done using the [reactive rest client](https://quarkus.io/guides/rest-client-reactive) and are protected using [resilience patterns](https://quarkus.io/guides/smallrye-fault-tolerance), such as retry, timeout, and circuit breaking.
-    - Each fight is asynchronously sent, via Kafka, to the Statistics microservice
+    - Each fight is asynchronously sent, via Kafka, to the [Statistics](event-statistics) microservice.
 - [Statistics](event-statistics)
     - Stores statistics about each fight and serves them to an HTML + JQuery UI using [WebSockets](https://quarkus.io/guides/websockets).
 - [Prometheus](https://prometheus.io/)

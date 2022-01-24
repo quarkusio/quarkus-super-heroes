@@ -1,7 +1,5 @@
 package io.quarkus.sample.superheroes.hero.health;
 
-import javax.inject.Inject;
-
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
@@ -13,10 +11,13 @@ import io.quarkus.sample.superheroes.hero.rest.HeroResource;
  */
 @Liveness
 public class PingHeroResourceHealthCheck implements HealthCheck {
-	@Inject
-	HeroResource heroResource;
+	private final HeroResource heroResource;
 
-	@Override
+  public PingHeroResourceHealthCheck(HeroResource heroResource) {
+    this.heroResource = heroResource;
+  }
+
+  @Override
 	public HealthCheckResponse call() {
 		var response = this.heroResource.hello();
 

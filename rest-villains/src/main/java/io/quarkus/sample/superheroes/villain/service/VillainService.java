@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -23,17 +24,17 @@ import io.quarkus.sample.superheroes.villain.mapping.VillainPartialUpdateMapper;
 @ApplicationScoped
 @Transactional(REQUIRED)
 public class VillainService {
-	private final Validator validator;
-	private final VillainConfig villainConfig;
-	private final VillainPartialUpdateMapper villainPartialUpdateMapper;
-	private final VillainFullUpdateMapper villainFullUpdateMapper;
+  @Inject
+	Validator validator;
 
-	public VillainService(Validator validator, VillainConfig villainConfig, VillainPartialUpdateMapper villainPartialUpdateMapper, VillainFullUpdateMapper villainFullUpdateMapper) {
-		this.validator = validator;
-		this.villainConfig = villainConfig;
-		this.villainPartialUpdateMapper = villainPartialUpdateMapper;
-		this.villainFullUpdateMapper = villainFullUpdateMapper;
-	}
+  @Inject
+  VillainConfig villainConfig;
+
+  @Inject
+  VillainPartialUpdateMapper villainPartialUpdateMapper;
+
+  @Inject
+  VillainFullUpdateMapper villainFullUpdateMapper;
 
 	@Transactional(SUPPORTS)
 	public List<Villain> findAllVillains() {

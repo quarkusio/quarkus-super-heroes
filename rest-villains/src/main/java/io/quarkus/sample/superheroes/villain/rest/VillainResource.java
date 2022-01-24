@@ -6,6 +6,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -42,13 +43,11 @@ import io.quarkus.sample.superheroes.villain.service.VillainService;
 @Tag(name = "villains")
 @Produces(APPLICATION_JSON)
 public class VillainResource {
-	private final Logger logger;
-	private final VillainService service;
+  @Inject
+	Logger logger;
 
-	public VillainResource(Logger logger, VillainService service) {
-		this.service = service;
-		this.logger = logger;
-	}
+  @Inject
+	VillainService service;
 
 	@GET
 	@Path("/random")
