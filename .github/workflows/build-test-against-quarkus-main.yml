@@ -15,7 +15,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: quarkusio/quarkus
-          path: quarkus
 
       - name: Setup Java
         uses: actions/setup-java@v2
@@ -24,18 +23,21 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Cache Maven repo
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: qmaven-cache
-          restore-keys: qmaven-cache
-
-      - name: Build
-        working-directory: quarkus
+      - name: Build main
         env:
           MAVEN_OPTS: '-Xmx4g'
         run: ./mvnw -Dquickly
+
+      - name: Zip up maven repo
+        shell: bash
+        run: tar -I 'pigz -9' -cf maven-repo.tgz -C ~ .m2/repository
+
+      - name: Store off maven repo
+        uses: actions/upload-artifact@v2
+        with:
+          name: maven-repo
+          path: maven-repo.tgz
+          retention-days: 1
 
   build-test-against-quarkus-main:
     runs-on: ubuntu-latest
@@ -56,30 +58,29 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Get maven cache
-        uses: actions/cache@v2
+      - name: Get maven repo
+        uses: actions/download-artifact@v2
         with:
-          path: ~/.m2/repository
-          key: qmaven-cache
-          restore-keys: qmaven-cache
+          name: maven-repo
+
+      - name: Extract maven repo
+        shell: bash
+        run: tar -xzf maven-repo.tgz -C ~
 
       - name: Build against Quarkus main
         shell: bash
         working-directory: ${{ matrix.project }}
         run: ./mvnw -B clean verify -Dquarkus.http.host=0.0.0.0 -Dmaven.compiler.release=${{ matrix.java }} -Dquarkus.platform.group-id=io.quarkus -Dquarkus.platform.version=999-SNAPSHOT
 
-  clear-maven-cache:
+  nuke-maven-repo:
     runs-on: ubuntu-latest
     needs:
       - build-test-against-quarkus-main
+    if: always()
     steps:
-      - name: Get maven cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: qmaven-cache
-          restore-keys: qmaven-cache
-
-      - name: Delete cache
-        shell: bash
-        run: rm -rf ~/.m2/repository
+      - name: Nuke maven repo
+        env:
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+        run: |
+          echo "::add-mask::$WEBHOOK_SECRET"
+          curl --verbose --fail --show-error --location --request POST "https://api.github.com/repos/$GITHUB_REPOSITORY/dispatches" --header "Authorization: token $WEBHOOK_SECRET" --header 'Content-Type: application/json' --header 'Accept: application/vnd.github.everest-preview+json' --data-raw "{ \"event_type\": \"delete_all_artifacts\", \"client_payload\": {\"parent_runid\": \"$GITHUB_RUN_ID\", \"parent_repo\": \"$GITHUB_REPOSITORY\"} }"
