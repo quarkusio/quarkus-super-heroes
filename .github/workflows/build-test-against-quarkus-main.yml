@@ -1,0 +1,85 @@
+name: Build and test against Quarkus main
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}
+
+jobs:
+  build-quarkus-main:
+    runs-on: ubuntu-latest
+    name: Build Quarkus main
+    steps:
+      - name: Checkout Quarkus main
+        uses: actions/checkout@v2
+        with:
+          repository: quarkusio/quarkus
+          path: quarkus
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: temurin
+          cache: maven
+
+      - name: Cache Maven repo
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: qmaven-cache
+          restore-keys: qmaven-cache
+
+      - name: Build
+        working-directory: quarkus
+        env:
+          MAVEN_OPTS: '-Xmx4g'
+        run: ./mvnw -Dquickly
+
+  build-test-against-quarkus-main:
+    runs-on: ubuntu-latest
+    needs:
+      - build-quarkus-main
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '11'
+          - '17'
+        project:
+          - event-statistics
+          - rest-fights
+          - rest-heroes
+          - rest-villains
+    name: build-test-${{ matrix.project }}-java-${{ matrix.java }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get maven cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: qmaven-cache
+          restore-keys: qmaven-cache
+
+      - name: Build against Quarkus main
+        shell: bash
+        working-directory: ${{ matrix.project }}
+        run: ./mvnw -B clean verify -Dquarkus.http.host=0.0.0.0 -Dmaven.compiler.release=${{ matrix.java }} -Dquarkus.platform.group-id=io.quarkus -Dquarkus.platform.version=999-SNAPSHOT
+
+  clear-maven-cache:
+    runs-on: ubuntu-latest
+    needs:
+      - build-test-against-quarkus-main
+    steps:
+      - name: Get maven cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: qmaven-cache
+          restore-keys: qmaven-cache
+
+      - name: Delete cache
+        shell: bash
+        run: rm -rf ~/.m2/repository
