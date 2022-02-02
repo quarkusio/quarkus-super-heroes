@@ -2,13 +2,14 @@ package io.quarkus.sample.superheroes.statistics.listener;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.sample.superheroes.statistics.domain.Fight;
+import io.quarkus.sample.superheroes.fight.schema.Fight;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
 
 import io.smallrye.mutiny.Multi;
@@ -167,19 +168,22 @@ class SuperStatsTests {
 					villainName += "-" + i;
 				}
 
-				var fight = Fight.builder();
+        var fight = Fight.newBuilder()
+          .setFightDate(Instant.now())
+          .setWinnerLevel(2)
+          .setLoserLevel(1);
 
 				if (i % 2 == 0) {
-					fight = fight.winnerTeam(HERO_TEAM_NAME)
-						.loserTeam(VILLAIN_TEAM_NAME)
-						.winnerName(heroName)
-						.loserName(villainName);
+          fight = fight.setWinnerTeam(HERO_TEAM_NAME)
+						.setLoserTeam(VILLAIN_TEAM_NAME)
+						.setWinnerName(heroName)
+						.setLoserName(villainName);
 				}
 				else {
-					fight = fight.winnerTeam(VILLAIN_TEAM_NAME)
-						.loserTeam(HERO_TEAM_NAME)
-						.winnerName(villainName)
-						.loserName(heroName);
+					fight = fight.setWinnerTeam(VILLAIN_TEAM_NAME)
+						.setLoserTeam(HERO_TEAM_NAME)
+						.setWinnerName(villainName)
+						.setLoserName(heroName);
 				}
 
 				return fight.build();

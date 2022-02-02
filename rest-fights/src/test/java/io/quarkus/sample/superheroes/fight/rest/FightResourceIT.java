@@ -126,7 +126,7 @@ public class FightResourceIT {
 	WireMockServer wireMockServer;
 
 	@InjectKafkaConsumer
-	KafkaConsumer<String, Fight> fightsConsumer;
+	KafkaConsumer<String, io.quarkus.sample.superheroes.fight.schema.Fight> fightsConsumer;
 
 	@BeforeAll
 	public static void beforeAll() {
@@ -558,14 +558,14 @@ public class FightResourceIT {
 			.isPresent()
 			.get()
 			.extracting(
-				"winnerName",
-				"winnerLevel",
-				"winnerPicture",
-				"winnerTeam",
-				"loserName",
-				"loserLevel",
-				"loserPicture",
-				"loserTeam"
+        io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerName,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerLevel,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerPicture,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerTeam,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getLoserName,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getLoserLevel,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getLoserPicture,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getLoserTeam
 			)
 			.containsExactly(
 				DEFAULT_HERO.getName(),
@@ -633,14 +633,14 @@ public class FightResourceIT {
 			.isPresent()
 			.get()
 			.extracting(
-				"winnerName",
-				"winnerLevel",
-				"winnerPicture",
-				"winnerTeam",
-				"loserName",
-				"loserLevel",
-				"loserPicture",
-				"loserTeam"
+        io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerName,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerLevel,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerPicture,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerTeam,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getLoserName,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getLoserLevel,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getLoserPicture,
+        io.quarkus.sample.superheroes.fight.schema.Fight::getLoserTeam
 			)
 			.containsExactly(
 				DEFAULT_VILLAIN.getName(),
