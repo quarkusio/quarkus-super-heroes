@@ -54,8 +54,8 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 0fc31bad044d5bd21e522afb1303d560e7c076bb
-    app.quarkus.io/build-timestamp: 2022-02-01 - 16:30:58 +0000
+    app.quarkus.io/commit-id: 20a42cf5619175c8686750c6d0646fbe7f9b8693
+    app.quarkus.io/build-timestamp: 2022-02-02 - 16:48:48 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -83,22 +83,10 @@ spec:
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
-  annotations:
-    app.openshift.io/connects-to: "fights-db,fights-kafka,rest-villains,rest-heroes"
-    app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 0fc31bad044d5bd21e522afb1303d560e7c076bb
-    app.quarkus.io/build-timestamp: 2022-02-01 - 16:30:58 +0000
   labels:
     name: fights-db
     application: fights-service
     system: quarkus-super-heroes
-    app: rest-fights
-    app.openshift.io/runtime: quarkus
-    app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: java17-latest
-  name: rest-fights
 spec:
   dockerImageRepository: quay.io/quarkus-super-heroes/rest-fights
 ---
@@ -230,26 +218,26 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 0fc31bad044d5bd21e522afb1303d560e7c076bb
-    app.quarkus.io/build-timestamp: 2022-02-01 - 16:30:58 +0000
+    app.quarkus.io/commit-id: 20a42cf5619175c8686750c6d0646fbe7f9b8693
+    app.quarkus.io/build-timestamp: 2022-02-02 - 16:48:48 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
     prometheus.io/scheme: http
   labels:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: java17-latest
     app: rest-fights
     application: fights-service
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: java17-latest
   name: rest-fights
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: java17-latest
   template:
     metadata:
@@ -257,8 +245,8 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,rest-villains,rest-heroes"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 0fc31bad044d5bd21e522afb1303d560e7c076bb
-        app.quarkus.io/build-timestamp: 2022-02-01 - 16:30:58 +0000
+        app.quarkus.io/commit-id: 20a42cf5619175c8686750c6d0646fbe7f9b8693
+        app.quarkus.io/build-timestamp: 2022-02-02 - 16:48:48 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -268,8 +256,8 @@ spec:
         application: fights-service
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: java17-latest
     spec:
       containers:
@@ -321,8 +309,8 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 0fc31bad044d5bd21e522afb1303d560e7c076bb
-    app.quarkus.io/build-timestamp: 2022-02-01 - 16:30:58 +0000
+    app.quarkus.io/commit-id: 20a42cf5619175c8686750c6d0646fbe7f9b8693
+    app.quarkus.io/build-timestamp: 2022-02-02 - 16:48:48 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service

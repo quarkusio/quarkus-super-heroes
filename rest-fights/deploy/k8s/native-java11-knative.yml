@@ -54,8 +54,8 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 0fc31bad044d5bd21e522afb1303d560e7c076bb
-    app.quarkus.io/build-timestamp: 2022-02-01 - 16:28:41 +0000
+    app.quarkus.io/commit-id: 20a42cf5619175c8686750c6d0646fbe7f9b8693
+    app.quarkus.io/build-timestamp: 2022-02-02 - 16:46:11 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -65,9 +65,9 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: fights-service
     system: quarkus-super-heroes
+    app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
   template:
@@ -76,8 +76,8 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,rest-villains,rest-heroes"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 0fc31bad044d5bd21e522afb1303d560e7c076bb
-        app.quarkus.io/build-timestamp: 2022-02-01 - 16:28:41 +0000
+        app.quarkus.io/commit-id: 20a42cf5619175c8686750c6d0646fbe7f9b8693
+        app.quarkus.io/build-timestamp: 2022-02-02 - 16:46:11 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -87,10 +87,11 @@ spec:
         app.openshift.io/runtime: quarkus
         application: fights-service
         system: quarkus-super-heroes
+        app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/version: native-java11-latest
         app.kubernetes.io/name: rest-fights
-        app.kubernetes.io/part-of: fights-service
     spec:
+      containerConcurrency: 0
       containers:
         - envFrom:
             - configMapRef:
@@ -126,11 +127,6 @@ spec:
               memory: 128Mi
             requests:
               memory: 32Mi
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: config-autoscaler
 ---
 apiVersion: v1
 kind: ConfigMap

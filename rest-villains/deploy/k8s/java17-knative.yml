@@ -20,8 +20,8 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 0fc31bad044d5bd21e522afb1303d560e7c076bb
-    app.quarkus.io/build-timestamp: 2022-02-01 - 16:31:21 +0000
+    app.quarkus.io/commit-id: 20a42cf5619175c8686750c6d0646fbe7f9b8693
+    app.quarkus.io/build-timestamp: 2022-02-02 - 16:49:13 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -42,8 +42,8 @@ spec:
         app.openshift.io/connects-to: villains-db
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 0fc31bad044d5bd21e522afb1303d560e7c076bb
-        app.quarkus.io/build-timestamp: 2022-02-01 - 16:31:21 +0000
+        app.quarkus.io/commit-id: 20a42cf5619175c8686750c6d0646fbe7f9b8693
+        app.quarkus.io/build-timestamp: 2022-02-02 - 16:49:13 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -57,6 +57,7 @@ spec:
         app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: rest-villains
     spec:
+      containerConcurrency: 0
       containers:
         - envFrom:
             - configMapRef:
@@ -109,11 +110,6 @@ spec:
   selector:
     name: villains-db
   type: ClusterIP
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: config-autoscaler
 ---
 apiVersion: v1
 kind: ConfigMap
