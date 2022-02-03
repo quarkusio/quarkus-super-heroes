@@ -37,8 +37,8 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-    app.quarkus.io/build-timestamp: 2022-02-03 - 16:45:25 +0000
+    app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+    app.quarkus.io/build-timestamp: 2022-02-03 - 17:25:38 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -66,10 +66,22 @@ spec:
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
+  annotations:
+    app.openshift.io/connects-to: heroes-db
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+    app.quarkus.io/build-timestamp: 2022-02-03 - 17:25:38 +0000
   labels:
     name: heroes-db
     application: heroes-service
     system: quarkus-super-heroes
+    app: rest-heroes
+    app.openshift.io/runtime: quarkus
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-java17-latest
+  name: rest-heroes
 spec:
   dockerImageRepository: quay.io/quarkus-super-heroes/rest-heroes
 ---
@@ -154,35 +166,35 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-    app.quarkus.io/build-timestamp: 2022-02-03 - 16:45:25 +0000
+    app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+    app.quarkus.io/build-timestamp: 2022-02-03 - 17:25:38 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
     prometheus.io/scheme: http
   labels:
-    app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: native-java17-latest
     app: rest-heroes
     application: heroes-service
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-java17-latest
   name: rest-heroes
 spec:
   replicas: 1
   selector:
+    app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: native-java17-latest
-    app.kubernetes.io/name: rest-heroes
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: heroes-db
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-        app.quarkus.io/build-timestamp: 2022-02-03 - 16:45:25 +0000
+        app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+        app.quarkus.io/build-timestamp: 2022-02-03 - 17:25:38 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -192,9 +204,9 @@ spec:
         application: heroes-service
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/name: rest-heroes
         app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/version: native-java17-latest
-        app.kubernetes.io/name: rest-heroes
     spec:
       containers:
         - env:
@@ -245,8 +257,8 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-    app.quarkus.io/build-timestamp: 2022-02-03 - 16:45:25 +0000
+    app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+    app.quarkus.io/build-timestamp: 2022-02-03 - 17:25:38 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service

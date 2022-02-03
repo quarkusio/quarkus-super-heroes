@@ -6,8 +6,8 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-    app.quarkus.io/build-timestamp: 2022-02-03 - 16:31:44 +0000
+    app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+    app.quarkus.io/build-timestamp: 2022-02-03 - 17:14:59 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -18,8 +18,8 @@ metadata:
     application: heroes-service
     system: quarkus-super-heroes
     app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   template:
@@ -28,8 +28,8 @@ spec:
         app.openshift.io/connects-to: heroes-db
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-        app.quarkus.io/build-timestamp: 2022-02-03 - 16:31:44 +0000
+        app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+        app.quarkus.io/build-timestamp: 2022-02-03 - 17:14:59 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -40,10 +40,9 @@ spec:
         application: heroes-service
         system: quarkus-super-heroes
         app.kubernetes.io/name: rest-heroes
-        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/version: java11-latest
+        app.kubernetes.io/part-of: heroes-service
     spec:
-      containerConcurrency: 0
       containers:
         - envFrom:
             - configMapRef:
@@ -79,3 +78,8 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-autoscaler

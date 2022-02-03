@@ -6,8 +6,8 @@ metadata:
     app.openshift.io/connects-to: fights-kafka
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-    app.quarkus.io/build-timestamp: 2022-02-03 - 16:36:06 +0000
+    app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+    app.quarkus.io/build-timestamp: 2022-02-03 - 17:18:24 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -52,10 +52,22 @@ spec:
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
+  annotations:
+    app.openshift.io/connects-to: fights-kafka
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+    app.quarkus.io/build-timestamp: 2022-02-03 - 17:18:24 +0000
   labels:
     name: fights-kafka
-    application: fights-service
+    application: event-stats
     system: quarkus-super-heroes
+    app: event-statistics
+    app.openshift.io/runtime: quarkus
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: native-java11-latest
+  name: event-statistics
 spec:
   dockerImageRepository: quay.io/quarkus-super-heroes/event-statistics
 ---
@@ -121,26 +133,26 @@ metadata:
     app.openshift.io/connects-to: fights-kafka
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-    app.quarkus.io/build-timestamp: 2022-02-03 - 16:36:06 +0000
+    app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+    app.quarkus.io/build-timestamp: 2022-02-03 - 17:18:24 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
     prometheus.io/scheme: http
   labels:
-    app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: native-java11-latest
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: native-java11-latest
   name: event-statistics
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/name: event-statistics
     app.kubernetes.io/version: native-java11-latest
   template:
     metadata:
@@ -148,8 +160,8 @@ spec:
         app.openshift.io/connects-to: fights-kafka
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-        app.quarkus.io/build-timestamp: 2022-02-03 - 16:36:06 +0000
+        app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+        app.quarkus.io/build-timestamp: 2022-02-03 - 17:18:24 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -159,8 +171,8 @@ spec:
         application: event-stats
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/name: event-statistics
         app.kubernetes.io/part-of: event-stats
+        app.kubernetes.io/name: event-statistics
         app.kubernetes.io/version: native-java11-latest
     spec:
       containers:
@@ -212,8 +224,8 @@ metadata:
     app.openshift.io/connects-to: fights-kafka
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-    app.quarkus.io/build-timestamp: 2022-02-03 - 16:36:06 +0000
+    app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+    app.quarkus.io/build-timestamp: 2022-02-03 - 17:18:24 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats

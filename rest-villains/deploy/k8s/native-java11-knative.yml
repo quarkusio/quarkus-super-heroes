@@ -20,8 +20,8 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-    app.quarkus.io/build-timestamp: 2022-02-03 - 16:36:24 +0000
+    app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+    app.quarkus.io/build-timestamp: 2022-02-03 - 17:18:38 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -31,9 +31,9 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: villains-service
     system: quarkus-super-heroes
+    app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/version: native-java11-latest
   name: rest-villains
 spec:
   template:
@@ -42,8 +42,8 @@ spec:
         app.openshift.io/connects-to: villains-db
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 5a805fadaeff91572345777775a943d5324c67be
-        app.quarkus.io/build-timestamp: 2022-02-03 - 16:36:24 +0000
+        app.quarkus.io/commit-id: d70afaf2d191a91613f25c3a0b695634cf304c48
+        app.quarkus.io/build-timestamp: 2022-02-03 - 17:18:38 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -53,11 +53,10 @@ spec:
         app.openshift.io/runtime: quarkus
         application: villains-service
         system: quarkus-super-heroes
+        app.kubernetes.io/version: native-java11-latest
         app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/name: rest-villains
-        app.kubernetes.io/version: native-java11-latest
     spec:
-      containerConcurrency: 0
       containers:
         - envFrom:
             - configMapRef:
@@ -110,6 +109,11 @@ spec:
   selector:
     name: villains-db
   type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-autoscaler
 ---
 apiVersion: v1
 kind: ConfigMap
