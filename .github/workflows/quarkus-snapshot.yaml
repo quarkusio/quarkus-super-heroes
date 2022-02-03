@@ -1,0 +1,45 @@
+name: Quarkus ecosystem CI
+
+on:
+  watch:
+    types: [started]
+
+env:
+  ECOSYSTEM_CI_REPO: quarkusio/quarkus-ecosystem-ci
+  ECOSYSTEM_CI_REPO_FILE: context.yaml
+  ECOSYSTEM_CI_REPO_PATH: quarkus-super-heroes
+
+jobs:
+  build:
+    name: "Build Java ${{ matrix.java }}"
+    runs-on: ubuntu-latest
+    if: github.actor == 'quarkusbot'
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [11, 17]
+    steps:
+      - name: Install yq
+        run: sudo add-apt-repository ppa:rmescandon/yq && sudo apt update && sudo apt install yq -y
+
+      - name: Set up Java ${{ matrix.java }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: temurin
+          
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          path: current-repo
+
+      - name: Checkout Ecosystem
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ env.ECOSYSTEM_CI_REPO }}
+          path: ecosystem-ci
+
+      - name: Setup and Run Tests
+        run: ./ecosystem-ci/setup-and-test
+        env:
+          ECOSYSTEM_CI_TOKEN: ${{ secrets.ECOSYSTEM_CI_TOKEN }}
