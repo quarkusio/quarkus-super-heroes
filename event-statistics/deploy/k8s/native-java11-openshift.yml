@@ -3,11 +3,11 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: fights-kafka
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: d13ff7f8127f9a6dc1076edc88c98e2523e68673
-    app.quarkus.io/build-timestamp: 2022-02-04 - 14:39:22 +0000
+    app.quarkus.io/commit-id: c78cb8297ca1ae1abfb8cb2347bd35904d0bb090
+    app.quarkus.io/build-timestamp: 2022-02-04 - 15:03:47 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -53,11 +53,11 @@ apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   annotations:
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: fights-kafka
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: d13ff7f8127f9a6dc1076edc88c98e2523e68673
-    app.quarkus.io/build-timestamp: 2022-02-04 - 14:39:22 +0000
+    app.quarkus.io/commit-id: c78cb8297ca1ae1abfb8cb2347bd35904d0bb090
+    app.quarkus.io/build-timestamp: 2022-02-04 - 15:03:47 +0000
   labels:
     name: fights-kafka
     application: event-stats
@@ -65,8 +65,8 @@ metadata:
     app: event-statistics
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: native-java11-latest
   name: event-statistics
 spec:
   dockerImageRepository: quay.io/quarkus-super-heroes/event-statistics
@@ -130,11 +130,11 @@ apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
   annotations:
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: fights-kafka
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: d13ff7f8127f9a6dc1076edc88c98e2523e68673
-    app.quarkus.io/build-timestamp: 2022-02-04 - 14:39:22 +0000
+    app.quarkus.io/commit-id: c78cb8297ca1ae1abfb8cb2347bd35904d0bb090
+    app.quarkus.io/build-timestamp: 2022-02-04 - 15:03:47 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -145,23 +145,23 @@ metadata:
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: native-java11-latest
   name: event-statistics
 spec:
   replicas: 1
   selector:
     app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: native-java11-latest
   template:
     metadata:
       annotations:
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: fights-kafka
         app.openshift.io/vcs-ref: main
-        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: d13ff7f8127f9a6dc1076edc88c98e2523e68673
-        app.quarkus.io/build-timestamp: 2022-02-04 - 14:39:22 +0000
+        app.quarkus.io/commit-id: c78cb8297ca1ae1abfb8cb2347bd35904d0bb090
+        app.quarkus.io/build-timestamp: 2022-02-04 - 15:03:47 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -172,8 +172,8 @@ spec:
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/name: event-statistics
-        app.kubernetes.io/version: native-java11-latest
         app.kubernetes.io/part-of: event-stats
+        app.kubernetes.io/version: native-java11-latest
     spec:
       containers:
         - env:
@@ -216,16 +216,25 @@ spec:
               memory: 128Mi
             requests:
               memory: 32Mi
+  triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - event-statistics
+        from:
+          kind: ImageStreamTag
+          name: event-statistics:native-java11-latest
+      type: ImageChange
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   annotations:
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: fights-kafka
     app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: d13ff7f8127f9a6dc1076edc88c98e2523e68673
-    app.quarkus.io/build-timestamp: 2022-02-04 - 14:39:22 +0000
+    app.quarkus.io/commit-id: c78cb8297ca1ae1abfb8cb2347bd35904d0bb090
+    app.quarkus.io/build-timestamp: 2022-02-04 - 15:03:47 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
