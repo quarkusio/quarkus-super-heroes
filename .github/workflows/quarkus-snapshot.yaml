@@ -8,25 +8,26 @@ env:
   ECOSYSTEM_CI_REPO: quarkusio/quarkus-ecosystem-ci
   ECOSYSTEM_CI_REPO_FILE: context.yaml
   ECOSYSTEM_CI_REPO_PATH: quarkus-super-heroes
+  JAVA_17_PATH: jdk-17.0.2+8
+  JAVA_17_DOWNLOAD_URL: https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.2%2B8/OpenJDK17U-jdk_x64_linux_hotspot_17.0.2_8.tar.gz
 
 jobs:
   build:
-    name: "Build Java ${{ matrix.java }}"
+    name: "Build"
     runs-on: ubuntu-latest
     if: github.actor == 'quarkusbot'
-    strategy:
-      fail-fast: false
-      matrix:
-        java: [11, 17]
     steps:
       - name: Install yq
         run: sudo add-apt-repository ppa:rmescandon/yq && sudo apt update && sudo apt install yq -y
 
-      - name: Set up Java ${{ matrix.java }}
+      - name: Set up Java 11
         uses: actions/setup-java@v2
         with:
-          java-version: ${{ matrix.java }}
+          java-version: 11
           distribution: temurin
+
+      - name: Set up Java 17
+        run: wget -c ${{ env.JAVA_17_DOWNLOAD_URL }} -O - | tar -xz
           
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -43,3 +44,4 @@ jobs:
         run: ./ecosystem-ci/setup-and-test
         env:
           ECOSYSTEM_CI_TOKEN: ${{ secrets.ECOSYSTEM_CI_TOKEN }}
+          JAVA_17_PATH: ${{ env.JAVA_17_PATH }}
