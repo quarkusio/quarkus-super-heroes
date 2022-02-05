@@ -1,3 +1,5 @@
+-- There are 1797 total villain records
+
 INSERT INTO villain(id, name, otherName, picture, powers, level)
 VALUES (nextval('hibernate_sequence'), 'Dark Nebula', '', 'https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/dark-nebula-5121498967616865198.jpg', 'Antiforce Manipulation, Antimatter Manipulation, Corruption, Dark Arts, Dark Magic, Dark Matter Manipulation, Darkforce Manipulation, Unholy Manipulation, Void Manipulation, Aura, Berserk Mode, Conceptual Manipulation, Demon Physiology, Dimensional Awareness, Energy Blasts, Flight, Force Fields, Higher Dimensional Manipulation, Large Size, Light Control, Magic, Matter Manipulation, Mind Control, Reality Warping, Spaceflight, Subjective Reality, Umbrakinesis, Body Puppetry, Illumination, Power Bestowal, Power Cosmic, Toon Force, Vortex Creation', 230000);
 INSERT INTO villain(id, name, otherName, picture, powers, level)

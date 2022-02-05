@@ -14,6 +14,7 @@ assert json instanceof List
 println "There are ${json.size()} entries in ${inputFile}"
 
 def output = new StringBuilder()
+output << "-- There are ${json.size()} total ${tableName} records\n\n"
 
 json.each { supe ->
 	output << "INSERT INTO ${tableName}(id, name, otherName, picture, powers, level)\n"
