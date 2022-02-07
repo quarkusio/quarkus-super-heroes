@@ -9,6 +9,7 @@ metadata:
     system: quarkus-super-heroes
 data:
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
+  mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -68,4 +69,85 @@ spec:
   selector:
     name: fights-kafka
   type: ClusterIP
-
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8080"
+    prometheus.io/scheme: http
+  labels:
+    app: apicurio
+    application: fights-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/name: apicurio
+    app.kubernetes.io/version: 2.1.5.Final
+    app.openshift.io/runtime: apicurio
+  name: apicurio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: apicurio
+  template:
+    metadata:
+      labels:
+        application: fights-service
+        name: apicurio
+        system: quarkus-super-heroes
+    spec:
+      containers:
+        - image: apicurio/apicurio-registry-mem:2.1.5.Final
+          name: apicurio
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          env:
+            - name: REGISTRY_AUTH_ANONYMOUS_READ_ACCESS_ENABLED
+              value: "true"
+          resources:
+            limits:
+              memory: 768Mi
+            requests:
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: apicurio
+    application: fights-service
+    system: quarkus-super-heroes
+  name: apicurio
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    name: apicurio
+  type: ClusterIP

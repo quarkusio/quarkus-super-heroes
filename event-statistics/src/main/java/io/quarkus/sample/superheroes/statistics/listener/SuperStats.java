@@ -6,7 +6,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import org.jboss.logging.Logger;
 
-import io.quarkus.sample.superheroes.statistics.domain.Fight;
+import io.quarkus.sample.superheroes.fight.schema.Fight;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
 
 import io.smallrye.mutiny.Multi;

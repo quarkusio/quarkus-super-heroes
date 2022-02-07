@@ -4,10 +4,12 @@
     container_name: event-statistics-java11
     depends_on:
       - fights-kafka
+      - apicurio
     ports:
       - "8085:8085"
     environment:
       KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://fights-kafka:9092
+      MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL: http://apicurio:8086/apis/registry/v2
     restart: on-failure
     networks:
       default:

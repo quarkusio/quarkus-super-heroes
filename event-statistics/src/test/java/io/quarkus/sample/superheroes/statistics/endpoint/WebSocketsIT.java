@@ -6,6 +6,7 @@ import static org.awaitility.Awaitility.await;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -26,9 +27,9 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Test;
 
+import io.quarkus.sample.superheroes.fight.schema.Fight;
 import io.quarkus.sample.superheroes.statistics.InjectKafkaProducer;
 import io.quarkus.sample.superheroes.statistics.KafkaProducerResource;
-import io.quarkus.sample.superheroes.statistics.domain.Fight;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
@@ -40,7 +41,7 @@ import io.quarkus.test.junit.QuarkusIntegrationTest;
  * </p>
  */
 @QuarkusIntegrationTest
-@QuarkusTestResource(KafkaProducerResource.class)
+@QuarkusTestResource(value = KafkaProducerResource.class, restrictToAnnotatedClass = true)
 public class WebSocketsIT {
 	private static final String HERO_NAME = "Chewbacca";
 	private static final String HERO_TEAM_NAME = "heroes";
@@ -195,19 +196,22 @@ public class WebSocketsIT {
 			.mapToObj(i -> {
 				var heroName = HERO_NAME;
 				var villainName = VILLAIN_NAME;
-				var fight = Fight.builder();
+				var fight = Fight.newBuilder()
+          .setFightDate(Instant.now())
+          .setWinnerLevel(2)
+          .setLoserLevel(1);
 
 				if (i % 2 == 0) {
-					fight = fight.winnerTeam(HERO_TEAM_NAME)
-						.loserTeam(VILLAIN_TEAM_NAME)
-						.winnerName(heroName)
-						.loserName(villainName);
+					fight = fight.setWinnerTeam(HERO_TEAM_NAME)
+						.setLoserTeam(VILLAIN_TEAM_NAME)
+						.setWinnerName(heroName)
+						.setLoserName(villainName);
 				}
 				else {
-					fight = fight.winnerTeam(VILLAIN_TEAM_NAME)
-						.loserTeam(HERO_TEAM_NAME)
-						.winnerName(villainName)
-						.loserName(heroName);
+					fight = fight.setWinnerTeam(VILLAIN_TEAM_NAME)
+						.setLoserTeam(HERO_TEAM_NAME)
+						.setWinnerName(villainName)
+						.setLoserName(heroName);
 				}
 
 				return fight.build();

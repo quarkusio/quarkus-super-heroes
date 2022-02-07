@@ -14,7 +14,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.InternalServerErrorException;
 
-import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +28,7 @@ import io.quarkus.sample.superheroes.fight.client.HeroClient;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
+import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.junit.mockito.InjectSpy;
@@ -67,6 +67,9 @@ class FightServiceTests {
 
 	@Inject
 	FightConfig fightConfig;
+
+  @Inject
+  FightMapper fightMapper;
 
 	@Inject
 	@Any
@@ -585,13 +588,14 @@ class FightServiceTests {
 
 	@Test
 	public void performFightHeroShouldWin() {
-		var fightMatcher = fightMatcher(createFightHeroWon());
+    var fightOutcome = createFightHeroWon();
+		var fightMatcher = fightMatcher(fightOutcome);
 		var fightersMatcher = fightersMatcher(createDefaultFighters());
 
 		PanacheMock.mock(Fight.class);
 		PanacheMock.doReturn(Uni.createFrom().voidItem()).when(Fight.class).persist(argThat(fightMatcher), any());
 		doReturn(true).when(this.fightService).shouldHeroWin(argThat(fightersMatcher));
-		doReturn(createFightHeroWon()).when(this.fightService).heroWonFight(argThat(fightersMatcher));
+		doReturn(fightOutcome).when(this.fightService).heroWonFight(argThat(fightersMatcher));
 
 		var fight = this.fightService.performFight(createDefaultFighters())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -599,14 +603,10 @@ class FightServiceTests {
 			.awaitItem(Duration.ofSeconds(5))
 			.getItem();
 
-		var ignoreInstantConfig = RecursiveComparisonConfiguration.builder()
-			.withIgnoredFieldsOfTypes(Instant.class)
-			.build();
-
 		assertThat(fight)
 			.isNotNull()
-			.usingRecursiveComparison(ignoreInstantConfig)
-			.isEqualTo(createFightHeroWon());
+      .usingRecursiveComparison()
+			.isEqualTo(fightOutcome);
 
 		var emittedMessages = this.emitterConnector.sink(FIGHTS_CHANNEL_NAME).received();
 
@@ -614,8 +614,8 @@ class FightServiceTests {
 			.isNotNull()
 			.singleElement()
 			.extracting(Message::getPayload)
-			.usingRecursiveComparison(ignoreInstantConfig)
-			.isEqualTo(createFightHeroWon());
+      .usingRecursiveComparison()
+			.isEqualTo(this.fightMapper.toSchema(fightOutcome));
 
 		verify(this.fightService).determineWinner(argThat(fightersMatcher));
 		verify(this.fightService).persistFight(argThat(fightMatcher));
@@ -630,14 +630,15 @@ class FightServiceTests {
 
 	@Test
 	public void performFightVillainShouldWin() {
-		var fightMatcher = fightMatcher(createFightVillainWon());
+    var fightOutcome = createFightVillainWon();
+    var fightMatcher = fightMatcher(fightOutcome);
 		var fightersMatcher = fightersMatcher(createDefaultFighters());
 
 		PanacheMock.mock(Fight.class);
 		PanacheMock.doReturn(Uni.createFrom().voidItem()).when(Fight.class).persist(argThat(fightMatcher), any());
 		doReturn(false).when(this.fightService).shouldHeroWin(argThat(fightersMatcher));
 		doReturn(true).when(this.fightService).shouldVillainWin(argThat(fightersMatcher));
-		doReturn(createFightVillainWon()).when(this.fightService).villainWonFight(argThat(fightersMatcher));
+		doReturn(fightOutcome).when(this.fightService).villainWonFight(argThat(fightersMatcher));
 
 		var fight = this.fightService.performFight(createDefaultFighters())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -645,14 +646,10 @@ class FightServiceTests {
 			.awaitItem(Duration.ofSeconds(5))
 			.getItem();
 
-		var ignoreInstantConfig = RecursiveComparisonConfiguration.builder()
-			.withIgnoredFieldsOfTypes(Instant.class)
-			.build();
-
 		assertThat(fight)
 			.isNotNull()
-			.usingRecursiveComparison(ignoreInstantConfig)
-			.isEqualTo(createFightVillainWon());
+			.usingRecursiveComparison()
+			.isEqualTo(fightOutcome);
 
 		var emittedMessages = this.emitterConnector.sink(FIGHTS_CHANNEL_NAME).received();
 
@@ -660,8 +657,8 @@ class FightServiceTests {
 			.isNotNull()
 			.singleElement()
 			.extracting(Message::getPayload)
-			.usingRecursiveComparison(ignoreInstantConfig)
-			.isEqualTo(createFightVillainWon());
+			.usingRecursiveComparison()
+			.isEqualTo(this.fightMapper.toSchema(fightOutcome));
 
 		verify(this.fightService).determineWinner(argThat(fightersMatcher));
 		verify(this.fightService).persistFight(argThat(fightMatcher));
@@ -676,14 +673,15 @@ class FightServiceTests {
 
 	@Test
 	public void performFightRandomWinner() {
-		var fightMatcher = fightMatcher(createFightVillainWon());
+    var fightOutcome = createFightVillainWon();
+    var fightMatcher = fightMatcher(fightOutcome);
 		var fightersMatcher = fightersMatcher(createDefaultFighters());
 
 		PanacheMock.mock(Fight.class);
 		PanacheMock.doReturn(Uni.createFrom().voidItem()).when(Fight.class).persist(argThat(fightMatcher), any());
 		doReturn(false).when(this.fightService).shouldHeroWin(argThat(fightersMatcher));
 		doReturn(false).when(this.fightService).shouldVillainWin(argThat(fightersMatcher));
-		doReturn(createFightVillainWon()).when(this.fightService).getRandomWinner(argThat(fightersMatcher));
+		doReturn(fightOutcome).when(this.fightService).getRandomWinner(argThat(fightersMatcher));
 
 		var fight = this.fightService.performFight(createDefaultFighters())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -691,14 +689,10 @@ class FightServiceTests {
 			.awaitItem(Duration.ofSeconds(5))
 			.getItem();
 
-		var ignoreInstantConfig = RecursiveComparisonConfiguration.builder()
-			.withIgnoredFieldsOfTypes(Instant.class)
-			.build();
-
 		assertThat(fight)
 			.isNotNull()
-			.usingRecursiveComparison(ignoreInstantConfig)
-			.isEqualTo(createFightVillainWon());
+			.usingRecursiveComparison()
+			.isEqualTo(fightOutcome);
 
 		var emittedMessages = this.emitterConnector.sink(FIGHTS_CHANNEL_NAME).received();
 
@@ -706,8 +700,8 @@ class FightServiceTests {
 			.isNotNull()
 			.singleElement()
 			.extracting(Message::getPayload)
-			.usingRecursiveComparison(ignoreInstantConfig)
-			.isEqualTo(createFightVillainWon());
+			.usingRecursiveComparison()
+			.isEqualTo(this.fightMapper.toSchema(fightOutcome));
 
 		verify(this.fightService).determineWinner(argThat(fightersMatcher));
 		verify(this.fightService).persistFight(argThat(fightMatcher));

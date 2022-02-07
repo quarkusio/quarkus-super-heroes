@@ -2,16 +2,41 @@ package io.quarkus.sample.superheroes.statistics.listener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Instant;
+
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.sample.superheroes.statistics.domain.Fight;
+import io.quarkus.sample.superheroes.fight.schema.Fight;
 
 /**
  * Tests for the {@link io.quarkus.sample.superheroes.statistics.listener.TeamStats} class. Not a {@link io.quarkus.test.junit.QuarkusTest @QuarkusTest} because the test can simply call the methods with the appropriate input.
  */
 class TeamStatsTests {
-	private static final Fight HERO_WINNER = Fight.builder().winnerTeam("heroes").build();
-	private static final Fight VILLAIN_WINNER = Fight.builder().winnerTeam("villains").build();
+  private static final Fight HERO_WINNER = new Fight(
+    1L,
+    Instant.now(),
+    "Chewbacca",
+    2,
+    "",
+    "Darth Vader",
+    1,
+    "",
+    "heroes",
+    "villains"
+  );
+
+	private static final Fight VILLAIN_WINNER = new Fight(
+    2L,
+    Instant.now(),
+    "Darth Vader",
+    2,
+    "",
+    "Chewbacca",
+    1,
+    "",
+    "villains",
+    "heroes"
+  );
 	
 	private TeamStats teamStats = new TeamStats();
 	

@@ -23,6 +23,7 @@ import io.quarkus.sample.superheroes.fight.client.HeroClient;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
+import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
@@ -34,16 +35,18 @@ import io.smallrye.reactive.messaging.MutinyEmitter;
 public class FightService {
 	private final HeroClient heroClient;
 	private final VillainClient villainClient;
-	private final MutinyEmitter<Fight> emitter;
+	private final MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter;
 	private final FightConfig fightConfig;
+  private final FightMapper fightMapper;
 	private final Random random = new Random();
 
-	public FightService(HeroClient heroClient, VillainClient villainClient, @Channel("fights") MutinyEmitter<Fight> emitter, FightConfig fightConfig) {
+	public FightService(HeroClient heroClient, VillainClient villainClient, @Channel("fights") MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter, FightConfig fightConfig, FightMapper fightMapper) {
 		this.heroClient = heroClient;
 		this.villainClient = villainClient;
 		this.emitter = emitter;
 		this.fightConfig = fightConfig;
-	}
+    this.fightMapper = fightMapper;
+  }
 
 	/**
 	 * Adds a pre-configured delay to a response. Can be used to showcase/demo how to add delays as well as how to use fault tolerance.
@@ -133,8 +136,9 @@ public class FightService {
 	@ReactiveTransactional
 	Uni<Fight> persistFight(Fight fight) {
 		return Fight.persist(fight)
-			.replaceWith(fight)
-			.chain(this.emitter::send)
+      .replaceWith(fight)
+      .map(this.fightMapper::toSchema)
+      .chain(this.emitter::send)
 			.replaceWith(fight);
 	}
 

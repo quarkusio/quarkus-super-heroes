@@ -18,6 +18,8 @@ This is the event statistics microservice. It is an event-driven microservice, l
 
 Messages arrive on the `fights` topic. The [`SuperStats`](src/main/java/io/quarkus/sample/superheroes/statistics/listener/SuperStats.java) class listens to these events and keeps track of 2 kinds of statistics: _team_ stats and _winner_ stats.
 
+Messages are stored in [Apache Avro](https://avro.apache.org/docs/current) format and [the fight schema](src/main/avro/fight.avsc) is automatically registered in the [Apicurio Schema Registry](https://www.apicur.io/registry). This all uses [built-in extensions from Quarkus](https://quarkus.io/guides/kafka-schema-registry-avro).
+
 This service also has its own UI where you can see the top winners and the percentage of hero victories!
 
 ![event-statistics-ui](images/event-statistics-ui.png)
@@ -57,15 +59,16 @@ This application has a full suite of tests, including an integration test suite 
 ## Running the Application
 The application runs on port `8085` (defined by `quarkus.http.port` in [`application.properties`](src/main/resources/application.properties)).
 
-From the `quarkus-super-heroes/event-statistics` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application's UI will be exposed at http://localhost:8085 and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at http://localhost:8085/q/dev. 
+From the `quarkus-super-heroes/event-statistics` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application's UI will be exposed at `http://localhost:8085` and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at `http://localhost:8085/q/dev`.  [Quarkus Dev Services](https://quarkus.io/guides/dev-services) will ensure an Apache Kafka instance and an Apicurio Schema Registry are started and configured.
 
-**NOTE:** Running the application outside of Quarkus dev mode requires standing up an Apache Kafka instance and binding it to the app.
+**NOTE:** Running the application outside of Quarkus dev mode requires standing up an Apache Kafka instance and an Apicurio Schema Registry and binding it to the app.
 
 By default, the application is configured with the following:
 
-| Description             | Environment Variable      | Java Property             | Value                        |
-|-------------------------|---------------------------|---------------------------|------------------------------|
-| Kafka Bootstrap servers | `KAFKA_BOOTSTRAP_SERVERS` | `kafka.bootstrap.servers` | `PLAINTEXT://localhost:9092` |
+| Description              | Environment Variable                                          | Java Property                                                 | Value                                    |
+|--------------------------|---------------------------------------------------------------|---------------------------------------------------------------|------------------------------------------|
+| Kafka Bootstrap servers  | `KAFKA_BOOTSTRAP_SERVERS`                                     | `kafka.bootstrap.servers`                                     | `PLAINTEXT://localhost:9092`             |
+| Apicurio Schema Registry | `MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL` | `mp.messaging.connector.smallrye-kafka.apicurio.registry.url` | `http://localhost:8086/apis/registry/v2` |
 
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/event-statistics`](https://quay.io/repository/quarkus-super-heroes/event-statistics?tab=tags). 
@@ -83,7 +86,7 @@ Pick one of the 4 versions of the application from the table below and execute t
 
 These Docker Compose files are meant for standing up this application and the required Kafka broker only. If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
-Once started the application will be exposed at `http://localhost:8082`.
+Once started the application will be exposed at `http://localhost:8082`. The Apicurio Schema Registry will be exposed at `http://localhost:8086`.
 
 ## Deploying to Kubernetes
 The application can be [deployed to Kubernetes using pre-built images](#using-pre-built-images) or by [deploying directly via the Quarkus Kubernetes Extension](#deploying-directly-via-kubernetes-extensions). Each of these is discussed below.
@@ -104,7 +107,7 @@ Pick one of the 4 versions of the application from the table below and deploy th
 
 The application is exposed outside of the cluster on port `80`.
 
-These are only the descriptors for this application and the required Kafka broker only. If you want to deploy the entire system, [follow these instructions](../README.md#deploying-to-kubernetes).
+These are only the descriptors for this application and the required Kafka broker and Apicurio Schema Registry only. If you want to deploy the entire system, [follow these instructions](../README.md#deploying-to-kubernetes).
 
 ### Deploying directly via Kubernetes Extensions
 Following the [deployment section](https://quarkus.io/guides/deploying-to-kubernetes#deployment) of the [Quarkus Kubernetes Extension Guide](https://quarkus.io/guides/deploying-to-kubernetes) (or the [deployment section](https://quarkus.io/guides/deploying-to-openshift#build-and-deployment) of the [Quarkus OpenShift Extension Guide](https://quarkus.io/guides/deploying-to-openshift) if deploying to [OpenShift](https://openshift.com)), you can run `./mvnw clean package -Dquarkus.kubernetes.deploy=true` to deploy the application and any of its dependencies (see [Kubernetes (and variants) resource generation](../docs/automation.md#kubernetes-and-variants-resource-generation) of the [automation strategy document](../docs/automation.md)) to Kubernetes or OpenShift.

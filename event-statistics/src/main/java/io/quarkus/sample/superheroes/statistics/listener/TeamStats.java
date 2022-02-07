@@ -1,6 +1,6 @@
 package io.quarkus.sample.superheroes.statistics.listener;
 
-import io.quarkus.sample.superheroes.statistics.domain.Fight;
+import io.quarkus.sample.superheroes.fight.schema.Fight;
 
 /**
  * Object keeping track of the number of battles won by heroes and villains
