@@ -8,6 +8,9 @@ But first, read this page (including the small print at the end).
 * [Legal](#legal)
 * [Reporting an issue](#reporting-an-issue)
 * [Before you contribute](#before-you-contribute)
+  + [Discuss non-trivial contribution ideas with committers](#discuss-non-trivial-contribution-ideas-with-committers)
+  + [Create your branch from main](#create-your-branch-from-main)
+  + [Keep commits focused](#keep-commits-focused)
   + [Code reviews](#code-reviews)
   + [Coding Guidelines](#coding-guidelines)
   + [Continuous Integration](#continuous-integration)
@@ -49,6 +52,15 @@ If you use different computers to contribute, please make sure the name is the s
 
 We may use this information to acknowledge your contributions in release announcements.
 
+### Discuss non-trivial contribution ideas with committers
+If you're considering anything more than correcting a typo or fixing a minor bug, please discuss it by [creating an issue on our issue tracker](https://github.com/quarkusio/quarkus-super-heroes/issues?q=is%3Aissue) before submitting a pull request. We're happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
+
+### Create your branch from main
+Create your topic branch to be submitted as a pull request from `main`.
+
+### Keep commits focused
+Remember each ticket should be focused on a single item of interest since the tickets are used to produce the changelog. Since each commit should be tied to a single GitHub issue, ensure that your commits are focused. For example, do not include an update to a transitive library in your commit unless the GitHub is to update the library. Reviewing your commits is essential before sending a pull request.
+
 ### Code reviews
 
 All submissions, including submissions by project members, need to be reviewed by at least one committer before being merged.
@@ -70,7 +82,8 @@ To keep the caching of non-Quarkus artifacts efficient (speeding up CI), you sho
 
 ### Tests and documentation are not optional
 
-Don't forget to include tests in your pull requests. 
+Don't forget to include tests in your pull requests. If any tests fail (regardless if they are tests you wrote/modified or not) then it is your responsibility to figure out what went wrong before submitting. We don't keep code that doesn't pass tests in the codebase. When you first cloned the repository all tests would have passed. If a test you didn't touch now doesn't pass, then something you did in the changes you made has broken an existing test.
+
 Also don't forget the documentation (reference documentation, javadoc...).
 
 Be sure to test your pull request in:
