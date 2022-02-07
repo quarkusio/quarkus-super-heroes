@@ -33,12 +33,22 @@ services:
       LOG_DIR: /tmp/logs
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://fights-kafka:9092
 
+  apicurio:
+    image: apicurio/apicurio-registry-mem:2.1.5.Final
+    container_name: apicurio
+    ports:
+      - "8086:8086"
+    environment:
+      REGISTRY_AUTH_ANONYMOUS_READ_ACCESS_ENABLED: true
+      QUARKUS_HTTP_PORT: 8086
+
   rest-fights-native-java17:
     image: quay.io/quarkus-super-heroes/rest-fights:native-java17-latest
     container_name: rest-fights-native-java17
     depends_on:
       - fights-db
       - fights-kafka
+      - apicurio
       - rest-heroes-native-java17
       - rest-villains-native-java17
     ports:
@@ -50,6 +60,7 @@ services:
       QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: no-file
       QUARKUS_REST_CLIENT_HERO_CLIENT_URL: http://rest-heroes:8083
       FIGHT_VILLAIN_CLIENT_BASE_URL: http://rest-villains:8084
+      MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL: http://apicurio:8086/apis/registry/v2
     restart: on-failure
     networks:
       default:

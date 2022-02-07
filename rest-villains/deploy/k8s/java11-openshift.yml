@@ -17,11 +17,11 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: dda57a904413d23c7e926a2a45cd3a65e935e35c
-    app.quarkus.io/build-timestamp: 2022-02-07 - 14:19:00 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 25db1e640909e55c91d52e202c369c8a6cb81f19
+    app.quarkus.io/build-timestamp: 2022-02-07 - 15:54:54 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -67,19 +67,19 @@ apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: dda57a904413d23c7e926a2a45cd3a65e935e35c
-    app.quarkus.io/build-timestamp: 2022-02-07 - 14:19:00 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 25db1e640909e55c91d52e202c369c8a6cb81f19
+    app.quarkus.io/build-timestamp: 2022-02-07 - 15:54:54 +0000
   labels:
     name: villains-db
     application: villains-service
     system: quarkus-super-heroes
     app: rest-villains
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: java11-latest
   name: rest-villains
 spec:
@@ -162,11 +162,11 @@ apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: dda57a904413d23c7e926a2a45cd3a65e935e35c
-    app.quarkus.io/build-timestamp: 2022-02-07 - 14:19:00 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 25db1e640909e55c91d52e202c369c8a6cb81f19
+    app.quarkus.io/build-timestamp: 2022-02-07 - 15:54:54 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -176,24 +176,24 @@ metadata:
     application: villains-service
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: java11-latest
   name: rest-villains
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: java11-latest
   template:
     metadata:
       annotations:
-        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: villains-db
         app.openshift.io/vcs-ref: main
-        app.quarkus.io/commit-id: dda57a904413d23c7e926a2a45cd3a65e935e35c
-        app.quarkus.io/build-timestamp: 2022-02-07 - 14:19:00 +0000
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/commit-id: 25db1e640909e55c91d52e202c369c8a6cb81f19
+        app.quarkus.io/build-timestamp: 2022-02-07 - 15:54:54 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -203,8 +203,8 @@ spec:
         application: villains-service
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/name: rest-villains
         app.kubernetes.io/part-of: villains-service
+        app.kubernetes.io/name: rest-villains
         app.kubernetes.io/version: java11-latest
     spec:
       containers:
@@ -248,25 +248,16 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
-  triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-          - rest-villains
-        from:
-          kind: ImageStreamTag
-          name: rest-villains:java11-latest
-      type: ImageChange
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: dda57a904413d23c7e926a2a45cd3a65e935e35c
-    app.quarkus.io/build-timestamp: 2022-02-07 - 14:19:00 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 25db1e640909e55c91d52e202c369c8a6cb81f19
+    app.quarkus.io/build-timestamp: 2022-02-07 - 15:54:54 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
