@@ -5,7 +5,8 @@
 # 2 - heroes
 # 3 - fights
 # 4 - ui
-statuses=("0", "0", "0", "0", "0")
+# 5 - apicurio
+statuses=("0", "0", "0", "0", "0", "0")
 
 max_tries=100
 tries=1
@@ -21,6 +22,7 @@ get_status() {
     2) local service_name="rest-heroes" ;;
     3) local service_name="rest-fights" ;;
     4) local service_name="ui-super-heroes" ;;
+    5) local service_name="apicurio" ;;
   esac
 
   local url="http://localhost:${port}${path}"
@@ -51,6 +53,10 @@ get_statuses() {
   if [[ "${statuses[4]}" != "\"200\"" ]]; then
     get_status 8080 4 "/"
   fi
+
+  if [[ "${statuses[5]}" != "\"200\"" ]]; then
+    get_status 8086 5 "/health/ready"
+  fi
 }
 
 print_statuses() {
@@ -59,9 +65,10 @@ print_statuses() {
   echo "heroes_status=${statuses[2]}"
   echo "fights_status=${statuses[3]}"
   echo "ui_status=${statuses[4]}"
+  echo "apicurio=${statuses[5]}"
 }
 
-while [[ "${statuses[0]}" != "\"200\"" ]] || [[ "${statuses[1]}" != "\"200\"" ]] || [[ "${statuses[2]}" != "\"200\"" ]] || [[ "${statuses[3]}" != "\"200\"" ]] || [[ "${statuses[4]}" != "\"200\"" ]]
+while [[ "${statuses[0]}" != "\"200\"" ]] || [[ "${statuses[1]}" != "\"200\"" ]] || [[ "${statuses[2]}" != "\"200\"" ]] || [[ "${statuses[3]}" != "\"200\"" ]] || [[ "${statuses[4]}" != "\"200\"" ]] || [[ "${statuses[5]}" != "\"200\"" ]]
 do
   if [[ "$tries" -gt $max_tries ]]; then
     break
@@ -86,6 +93,6 @@ else
   echo "All services are now up :)"
   echo "Super Heroes UI: http://localhost:8080"
   echo "Event stats: http://localhost:8085"
+  echo "Apicurio Schema Registry: http://localhost:8086"
   echo "Prometheus (if started): http://localhost:9090"
-  echo "Apicurio Schema Registry (if started): http://localhost:8086"
 fi
