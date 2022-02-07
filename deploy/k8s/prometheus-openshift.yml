@@ -16,6 +16,15 @@ data:
       - job_name: prometheus
         static_configs:
           - targets: ['localhost:9090']
+
+      - job_name: apicurio
+        honor_labels: true
+        static_configs:
+          - targets: ['apicurio:8080']
+            labels:
+              app: apicurio
+              application: fights-service
+              system: quarkus-super-heroes
       
       - job_name: heroes
         metrics_path: /q/metrics
