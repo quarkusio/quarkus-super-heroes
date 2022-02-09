@@ -19,6 +19,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  print-context:
+    runs-on: ubuntu-latest
+    steps:
+
+    - run: |
+        echo "github.event_name=${{ github.event_name }}"
+        echo "github.event.workflow_run.event=${{ github.event.workflow_run.event }}"
+        echo "github.event.workflow_run.conclusion=${{ github.event.workflow_run.conclusion }}"
+        echo "github.repository=${{ github.repository }}"
+        echo "github.ref=${{ github.ref }}"
+
   build-test-jvm-images:
     if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.event == 'push') && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && (github.ref == 'refs/heads/main'))
     runs-on: ubuntu-latest
