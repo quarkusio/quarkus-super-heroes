@@ -71,8 +71,8 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 717f7a2e4df429da31ea61c27e4a9afe14a8ac5b
-    app.quarkus.io/build-timestamp: 2022-02-07 - 21:50:24 +0000
+    app.quarkus.io/commit-id: 680c8d17553c942f41ec53f413dd3edb554b4a08
+    app.quarkus.io/build-timestamp: 2022-02-09 - 13:52:34 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -82,8 +82,8 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: fights-service
     system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: java11-latest
   name: rest-fights
 spec:
@@ -93,8 +93,8 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 717f7a2e4df429da31ea61c27e4a9afe14a8ac5b
-        app.quarkus.io/build-timestamp: 2022-02-07 - 21:50:24 +0000
+        app.quarkus.io/commit-id: 680c8d17553c942f41ec53f413dd3edb554b4a08
+        app.quarkus.io/build-timestamp: 2022-02-09 - 13:52:34 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -104,10 +104,11 @@ spec:
         app.openshift.io/runtime: quarkus
         application: fights-service
         system: quarkus-super-heroes
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: java11-latest
     spec:
+      containerConcurrency: 0
       containers:
         - envFrom:
             - configMapRef:
@@ -143,11 +144,6 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: config-autoscaler
 ---
 apiVersion: v1
 kind: ConfigMap

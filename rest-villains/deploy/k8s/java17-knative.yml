@@ -20,8 +20,8 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 717f7a2e4df429da31ea61c27e4a9afe14a8ac5b
-    app.quarkus.io/build-timestamp: 2022-02-07 - 21:56:28 +0000
+    app.quarkus.io/commit-id: 680c8d17553c942f41ec53f413dd3edb554b4a08
+    app.quarkus.io/build-timestamp: 2022-02-09 - 14:01:15 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -31,9 +31,9 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: villains-service
     system: quarkus-super-heroes
+    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/version: java17-latest
   name: rest-villains
 spec:
   template:
@@ -42,8 +42,8 @@ spec:
         app.openshift.io/connects-to: villains-db
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 717f7a2e4df429da31ea61c27e4a9afe14a8ac5b
-        app.quarkus.io/build-timestamp: 2022-02-07 - 21:56:28 +0000
+        app.quarkus.io/commit-id: 680c8d17553c942f41ec53f413dd3edb554b4a08
+        app.quarkus.io/build-timestamp: 2022-02-09 - 14:01:15 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -53,10 +53,11 @@ spec:
         app.openshift.io/runtime: quarkus
         application: villains-service
         system: quarkus-super-heroes
+        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/name: rest-villains
-        app.kubernetes.io/version: java17-latest
     spec:
+      containerConcurrency: 0
       containers:
         - envFrom:
             - configMapRef:
@@ -109,11 +110,6 @@ spec:
   selector:
     name: villains-db
   type: ClusterIP
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: config-autoscaler
 ---
 apiVersion: v1
 kind: ConfigMap
