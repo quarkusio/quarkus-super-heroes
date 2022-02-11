@@ -2,6 +2,7 @@
 
 ## Table of Contents
 - [Introduction](#introduction)
+    - [Exposed Endpoints](#exposed-endpoints) 
 - [Configuration](#configuration)
 - [Resiliency](#resiliency)
     - [Timeouts](#timeouts)
@@ -26,6 +27,7 @@ Fight messages are also published on an Apache Kafka topic called `fights`. The 
 
 ![rest-fights](images/rest-fights.png)
 
+### Exposed Endpoints
 The following table lists the available REST endpoints. The [OpenAPI document](openapi-schema.yml) for the REST endpoints is also available.
 
 | Path                         | HTTP method | Response Status | Response Object                                                               | Description                                                                                                                             |
