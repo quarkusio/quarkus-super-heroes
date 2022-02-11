@@ -2,6 +2,7 @@
 
 ## Table of Contents
 - [Introduction](#introduction)
+    - [Exposed Endpoints](#exposed-endpoints) 
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
 - [Deploying to Kubernetes](#deploying-to-kubernetes)
@@ -15,6 +16,7 @@ Additionally, this application favors field injection of beans (i.e. `@Inject` a
 
 ![rest-villains](images/rest-villains.png)
 
+### Exposed Endpoints
 The following table lists the available REST endpoints. The [OpenAPI document](openapi-schema.yml) for the REST endpoints is also available.
 
 | Path | HTTP method | Response Status | Response Object | Description |
