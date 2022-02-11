@@ -94,6 +94,11 @@ spec:
       name: apicurio
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8080"
+        prometheus.io/scheme: http
       labels:
         application: fights-service
         name: apicurio
@@ -138,6 +143,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8080"
+    prometheus.io/scheme: http
   labels:
     name: apicurio
     application: fights-service
@@ -155,6 +165,11 @@ spec:
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8080"
+    prometheus.io/scheme: http
   labels:
     app: apicurio
     application: fights-service

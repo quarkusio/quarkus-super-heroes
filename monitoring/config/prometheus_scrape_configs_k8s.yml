@@ -18,8 +18,7 @@ scrape_configs:
     kubernetes_sd_configs:
       - role: pod
         namespaces:
-          names:
-            - <<NAME_OF_K8S_NAMESPACE>>
+          own_namespace: true
     relabel_configs:
       - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
         action: keep
