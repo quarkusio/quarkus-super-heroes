@@ -94,7 +94,7 @@ Pick one of the 4 versions of the system from the table below and deploy the app
 | Native compiled with Java 17 | `native-java17-latest` | [`native-java17-openshift.yml`](deploy/k8s/native-java17-openshift.yml) | [`native-java17-minikube.yml`](deploy/k8s/native-java17-minikube.yml) | [`native-java17-kubernetes.yml`](deploy/k8s/native-java17-kubernetes.yml) | [`native-java17-knative.yml`](deploy/k8s/native-java17-knative.yml) |
 
 ### Monitoring
-There are also Kubernetes deployment descriptors for Prometheus monitoring in the [`deploy/k8s` directory](deploy/k8s) ([`prometheus-openshift.yml`](deploy/k8s/prometheus-openshift.yml), [`prometheus-minikube.yml`](deploy/k8s/prometheus-minikube.yml), [`prometheus-kubernetes.yml`](deploy/k8s/prometheus-kubernetes.yml)). Each descriptor contains the resources necessary to monitor all of the applications in the system.
+There are also Kubernetes deployment descriptors for Prometheus monitoring in the [`deploy/k8s` directory](deploy/k8s) ([`prometheus-openshift.yml`](deploy/k8s/prometheus-openshift.yml), [`prometheus-minikube.yml`](deploy/k8s/prometheus-minikube.yml), [`prometheus-kubernetes.yml`](deploy/k8s/prometheus-kubernetes.yml)). Each descriptor contains the resources necessary to monitor and gather metrics from all of the applications in the system. Deploy the appropriate descriptor to your cluster if you want it.
 
 The OpenShift descriptor will automatically create a `Route` for Prometheus. On Kubernetes/Minikube you may need to expose the Prometheus service in order to access it from outside your cluster, either by using an `Ingress` or by using `kubectl port-forward`. On Minikube, the Prometheus `Service` is also exposed as a `NodePort`.
 
