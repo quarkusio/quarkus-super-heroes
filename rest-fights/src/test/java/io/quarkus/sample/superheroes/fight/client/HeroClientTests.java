@@ -168,7 +168,7 @@ class HeroClientTests {
 		assertThat(ex)
 			.isNotNull()
 			.isExactlyInstanceOf(CircuitBreakerOpenException.class)
-			.hasMessage("CircuitBreaker[%s#getRandomHero] circuit breaker is open", HeroClient.class.getName());
+      .hasMessageContainingAll(String.format("%s#getRandomHero", HeroClient.class.getName()), "circuit breaker is open");
 
 		// Verify that the breaker is open
 		assertThat(this.circuitBreakerMaintenance.currentState("findRandomHero"))

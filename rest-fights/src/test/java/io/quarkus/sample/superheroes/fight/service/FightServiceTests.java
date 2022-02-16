@@ -464,7 +464,7 @@ class FightServiceTests {
 		assertThat(timeout)
 			.isNotNull()
 			.isExactlyInstanceOf(TimeoutException.class)
-			.hasMessage("Timeout[%s#findRandomFighters] timed out", FightService.class.getName());
+      .hasMessageContainingAll(String.format("%s#findRandomFighters", FightService.class.getName()), "timed out");
 
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService).findRandomHero();
@@ -496,7 +496,7 @@ class FightServiceTests {
 		assertThat(timeout)
 			.isNotNull()
 			.isExactlyInstanceOf(TimeoutException.class)
-			.hasMessage("Timeout[%s#findRandomFighters] timed out", FightService.class.getName());
+      .hasMessageContainingAll(String.format("%s#findRandomFighters", FightService.class.getName()), "timed out");
 
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService).findRandomHero();
