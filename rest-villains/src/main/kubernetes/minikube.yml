@@ -8,9 +8,22 @@ metadata:
     application: villains-service
     system: quarkus-super-heroes
 data:
-  quarkus.hibernate-orm.database.generation: none
+  quarkus.hibernate-orm.database.generation: validate
   quarkus.hibernate-orm.sql-load-script: no-file
   quarkus.datasource.jdbc.url: jdbc:postgresql://villains-db:5432/villains_database
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: rest-villains-config-creds
+  labels:
+    app: rest-villains
+    application: villains-service
+    system: quarkus-super-heroes
+data:
+  quarkus.datasource.username: c3VwZXJiYWQ=
+  quarkus.datasource.password: c3VwZXJiYWQ=
 ---
 apiVersion: v1
 kind: Secret
