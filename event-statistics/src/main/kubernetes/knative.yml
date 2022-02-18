@@ -11,6 +11,16 @@ data:
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
 ---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: event-statistics-config-creds
+  labels:
+    app: event-statistics
+    application: event-stats
+    system: quarkus-super-heroes
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:

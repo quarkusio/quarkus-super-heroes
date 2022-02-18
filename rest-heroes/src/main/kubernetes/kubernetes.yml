@@ -8,9 +8,22 @@ metadata:
     application: heroes-service
     system: quarkus-super-heroes
 data:
-  quarkus.hibernate-orm.database.generation: none
+  quarkus.hibernate-orm.database.generation: validate
   quarkus.hibernate-orm.sql-load-script: no-file
   quarkus.datasource.reactive.url: postgresql://heroes-db:5432/heroes_database
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: rest-heroes-config-creds
+  labels:
+    app: rest-heroes
+    application: heroes-service
+    system: quarkus-super-heroes
+data:
+  quarkus.datasource.username: c3VwZXJtYW4=
+  quarkus.datasource.password: c3VwZXJtYW4=
 ---
 apiVersion: v1
 kind: Secret

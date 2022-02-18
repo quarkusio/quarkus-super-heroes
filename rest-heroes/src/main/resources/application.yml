@@ -28,6 +28,7 @@ quarkus:
       "app.openshift.io/connects-to": heroes-db
     env:
       configmaps: "${quarkus.application.name}-config"
+      secrets: "${quarkus.application.name}-config-creds"
     labels:
       app: "${quarkus.application.name}"
       application: "${quarkus.kubernetes.part-of}"
@@ -40,6 +41,7 @@ quarkus:
       "app.openshift.io/connects-to": heroes-db
     env:
       configmaps: "${quarkus.kubernetes.env.configmaps}"
+      secrets: ${quarkus.kubernetes.env.secrets}"
     labels:
       app: "${quarkus.kubernetes.labels.app}"
       application: "${quarkus.openshift.part-of}"
@@ -50,6 +52,7 @@ quarkus:
       "app.openshift.io/connects-to": heroes-db
     env:
       configmaps: "${quarkus.kubernetes.env.configmaps}"
+      secrets: "${quarkus.kubernetes.env.secrets}"
     labels:
       app: "${quarkus.kubernetes.labels.app}"
       application: "${quarkus.openshift.part-of}"
@@ -57,12 +60,5 @@ quarkus:
 
 "%prod":
   quarkus:
-    datasource:
-      username: superman
-      password: superman
-      reactive:
-        url: postgresql://localhost:5432/heroes_database
     hibernate-orm:
       sql-load-script: import.sql
-#      database:
-#        generation: validate
