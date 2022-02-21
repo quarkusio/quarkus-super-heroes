@@ -89,8 +89,8 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: e2d65e729bfda3d6e92504923f8470976dd3e814
-    app.quarkus.io/build-timestamp: 2022-02-21 - 17:33:41 +0000
+    app.quarkus.io/commit-id: 475956e0f7ce54158caae41eea6327e4cba3922f
+    app.quarkus.io/build-timestamp: 2022-02-21 - 19:25:25 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -100,9 +100,9 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: fights-service
     system: quarkus-super-heroes
+    app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-java11-latest
   name: rest-fights
 spec:
   template:
@@ -111,8 +111,8 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: e2d65e729bfda3d6e92504923f8470976dd3e814
-        app.quarkus.io/build-timestamp: 2022-02-21 - 17:33:41 +0000
+        app.quarkus.io/commit-id: 475956e0f7ce54158caae41eea6327e4cba3922f
+        app.quarkus.io/build-timestamp: 2022-02-21 - 19:25:25 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -122,17 +122,17 @@ spec:
         app.openshift.io/runtime: quarkus
         application: fights-service
         system: quarkus-super-heroes
+        app.kubernetes.io/version: native-java11-latest
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/version: native-java11-latest
     spec:
       containerConcurrency: 0
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
+            - secretRef:
+                name: rest-fights-config-creds
           image: quay.io/quarkus-super-heroes/rest-fights:native-java11-latest
           livenessProbe:
             failureThreshold: 3
