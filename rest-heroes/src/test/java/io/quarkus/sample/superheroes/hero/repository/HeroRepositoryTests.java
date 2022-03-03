@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import io.quarkus.sample.superheroes.hero.Hero;
 import io.quarkus.test.TestReactiveTransaction;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.vertx.UniAsserter;
+import io.quarkus.test.vertx.UniAsserter;
 
 @QuarkusTest
 @TestReactiveTransaction
