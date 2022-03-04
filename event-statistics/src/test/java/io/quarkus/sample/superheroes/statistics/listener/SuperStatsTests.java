@@ -2,6 +2,7 @@ package io.quarkus.sample.superheroes.statistics.listener;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.fight.schema.Fight;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
+import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.helpers.test.AssertSubscriber;
@@ -34,22 +36,34 @@ class SuperStatsTests {
 		var fights = createSampleFights(true);
 
 		// Call computeTeamStats and assert the items
-		this.superStats.computeTeamStats(Multi.createFrom().items(fights))
+		var scores = this.superStats.computeTeamStats(Multi.createFrom().items(fights))
 			.subscribe().withSubscriber(AssertSubscriber.create(10))
 			.assertSubscribed()
-			.assertItems(
-				(double) 1/1,
-				(double) 1/2,
-				(double) 2/3,
-				(double) 2/4,
-				(double) 3/5,
-				(double) 3/6,
-				(double) 4/7,
-				(double) 4/8,
-				(double) 5/9,
-				(double) 5/10
-			)
-			.assertCompleted();
+      .awaitItems(10, Duration.ofSeconds(20))
+			.assertCompleted()
+      .getItems();
+
+    assertThat(scores)
+      .isNotNull()
+      .hasSize(10)
+      .extracting(
+        TeamScore::getHeroWins,
+        TeamScore::getVillainWins,
+        TeamScore::getNumberOfFights,
+        TeamScore::getHeroWinRatio
+      )
+      .containsExactly(
+        tuple(1, 0, 1, (double) 1/1),
+        tuple(1, 1, 2, (double) 1/2),
+        tuple(2, 1, 3, (double) 2/3),
+        tuple(2, 2, 4, (double) 2/4),
+        tuple(3, 2, 5, (double) 3/5),
+        tuple(3, 3, 6, (double) 3/6),
+        tuple(4, 3, 7, (double) 4/7),
+        tuple(4, 4, 8, (double) 4/8),
+        tuple(5, 4, 9, (double) 5/9),
+        tuple(5, 5, 10, (double) 5/10)
+      );
 
 		// Get the computed stats and assert that 5 heroes and 5 villains won
 		var stats = this.superStats.getTeamStats();

@@ -13,7 +13,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
@@ -30,6 +29,7 @@ import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.statistics.domain.Score;
+import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
@@ -68,7 +68,7 @@ public class WebSocketsTests {
 		var teamStatsMessages = new LinkedBlockingQueue<String>();
 		var topWinnerMessages = new LinkedBlockingQueue<String>();
 
-		// Set up a single consumer latch for each websocked
+		// Set up a single consumer latch for each websocket
 		// It will wait for the client to connect and subscribe to the stream before emitting items
 		var teamStatsLatch = createLatch();
 		var topWinnersLatch = createLatch();
@@ -92,10 +92,7 @@ public class WebSocketsTests {
 			// Wait for each client to emit a CONNECT message
 			waitForClientsToStart(teamStatsMessages, teamStatsLatch, topWinnerMessages, topWinnersLatch);
 
-			var expectedTeamStats = createTeamStatsItems()
-				.map(String::valueOf)
-				.collect(Collectors.toList());
-
+			var expectedTeamStats = createTeamStatsItems().collect(Collectors.toList());
 			var expectedTopWinners = createTopWinnerItems().collect(Collectors.toList());
 
 			// Wait for our messages to appear in the queue
@@ -109,12 +106,17 @@ public class WebSocketsTests {
 		}
 	}
 
-	private static void validateTeamStats(BlockingQueue<String> teamStatsMessages, List<String> expectedItems) {
+	private void validateTeamStats(BlockingQueue<String> teamStatsMessages, List<TeamScore> expectedItems) {
 		System.out.println("Team Stats Messages received by test: " + teamStatsMessages);
 
-		// Perform assertions that all expected messages were received
-		assertThat(teamStatsMessages)
-			.containsExactlyElementsOf(expectedItems);
+    // Perform assertions that all expected messages were received
+    expectedItems.stream()
+      .map(Unchecked.function(this.objectMapper::writeValueAsString))
+      .forEach(expectedMsg ->
+        assertThat(teamStatsMessages.poll())
+          .isNotNull()
+          .isEqualTo(expectedMsg)
+        );
 	}
 
 	private void validateTopWinnerStats(BlockingQueue<String> topWinnerMessages, List<Iterable<Score>> expectedItems) {
@@ -162,8 +164,14 @@ public class WebSocketsTests {
 		return new CountDownLatch(1);
 	}
 
-	private static Stream<Double> createTeamStatsItems() {
-		return DoubleStream.of(0.0, 0.25, 0.5, 0.75, 1.0).boxed();
+	private static Stream<TeamScore> createTeamStatsItems() {
+    return Stream.of(
+      new TeamScore(0, 4),
+      new TeamScore(1, 3),
+      new TeamScore(2, 2),
+      new TeamScore(3, 1),
+      new TeamScore(4, 0)
+    );
 	}
 
 	private static Stream<Iterable<Score>> createTopWinnerItems() {

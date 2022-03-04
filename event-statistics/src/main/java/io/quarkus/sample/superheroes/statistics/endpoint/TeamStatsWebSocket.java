@@ -14,7 +14,9 @@ import javax.websocket.server.ServerEndpoint;
 
 import io.quarkus.logging.Log;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.subscription.Cancellable;
+import io.smallrye.mutiny.unchecked.Unchecked;
 
 /**
  * WebSocket endpoint for the {@code /stats/team} endpoint. Exposes the {@code team-stats} channel over the socket to anyone listening.
@@ -29,10 +31,13 @@ public class TeamStatsWebSocket {
 	private final List<Session> sessions = new CopyOnWriteArrayList<>();
 	private Cancellable cancellable;
 
+  @Inject
+  ObjectMapper mapper;
+
 	@Inject
 	TeamStatsChannelHolder teamStatsChannelHolder;
 
-	@OnOpen
+  @OnOpen
 	public void onOpen(Session session) {
 		this.sessions.add(session);
 	}
@@ -45,8 +50,8 @@ public class TeamStatsWebSocket {
 	@PostConstruct
 	public void subscribe() {
 		this.cancellable = this.teamStatsChannelHolder.getTeamStats()
-			.map(ratio -> Double.toString(ratio))
-			.subscribe().with(ratio -> this.sessions.forEach(session -> write(session, ratio)));
+      .map(Unchecked.function(this.mapper::writeValueAsString))
+      .subscribe().with(serialized -> this.sessions.forEach(session -> write(session, serialized)));
 	}
 
 	@PreDestroy

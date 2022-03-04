@@ -1,6 +1,7 @@
 package io.quarkus.sample.superheroes.statistics.listener;
 
 import io.quarkus.sample.superheroes.fight.schema.Fight;
+import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 
 /**
  * Object keeping track of the number of battles won by heroes and villains
@@ -12,9 +13,9 @@ class TeamStats {
 	/**
 	 * Adds a {@link Fight}
 	 * @param result The {@link Fight} received
-	 * @return The running percentage of battles won by heroes
+	 * @return A {@link TeamScore} containing running battle stats by team
 	 */
-	double add(Fight result) {
+	TeamScore add(Fight result) {
 		if (result.getWinnerTeam().equalsIgnoreCase("heroes")) {
 			this.heroes = this.heroes + 1;
 		}
@@ -22,7 +23,7 @@ class TeamStats {
 			this.villains = this.villains + 1;
 		}
 
-		return ((double) this.heroes / (this.heroes + this.villains));
+    return new TeamScore(this.heroes, this.villains);
 	}
 
 	int getVillainsCount() {

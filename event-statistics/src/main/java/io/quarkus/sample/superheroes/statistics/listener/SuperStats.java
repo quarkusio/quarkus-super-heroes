@@ -8,6 +8,7 @@ import org.jboss.logging.Logger;
 
 import io.quarkus.sample.superheroes.fight.schema.Fight;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
+import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 
 import io.smallrye.mutiny.Multi;
 
@@ -28,9 +29,9 @@ public class SuperStats {
 	 */
 	@Incoming("fights")
 	@Outgoing("team-stats")
-	public Multi<Double> computeTeamStats(Multi<Fight> results) {
+	public Multi<TeamScore> computeTeamStats(Multi<Fight> results) {
 		return results.map(this.stats::add)
-			.invoke(stats -> LOGGER.debugf("Fight received. Computed the team statistics: %,.010f", stats));
+			.invoke(score -> LOGGER.debugf("Fight received. Computed the team statistics: %s", score));
 	}
 
 	/**

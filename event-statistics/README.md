@@ -27,7 +27,18 @@ This service also has its own UI where you can see the top winners and the perce
 ### Team Stats
 Team stats are accumulated by the number of wins by heroes vs villains. It is calculated as a percentage of hero wins to villain wins.
 
-Team stats are then sent over the `/stats/team` [WebSocket](https://en.wikipedia.org/wiki/WebSocket) by the [`TeamStatsWebSocket`](src/main/java/io/quarkus/sample/superheroes/statistics/endpoint/TeamStatsWebSocket.java) WebSocket class. Every time a new fight event is received, the team stats are re-computed and the new hero-to-winner percentage is emitted to anyone listening on the WebSocket.
+Team stats are then sent over the `/stats/team` [WebSocket](https://en.wikipedia.org/wiki/WebSocket) by the [`TeamStatsWebSocket`](src/main/java/io/quarkus/sample/superheroes/statistics/endpoint/TeamStatsWebSocket.java) WebSocket class. Every time a new fight event is received, the team stats are re-computed and a JSON structure is emitted to anyone listening on the WebSocket.
+
+A sample payload might look like this:
+
+```json
+{
+    "heroWins": 15,
+    "villainWins": 5,
+    "numberOfFights": 20,
+    "heroWinRatio": 0.75
+}
+```
 
 ### Winner Stats
 Winner stats are accumulated by the number of wins of each hero or villain.
