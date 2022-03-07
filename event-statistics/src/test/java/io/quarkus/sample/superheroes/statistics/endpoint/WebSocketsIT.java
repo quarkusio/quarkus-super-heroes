@@ -30,9 +30,13 @@ import org.junit.jupiter.api.Test;
 import io.quarkus.sample.superheroes.fight.schema.Fight;
 import io.quarkus.sample.superheroes.statistics.InjectKafkaProducer;
 import io.quarkus.sample.superheroes.statistics.KafkaProducerResource;
+import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.smallrye.mutiny.unchecked.Unchecked;
 
 /**
  * Integration tests for the {@link TeamStatsWebSocket} and {@link TopWinnerWebSocket} WebSockets.
@@ -47,6 +51,7 @@ public class WebSocketsIT {
 	private static final String HERO_TEAM_NAME = "heroes";
 	private static final String VILLAIN_TEAM_NAME = "villains";
 	private static final String VILLAIN_NAME = "Darth Vader";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	@TestHTTPResource("/stats/team")
 	URI teamStatsUri;
@@ -96,43 +101,43 @@ public class WebSocketsIT {
 		// Perform assertions that all expected teamStatsMessages were received
 		assertThat(teamStatsMessages.poll())
 			.isNotNull()
-			.isEqualTo(String.valueOf((double) 1/1));
+      .isEqualTo(createTeamScoreJsonString(new TeamScore(1, 0)));
 
 		assertThat(teamStatsMessages.poll())
 			.isNotNull()
-			.isEqualTo(String.valueOf((double) 1/2));
+      .isEqualTo(createTeamScoreJsonString(new TeamScore(1, 1)));
 
 		assertThat(teamStatsMessages.poll())
 			.isNotNull()
-			.isEqualTo(String.valueOf((double) 2/3));
+      .isEqualTo(createTeamScoreJsonString(new TeamScore(2, 1)));
 
 		assertThat(teamStatsMessages.poll())
 			.isNotNull()
-			.isEqualTo(String.valueOf((double) 2/4));
+      .isEqualTo(createTeamScoreJsonString(new TeamScore(2, 2)));
 
 		assertThat(teamStatsMessages.poll())
 			.isNotNull()
-			.isEqualTo(String.valueOf((double) 3/5));
+      .isEqualTo(createTeamScoreJsonString(new TeamScore(3, 2)));
 
 		assertThat(teamStatsMessages.poll())
 			.isNotNull()
-			.isEqualTo(String.valueOf((double) 3/6));
+      .isEqualTo(createTeamScoreJsonString(new TeamScore(3, 3)));
 
 		assertThat(teamStatsMessages.poll())
 			.isNotNull()
-			.isEqualTo(String.valueOf((double) 4/7));
+      .isEqualTo(createTeamScoreJsonString(new TeamScore(4, 3)));
 
 		assertThat(teamStatsMessages.poll())
 			.isNotNull()
-			.isEqualTo(String.valueOf((double) 4/8));
+      .isEqualTo(createTeamScoreJsonString(new TeamScore(4, 4)));
 
 		assertThat(teamStatsMessages.poll())
 			.isNotNull()
-			.isEqualTo(String.valueOf((double) 5/9));
+      .isEqualTo(createTeamScoreJsonString(new TeamScore(5, 4)));
 
 		assertThat(teamStatsMessages.poll())
 			.isNotNull()
-			.isEqualTo(String.valueOf((double) 5/10));
+      .isEqualTo(createTeamScoreJsonString(new TeamScore(5, 5)));
 	}
 
 	private static void validateTopWinnerStats(BlockingQueue<String> topWinnerMessages) {
@@ -141,43 +146,43 @@ public class WebSocketsIT {
 		// Perform assertions that all expected topWinnerMessages were received
 		assertThat(topWinnerMessages.poll())
 			.isNotNull()
-			.isEqualTo("[%s]", createJsonString(HERO_NAME, 1));
+			.isEqualTo("[%s]", createScoreJsonString(HERO_NAME, 1));
 
 		assertThat(topWinnerMessages.poll())
 			.isNotNull()
-			.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 1), createJsonString(VILLAIN_NAME, 1));
+			.isEqualTo("[%s,%s]", createScoreJsonString(HERO_NAME, 1), createScoreJsonString(VILLAIN_NAME, 1));
 
 		assertThat(topWinnerMessages.poll())
 			.isNotNull()
-			.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 2), createJsonString(VILLAIN_NAME, 1));
+			.isEqualTo("[%s,%s]", createScoreJsonString(HERO_NAME, 2), createScoreJsonString(VILLAIN_NAME, 1));
 
 		assertThat(topWinnerMessages.poll())
 			.isNotNull()
-			.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 2), createJsonString(VILLAIN_NAME, 2));
+			.isEqualTo("[%s,%s]", createScoreJsonString(HERO_NAME, 2), createScoreJsonString(VILLAIN_NAME, 2));
 
 		assertThat(topWinnerMessages.poll())
 			.isNotNull()
-			.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 3), createJsonString(VILLAIN_NAME, 2));
+			.isEqualTo("[%s,%s]", createScoreJsonString(HERO_NAME, 3), createScoreJsonString(VILLAIN_NAME, 2));
 
 		assertThat(topWinnerMessages.poll())
 			.isNotNull()
-			.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 3), createJsonString(VILLAIN_NAME, 3));
+			.isEqualTo("[%s,%s]", createScoreJsonString(HERO_NAME, 3), createScoreJsonString(VILLAIN_NAME, 3));
 
 		assertThat(topWinnerMessages.poll())
 			.isNotNull()
-			.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 4), createJsonString(VILLAIN_NAME, 3));
+			.isEqualTo("[%s,%s]", createScoreJsonString(HERO_NAME, 4), createScoreJsonString(VILLAIN_NAME, 3));
 
 		assertThat(topWinnerMessages.poll())
 			.isNotNull()
-			.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 4), createJsonString(VILLAIN_NAME, 4));
+			.isEqualTo("[%s,%s]", createScoreJsonString(HERO_NAME, 4), createScoreJsonString(VILLAIN_NAME, 4));
 
 		assertThat(topWinnerMessages.poll())
 			.isNotNull()
-			.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 5), createJsonString(VILLAIN_NAME, 4));
+			.isEqualTo("[%s,%s]", createScoreJsonString(HERO_NAME, 5), createScoreJsonString(VILLAIN_NAME, 4));
 
 		assertThat(topWinnerMessages.poll())
 			.isNotNull()
-			.isEqualTo("[%s,%s]", createJsonString(HERO_NAME, 5), createJsonString(VILLAIN_NAME, 5));
+			.isEqualTo("[%s,%s]", createScoreJsonString(HERO_NAME, 5), createScoreJsonString(VILLAIN_NAME, 5));
 	}
 
 	private static void waitForClientsToStart(BlockingQueue<String> teamStatsMessages, BlockingQueue<String> topWinnerMessages) {
@@ -187,7 +192,11 @@ public class WebSocketsIT {
 			.until(() -> "CONNECT".equals(teamStatsMessages.poll()) && "CONNECT".equals(topWinnerMessages.poll()));
 	}
 
-	private static String createJsonString(String name, int score) {
+  private static String createTeamScoreJsonString(TeamScore teamScore) {
+    return Unchecked.supplier(() -> OBJECT_MAPPER.writeValueAsString(teamScore)).get();
+  }
+
+	private static String createScoreJsonString(String name, int score) {
 		return String.format("{\"name\":\"%s\",\"score\":%d}", name, score);
 	}
 

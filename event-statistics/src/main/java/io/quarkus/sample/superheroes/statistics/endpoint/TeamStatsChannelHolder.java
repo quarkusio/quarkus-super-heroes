@@ -5,6 +5,8 @@ import javax.inject.Inject;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
 
+import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
+
 import io.smallrye.mutiny.Multi;
 
 /**
@@ -18,9 +20,9 @@ import io.smallrye.mutiny.Multi;
 class TeamStatsChannelHolder {
 	@Inject
 	@Channel("team-stats")
-	Multi<Double> teamStats;
+	Multi<TeamScore> teamStats;
 
-	Multi<Double> getTeamStats() {
+	Multi<TeamScore> getTeamStats() {
 		return this.teamStats;
 	}
 }
