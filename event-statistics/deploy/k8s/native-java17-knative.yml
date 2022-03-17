@@ -38,8 +38,8 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 1a2d195bd0f99e91a0f7c21e8a33249dceaa02ca
-    app.quarkus.io/build-timestamp: 2022-03-10 - 13:20:08 +0000
+    app.quarkus.io/commit-id: a6b20bb84e3d0c599cd5d3890c37eed8dfa18042
+    app.quarkus.io/build-timestamp: 2022-03-17 - 11:29:39 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -50,8 +50,8 @@ metadata:
     application: event-stats
     system: quarkus-super-heroes
     app.kubernetes.io/version: native-java17-latest
-    app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/name: event-statistics
   name: event-statistics
 spec:
   template:
@@ -60,8 +60,8 @@ spec:
         app.openshift.io/connects-to: "fights-kafka,apicurio"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 1a2d195bd0f99e91a0f7c21e8a33249dceaa02ca
-        app.quarkus.io/build-timestamp: 2022-03-10 - 13:20:08 +0000
+        app.quarkus.io/commit-id: a6b20bb84e3d0c599cd5d3890c37eed8dfa18042
+        app.quarkus.io/build-timestamp: 2022-03-17 - 11:29:39 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -72,16 +72,16 @@ spec:
         application: event-stats
         system: quarkus-super-heroes
         app.kubernetes.io/version: native-java17-latest
-        app.kubernetes.io/name: event-statistics
         app.kubernetes.io/part-of: event-stats
+        app.kubernetes.io/name: event-statistics
     spec:
       containerConcurrency: 0
       containers:
         - envFrom:
-            - configMapRef:
-                name: event-statistics-config
             - secretRef:
                 name: event-statistics-config-creds
+            - configMapRef:
+                name: event-statistics-config
           image: quay.io/quarkus-super-heroes/event-statistics:native-java17-latest
           livenessProbe:
             failureThreshold: 3
