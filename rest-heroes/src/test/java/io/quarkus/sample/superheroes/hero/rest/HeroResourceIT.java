@@ -204,6 +204,32 @@ public class HeroResourceIT {
 				.statusCode(NOT_FOUND.getStatusCode());
 	}
 
+  @Test
+  @Order(DEFAULT_ORDER)
+  public void shouldNotGetAnyHeroesThatDontMatchFilterCriteria() {
+    given()
+      .when()
+        .queryParam("name_filter", "iooi90904890358349 8890re9ierkjlk;sdf098w459idxflkjdfjoiio4ue")
+        .get("/api/heroes")
+      .then()
+        .statusCode(OK.getStatusCode())
+        .body("size()", is(0));
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER)
+  public void shouldGetHeroesThatMatchFilterCriteria() {
+    given()
+      .when()
+        .queryParam("name_filter", "spid")
+        .get("/api/heroes")
+      .then()
+        .statusCode(OK.getStatusCode())
+        .body("size()", is(2))
+        .body("[0].name", is("Spider-Man"))
+        .body("[1].name", is("Spidey"));
+  }
+
 	@Test
 	@Order(DEFAULT_ORDER + 1)
 	public void shouldGetInitialItems() {

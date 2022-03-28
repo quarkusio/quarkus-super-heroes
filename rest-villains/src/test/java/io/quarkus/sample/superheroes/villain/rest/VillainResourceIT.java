@@ -147,12 +147,12 @@ public class VillainResourceIT {
 	public void shouldNotFullyUpdateNullItem() {
 		given()
 				.when()
-				.contentType(JSON)
-				.accept(JSON)
-				.body("")
-			.put("/api/villains/{id}", 1L)
-				.then()
-				.statusCode(BAD_REQUEST.getStatusCode());
+          .contentType(JSON)
+          .accept(JSON)
+          .body("")
+        .put("/api/villains/{id}", 1L)
+          .then()
+          .statusCode(BAD_REQUEST.getStatusCode());
 	}
 
 	@Test
@@ -205,6 +205,32 @@ public class VillainResourceIT {
 			.then()
 				.statusCode(NOT_FOUND.getStatusCode());
 	}
+
+  @Test
+  @Order(DEFAULT_ORDER)
+  public void shouldNotGetAnyVillainsThatDontMatchFilterCriteria() {
+    given()
+      .when()
+        .queryParam("name_filter", "iooi90904890358349 8890re9ierkjlk;sdf098w459idxflkjdfjoiio4ue")
+        .get("/api/villains")
+      .then()
+        .statusCode(OK.getStatusCode())
+        .body("size()", is(0));
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER)
+  public void shouldGetVillainsThatMatchFilterCriteria() {
+    given()
+      .when()
+        .queryParam("name_filter", "darth")
+        .get("/api/villains")
+      .then()
+        .statusCode(OK.getStatusCode())
+        .body("size()", is(2))
+        .body("[0].name", is("Darth Sidious"))
+        .body("[1].name", is("Darth Vader"));
+  }
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)

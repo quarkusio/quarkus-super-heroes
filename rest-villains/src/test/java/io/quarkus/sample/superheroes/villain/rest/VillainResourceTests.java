@@ -252,6 +252,49 @@ public class VillainResourceTests {
 		verifyNoMoreInteractions(this.villainService);
 	}
 
+  @Test
+  public void shouldGetItemsWithNameFilter() {
+    when(this.villainService.findAllVillainsHavingName(eq("name")))
+      .thenReturn(List.of(createDefaultVillian()));
+
+    given()
+      .when()
+        .queryParam("name_filter", "name")
+        .get("/api/villains")
+      .then()
+        .statusCode(OK.getStatusCode())
+        .contentType(JSON)
+        .body(
+          "$.size()", is(1),
+          "[0].id", is((int) DEFAULT_ID),
+          "[0].name", is(DEFAULT_NAME),
+          "[0].otherName", is(DEFAULT_OTHER_NAME),
+          "[0].level", is(DEFAULT_LEVEL),
+          "[0].picture", is(DEFAULT_PICTURE),
+          "[0].powers", is(DEFAULT_POWERS)
+        );
+
+    verify(this.villainService).findAllVillainsHavingName(eq("name"));
+    verifyNoMoreInteractions(this.villainService);
+  }
+
+  @Test
+  public void shouldGetEmptyItemsWithNameFilter() {
+    when(this.villainService.findAllVillainsHavingName(eq("name")))
+      .thenReturn(List.of());
+
+    given()
+      .when()
+        .queryParam("name_filter", "name")
+        .get("/api/villains")
+      .then()
+        .statusCode(OK.getStatusCode())
+        .body("$.size()", is(0));
+
+    verify(this.villainService).findAllVillainsHavingName(eq("name"));
+    verifyNoMoreInteractions(this.villainService);
+  }
+
 	@Test
 	public void shouldGetNullItems() {
 		when(this.villainService.findAllVillains())

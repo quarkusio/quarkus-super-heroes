@@ -1,5 +1,6 @@
 package io.quarkus.sample.superheroes.villain;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
@@ -42,6 +43,12 @@ public class Villain extends PanacheEntity {
 
 		return Optional.empty();
 	}
+
+  public static List<Villain> listAllWhereNameLike(String name) {
+    return (name != null) ?
+           list("LOWER(name) LIKE CONCAT('%', ?1, '%')", name.toLowerCase()) :
+           List.of();
+  }
 
 	@Override
 	/* prettier-ignore */

@@ -1,8 +1,13 @@
 package io.quarkus.sample.superheroes.villain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.ParameterizedTest.*;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
@@ -55,4 +60,51 @@ class VillainTests {
 			.isNotNull()
 			.isPositive();
 	}
+
+  @ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
+  @ValueSource(strings = { DEFAULT_NAME, "choco", "Choco", "CHOCO", "Chocolatine", "super", "l" })
+  @EmptySource
+  public void findAllWhereNameLikeFound(String name) {
+    var villain = new Villain();
+    villain.name = DEFAULT_NAME;
+    villain.otherName = DEFAULT_OTHER_NAME;
+    villain.picture = DEFAULT_PICTURE;
+    villain.powers = DEFAULT_POWERS;
+    villain.level = DEFAULT_LEVEL;
+
+    Villain.deleteAll();
+    Villain.persist(villain);
+
+    assertThat(Villain.count())
+      .isEqualTo(1L);
+
+    assertThat(Villain.listAllWhereNameLike(name))
+      .isNotNull()
+      .hasSize(1)
+      .first()
+      .usingRecursiveComparison()
+      .isEqualTo(villain);
+  }
+
+  @ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
+  @ValueSource(strings = { "v", "support", "chocolate" })
+  @NullSource
+  public void findAllWhereNameLikeNotFound(String name) {
+    var villain = new Villain();
+    villain.name = DEFAULT_NAME;
+    villain.otherName = DEFAULT_OTHER_NAME;
+    villain.picture = DEFAULT_PICTURE;
+    villain.powers = DEFAULT_POWERS;
+    villain.level = DEFAULT_LEVEL;
+
+    Villain.deleteAll();
+    Villain.persist(villain);
+
+    assertThat(Villain.count())
+      .isEqualTo(1L);
+
+    assertThat(Villain.listAllWhereNameLike(name))
+      .isNotNull()
+      .isEmpty();
+  }
 }

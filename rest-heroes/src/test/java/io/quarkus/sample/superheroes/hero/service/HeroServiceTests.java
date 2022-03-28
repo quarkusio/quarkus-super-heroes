@@ -1,6 +1,7 @@
 package io.quarkus.sample.superheroes.hero.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.params.ParameterizedTest.*;
 import static org.mockito.Mockito.*;
 
 import java.time.Duration;
@@ -11,6 +12,9 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import io.quarkus.sample.superheroes.hero.Hero;
 import io.quarkus.sample.superheroes.hero.mapping.HeroFullUpdateMapper;
@@ -103,6 +107,63 @@ class HeroServiceTests {
 		verify(this.heroRepository).listAll();
 		verifyNoMoreInteractions(this.heroRepository);
 	}
+
+  @ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
+  @ValueSource(strings = { "name" })
+  @NullSource
+  public void findAllHeroesHavingNameNoneFound(String name) {
+    when(this.heroRepository.listAllWhereNameLike(eq(name))).thenReturn(Uni.createFrom().item(List.of()));
+
+    var allHeroes = this.heroService.findAllHeroesHavingName(name)
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .getItem();
+
+    assertThat(allHeroes)
+      .isNotNull()
+      .isEmpty();
+
+    verify(this.heroRepository).listAllWhereNameLike(eq(name));
+    verifyNoMoreInteractions(this.heroRepository);
+  }
+
+  @Test
+  public void findAllHeroesHavingName() {
+    when(this.heroRepository.listAllWhereNameLike(eq("name"))).thenReturn(Uni.createFrom().item(List.of(createDefaultHero())));
+
+    var allHeroes = this.heroService.findAllHeroesHavingName("name")
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .getItem();
+
+    assertThat(allHeroes)
+      .isNotNull()
+      .isNotEmpty()
+      .hasSize(1)
+      .extracting(
+        Hero::getId,
+        Hero::getName,
+        Hero::getOtherName,
+        Hero::getLevel,
+        Hero::getPicture,
+        Hero::getPowers
+      )
+      .containsExactly(
+        tuple(
+          DEFAULT_ID,
+          DEFAULT_NAME,
+          DEFAULT_OTHER_NAME,
+          DEFAULT_LEVEL,
+          DEFAULT_PICTURE,
+          DEFAULT_POWERS
+        )
+      );
+
+    verify(this.heroRepository).listAllWhereNameLike(eq("name"));
+    verifyNoMoreInteractions(this.heroRepository);
+  }
 
 	@Test
 	public void findHeroByIdFound() {

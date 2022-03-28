@@ -80,7 +80,7 @@ public class HeroResourceTests {
 	@Test
 	public void shouldGetRandomHeroFound() {
 		when(this.heroService.findRandomHero())
-			.thenReturn(Uni.createFrom().item(createDefaultVillian()));
+			.thenReturn(Uni.createFrom().item(createDefaultHero()));
 
 		get("/api/heroes/random")
 			.then()
@@ -217,7 +217,7 @@ public class HeroResourceTests {
 	@Test
 	public void shouldGetItems() {
 		when(this.heroService.findAllHeroes())
-			.thenReturn(Uni.createFrom().item(List.of(createDefaultVillian())));
+			.thenReturn(Uni.createFrom().item(List.of(createDefaultHero())));
 
 		get("/api/heroes")
 			.then()
@@ -251,6 +251,49 @@ public class HeroResourceTests {
 		verifyNoMoreInteractions(this.heroService);
 	}
 
+  @Test
+  public void shouldGetItemsWithNameFilter() {
+    when(this.heroService.findAllHeroesHavingName(eq("name")))
+      .thenReturn(Uni.createFrom().item(List.of(createDefaultHero())));
+
+    given()
+      .when()
+        .queryParam("name_filter", "name")
+        .get("/api/heroes")
+      .then()
+        .statusCode(OK.getStatusCode())
+        .contentType(JSON)
+        .body(
+          "$.size()", is(1),
+          "[0].id", is((int) DEFAULT_ID),
+          "[0].name", is(DEFAULT_NAME),
+          "[0].otherName", is(DEFAULT_OTHER_NAME),
+          "[0].level", is(DEFAULT_LEVEL),
+          "[0].picture", is(DEFAULT_PICTURE),
+          "[0].powers", is(DEFAULT_POWERS)
+        );
+
+    verify(this.heroService).findAllHeroesHavingName(eq("name"));
+    verifyNoMoreInteractions(this.heroService);
+  }
+
+  @Test
+  public void shouldGetEmptyItemsWithNameFilter() {
+    when(this.heroService.findAllHeroesHavingName(eq("name")))
+      .thenReturn(Uni.createFrom().item(List.of()));
+
+    given()
+      .when()
+        .queryParam("name_filter", "name")
+        .get("/api/heroes")
+      .then()
+        .statusCode(OK.getStatusCode())
+        .body("$.size()", is(0));
+
+    verify(this.heroService).findAllHeroesHavingName(eq("name"));
+    verifyNoMoreInteractions(this.heroService);
+  }
+
 	@Test
 	public void shouldGetNullItems() {
 		when(this.heroService.findAllHeroes())
@@ -276,7 +319,7 @@ public class HeroResourceTests {
 				(h.getLevel() == DEFAULT_LEVEL);
 
 		when(this.heroService.persistHero(argThat(heroMatcher)))
-			.thenReturn(Uni.createFrom().item(createDefaultVillian()));
+			.thenReturn(Uni.createFrom().item(createDefaultHero()));
 
 		var hero = new Hero();
 		hero.setName(DEFAULT_NAME);
@@ -458,7 +501,7 @@ public class HeroResourceTests {
 			.then().statusCode(OK.getStatusCode());
 	}
 
-	private static Hero createDefaultVillian() {
+	private static Hero createDefaultHero() {
 		var hero = new Hero();
 		hero.setId(DEFAULT_ID);
 		hero.setName(DEFAULT_NAME);
@@ -471,7 +514,7 @@ public class HeroResourceTests {
 	}
 
 	public static Hero createFullyUpdatedHero() {
-		var hero = createDefaultVillian();
+		var hero = createDefaultHero();
 		hero.setName(UPDATED_NAME);
 		hero.setOtherName(UPDATED_OTHER_NAME);
 		hero.setPicture(UPDATED_PICTURE);
@@ -482,7 +525,7 @@ public class HeroResourceTests {
 	}
 
 	public static Hero createPartiallyUpdatedHero() {
-		var hero = createDefaultVillian();
+		var hero = createDefaultHero();
 		hero.setPicture(UPDATED_PICTURE);
 		hero.setPowers(UPDATED_POWERS);
 

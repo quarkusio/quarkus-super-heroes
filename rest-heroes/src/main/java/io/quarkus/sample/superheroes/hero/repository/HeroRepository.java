@@ -1,5 +1,6 @@
 package io.quarkus.sample.superheroes.hero.repository;
 
+import java.util.List;
 import java.util.Random;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,4 +21,10 @@ public class HeroRepository implements PanacheRepository<Hero> {
 			.onItem().ifNotNull().transform(count -> new Random().nextInt(count.intValue()))
 			.onItem().ifNotNull().transformToUni(randomHero -> findAll().page(randomHero, 1).firstResult());
 	}
+
+  public Uni<List<Hero>> listAllWhereNameLike(String name) {
+    return (name != null) ?
+           list("LOWER(name) LIKE CONCAT('%', ?1, '%')", name.toLowerCase()) :
+           Uni.createFrom().item(List::of);
+  }
 }

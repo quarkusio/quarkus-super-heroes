@@ -1,6 +1,7 @@
 package io.quarkus.sample.superheroes.villain.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.params.ParameterizedTest.*;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -14,6 +15,9 @@ import javax.validation.ConstraintViolationException;
 
 import org.eclipse.microprofile.config.Config;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import io.quarkus.panache.mock.PanacheMock;
@@ -98,6 +102,53 @@ class VillainServiceTests {
 		PanacheMock.verify(Villain.class).listAll();
 		PanacheMock.verifyNoMoreInteractions(Villain.class);
 	}
+
+  @ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
+  @ValueSource(strings = { "name" })
+  @NullSource
+  public void findAllVillainsHavingNameNoneFound(String name) {
+    PanacheMock.mock(Villain.class);
+    when(Villain.listAllWhereNameLike(eq(name))).thenReturn(List.of());
+
+    assertThat(this.villainService.findAllVillainsHavingName(name))
+      .isNotNull()
+      .isEmpty();
+
+    PanacheMock.verify(Villain.class).listAllWhereNameLike(eq(name));
+    PanacheMock.verifyNoMoreInteractions(Villain.class);
+  }
+
+  @Test
+  public void findAllVillainsHavingName() {
+    PanacheMock.mock(Villain.class);
+    when(Villain.listAllWhereNameLike(eq("name"))).thenReturn(List.of(createDefaultVillian()));
+
+    assertThat(this.villainService.findAllVillainsHavingName("name"))
+      .isNotNull()
+      .isNotEmpty()
+      .hasSize(1)
+      .extracting(
+        "id",
+        "name",
+        "otherName",
+        "level",
+        "picture",
+        "powers"
+      )
+      .containsExactly(
+        tuple(
+          DEFAULT_ID,
+          DEFAULT_NAME,
+          DEFAULT_OTHER_NAME,
+          DEFAULT_LEVEL,
+          DEFAULT_PICTURE,
+          DEFAULT_POWERS
+        )
+      );
+
+    PanacheMock.verify(Villain.class).listAllWhereNameLike(eq("name"));
+    PanacheMock.verifyNoMoreInteractions(Villain.class);
+  }
 
 	@Test
 	public void findVillainByIdFound() {
