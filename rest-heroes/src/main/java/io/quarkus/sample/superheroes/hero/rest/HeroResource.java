@@ -4,6 +4,7 @@ import static javax.ws.rs.core.MediaType.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -17,6 +18,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -84,9 +86,11 @@ public class HeroResource {
 		description = "Gets all heroes",
 		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Hero.class, type = SchemaType.ARRAY))
 	)
-	public Uni<List<Hero>> getAllHeroes() {
-		return this.heroService.findAllHeroes()
-			.invoke(heroes -> this.logger.debugf("Total number of heroes: %d", heroes.size()));
+	public Uni<List<Hero>> getAllHeroes(@Parameter(name = "name_filter", description = "An optional filter parameter to filter results by name") @QueryParam("name_filter") Optional<String> nameFilter) {
+    return nameFilter
+      .map(this.heroService::findAllHeroesHavingName)
+      .orElseGet(this.heroService::findAllHeroes)
+      .invoke(heroes -> this.logger.debugf("Total number of heroes: %d", heroes.size()));
 	}
 
 	@GET

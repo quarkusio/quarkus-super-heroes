@@ -38,6 +38,10 @@ public class HeroService {
 		return this.heroRepository.listAll();
 	}
 
+  public Uni<List<Hero>> findAllHeroesHavingName(String name) {
+    return this.heroRepository.listAllWhereNameLike(name);
+  }
+
 	public Uni<Hero> findHeroById(Long id) {
 		return this.heroRepository.findById(id);
 	}

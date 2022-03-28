@@ -18,6 +18,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -80,9 +81,10 @@ public class VillainResource {
 		description = "Gets all villains",
 		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class, type = SchemaType.ARRAY))
 	)
-	public List<Villain> getAllVillains() {
-		List<Villain> villains = Optional.ofNullable(this.service.findAllVillains())
-			.orElseGet(List::of);
+	public List<Villain> getAllVillains(@Parameter(name = "name_filter", description = "An optional filter parameter to filter results by name") @QueryParam("name_filter") Optional<String> nameFilter) {
+    var villains = nameFilter
+      .map(this.service::findAllVillainsHavingName)
+      .orElseGet(this.service::findAllVillains);
 
 		this.logger.debugf("Total number of villains: %d", villains.size());
 

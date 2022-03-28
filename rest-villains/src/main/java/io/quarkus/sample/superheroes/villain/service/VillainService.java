@@ -38,8 +38,15 @@ public class VillainService {
 
 	@Transactional(SUPPORTS)
 	public List<Villain> findAllVillains() {
-		return Villain.listAll();
+    return Optional.ofNullable(Villain.<Villain>listAll())
+      .orElseGet(List::of);
 	}
+
+  @Transactional(SUPPORTS)
+  public List<Villain> findAllVillainsHavingName(String name) {
+    return Optional.ofNullable(Villain.listAllWhereNameLike(name))
+      .orElseGet(List::of);
+  }
 
 	@Transactional(SUPPORTS)
 	public Optional<Villain> findVillainById(Long id) {
