@@ -35,7 +35,7 @@ jobs:
           - rest-villains
     name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Java
         uses: actions/setup-java@v2
@@ -95,18 +95,18 @@ jobs:
           - rest-villains
     name: "build-test-native-${{ matrix.project }}-java-${{ matrix.java }}"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Cache and restore Maven artifacts
         id: check-mvn-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: setup-java-${{ runner.os }}-maven-${{ hashFiles('${{ matrix.project }}/pom.xml') }}
 
       - name: Cache and restore Mandrel distro
         id: check-mandrel-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: java_package-${{ matrix.java }}.tar.gz
           key: mandrel-distro-${{ env.MANDREL_VERSION }}-${{ matrix.java }}
@@ -168,7 +168,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -209,7 +209,7 @@ jobs:
           - rest-villains
     name: "push-app-images-${{ matrix.project }}-${{ matrix.kind }}java-${{ matrix.java }}"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Java
         uses: actions/setup-java@v2
@@ -258,7 +258,7 @@ jobs:
       - build-ui-image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Java
         uses: actions/setup-java@v2
