@@ -7,9 +7,9 @@
   <version>1.0</version>
   <name>Quarkus Sample :: Super-Heroes :: Villains Microservice</name>
   <properties>
+    <assertj.version>3.22.0</assertj.version>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
-    <maven.compiler.parameters>true</maven.compiler.parameters>
     <maven.compiler.release>11</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -17,7 +17,6 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>2.7.5.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-    <assertj.version>3.22.0</assertj.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -94,6 +93,10 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-resteasy-reactive-qute</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>
     </dependency>
@@ -115,8 +118,8 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <scope>test</scope>
       <version>${assertj.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
@@ -140,7 +143,9 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${compiler-plugin.version}</version>
         <configuration>
-          <parameters>${maven.compiler.parameters}</parameters>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
           <annotationProcessorPaths>
             <path>
               <groupId>org.mapstruct</groupId>

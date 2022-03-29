@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Villains List</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="css/patternfly.css">
+    <link rel="stylesheet" type="text/css" href="css/patternfly-addons.css">
+
+    <script>
+        $(document).ready(function() {
+            let nameFilter = new URLSearchParams(window.location.search).get("name_filter");
+
+            if (nameFilter) {
+                $("#filterByNameBox").val(nameFilter);
+            }
+
+            $("#filterBtn").click(function() {
+               performSearch();
+            });
+
+            $("#filterByNameBox").keypress(function(event) {
+               if (event.keyCode == 13) {
+                   event.preventDefault();
+                   $("#filterBtn").click();
+               }
+            });
+
+            $("#filterByNameBox").focus();
+        });
+
+        function performSearch() {
+            let nameFilter = $("#filterByNameBox").val()
+            let url = (nameFilter) ? "/?name_filter=" + nameFilter : "/"
+            window.location.replace(url)
+        }
+
+        function togglePowersExpandCollapse(villainId) {
+            let isExpanded = $("#toggle_expand_collapse_" + villainId).text() == 'Show less';
+
+            if (isExpanded) {
+                $("#toggle_expand_collapse_" + villainId).text('Show more')
+                $("#toggle_powers_" + villainId).removeClass('pf-m-expanded')
+                $("#expand_collapse_button_" + villainId).attr('aria-expanded', false)
+                $("#villain_powers_" + villainId).hide()
+            }
+            else {
+                $("#toggle_expand_collapse_" + villainId).text('Show less')
+                $("#toggle_powers_" + villainId).addClass('pf-m-expanded')
+                $("#expand_collapse_button_" + villainId).attr('aria-expanded', true)
+                $("#villain_powers_" + villainId).show()
+            }
+        }
+    </script>
+</head>
+<body>
+<div class="pf-c-card pf-m-display-lg">
+    <div class="pf-c-card__title">Villains</div>
+    <div class="pf-c-card__body">
+        <div class="pf-c-toolbar">
+            <div class="pf-c-toolbar__content">
+                <div class="pf-c-toolbar__content-section pf-m-nowrap">
+                    <div class="pf-c-toolbar__group pf-m-toggle-group pf-m-show-on-xl">
+                        <div class="pf-c-toolbar__item pf-m-search-filter">
+                            <div class="pf-c-input-group"
+                                    aria-label="search filter"
+                                    role="group">
+                                <div class="pf-c-search-input">
+                                    <div class="pf-c-search-input__bar">
+                        <span class="pf-c-search-input__text">
+                          <span class="pf-c-search-input__icon">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                          </span>
+                          <input class="pf-c-search-input__text-input"
+                                 type="text"
+                                 id="filterByNameBox"
+                                 placeholder="Filter by name"
+                                 aria-label="Filter by name"/>
+                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pf-c-overflow-menu" id="-overflow-menu">
+                        <div class="pf-c-overflow-menu__content pf-u-display-none pf-u-display-flex-on-lg">
+                            <div class="pf-c-overflow-menu__group pf-m-button-group">
+                                <div class="pf-c-overflow-menu__item">
+                                    <button class="pf-c-button pf-m-primary" id="filterBtn"
+                                            type="button">Filter Villains</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table
+                class="pf-c-table pf-m-grid-md pf-m-sticky-header pf-m-striped"
+                role="grid"
+                aria-label="Villains table"
+                id="villains-table">
+            <thead>
+            <tr role="row">
+                <th role="columnheader" scope="col">ID</th>
+                <th role="columnheader" scope="col">Name</th>
+                <th class="pf-m-wrap" role="columnheader" scope="col">Other Name</th>
+                <th role="columnheader" scope="col">Level</th>
+                <th role="columnheader" scope="col">Powers</th>
+            </tr>
+            </thead>
+
+            <tbody role="rowgroup">
+            {#for villain in villains}
+                <tr role="row">
+                <td role="cell" data-label="ID">{villain.id}</td>
+                <td role="cell" data-label="Name">{villain.name}</td>
+                <td role="cell" data-label="Other Name">{villain.otherName}</td>
+                <td role="cell" data-label="Level">{villain.level}</td>
+                <td role="cell" data-label="Powers">
+                <div class="pf-c-expandable-section pf-m-expanded" id="toggle_powers_{villain.id}">
+                <button id="expand_collapse_button_{villain.id}"
+                        type="button"
+                        class="pf-c-expandable-section__toggle"
+                        aria-expanded="true">
+    <span class="pf-c-expandable-section__toggle-icon">
+      <i class="fas fa-angle-right" aria-hidden="true"></i>
+    </span>
+                    <span id="toggle_expand_collapse_{villain.id}" class="pf-c-expandable-section__toggle-text" onclick="togglePowersExpandCollapse({villain.id})">Show less</span>
+                </button>
+                <div id="villain_powers_{villain.id}" class="pf-c-expandable-section__content">{villain.powers}</div>
+                </div>
+                </td>
+                </tr>
+            {/for}
+            </tbody>
+        </table>
+    </div>
+</body>
