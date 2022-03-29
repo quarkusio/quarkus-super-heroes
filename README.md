@@ -20,6 +20,7 @@ This is a sample application demonstrating Quarkus features and best practices. 
     - A classical HTTP microservice exposing CRUD operations on Villains, stored in a PostgreSQL database.
     - Implemented with blocking endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) and [Quarkus Hibernate ORM with Panache's active record pattern](https://quarkus.io/guides/hibernate-orm-panache).
     - Favors field injection of beans (`@Inject` annotation) over construction injection.
+    - Uses the [Quarkus Qute templating engine](https://quarkus.io/guides/qute) for its [UI](rest-villains/README.md#running-the-application).
 - [Hero REST API](rest-heroes)
     - A reactive HTTP microservice exposing CRUD operations on Heroes, stored in a PostgreSQL database.
     - Implemented with reactive endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) and [Quarkus Hibernate Reactive with Panache's repository pattern](http://quarkus.io/guides/hibernate-reactive-panache).
