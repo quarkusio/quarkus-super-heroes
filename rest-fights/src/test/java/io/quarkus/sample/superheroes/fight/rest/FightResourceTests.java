@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -33,7 +34,7 @@ import io.smallrye.mutiny.Uni;
  */
 @QuarkusTest
 public class FightResourceTests {
-	private static final long DEFAULT_FIGHT_ID = 1L;
+	private static final String DEFAULT_FIGHT_ID = new ObjectId().toString();
 	private static final Instant DEFAULT_FIGHT_DATE = Instant.now();
 
 	private static final String DEFAULT_HERO_NAME = "Super Baguette";
@@ -113,7 +114,7 @@ public class FightResourceTests {
 			.contentType(JSON)
 			.body(
 				"$.size()", is(1),
-				"[0].id", is((int) DEFAULT_FIGHT_ID),
+				"[0].id", is(DEFAULT_FIGHT_ID),
 				"[0].fightDate", is(DEFAULT_FIGHT_DATE.toString()),
 				"[0].winnerName", is(DEFAULT_HERO_NAME),
 				"[0].winnerLevel", is(DEFAULT_HERO_LEVEL),
@@ -151,7 +152,7 @@ public class FightResourceTests {
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
 			.body(
-				"id", is((int) DEFAULT_FIGHT_ID),
+				"id", is(DEFAULT_FIGHT_ID),
 				"fightDate", is(DEFAULT_FIGHT_DATE.toString()),
 				"winnerName", is(DEFAULT_HERO_NAME),
 				"winnerLevel", is(DEFAULT_HERO_LEVEL),
@@ -212,7 +213,7 @@ public class FightResourceTests {
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
 				.body(
-					"id", is((int) DEFAULT_FIGHT_ID),
+					"id", is(DEFAULT_FIGHT_ID),
 					"fightDate", is(DEFAULT_FIGHT_DATE.toString()),
 					"winnerName", is(DEFAULT_HERO_NAME),
 					"winnerLevel", is(DEFAULT_HERO_LEVEL),
@@ -272,7 +273,7 @@ public class FightResourceTests {
 
 	private static Fight createFightHeroWon() {
 		var fight = new Fight();
-		fight.id = DEFAULT_FIGHT_ID;
+		fight.id = new ObjectId(DEFAULT_FIGHT_ID);
 		fight.fightDate = DEFAULT_FIGHT_DATE;
 		fight.winnerName = DEFAULT_HERO_NAME;
 		fight.winnerLevel = DEFAULT_HERO_LEVEL;

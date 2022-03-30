@@ -81,7 +81,7 @@ public class FightResource {
 		responseCode = "404",
 		description = "The fight is not found for a given identifier"
 	)
-	public Uni<Response> getFight(@Parameter(name = "id", required = true) @PathParam("id") Long id) {
+	public Uni<Response> getFight(@Parameter(name = "id", required = true) @PathParam("id") String id) {
 		return this.service.findFightById(id)
 			.onItem().ifNotNull().transform(f -> {
 				Log.debugf("Found fight: %s", f);

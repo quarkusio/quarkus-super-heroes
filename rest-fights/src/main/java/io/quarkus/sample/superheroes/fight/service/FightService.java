@@ -10,11 +10,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.bson.types.ObjectId;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 
-import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
@@ -67,8 +67,8 @@ public class FightService {
 		return Fight.listAll();
 	}
 
-	public Uni<Fight> findFightById(Long id) {
-		return Fight.findById(id);
+	public Uni<Fight> findFightById(String id) {
+		return Fight.findById(new ObjectId(id));
 	}
 
 	@Timeout(value = 4, unit = ChronoUnit.SECONDS)
@@ -133,7 +133,6 @@ public class FightService {
 			.chain(this::persistFight);
 	}
 
-	@ReactiveTransactional
 	Uni<Fight> persistFight(Fight fight) {
 		return Fight.persist(fight)
       .replaceWith(fight)

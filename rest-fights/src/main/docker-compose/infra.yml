@@ -1,14 +1,15 @@
 
   fights-db:
-    image: postgres:14
+    image: mongo:5.0
     container_name: fights-db
     ports:
-      - "5432"
+      - "27017"
     environment:
-      POSTGRES_PASSWORD: password
+      MONGO_INITDB_DATABASE: fights
+      MONGO_INITDB_ROOT_USERNAME: super
+      MONGO_INITDB_ROOT_PASSWORD: super
     volumes:
-      - ../../../rest-fights/deploy/db-init/initialize-database.sql:/docker-entrypoint-initdb.d/1-init-db.sql
-      - ../../../rest-fights/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/2-init-tables.sql
+      - ../../../rest-fights/deploy/db-init/initialize-database.js:/docker-entrypoint-initdb.d/1-init-db.js
 
   apicurio:
     image: apicurio/apicurio-registry-mem:2.1.5.Final

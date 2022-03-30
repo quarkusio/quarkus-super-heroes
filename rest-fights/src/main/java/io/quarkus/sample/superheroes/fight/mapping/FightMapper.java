@@ -1,5 +1,6 @@
 package io.quarkus.sample.superheroes.fight.mapping;
 
+import org.bson.types.ObjectId;
 import org.mapstruct.Mapper;
 
 import io.quarkus.sample.superheroes.fight.Fight;
@@ -12,4 +13,8 @@ public interface FightMapper {
    * @return
    */
   io.quarkus.sample.superheroes.fight.schema.Fight toSchema(Fight fight);
+
+  default String toString(ObjectId objectId) {
+    return objectId.toString();
+  }
 }

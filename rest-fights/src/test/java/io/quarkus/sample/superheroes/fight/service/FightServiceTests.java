@@ -14,6 +14,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.InternalServerErrorException;
 
+import org.bson.types.ObjectId;
 import org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,7 @@ import io.smallrye.reactive.messaging.providers.connectors.InMemoryConnector;
 class FightServiceTests {
 	private static final String FIGHTS_CHANNEL_NAME = "fights";
 
-	private static final long DEFAULT_FIGHT_ID = 1L;
+	private static final ObjectId DEFAULT_FIGHT_ID = new ObjectId();
 	private static final Instant DEFAULT_FIGHT_DATE = Instant.now();
 
 	private static final String DEFAULT_HERO_NAME = "Super Baguette";
@@ -157,7 +158,7 @@ class FightServiceTests {
 		PanacheMock.mock(Fight.class);
 		when(Fight.findById(eq(DEFAULT_FIGHT_ID))).thenReturn(Uni.createFrom().item(createFightHeroWon()));
 
-		var fight = this.fightService.findFightById(DEFAULT_FIGHT_ID)
+		var fight = this.fightService.findFightById(DEFAULT_FIGHT_ID.toString())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
 			.assertSubscribed()
 			.awaitItem(Duration.ofSeconds(5))
@@ -199,7 +200,7 @@ class FightServiceTests {
 		PanacheMock.mock(Fight.class);
 		when(Fight.findById(eq(DEFAULT_FIGHT_ID))).thenReturn(Uni.createFrom().nullItem());
 
-		var fight = this.fightService.findFightById(DEFAULT_FIGHT_ID)
+		var fight = this.fightService.findFightById(DEFAULT_FIGHT_ID.toString())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
 			.assertSubscribed()
 			.awaitItem(Duration.ofSeconds(5))
