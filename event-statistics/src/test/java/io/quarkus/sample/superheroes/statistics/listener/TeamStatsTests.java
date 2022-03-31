@@ -14,7 +14,7 @@ import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
  */
 class TeamStatsTests {
   private static final Fight HERO_WINNER = new Fight(
-    1L,
+    "1",
     Instant.now(),
     "Chewbacca",
     2,
@@ -27,7 +27,7 @@ class TeamStatsTests {
   );
 
 	private static final Fight VILLAIN_WINNER = new Fight(
-    2L,
+    "2",
     Instant.now(),
     "Darth Vader",
     2,

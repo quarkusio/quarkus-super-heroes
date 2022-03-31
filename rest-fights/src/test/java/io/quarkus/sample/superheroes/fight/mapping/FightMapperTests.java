@@ -5,13 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import io.quarkus.sample.superheroes.fight.Fight;
 
 class FightMapperTests {
-  private static final long DEFAULT_FIGHT_ID = 1L;
+  private static final String DEFAULT_FIGHT_ID = new ObjectId().toString();
   private static final Instant DEFAULT_FIGHT_DATE = Instant.now().truncatedTo(ChronoUnit.MICROS);
 
   private static final String DEFAULT_HERO_NAME = "Super Baguette";
@@ -59,7 +60,7 @@ class FightMapperTests {
 
   private static Fight createFight() {
     var fight = new Fight();
-    fight.id = DEFAULT_FIGHT_ID;
+    fight.id = new ObjectId(DEFAULT_FIGHT_ID);
     fight.fightDate = DEFAULT_FIGHT_DATE;
     fight.winnerName = DEFAULT_HERO_NAME;
     fight.winnerLevel = DEFAULT_HERO_LEVEL;

@@ -21,6 +21,7 @@ import java.util.stream.StreamSupport;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -471,14 +472,14 @@ public class FightResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void getFightNotFound() {
-		get("/api/fights/{id}", -1)
+		get("/api/fights/{id}", new ObjectId().toString())
 			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void getFoundFight() {
-		get("/api/fights/{id}", getAndVerifyAllFights().get(0).id)
+		get("/api/fights/{id}", getAndVerifyAllFights().get(0).id.toString())
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)

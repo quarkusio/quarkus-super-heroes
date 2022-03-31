@@ -21,7 +21,7 @@
     - [Deploying directly via Kubernetes Extensions](#deploying-directly-via-kubernetes-extensions)
 
 ## Introduction
-This is the Fight REST API microservice. It is a reactive HTTP microservice exposing an API for performing fights between [Heroes](../rest-heroes) and [Villains](../rest-villains). Each fight is persisted into a PostgreSQL database and can be retrieved via the REST API. This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with reactive endpoints and [Quarkus Hibernate Reactive with Panache's active record pattern](http://quarkus.io/guides/hibernate-reactive-panache).
+This is the Fight REST API microservice. It is a reactive HTTP microservice exposing an API for performing fights between [Heroes](../rest-heroes) and [Villains](../rest-villains). Each fight is persisted into a MongoDB database and can be retrieved via the REST API. This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with reactive endpoints and [Quarkus MongoDB Reactive with Panache's active record pattern](https://quarkus.io/guides/mongodb-panache#reactive).
 
 Fight messages are also published on an Apache Kafka topic called `fights`. The [event-statistics service](../event-statistics) listens for these events. Messages are stored in [Apache Avro](https://avro.apache.org/docs/current) format and [the fight schema](src/main/avro/fight.avsc) is automatically registered in the [Apicurio Schema Registry](https://www.apicur.io/registry). This all uses [built-in extensions from Quarkus](https://quarkus.io/guides/kafka-schema-registry-avro).
 
@@ -76,23 +76,23 @@ First you need to start up all of the downstream services ([Heroes Service](../r
 
 The application runs on port `8082` (defined by `quarkus.http.port` in [`application.properties`](src/main/resources/application.properties)).
 
-From the `quarkus-super-heroes/rest-fights` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application will be exposed at `http://localhost:8082` and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at `http://localhost:8082/q/dev`. [Quarkus Dev Services](https://quarkus.io/guides/dev-services) will ensure the PostgreSQL instance, an Apache Kafka instance, and an Apicurio Schema Registry are all started and configured.
+From the `quarkus-super-heroes/rest-fights` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application will be exposed at `http://localhost:8082` and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at `http://localhost:8082/q/dev`. [Quarkus Dev Services](https://quarkus.io/guides/dev-services) will ensure the MongoDB instance, an Apache Kafka instance, and an Apicurio Schema Registry are all started and configured.
 
-**NOTE:** Running the application outside of Quarkus Dev Mode requires standing up a PostgreSQL instance, an Apache Kafka instance, and an Apicurio Schema Registry and binding them to the app.
+**NOTE:** Running the application outside of Quarkus Dev Mode requires standing up a MongoDB instance, an Apache Kafka instance, and an Apicurio Schema Registry and binding them to the app.
 
 Furthermore, since this service also communicates with additional downstream services ([rest-heroes](../rest-heroes) and [rest-villains](../rest-villains)), those would need to be stood up as well, although this service does have fallbacks in case those other services aren't available.
 
 By default, the application is configured with the following:
 
-| Description              | Environment Variable                                          | Java Property                                                 | Value                                         |
-|--------------------------|---------------------------------------------------------------|---------------------------------------------------------------|-----------------------------------------------|
-| Database URL             | `QUARKUS_DATASOURCE_REACTIVE_URL`                             | `quarkus.datasource.reactive.url`                             | `postgresql://localhost:5432/fights_database` |
-| Database username        | `QUARKUS_DATASOURCE_USERNAME`                                 | `quarkus.datasource.username`                                 | `superfight`                                  |
-| Database password        | `QUARKUS_DATASOURCE_PASSWORD`                                 | `quarkus.datasource.password`                                 | `superfight`                                  |
-| Kafka Bootstrap servers  | `KAFKA_BOOTSTRAP_SERVERS`                                     | `kafka.bootstrap.servers`                                     | `PLAINTEXT://localhost:9092`                  |
-| Apicurio Schema Registry | `MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL` | `mp.messaging.connector.smallrye-kafka.apicurio.registry.url` | `http://localhost:8086/apis/registry/v2`      |
-| Heroes Service URL       | `quarkus.rest-client.hero-client.url`                         | `quarkus.rest-client.hero-client.url`                         | `http://localhost:8083`                       |
-| Villains Service URL     | `fight.villain.client-base-url`                               | `fight.villain.client-base-url`                               | `http://localhost:8084`                       |
+| Description              | Environment Variable                                          | Java Property                                                 | Value                                    |
+|--------------------------|---------------------------------------------------------------|---------------------------------------------------------------|------------------------------------------|
+| Database Host            | `QUARKUS_MONGODB_HOSTS`                                       | `quarkus.mongodb.hosts`                                       | `localhost:27017`                        |
+| Database username        | `QUARKUS_MONGODB_CREDENTIALS_USERNAME`                        | `quarkus.mongodb.credentials.username`                        | `superfight`                             |
+| Database password        | `QUARKUS_MONGODB_CREDENTIALS_PASSWORD`                        | `quarkus.mongodb.credentials.password`                        | `superfight`                             |
+| Kafka Bootstrap servers  | `KAFKA_BOOTSTRAP_SERVERS`                                     | `kafka.bootstrap.servers`                                     | `PLAINTEXT://localhost:9092`             |
+| Apicurio Schema Registry | `MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL` | `mp.messaging.connector.smallrye-kafka.apicurio.registry.url` | `http://localhost:8086/apis/registry/v2` |
+| Heroes Service URL       | `quarkus.rest-client.hero-client.url`                         | `quarkus.rest-client.hero-client.url`                         | `http://localhost:8083`                  |
+| Villains Service URL     | `fight.villain.client-base-url`                               | `fight.villain.client-base-url`                               | `http://localhost:8084`                  |
 
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-fights`](https://quay.io/repository/quarkus-super-heroes/rest-fights?tab=tags). 

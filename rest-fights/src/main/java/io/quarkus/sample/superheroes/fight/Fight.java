@@ -3,20 +3,20 @@ package io.quarkus.sample.superheroes.fight;
 import java.time.Instant;
 import java.util.Objects;
 
-import javax.persistence.Entity;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+import io.quarkus.mongodb.panache.common.MongoEntity;
+import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
 
 /**
- * JPA entity class for a Fight. Re-used in the API layer
+ * Mongo entity class for a Fight. Re-used in the API layer
  */
-@Entity
+@MongoEntity(collection = "Fights")
 @Schema(description = "Each fight has a winner and a loser")
-public class Fight extends PanacheEntity {
+public class Fight extends ReactivePanacheMongoEntity {
 	@NotNull
 	public Instant fightDate;
 
