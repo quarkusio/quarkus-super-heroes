@@ -10,6 +10,7 @@
     - [Routing](#routing)
     - [Versions](#versions)
     - [Monitoring](#monitoring)
+- [Deploying to Azure Container Apps](docs/deploying-to-azure.md)
 
 ## Introduction
 
