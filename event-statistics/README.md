@@ -90,10 +90,10 @@ Pick one of the 4 versions of the application from the table below and execute t
 
 | Description                  | Image Tag              | Docker Compose Run Command                                                      |
 |------------------------------|------------------------|---------------------------------------------------------------------------------|
-| JVM Java 11                  | `java11-latest`        | `docker-compose -f deploy/docker-compose/java11.yml up --remove-orphans`        |
-| JVM Java 17                  | `java17-latest`        | `docker-compose -f deploy/docker-compose/java17.yml up --remove-orphans`        |
-| Native compiled with Java 11 | `native-java11-latest` | `docker-compose -f deploy/docker-compose/native-java11.yml up --remove-orphans` |
-| Native compiled with Java 17 | `native-java17-latest` | `docker-compose -f deploy/docker-compose/native-java17.yml up --remove-orphans` |
+| JVM Java 11                  | `java11-latest`        | `docker compose -f deploy/docker-compose/java11.yml up --remove-orphans`        |
+| JVM Java 17                  | `java17-latest`        | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans`        |
+| Native compiled with Java 11 | `native-java11-latest` | `docker compose -f deploy/docker-compose/native-java11.yml up --remove-orphans` |
+| Native compiled with Java 17 | `native-java17-latest` | `docker compose -f deploy/docker-compose/native-java17.yml up --remove-orphans` |
 
 These Docker Compose files are meant for standing up this application and the required Kafka broker only. If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
