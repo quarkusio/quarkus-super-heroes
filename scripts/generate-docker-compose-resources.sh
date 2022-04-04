@@ -21,7 +21,8 @@ create_project_output() {
   local filename=$2
   local javaVersion=$3
   local kind=$4
-  local infra_input_file="$project/$INPUT_DIR/infra.yml"
+  local infra_input_file_name="infra.yml"
+  local infra_input_file="$project/$INPUT_DIR/$infra_input_file_name"
   local input_file_name="$filename.yml"
   local version_file_name="${kind}java${javaVersion}.yml"
   local all_apps_output_file="$OUTPUT_DIR/$version_file_name"
@@ -57,7 +58,6 @@ create_project_output() {
   if [[ "$project" == "rest-fights" ]]; then
     # Need to process/create the downstream version
     # With the rest-villains/rest-heroes apps & their dependencies
-    local downstream_infra_file="$project/$INPUT_DIR/infra-downstream.yml"
     local downstream_project_output_file="$project/$OUTPUT_DIR/${kind}java${javaVersion}-all-downstream.yml"
 
     if [[ -f "$downstream_project_output_file" ]]; then
@@ -69,14 +69,24 @@ create_project_output() {
       cp -r $project/deploy/db-init deploy
     fi
 
-    if [[ -f "$downstream_infra_file" ]]; then
-      cat $downstream_infra_file >> $downstream_project_output_file
-      cat $downstream_infra_file | sed 's/..\/..\/..\//..\/..\//g' >> $all_apps_output_file
+    if [[ -f "$infra_input_file" ]]; then
+      cat $infra_input_file >> $downstream_project_output_file
+      cat $infra_input_file | sed 's/..\/..\/..\//..\/..\//g' >> $all_apps_output_file
     fi
 
     if [[ -f "$project_input_file" ]]; then
       cat $project_input_file >> $downstream_project_output_file
       cat $project_input_file >> $all_apps_output_file
+    fi
+
+    if [[ -f "rest-villains/$INPUT_DIR/$infra_input_file_name" ]]; then
+      cat rest-villains/$INPUT_DIR/$infra_input_file_name >> $downstream_project_output_file
+      cat rest-villains/$INPUT_DIR/$infra_input_file_name | sed 's/..\/..\/..\//..\/..\//g' >> $all_apps_output_file
+    fi
+
+    if [[ -f "rest-heroes/$INPUT_DIR/$infra_input_file_name" ]]; then
+      cat rest-heroes/$INPUT_DIR/$infra_input_file_name >> $downstream_project_output_file
+      cat rest-heroes/$INPUT_DIR/$infra_input_file_name | sed 's/..\/..\/..\//..\/..\//g' >> $all_apps_output_file
     fi
 
     if [[ -f "rest-villains/$INPUT_DIR/$input_file_name" ]]; then

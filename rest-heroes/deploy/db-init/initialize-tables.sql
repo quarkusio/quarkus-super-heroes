@@ -1,5 +1,3 @@
-\c heroes_database superman;
-
 DROP TABLE IF EXISTS Hero;
 DROP SEQUENCE IF EXISTS hibernate_sequence;
 
