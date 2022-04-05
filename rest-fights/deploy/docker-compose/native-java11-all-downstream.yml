@@ -13,24 +13,6 @@ services:
     volumes:
       - ../../../rest-fights/deploy/db-init/initialize-database.js:/docker-entrypoint-initdb.d/1-init-db.js
 
-  downstream-dbs:
-    image: postgres:14
-    container_name: downstream-dbs
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_PASSWORD: password
-    volumes:
-      - ../../../rest-villains/deploy/db-init/initialize-database.sql:/docker-entrypoint-initdb.d/1-init-villains-db.sql
-      - ../../../rest-villains/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/2-init-villains-tables.sql
-      - ../../../rest-heroes/deploy/db-init/initialize-database.sql:/docker-entrypoint-initdb.d/3-init-heroes-db.sql
-      - ../../../rest-heroes/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/4-init-heroes-tables.sql
-    networks:
-      default:
-        aliases:
-          - heroes-db
-          - villains-db
-
   apicurio:
     image: apicurio/apicurio-registry-mem:2.1.5.Final
     container_name: apicurio
@@ -88,6 +70,30 @@ services:
         reservations:
           memory: 256M
           cpus: '0.5'
+
+  villains-db:
+    image: postgres:14
+    container_name: villains-db
+    ports:
+      - "5432"
+    environment:
+      POSTGRES_USER: superbad
+      POSTGRES_PASSWORD: superbad
+      POSTGRES_DB: villains_database
+    volumes:
+      - ../../../rest-villains/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/1-init-tables.sql
+
+  heroes-db:
+    image: postgres:14
+    container_name: heroes-db
+    ports:
+      - "5432"
+    environment:
+      POSTGRES_USER: superman
+      POSTGRES_PASSWORD: superman
+      POSTGRES_DB: heroes_database
+    volumes:
+      - ../../../rest-heroes/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/1-init-tables.sql
 
   rest-villains-native-java11:
     image: quay.io/quarkus-super-heroes/rest-villains:native-java11-latest

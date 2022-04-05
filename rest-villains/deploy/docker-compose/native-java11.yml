@@ -7,10 +7,11 @@ services:
     ports:
       - "5432"
     environment:
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: superbad
+      POSTGRES_PASSWORD: superbad
+      POSTGRES_DB: villains_database
     volumes:
-      - ../../../rest-villains/deploy/db-init/initialize-database.sql:/docker-entrypoint-initdb.d/1-init-db.sql
-      - ../../../rest-villains/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/2-init-tables.sql
+      - ../../../rest-villains/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/1-init-tables.sql
 
   rest-villains-native-java11:
     image: quay.io/quarkus-super-heroes/rest-villains:native-java11-latest
