@@ -1,5 +1,3 @@
-\c villains_database superbad;
-
 DROP TABLE IF EXISTS Villain;
 DROP SEQUENCE IF EXISTS hibernate_sequence;
 
