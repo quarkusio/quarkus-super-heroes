@@ -37,16 +37,19 @@ Set the following environment variables
 ```shell
 RESOURCE_GROUP="super-heroes"
 LOCATION="eastus2"
+TAG="azure"
 # Container Apps
 LOG_ANALYTICS_WORKSPACE="super-heroes-logs"
 CONTAINERAPPS_ENVIRONMENT="super-heroes-env"
-# Kafka
-EVENTHUB_NAMESPACE="super-heroes-eventhub"
-EVENTHUB_TOPIC="fights"
 # Postgres
 POSTGRES_DB="super-heroes-db"
 POSTGRES_DB_ADMIN="superheroesadmin"
 POSTGRES_DB_PWD="super-heroes-p#ssw0rd-12046"
+# MongoDB
+MONGO_DB="fights-db"
+# Kafka
+KAFKA_NAMESPACE="fights-kafka"
+KAFKA_TOPIC="fights"
 # Heroes
 HEROES_APP="rest-heroes-app"
 HEROES_DB_SCHEMA="heroes_database"
@@ -55,8 +58,7 @@ VILLAINS_APP="rest-villains-app"
 VILLAINS_DB_SCHEMA="villains_database"
 # Fights
 FIGHTS_APP="rest-fights-app"
-FIGHTS_DB="failure-db"
-FIGHTS_DB_SCHEMA="failures"
+FIGHTS_DB_SCHEMA="fights"
 ```
 
 ### Create a resource group
@@ -175,7 +177,6 @@ az postgres flexible-server execute \
     --querytext "select * from villain"
 ```
 
-
 If you want to access the Postgres database from your local machine, you need to give access to your local IP address.
 A convenient way to know the local IP address is to go to http://whatismyip.akamai.com:
 
@@ -205,7 +206,117 @@ az postgres flexible-server show-connection-string \
   --query connectionStrings.jdbc
 ```
 
+### Create the managed MongoDB Database
+
+We need to create a MongoDB so the Fight microservice can store data.
+Create a database in the region where it's available:
+
+```shell
+az cosmosdb create \
+  --resource-group $RESOURCE_GROUP \
+  --locations regionName="$LOCATION" failoverPriority=0 \
+  --name $MONGO_DB \
+  --kind MongoDB \
+  --server-version 4.0
+```
+
+Create the Fight collection:
+
+````shell
+az cosmosdb mongodb database create \
+  --resource-group $RESOURCE_GROUP \
+  --account-name $MONGO_DB \
+  --name $FIGHTS_DB_SCHEMA
+````
+
+The Book microservice communicates with the Book Fail microservice through Kafka.
+We need to create an Azure event hub for that.
+
+```shell
+az eventhubs namespace create \
+  --resource-group $RESOURCE_GROUP \
+  --location $LOCATION \
+  --name $EVENTHUB_NAMESPACE
+```
+
+```shell
+az eventhubs eventhub create \
+  --resource-group $RESOURCE_GROUP \
+  --name $EVENTHUB_TOPIC \
+  --namespace-name $EVENTHUB_NAMESPACE
+```
+
+### Create the Managed Kafka
+
+The Fight microservice communicates with the Statistics microservice through Kafka.
+We need to create an Azure event hub for that.
+
+```shell
+az eventhubs namespace create \
+  --resource-group $RESOURCE_GROUP \
+  --location $LOCATION \
+  --name $KAFKA_NAMESPACE
+```
+
+```shell
+az eventhubs eventhub create \
+  --resource-group $RESOURCE_GROUP \
+  --name $KAFKA_TOPIC \
+  --namespace-name $KAFKA_NAMESPACE
+```
+
 ## Deploying the Application
 
-### The Heroes Microservice
+Now that the Azure Container Apps environment is all set, we need to configure our microservices, build them as Docker images, push them to Docker Hub, and deploy these images to Azure Container Apps.
+So let's configure, build, push and deploy each Microservice.
 
+### Heroes Microservice
+
+The Heroes microservice needs to access the managed Postgres database.
+Therefore, we need to set the right properties in the file `application-azure.yml`.
+We know the values for the Postgres database, admin and password (our `POSTGRES_DB`, `POSTGRES_DB_ADMIN` and `POSTGRES_DB_PWD` variables), so the configuration looks like this:
+
+```shell
+"%azure":
+  quarkus:
+    datasource:
+      username: superheroesadmin
+      password: super-heroes-p#ssw0rd-12046
+      reactive:
+        url: postgresql://super-heroes-db.postgres.database.azure.com:5432/heroes_database?ssl=true&sslmode=require
+```
+
+We build the Heroes microservice with the following command:
+
+```shell
+rest-heroes$ mvn clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
+```
+
+This creates the Docker image `quay.io/quarkus-super-heroes/rest-heroes:azure`
+
+```shell
+docker login quay.io
+docker push quay.io/quarkus-super-heroes/rest-heroes:azure
+```
+
+The following command will deploy the Heroes image to Azure Container Apps and set the URL of the deployed application to the `HEROES_URL` variable:
+
+```shell
+HEROES_URL=$(az containerapp create \
+  --resource-group $RESOURCE_GROUP \
+  --image agoncal/rest-heroes:$TAG \
+  --name $HEROES_APP \
+  --environment $CONTAINERAPPS_ENVIRONMENT \
+  --ingress external \
+  --target-port 8083 \
+  --environment-variables QUARKUS_PROFILE=azure \
+  --query configuration.ingress.fqdn \
+  --output tsv)
+echo $HEROES_URL  
+```
+
+You can now invoke the Hero microservice APIs with:
+
+```shell
+curl https://$HEROES_URL/api/heroes | jq
+```
