@@ -58,8 +58,6 @@ VILLAINS_DB_SCHEMA="villains_database"
 # Fights
 FIGHTS_APP="rest-fights-app"
 FIGHTS_DB_SCHEMA="fights"
-FIGHTS_DB="failure-db"
-FIGHTS_DB_SCHEMA="failures"
 ```
 
 ### Create a resource group
