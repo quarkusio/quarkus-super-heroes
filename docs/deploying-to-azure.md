@@ -294,7 +294,7 @@ This creates the Docker image `quay.io/quarkus-super-heroes/rest-heroes:azure`
 
 ```shell
 docker login quay.io
-docker push quay.io/quarkus-super-heroes/rest-heroes:azure
+docker push quay.io/quarkus-super-heroes/rest-heroes:$TAG
 ```
 
 The following command will deploy the Heroes image to Azure Container Apps and set the URL of the deployed application to the `HEROES_URL` variable:
@@ -302,7 +302,7 @@ The following command will deploy the Heroes image to Azure Container Apps and s
 ```shell
 HEROES_URL=$(az containerapp create \
   --resource-group $RESOURCE_GROUP \
-  --image agoncal/rest-heroes:$TAG \
+  --image quay.io/quarkus-super-heroes/rest-heroes:$TAG \
   --name $HEROES_APP \
   --environment $CONTAINERAPPS_ENVIRONMENT \
   --ingress external \
@@ -317,4 +317,50 @@ You can now invoke the Hero microservice APIs with:
 
 ```shell
 curl https://$HEROES_URL/api/heroes | jq
+```
+
+### Villain Microservice
+
+The Villain microservice also needs to access the managed Postgres database, so we need to set the right properties in the `application-azure.properties` file:
+
+```shell
+quarkus.datasource.username=superheroesadmin
+quarkus.datasource.password=super-heroes-p#ssw0rd-12046
+quarkus.datasource.jdbc.url=jdbc:postgresql://super-heroes-db.postgres.database.azure.com:5432/villains_database?ssl=true&sslmode=require
+```
+
+We build the Villain microservice with the following command:
+
+```shell
+rest-villains$ mvn clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
+```
+
+This creates the Docker image `quay.io/quarkus-super-heroes/rest-villains:azure`
+
+```shell
+docker login quay.io
+docker push quay.io/quarkus-super-heroes/rest-villains:azure
+```
+
+The following command will deploy the Heroes image to Azure Container Apps and set the URL of the deployed application to the `VILLAINS_URL` variable:
+
+```shell
+VILLAINS_URL=$(az containerapp create \
+  --resource-group $RESOURCE_GROUP \
+  --image quay.io/quarkus-super-heroes/rest-villains:$TAG \
+  --name $VILLAINS_APP \
+  --environment $CONTAINERAPPS_ENVIRONMENT \
+  --ingress external \
+  --target-port 8084 \
+  --environment-variables QUARKUS_PROFILE=azure \
+  --query configuration.ingress.fqdn \
+  --output tsv)
+  
+echo $VILLAINS_URL  
+```
+
+You can now invoke the Hero microservice APIs with:
+
+```shell
+curl https://$VILLAINS_URL/api/villains | jq
 ```
