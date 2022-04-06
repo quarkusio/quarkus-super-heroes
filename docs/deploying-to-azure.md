@@ -276,13 +276,12 @@ Therefore, we need to set the right properties in the file `application-azure.ym
 We know the values for the Postgres database, admin and password (our `POSTGRES_DB`, `POSTGRES_DB_ADMIN` and `POSTGRES_DB_PWD` variables), so the configuration looks like this:
 
 ```shell
-"%azure":
-  quarkus:
-    datasource:
-      username: superheroesadmin
-      password: super-heroes-p#ssw0rd-12046
-      reactive:
-        url: postgresql://super-heroes-db.postgres.database.azure.com:5432/heroes_database?ssl=true&sslmode=require
+quarkus:
+  datasource:
+    username: superheroesadmin
+    password: super-heroes-p#ssw0rd-12046
+    reactive:
+      url: postgresql://super-heroes-db.postgres.database.azure.com:5432/heroes_database?ssl=true&sslmode=require
 ```
 
 We build the Heroes microservice with the following command:
