@@ -292,7 +292,7 @@ We build the Heroes microservice with the following command:
 rest-heroes$ mvn clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
 ```
 
-This creates the Docker image `quay.io/quarkus-super-heroes/rest-heroes:azure`
+This creates the Docker image `quay.io/quarkus-super-heroes/rest-heroes` with the tag value `$TAG`
 
 ```shell
 docker login quay.io
@@ -318,6 +318,7 @@ echo $HEROES_URL
 You can now invoke the Hero microservice APIs with:
 
 ```shell
+curl https://$HEROES_URL/api/heroes/hello
 curl https://$HEROES_URL/api/heroes | jq
 ```
 
@@ -337,11 +338,11 @@ We build the Villain microservice with the following command:
 rest-villains$ mvn clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
 ```
 
-This creates the Docker image `quay.io/quarkus-super-heroes/rest-villains:azure`
+This creates the Docker image `quay.io/quarkus-super-heroes/rest-villains` with the tag value `$TAG`
 
 ```shell
 docker login quay.io
-docker push quay.io/quarkus-super-heroes/rest-villains:azure
+docker push quay.io/quarkus-super-heroes/rest-villains:$TAG
 ```
 
 The following command will deploy the Heroes image to Azure Container Apps and set the URL of the deployed application to the `VILLAINS_URL` variable:
@@ -364,6 +365,7 @@ echo $VILLAINS_URL
 You can now invoke the Hero microservice APIs with:
 
 ```shell
+curl https://$VILLAINS_URL/api/villains/hello
 curl https://$VILLAINS_URL/api/villains | jq
 ```
 
@@ -381,7 +383,7 @@ az eventhubs namespace authorization-rule keys list \
   --query primaryConnectionString
 ```
 
-Add this connection string to the Statistics (and later to the Fight) microservice `application.properties` files with the `prod` profile:
+Add this connection string to the Statistics (and later to the Fight) microservice `application-azure.properties` file as well as the Apicurio URL:
 
 ```shell
 kafka.bootstrap.servers=fights-kafka.servicebus.windows.net:9093
@@ -390,6 +392,8 @@ kafka.sasl.mechanism=PLAIN
 kafka.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
 	username="$ConnectionString" \
 	password="Endpoint=sb://fights-kafka.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=00LgwvAcx1hufDy5Kp3AeHraBvI9JSkXiKA8TJ2ov+0=";
+
+mp.messaging.connector.smallrye-kafka.apicurio.registry.url=fights-kafka.servicebus.windows.net
 ```
 
 We build the Statistics microservice with the following command:
@@ -398,11 +402,11 @@ We build the Statistics microservice with the following command:
 event-statistics$ mvn clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
 ```
 
-This creates the Docker image `quay.io/quarkus-super-heroes/event-statistics:azure`
+This creates the Docker image `quay.io/quarkus-super-heroes/event-statistics` with the tag value `$TAG`
 
 ```shell
 docker login quay.io
-docker push quay.io/quarkus-super-heroes/event-statistics:azure
+docker push quay.io/quarkus-super-heroes/event-statistics:$TAG
 ```
 
 The following command will deploy the Statistics image to Azure Container Apps and set the URL of the deployed application to the `STATISTICS_URL` variable:
@@ -410,7 +414,7 @@ The following command will deploy the Statistics image to Azure Container Apps a
 ```shell
 STATISTICS_URL=$(az containerapp create \
   --resource-group $RESOURCE_GROUP \
-  --image agoncal/event-statistics:$TAG \
+  --image quay.io/quarkus-super-heroes/event-statistics:$TAG \
   --name $STATISTICS_APP \
   --environment $CONTAINERAPPS_ENVIRONMENT \
   --ingress external \
@@ -428,17 +432,109 @@ You can now display the Statistics UI with:
 open https://$STATISTICS_URL
 ```
 
+### Fight Microservice
+
+The Fight microservice sends fight messages to a Kafka topics and stores the fights into a MongoDB database.
+To configure Kafka, we need the same connection string as the one used by the Statistics microservice.
+In the `application-azure.properties` file add:
+
+```shell
+kafka.bootstrap.servers=fights-kafka.servicebus.windows.net:9093
+kafka.security.protocol=SASL_SSL
+kafka.sasl.mechanism=PLAIN
+kafka.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
+	username="$ConnectionString" \
+	password="Endpoint=sb://fights-kafka.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=00LgwvAcx1hufDy5Kp3AeHraBvI9JSkXiKA8TJ2ov+0=";
+
+mp.messaging.connector.smallrye-kafka.apicurio.registry.url=fights-kafka.servicebus.windows.net
+```
+
+For MongoDB, get the connection string by executing the following command:
+
+````shell
+az cosmosdb keys list \
+  --resource-group $RESOURCE_GROUP \
+  --name $MONGO_DB \
+  --type connection-strings \
+  --query "connectionStrings[?description=='Primary MongoDB Connection String'].connectionString" \
+  --output tsv
+````
+
+Add the connection string to the `application-azure.properties` file:
+
+```shell
+quarkus.mongodb.connection-string=mongodb://fights-db:tF8pMgaFm6mgyRSKKpPp3cSEkZAEoFmxpHsqrIJ94vMLWMBTqEvHWw1CyuNPebOfinipMK3qPfKVovQAAGQ5DA==@fights-db.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@fights-db@
+```
+
+Build the Fight microservice with the following command:
+
+```shell
+rest-fights$ mvn clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
+```
+
+This creates the Docker image `quay.io/quarkus-super-heroes/rest-fights` with the tag value `$TAG`
+
+```shell
+docker login quay.io
+docker push quay.io/quarkus-super-heroes/rest-fights:$TAG
+```
+
+The following command will deploy the Fight image to Azure Container Apps and set the URL of the deployed application to the `FIGHTS_URL` variable:
+
+```shell
+FIGHTS_URL=$(az containerapp create \
+  --resource-group $RESOURCE_GROUP \
+  --image agoncal/rest-fights:$TAG \
+  --name $FIGHTS_APP \
+  --environment $CONTAINERAPPS_ENVIRONMENT \
+  --ingress external \
+  --target-port 8082 \
+  --environment-variables QUARKUS_PROFILE=azure \
+  --query configuration.ingress.fqdn \
+  --output tsv)
+  
+echo $FIGHTS_URL 
+```
+
+You can now invoke the Fight microservice APIs with:
+
+```shell
+curl https://$FIGHTS_URL/api/fights/hello
+curl https://$FIGHTS_URL/api/fights | jq
+curl https://$FIGHTS_URL/api/fights/randomfighters | jq
+```
+
 ## Miscellaneous
 
-### Redeploying a microservice
+### Restarting a Microservice
 
-If you need to push a new version of a Docker image and redeploy it, update the container with the following command:
+If you need to restart a microservice, you need to actually restart the active revision.
+For that, first get the active revision:
+
+```shell
+az containerapp revision list \
+  --resource-group $RESOURCE_GROUP \
+  --name $FIGHTS_APP \
+  --out table
+```
+
+Then, restart it:
+
+```shell
+az containerapp revision restart \
+  --resource-group $RESOURCE_GROUP \
+  --app $FIGHTS_APP \
+  --name rest-fights-app--mh396rg
+```
+
+### Redeploying a new version of a microservice
+
+If you need to push a new version of a Docker image, make sure it has a different tag.
+Then, update the container with this new tagged image:
 
 ```shell
 az containerapp update \
   --resource-group $RESOURCE_GROUP \
-  --image agoncal/event-statistics:$TAG \
-  --name $STATISTICS_APP \
-  --environment-variables QUARKUS_PROFILE=azure
-
+  --image agoncal/rest-fights:azure2 \
+  --name $FIGHTS_APP
 ```
