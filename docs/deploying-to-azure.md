@@ -58,6 +58,8 @@ VILLAINS_DB_SCHEMA="villains_database"
 # Fights
 FIGHTS_APP="rest-fights-app"
 FIGHTS_DB_SCHEMA="fights"
+# Statistics
+STATISTICS_APP="event-statistics-app"
 ```
 
 ### Create a resource group
@@ -363,4 +365,80 @@ You can now invoke the Hero microservice APIs with:
 
 ```shell
 curl https://$VILLAINS_URL/api/villains | jq
+```
+
+### Statistics Microservice
+
+The Statistics microservice listens to a Kafka topics and consumes all the fights.
+The fight messages are defined by an Avro schema stored in the Azure Schema Registry.
+To configure Kafka, first get the connection string of the event hub namespace.
+
+```shell
+az eventhubs namespace authorization-rule keys list \
+  --resource-group $RESOURCE_GROUP \
+  --namespace-name $KAFKA_NAMESPACE \
+  --name RootManageSharedAccessKey \
+  --query primaryConnectionString
+```
+
+Add this connection string to the Statistics (and later to the Fight) microservice `application.properties` files with the `prod` profile:
+
+```shell
+kafka.bootstrap.servers=fights-kafka.servicebus.windows.net:9093
+kafka.security.protocol=SASL_SSL
+kafka.sasl.mechanism=PLAIN
+kafka.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
+	username="$ConnectionString" \
+	password="Endpoint=sb://fights-kafka.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=00LgwvAcx1hufDy5Kp3AeHraBvI9JSkXiKA8TJ2ov+0=";
+```
+
+We build the Statistics microservice with the following command:
+
+```shell
+event-statistics$ mvn clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
+```
+
+This creates the Docker image `quay.io/quarkus-super-heroes/event-statistics:azure`
+
+```shell
+docker login quay.io
+docker push quay.io/quarkus-super-heroes/event-statistics:azure
+```
+
+The following command will deploy the Statistics image to Azure Container Apps and set the URL of the deployed application to the `STATISTICS_URL` variable:
+
+```shell
+STATISTICS_URL=$(az containerapp create \
+  --resource-group $RESOURCE_GROUP \
+  --image agoncal/event-statistics:$TAG \
+  --name $STATISTICS_APP \
+  --environment $CONTAINERAPPS_ENVIRONMENT \
+  --ingress external \
+  --target-port 8085 \
+  --environment-variables QUARKUS_PROFILE=azure \
+  --query configuration.ingress.fqdn \
+  --output tsv)
+  
+echo $STATISTICS_URL  
+```
+
+You can now display the Statistics UI with:
+
+```shell
+open https://$STATISTICS_URL
+```
+
+## Miscellaneous
+
+### Redeploying a microservice
+
+If you need to push a new version of a Docker image and redeploy it, update the container with the following command:
+
+```shell
+az containerapp update \
+  --resource-group $RESOURCE_GROUP \
+  --image agoncal/event-statistics:$TAG \
+  --name $STATISTICS_APP \
+  --environment-variables QUARKUS_PROFILE=azure
+
 ```
