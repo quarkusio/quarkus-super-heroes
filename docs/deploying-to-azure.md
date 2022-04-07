@@ -289,7 +289,7 @@ quarkus:
 We build the Heroes microservice with the following command:
 
 ```shell
-rest-heroes$ mvn clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
+rest-heroes$ ./mvnw clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
 ```
 
 This creates the Docker image `quay.io/quarkus-super-heroes/rest-heroes` with the tag value `$TAG`
@@ -315,6 +315,8 @@ HEROES_URL=$(az containerapp create \
 echo $HEROES_URL  
 ```
 
+TODO: --ingress external is for microservices that are accessed from the outside world, but this is not the case, it's only accesses by Fight
+
 You can now invoke the Hero microservice APIs with:
 
 ```shell
@@ -335,7 +337,7 @@ quarkus.datasource.jdbc.url=jdbc:postgresql://super-heroes-db.postgres.database.
 We build the Villain microservice with the following command:
 
 ```shell
-rest-villains$ mvn clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
+rest-villains$ ./mvnw clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
 ```
 
 This creates the Docker image `quay.io/quarkus-super-heroes/rest-villains` with the tag value `$TAG`
@@ -399,7 +401,7 @@ mp.messaging.connector.smallrye-kafka.apicurio.registry.url=fights-kafka.service
 We build the Statistics microservice with the following command:
 
 ```shell
-event-statistics$ mvn clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
+event-statistics$ ./mvnw clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
 ```
 
 This creates the Docker image `quay.io/quarkus-super-heroes/event-statistics` with the tag value `$TAG`
@@ -434,7 +436,7 @@ open https://$STATISTICS_URL
 
 ### Fight Microservice
 
-The Fight microservice sends fight messages to a Kafka topics and stores the fights into a MongoDB database.
+The Fight microservice invokes the Heroes and Villains microserivces, sends fight messages to a Kafka topics and stores the fights into a MongoDB database.
 To configure Kafka, we need the same connection string as the one used by the Statistics microservice.
 In the `application-azure.properties` file add:
 
@@ -466,10 +468,18 @@ Add the connection string to the `application-azure.properties` file:
 quarkus.mongodb.connection-string=mongodb://fights-db:tF8pMgaFm6mgyRSKKpPp3cSEkZAEoFmxpHsqrIJ94vMLWMBTqEvHWw1CyuNPebOfinipMK3qPfKVovQAAGQ5DA==@fights-db.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@fights-db@
 ```
 
+As for the microservice invocations, you need to set the URLs of both Heroes and Villains microservices.
+For that, get the values of the `HEROES_URL` and `VILLAINS_URL` variables and add them to the `application-azure.properties` file:
+
+```shell
+quarkus.rest-client.hero-client.url=https://rest-heroes-app.thankfulpond-0365fcc1.eastus2.azurecontainerapps.io
+fight.villain.client-base-url=https://rest-villains-app.thankfulpond-0365fcc1.eastus2.azurecontainerapps.io
+```
+
 Build the Fight microservice with the following command:
 
 ```shell
-rest-fights$ mvn clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
+rest-fights$ ./mvnw clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
 ```
 
 This creates the Docker image `quay.io/quarkus-super-heroes/rest-fights` with the tag value `$TAG`
