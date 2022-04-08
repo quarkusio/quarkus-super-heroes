@@ -37,6 +37,6 @@ interface HeroRestClient {
   @GET
   @Path("/hello")
   @Produces(TEXT_PLAIN)
-  String hello();
+  Uni<String> hello();
 
 }

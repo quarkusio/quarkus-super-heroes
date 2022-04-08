@@ -52,7 +52,7 @@ public class HeroClient {
 	 * Calls hello on the Heroes service.
 	 * @return A "hello" from Heroes
 	 */
-	public String helloHeroes() {
+	public Uni<String> helloHeroes() {
 		return heroClient.hello();
 	}
 }

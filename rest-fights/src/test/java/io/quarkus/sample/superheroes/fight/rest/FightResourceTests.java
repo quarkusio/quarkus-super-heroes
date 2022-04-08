@@ -66,7 +66,7 @@ public class FightResourceTests {
   @Test
   public void helloHeroesEndpoint() {
     when(this.fightService.helloHeroes())
-      .thenReturn("Hello Hero Resource");
+      .thenReturn(Uni.createFrom().item("Hello Hero Resource"));
 
     get("/api/fights/hello/heroes")
       .then()

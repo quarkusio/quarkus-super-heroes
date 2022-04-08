@@ -213,14 +213,14 @@ public class FightService {
 
   @Timeout(value = 5, unit = ChronoUnit.SECONDS)
   @Fallback(fallbackMethod = "fallbackHelloHeroes")
-  public String helloHeroes() {
+  public Uni<String> helloHeroes() {
     Log.debug("Invokes the Heroes microservice");
     return this.heroClient.helloHeroes();
   }
 
-  String fallbackHelloHeroes() {
+  Uni<String> fallbackHelloHeroes() {
     Log.warn("Could not invoke the Heroes microservice");
-    return "Could not invoke the Heroes microservice";
+    return Uni.createFrom().item("Could not invoke the Heroes microservice");
   }
 
   @Timeout(value = 5, unit = ChronoUnit.SECONDS)
