@@ -121,4 +121,30 @@ public class FightResource {
 	public String hello() {
 		return "Hello Fight Resource";
 	}
+
+	@GET
+	@Produces(TEXT_PLAIN)
+	@Path("/hello/heroes")
+	@Tag(name = "hello")
+	@Operation(summary = "Ping Heroes hello")
+	@APIResponse(
+		responseCode = "200",
+		description = "Ping Heroes hello"
+	)
+	public String helloHeroes() {
+		return service.helloHeroes();
+	}
+
+	@GET
+	@Produces(TEXT_PLAIN)
+	@Path("/hello/villains")
+	@Tag(name = "hello")
+	@Operation(summary = "Ping Villains hello")
+	@APIResponse(
+		responseCode = "200",
+		description = "Ping Villains hello"
+	)
+	public String helloVillains() {
+		return service.helloVillains();
+	}
 }

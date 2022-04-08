@@ -235,6 +235,7 @@ public class HeroResource {
 	)
 	@NonBlocking
 	public String hello() {
+    this.logger.debug("Hello Hero Resource");
 		return "Hello Hero Resource";
 	}
 }

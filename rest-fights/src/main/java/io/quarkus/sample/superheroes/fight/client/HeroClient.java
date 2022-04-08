@@ -47,4 +47,12 @@ public class HeroClient {
 		return Uni.createFrom().completionStage(this::getRandomHero)
 			.onFailure().retry().withBackOff(Duration.ofMillis(200)).atMost(3);
 	}
+  
+	/**
+	 * Calls hello on the Heroes service.
+	 * @return A "hello" from Heroes
+	 */
+	public String helloHeroes() {
+		return heroClient.hello();
+	}
 }

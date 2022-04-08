@@ -210,4 +210,28 @@ public class FightService {
 		fight.loserTeam = this.fightConfig.hero().teamName();
 		return fight;
 	}
+
+  @Timeout(value = 5, unit = ChronoUnit.SECONDS)
+  @Fallback(fallbackMethod = "fallbackHelloHeroes")
+  public String helloHeroes() {
+    Log.debug("Invokes the Heroes microservice");
+    return this.heroClient.helloHeroes();
+  }
+
+  String fallbackHelloHeroes() {
+    Log.warn("Could not invoke the Heroes microservice");
+    return "Could not invoke the Heroes microservice";
+  }
+
+  @Timeout(value = 5, unit = ChronoUnit.SECONDS)
+  @Fallback(fallbackMethod = "fallbackHelloVillains")
+  public String helloVillains() {
+    Log.debug("Invokes the Villains microservice");
+    return this.villainClient.helloVillains();
+  }
+
+  String fallbackHelloVillains() {
+    Log.warn("Could not invoke the Villains microservice");
+    return "Could not invoke the Villains microservice";
+  }
 }
