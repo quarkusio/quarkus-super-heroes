@@ -28,7 +28,7 @@ import {Configuration} from '../configuration';
 export class FightService {
 
   protected basePath = "https://rest-fights-app.blueisland-46fb2d13.eastus2.azurecontainerapps.io";
-  protected calculateApiBaseUrl = (window as any).NG_CONFIG.CALCULATE_API_BASE_URL;
+  protected calculateApiBaseUrl = "https://rest-fights-app.blueisland-46fb2d13.eastus2.azurecontainerapps.io";
   public defaultHeaders = new HttpHeaders();
   public configuration = new Configuration();
 
@@ -44,10 +44,10 @@ export class FightService {
       this.basePath = basePath || configuration.basePath || this.basePath;
     }
 
-    if (this.calculateApiBaseUrl) {
-      // If calculateApiBaseUrl then just replace "ui-super-heroes" with "rest-fights" in the current URL
-      this.basePath = window.location.protocol + "//" + window.location.host.replace('ui-super-heroes', 'rest-fights');
-    }
+    // if (this.calculateApiBaseUrl) {
+    //   // If calculateApiBaseUrl then just replace "ui-super-heroes" with "rest-fights" in the current URL
+    //   this.basePath = window.location.protocol + "//" + window.location.host.replace('ui-super-heroes', 'rest-fights');
+    // }
 
     // Fallback to whatever is in the browser if basePath isn't set
     if (!this.basePath) {
