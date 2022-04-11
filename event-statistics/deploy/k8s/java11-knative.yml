@@ -38,8 +38,8 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: c89279261720ee05e32748921a4845eb0ff0680b
-    app.quarkus.io/build-timestamp: 2022-04-08 - 13:12:57 +0000
+    app.quarkus.io/commit-id: b01e236bb8473acf164de3f68a0aa4c54d89c9fd
+    app.quarkus.io/build-timestamp: 2022-04-11 - 12:14:43 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -60,8 +60,8 @@ spec:
         app.openshift.io/connects-to: "fights-kafka,apicurio"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: c89279261720ee05e32748921a4845eb0ff0680b
-        app.quarkus.io/build-timestamp: 2022-04-08 - 13:12:57 +0000
+        app.quarkus.io/commit-id: b01e236bb8473acf164de3f68a0aa4c54d89c9fd
+        app.quarkus.io/build-timestamp: 2022-04-11 - 12:14:43 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -78,10 +78,10 @@ spec:
       containerConcurrency: 0
       containers:
         - envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:java11-latest
           livenessProbe:
             failureThreshold: 3
