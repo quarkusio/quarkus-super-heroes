@@ -45,60 +45,6 @@ paths:
                 $ref: '#/components/schemas/Fight'
         "400":
           description: Invalid fighters passed in (or no request body found)
-  /api/fights/randomfighters:
-    get:
-      tags:
-        - fights
-      summary: Returns random fighters
-      responses:
-        "200":
-          description: Gets a random Hero and Villain fighter
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Fighters'
-  /api/fights/{id}:
-    get:
-      tags:
-        - fights
-      summary: Returns a fight for a given identifier
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Gets a fight for a given id
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Hero'
-        "404":
-          description: The fight is not found for a given identifier
-  /api/heroes/random:
-    get:
-      tags:
-        - CDI Wrapper
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Hero'
-  /api/heroes/hello:
-    get:
-      tags:
-        - CDI Wrapper
-      responses:
-        "200":
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
   /api/fights/hello:
     get:
       tags:
@@ -135,6 +81,60 @@ paths:
             text/plain:
               schema:
                 type: string
+  /api/fights/randomfighters:
+    get:
+      tags:
+        - fights
+      summary: Returns random fighters
+      responses:
+        "200":
+          description: Gets a random Hero and Villain fighter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fighters'
+  /api/fights/{id}:
+    get:
+      tags:
+        - fights
+      summary: Returns a fight for a given identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Gets a fight for a given id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hero'
+        "404":
+          description: The fight is not found for a given identifier
+  /api/heroes/hello:
+    get:
+      tags:
+        - CDI Wrapper
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/heroes/random:
+    get:
+      tags:
+        - CDI Wrapper
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hero'
 components:
   schemas:
     Fight:
