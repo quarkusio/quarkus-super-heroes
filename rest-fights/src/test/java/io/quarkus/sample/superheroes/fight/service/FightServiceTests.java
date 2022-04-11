@@ -297,7 +297,7 @@ class FightServiceTests {
 	@Test
 	public void findRandomFightersHeroError() {
 		PanacheMock.mock(Fight.class);
-		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().failure(new InternalServerErrorException()));
+		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().item(createDefaultVillain()));
 
 		var fighters = this.fightService.findRandomFighters()
@@ -325,7 +325,7 @@ class FightServiceTests {
 	public void findRandomFightersVillainError() {
 		PanacheMock.mock(Fight.class);
 		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().item(createDefaultHero()));
-		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().failure(new InternalServerErrorException()));
+		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
 		var fighters = this.fightService.findRandomFighters()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -351,8 +351,8 @@ class FightServiceTests {
 	@Test
 	public void findRandomFightersHeroVillainError() {
 		PanacheMock.mock(Fight.class);
-		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().failure(new InternalServerErrorException()));
-		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().failure(new InternalServerErrorException()));
+		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
 		var fighters = this.fightService.findRandomFighters()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -754,6 +754,134 @@ class FightServiceTests {
 		assertThat(this.fightService.shouldVillainWin(fighters))
 			.isFalse();
 	}
+
+  @Test
+  public void helloHeroesSuccess() {
+    when(this.heroClient.helloHeroes()).thenReturn(Uni.createFrom().item("hello"));
+
+    var message = this.fightService.helloHeroes()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull()
+      .isEqualTo("hello");
+
+    verify(this.heroClient).helloHeroes();
+    verify(this.fightService).helloHeroes();
+    verifyNoMoreInteractions(this.heroClient);
+    verifyNoInteractions(this.villainClient);
+  }
+
+  @Test
+  public void helloHeroesFallback() {
+    when(this.fightService.fallbackHelloHeroes()).thenReturn(Uni.createFrom().item("fallback"));
+    when(this.heroClient.helloHeroes()).thenReturn(Uni.createFrom().item("hello").onItem().delayIt().by(Duration.ofSeconds(6)));
+
+    var message = this.fightService.helloHeroes()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(10))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull()
+      .isEqualTo("fallback");
+
+    verify(this.heroClient).helloHeroes();
+    verify(this.fightService).helloHeroes();
+    verify(this.fightService).fallbackHelloHeroes();
+    verifyNoMoreInteractions(this.heroClient);
+    verifyNoInteractions(this.villainClient);
+  }
+
+  @Test
+  public void helloHeroesFailure() {
+    when(this.fightService.fallbackHelloHeroes()).thenReturn(Uni.createFrom().item("fallback"));
+    when(this.heroClient.helloHeroes()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+
+    var message = this.fightService.helloHeroes()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(10))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull()
+      .isEqualTo("fallback");
+
+    verify(this.heroClient).helloHeroes();
+    verify(this.fightService).helloHeroes();
+    verify(this.fightService).fallbackHelloHeroes();
+    verifyNoMoreInteractions(this.heroClient);
+    verifyNoInteractions(this.villainClient);
+  }
+
+  @Test
+  public void helloVillainsSuccess() {
+    when(this.villainClient.helloVillains()).thenReturn(Uni.createFrom().item("hello"));
+
+    var message = this.fightService.helloVillains()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull()
+      .isEqualTo("hello");
+
+    verify(this.villainClient).helloVillains();
+    verify(this.fightService).helloVillains();
+    verifyNoMoreInteractions(this.villainClient);
+    verifyNoInteractions(this.heroClient);
+  }
+
+  @Test
+  public void helloVillainsFallback() {
+    when(this.fightService.fallbackHelloVillains()).thenReturn(Uni.createFrom().item("fallback"));
+    when(this.villainClient.helloVillains()).thenReturn(Uni.createFrom().item("hello").onItem().delayIt().by(Duration.ofSeconds(6)));
+
+    var message = this.fightService.helloVillains()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(10))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull()
+      .isEqualTo("fallback");
+
+    verify(this.villainClient).helloVillains();
+    verify(this.fightService).helloVillains();
+    verify(this.fightService).fallbackHelloVillains();
+    verifyNoMoreInteractions(this.villainClient);
+    verifyNoInteractions(this.heroClient);
+  }
+
+  @Test
+  public void helloVillainsFailure() {
+    when(this.fightService.fallbackHelloVillains()).thenReturn(Uni.createFrom().item("fallback"));
+    when(this.villainClient.helloVillains()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+
+    var message = this.fightService.helloVillains()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(10))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull()
+      .isEqualTo("fallback");
+
+    verify(this.villainClient).helloVillains();
+    verify(this.fightService).helloVillains();
+    verify(this.fightService).fallbackHelloVillains();
+    verifyNoMoreInteractions(this.villainClient);
+    verifyNoInteractions(this.heroClient);
+  }
 
 	private static Hero createDefaultHero() {
 		return new Hero(

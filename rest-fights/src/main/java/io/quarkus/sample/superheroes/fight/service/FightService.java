@@ -100,6 +100,30 @@ public class FightService {
 			.invoke(villain -> Log.debugf("Got random villain: %s", villain));
 	}
 
+  @Timeout(value = 5, unit = ChronoUnit.SECONDS)
+  @Fallback(fallbackMethod = "fallbackHelloHeroes")
+  public Uni<String> helloHeroes() {
+    return this.heroClient.helloHeroes()
+      .invoke(hello -> Log.debugf("Got %s from the Heroes microservice", hello));
+  }
+
+  Uni<String> fallbackHelloHeroes() {
+    return Uni.createFrom().item("Could not invoke the Heroes microservice")
+      .invoke(message -> Log.warn(message));
+  }
+
+  @Timeout(value = 5, unit = ChronoUnit.SECONDS)
+  @Fallback(fallbackMethod = "fallbackHelloVillains")
+  public Uni<String> helloVillains() {
+    return this.villainClient.helloVillains()
+      .invoke(hello -> Log.debugf("Got %s from the Villains microservice", hello));
+  }
+
+  Uni<String> fallbackHelloVillains() {
+    return Uni.createFrom().item("Could not invoke the Villains microservice")
+      .invoke(message -> Log.warn(message));
+  }
+
 	Uni<Hero> fallbackRandomHero() {
 		return Uni.createFrom().item(this::createFallbackHero)
 			.invoke(h -> Log.warn("Falling back on Hero"));

@@ -57,6 +57,30 @@ paths:
             text/plain:
               schema:
                 type: string
+  /api/fights/hello/heroes:
+    get:
+      tags:
+      - hello
+      summary: Ping Heroes hello
+      responses:
+        "200":
+          description: Ping Heroes hello
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/fights/hello/villains:
+    get:
+      tags:
+      - hello
+      summary: Ping Villains hello
+      responses:
+        "200":
+          description: Ping Villains hello
+          content:
+            text/plain:
+              schema:
+                type: string
   /api/fights/randomfighters:
     get:
       tags:
@@ -79,8 +103,7 @@ paths:
         in: path
         required: true
         schema:
-          format: int64
-          type: integer
+          type: string
       responses:
         "200":
           description: Gets a fight for a given id
@@ -107,8 +130,7 @@ components:
       type: object
       properties:
         id:
-          format: int64
-          type: integer
+          $ref: '#/components/schemas/ObjectId'
         fightDate:
           format: date-time
           type: string
@@ -181,6 +203,23 @@ components:
           type: string
           nullable: false
         powers:
+          type: string
+    ObjectId:
+      type: object
+      properties:
+        timestamp:
+          format: int32
+          type: integer
+        counter:
+          format: int32
+          type: integer
+        randomValue1:
+          format: int32
+          type: integer
+        randomValue2:
+          type: integer
+        date:
+          format: date
           type: string
     Villain:
       description: The villain fighting against the hero

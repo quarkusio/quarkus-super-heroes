@@ -30,7 +30,7 @@ public class VillainClient {
 	public VillainClient(FightConfig fightConfig) {
 		this.villainClient = ClientBuilder.newClient()
 			.target(fightConfig.villain().clientBaseUrl())
-			.path("api/villains/random");
+			.path("api/villains/");
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class VillainClient {
 	CompletionStage<Villain> getRandomVillain() {
 		// Want the 404 handling to be part of the circuit breaker
 		// This means that the 404 responses aren't considered errors by the circuit breaker
-		return this.villainClient
+		return this.villainClient.path("random")
 			.request(MediaType.APPLICATION_JSON_TYPE)
 			.rx(UniInvoker.class)
 			.get(Villain.class)
@@ -60,4 +60,15 @@ public class VillainClient {
 		return Uni.createFrom().completionStage(this::getRandomVillain)
 			.onFailure().retry().withBackOff(Duration.ofMillis(200)).atMost(3);
 	}
+
+  /**
+   * Calls hello on the Villains service.
+   * @return A "hello" from Villains
+   */
+  public Uni<String> helloVillains() {
+    return this.villainClient.path("hello")
+      .request(MediaType.TEXT_PLAIN_TYPE)
+      .rx(UniInvoker.class)
+      .get(String.class);
+  }
 }
