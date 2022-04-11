@@ -19,14 +19,14 @@ az login
 Install the Azure Container Apps extension for the Azure CLI:
 
 ```shell
-az extension add --source https://workerappscliextension.blob.core.windows.net/azure-cli-extension/containerapp-0.2.4-py2.py3-none-any.whl
+az extension add --name containerapp
 az extension add --name rdbms-connect
 ```
 
 Register the Microsoft.Web namespace
 
 ```shell
-az provider register --namespace Microsoft.Web
+az provider register --namespace Microsoft.App
 ```
 
 ## Setting Up the Azure Environment
@@ -60,6 +60,8 @@ FIGHTS_APP="rest-fights-app"
 FIGHTS_DB_SCHEMA="fights"
 # Statistics
 STATISTICS_APP="event-statistics-app"
+# UI
+UI_APP="super-heroes-app"
 ```
 
 ### Create a resource group
@@ -204,7 +206,8 @@ Get the connection string with the following command so you can connect to it:
 ```shell
 az postgres flexible-server show-connection-string \
   --database-name $POSTGRES_DB \
-  --query connectionStrings.jdbc
+  --query connectionStrings.jdbc \
+  --out tsv
 ```
 
 ### Create the managed MongoDB Database
@@ -229,23 +232,6 @@ az cosmosdb mongodb database create \
   --account-name $MONGO_DB \
   --name $FIGHTS_DB_SCHEMA
 ````
-
-The Book microservice communicates with the Book Fail microservice through Kafka.
-We need to create an Azure event hub for that.
-
-```shell
-az eventhubs namespace create \
-  --resource-group $RESOURCE_GROUP \
-  --location $LOCATION \
-  --name $EVENTHUB_NAMESPACE
-```
-
-```shell
-az eventhubs eventhub create \
-  --resource-group $RESOURCE_GROUP \
-  --name $EVENTHUB_TOPIC \
-  --namespace-name $EVENTHUB_NAMESPACE
-```
 
 ### Create the Managed Kafka
 
@@ -309,9 +295,10 @@ HEROES_URL=$(az containerapp create \
   --environment $CONTAINERAPPS_ENVIRONMENT \
   --ingress external \
   --target-port 8083 \
-  --environment-variables QUARKUS_PROFILE=azure \
-  --query configuration.ingress.fqdn \
+  --env-vars QUARKUS_PROFILE=azure \
+  --query properties.configuration.ingress.fqdn \
   --output tsv)
+  
 echo $HEROES_URL  
 ```
 
@@ -323,6 +310,15 @@ You can now invoke the Hero microservice APIs with:
 curl https://$HEROES_URL/api/heroes/hello
 curl https://$HEROES_URL/api/heroes | jq
 ```
+
+To access the logs of the Heroes microservice, you can write the following query:
+
+````shell
+az monitor log-analytics query \
+--workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
+--analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$HEROES_APP' | project ContainerAppName_s, Log_s, TimeGenerated " \
+--out table
+````
 
 ### Villain Microservice
 
@@ -357,11 +353,11 @@ VILLAINS_URL=$(az containerapp create \
   --environment $CONTAINERAPPS_ENVIRONMENT \
   --ingress external \
   --target-port 8084 \
-  --environment-variables QUARKUS_PROFILE=azure \
-  --query configuration.ingress.fqdn \
+  --env-vars QUARKUS_PROFILE=azure \
+  --query properties.configuration.ingress.fqdn \
   --output tsv)
   
-echo $VILLAINS_URL  
+echo $VILLAINS_URL
 ```
 
 You can now invoke the Hero microservice APIs with:
@@ -370,6 +366,15 @@ You can now invoke the Hero microservice APIs with:
 curl https://$VILLAINS_URL/api/villains/hello
 curl https://$VILLAINS_URL/api/villains | jq
 ```
+
+To access the logs of the Villain microservice, you can write the following query:
+
+````shell
+az monitor log-analytics query \
+--workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
+--analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$VILLAINS_APP' | project ContainerAppName_s, Log_s, TimeGenerated " \
+--out table
+````
 
 ### Statistics Microservice
 
@@ -421,8 +426,8 @@ STATISTICS_URL=$(az containerapp create \
   --environment $CONTAINERAPPS_ENVIRONMENT \
   --ingress external \
   --target-port 8085 \
-  --environment-variables QUARKUS_PROFILE=azure \
-  --query configuration.ingress.fqdn \
+  --env-vars QUARKUS_PROFILE=azure \
+  --query properties.configuration.ingress.fqdn \
   --output tsv)
   
 echo $STATISTICS_URL  
@@ -433,6 +438,15 @@ You can now display the Statistics UI with:
 ```shell
 open https://$STATISTICS_URL
 ```
+
+To access the logs of the Statistics microservice, you can write the following query:
+
+````shell
+az monitor log-analytics query \
+--workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
+--analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$STATISTICS_APP' | project ContainerAppName_s, Log_s, TimeGenerated " \
+--out table
+````
 
 ### Fight Microservice
 
@@ -494,13 +508,13 @@ The following command will deploy the Fight image to Azure Container Apps and se
 ```shell
 FIGHTS_URL=$(az containerapp create \
   --resource-group $RESOURCE_GROUP \
-  --image agoncal/rest-fights:$TAG \
+  --image quay.io/quarkus-super-heroes/rest-fights:$TAG \
   --name $FIGHTS_APP \
   --environment $CONTAINERAPPS_ENVIRONMENT \
   --ingress external \
   --target-port 8082 \
-  --environment-variables QUARKUS_PROFILE=azure \
-  --query configuration.ingress.fqdn \
+  --env-vars QUARKUS_PROFILE=azure \
+  --query properties.configuration.ingress.fqdn \
   --output tsv)
   
 echo $FIGHTS_URL 
@@ -513,6 +527,61 @@ curl https://$FIGHTS_URL/api/fights/hello
 curl https://$FIGHTS_URL/api/fights | jq
 curl https://$FIGHTS_URL/api/fights/randomfighters | jq
 ```
+
+To access the logs of the Fight microservice, you can write the following query:
+
+````shell
+az monitor log-analytics query \
+--workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
+--analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$FIGHTS_APP' | project ContainerAppName_s, Log_s, TimeGenerated " \
+--out table
+````
+
+### Super Hero UIe
+
+If you are building the UI locally with Node 17 you have to set the `NODE_OPTIONS` variable:
+
+```shell
+node version
+export NODE_OPTIONS=--openssl-legacy-provider
+```
+
+Then, to execute the app locally, set `API_BASE_URL` with the same value of the Fight microservice URL (so it accesses the remote Fight microservice): 
+
+```shell
+export API_BASE_URL=https://$FIGHT_URL 
+ui-super-heroes$ npm install && npm run build && npm start
+```
+
+You can check the URL is correctly set with:
+
+```shell
+curl http://localhost:8080/env.js
+```
+
+Then, we will deploy the Angular application using [Azure Static Webapps](https://azure.microsoft.com/en-us/services/app-service/static).
+This creates a GitHub action and deploys the application each time you push the code:
+
+```shell
+az staticwebapp create \
+  --resource-group $RESOURCE_GROUP \
+  --location $LOCATION \
+  --name $UI_APP \
+  --source https://github.com/agoncal/quarkus-super-heroes \
+  --branch azure \
+  --app-location /ui-super-heroes \
+  --login-with-github
+```
+
+If you have an issue with secrets, you can list the secrets that exist for the static web app:
+
+```shell
+az staticwebapp secrets list  \
+  --resource-group $RESOURCE_GROUP \
+  --name $UI_APP \
+  --out table
+```
+
 
 ## Miscellaneous
 
