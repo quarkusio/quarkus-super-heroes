@@ -131,7 +131,6 @@ public class FightResource {
 		responseCode = "200",
 		description = "Ping Heroes hello"
 	)
-  @NonBlocking
 	public Uni<String> helloHeroes() {
 		return service.helloHeroes();
 	}

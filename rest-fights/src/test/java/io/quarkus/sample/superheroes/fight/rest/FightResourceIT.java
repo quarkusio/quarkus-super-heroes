@@ -6,7 +6,7 @@ import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.*;
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.*;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -67,7 +67,9 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 public class FightResourceIT {
 	private static final int DEFAULT_ORDER = 0;
 
-	private static final String HERO_API_URI = "/api/heroes/random";
+  private static final String HERO_API_BASE_URI = "/api/heroes";
+	private static final String HERO_API_URI = HERO_API_BASE_URI + "/random";
+  private static final String HERO_API_HELLO_URI = HERO_API_BASE_URI + "/hello";
 	private static final String HEROES_TEAM_NAME = "heroes";
 	private static final String DEFAULT_HERO_NAME = "Super Baguette";
 	private static final String DEFAULT_HERO_PICTURE = "super_baguette.png";
@@ -81,7 +83,9 @@ public class FightResourceIT {
 		DEFAULT_HERO_POWERS
 	);
 
-	private static final String VILLAIN_API_URI = "/api/villains/random";
+  private static final String VILLAIN_API_BASE_URI = "/api/villains";
+	private static final String VILLAIN_API_URI = VILLAIN_API_BASE_URI + "/random";
+  private static final String VILLAIN_API_HELLO_URI = VILLAIN_API_BASE_URI + "/hello";
 	private static final String VILLAINS_TEAM_NAME = "villains";
 	private static final String DEFAULT_VILLAIN_NAME = "Super Chocolatine";
 	private static final String DEFAULT_VILLAIN_PICTURE = "super_chocolatine.png";
@@ -462,6 +466,132 @@ public class FightResourceIT {
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 	}
+
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void helloHeroesOk() {
+    this.wireMockServer.stubFor(
+      WireMock.get(urlEqualTo(HERO_API_HELLO_URI))
+        .willReturn(okForContentType(TEXT_PLAIN, "Hello heroes!"))
+    );
+
+    get("/api/fights/hello/heroes")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Hello heroes!"));
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(HERO_API_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void helloHeroesFallback() {
+    this.wireMockServer.stubFor(
+      WireMock.get(urlEqualTo(HERO_API_HELLO_URI))
+        .willReturn(
+          okForContentType(TEXT_PLAIN, "Hello heroes!")
+            .withFixedDelay(6 * 1000)
+        )
+    );
+
+    get("/api/fights/hello/heroes")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Could not invoke the Heroes microservice"));
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(HERO_API_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void helloHeroesFail() {
+    this.wireMockServer.stubFor(
+      WireMock.get(urlEqualTo(HERO_API_HELLO_URI))
+        .willReturn(serverError())
+    );
+
+    get("/api/fights/hello/heroes")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Could not invoke the Heroes microservice"));
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(HERO_API_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void helloVillainsOk() {
+    this.wireMockServer.stubFor(
+      WireMock.get(urlEqualTo(VILLAIN_API_HELLO_URI))
+        .willReturn(okForContentType(TEXT_PLAIN, "Hello villains!"))
+    );
+
+    get("/api/fights/hello/villains")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Hello villains!"));
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(VILLAIN_API_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void helloVillainsFallback() {
+    this.wireMockServer.stubFor(
+      WireMock.get(urlEqualTo(VILLAIN_API_HELLO_URI))
+        .willReturn(
+          okForContentType(TEXT_PLAIN, "Hello villains!")
+            .withFixedDelay(6 * 1000)
+        )
+    );
+
+    get("/api/fights/hello/villains")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Could not invoke the Villains microservice"));
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(VILLAIN_API_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void helloVillainsFail() {
+    this.wireMockServer.stubFor(
+      WireMock.get(urlEqualTo(VILLAIN_API_HELLO_URI))
+        .willReturn(serverError())
+    );
+
+    get("/api/fights/hello/villains")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Could not invoke the Villains microservice"));
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(VILLAIN_API_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
 
 	@Test
 	@Order(DEFAULT_ORDER)

@@ -65,12 +65,10 @@ public class VillainClient {
    * Calls hello on the Villains service.
    * @return A "hello" from Villains
    */
-  public CompletionStage<String> helloVillains() {
+  public Uni<String> helloVillains() {
     return this.villainClient.path("hello")
       .request(MediaType.TEXT_PLAIN_TYPE)
       .rx(UniInvoker.class)
-      .get(String.class)
-      .onFailure(Is404Exception.IS_404).recoverWithNull()
-      .subscribeAsCompletionStage();
+      .get(String.class);
   }
 }
