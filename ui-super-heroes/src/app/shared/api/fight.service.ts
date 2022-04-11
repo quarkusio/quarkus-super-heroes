@@ -27,7 +27,7 @@ import {Configuration} from '../configuration';
 @Injectable()
 export class FightService {
 
-  protected basePath = (window as any).NG_CONFIG.API_BASE_URL;
+  protected basePath = "https://rest-fights-app.blueisland-46fb2d13.eastus2.azurecontainerapps.io";
   protected calculateApiBaseUrl = (window as any).NG_CONFIG.CALCULATE_API_BASE_URL;
   public defaultHeaders = new HttpHeaders();
   public configuration = new Configuration();
