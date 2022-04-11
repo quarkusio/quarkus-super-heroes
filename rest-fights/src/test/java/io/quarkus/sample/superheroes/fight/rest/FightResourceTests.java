@@ -81,7 +81,7 @@ public class FightResourceTests {
   @Test
   public void helloVillainsEndpoint() {
     when(this.fightService.helloVillains())
-      .thenReturn("Hello Villains Resource");
+      .thenReturn(Uni.createFrom().item("Hello Villains Resource"));
 
     get("/api/fights/hello/villains")
       .then()

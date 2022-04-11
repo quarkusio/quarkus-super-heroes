@@ -219,19 +219,17 @@ public class FightService {
   }
 
   Uni<String> fallbackHelloHeroes() {
-    Log.warn("Could not invoke the Heroes microservice");
-    return Uni.createFrom().item("Could not invoke the Heroes microservice");
+    return Uni.createFrom().item("Could not invoke the Heroes microservice").invoke(Log::warn);
   }
 
   @Timeout(value = 5, unit = ChronoUnit.SECONDS)
   @Fallback(fallbackMethod = "fallbackHelloVillains")
-  public String helloVillains() {
+  public Uni<String> helloVillains() {
     Log.debug("Invokes the Villains microservice");
-    return this.villainClient.helloVillains();
+    return Uni.createFrom().completionStage(this.villainClient.helloVillains());
   }
 
-  String fallbackHelloVillains() {
-    Log.warn("Could not invoke the Villains microservice");
-    return "Could not invoke the Villains microservice";
+  Uni<String> fallbackHelloVillains() {
+    return Uni.createFrom().item("Could not invoke the Villains microservice").invoke(Log::warn);
   }
 }

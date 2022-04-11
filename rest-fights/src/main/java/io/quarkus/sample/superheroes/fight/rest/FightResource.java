@@ -145,7 +145,7 @@ public class FightResource {
 		responseCode = "200",
 		description = "Ping Villains hello"
 	)
-	public String helloVillains() {
+	public Uni<String> helloVillains() {
 		return service.helloVillains();
 	}
 }
