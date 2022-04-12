@@ -50,6 +50,8 @@ MONGO_DB="fights-db"
 KAFKA_NAMESPACE="fights-kafka"
 KAFKA_TOPIC="fights"
 SCHEMA_REGISTRY_GROUP="fights-group"
+# Apicurio
+APICURIO_APP="apicurio-app"
 # Heroes
 HEROES_APP="rest-heroes-app"
 HEROES_DB_SCHEMA="heroes_database"
@@ -253,6 +255,26 @@ az eventhubs eventhub create \
   --namespace-name $KAFKA_NAMESPACE
 ```
 
+```shell
+APICURIO_URL=$(az containerapp create \
+  --resource-group $RESOURCE_GROUP \
+  --image apicurio/apicurio-registry-mem:2.1.5.Final \
+  --name $APICURIO_APP \
+  --environment $CONTAINERAPPS_ENVIRONMENT \
+  --ingress external \
+  --target-port 8080 \
+  --query properties.configuration.ingress.fqdn \
+  --output tsv)
+  
+echo $APICURIO_URL  
+```
+
+You can go to the Apicurio web console:
+
+```shell
+open https://$APICURIO_URL/ui
+```
+
 ## Deploying the Application
 
 Now that the Azure Container Apps environment is all set, we need to configure our microservices, build them as Docker images, push them to Docker Hub, and deploy these images to Azure Container Apps.
@@ -391,7 +413,7 @@ az eventhubs namespace authorization-rule keys list \
   --query primaryConnectionString
 ```
 
-Add this connection string to the Statistics (and later to the Fight) microservice `application-azure.properties` file as well as the Apicurio URL:
+Add this connection string to the Statistics (and later to the Fight) microservice `application-azure.properties` file as well as the Apicurio URL (`APICURIO_URL`):
 
 ```shell
 kafka.bootstrap.servers=fights-kafka.servicebus.windows.net:9093
@@ -401,7 +423,7 @@ kafka.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule r
 	username="$ConnectionString" \
 	password="Endpoint=sb://fights-kafka.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=00LgwvAcx1hufDy5Kp3AeHraBvI9JSkXiKA8TJ2ov+0=";
 
-mp.messaging.connector.smallrye-kafka.apicurio.registry.url=fights-kafka.servicebus.windows.net
+mp.messaging.connector.smallrye-kafka.apicurio.registry.url=https://apicurio-app.blueisland-46fb2d13.eastus2.azurecontainerapps.io
 ```
 
 We build the Statistics microservice with the following command:
@@ -452,7 +474,7 @@ az monitor log-analytics query \
 ### Fight Microservice
 
 The Fight microservice invokes the Heroes and Villains microserivces, sends fight messages to a Kafka topics and stores the fights into a MongoDB database.
-To configure Kafka, we need the same connection string as the one used by the Statistics microservice.
+To configure Kafka, we need the same connection string as the one used by the Statistics microservice as well as the Apicurion URL (variable `APICURIO_URL`).
 In the `application-azure.properties` file add:
 
 ```shell
@@ -463,7 +485,7 @@ kafka.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule r
 	username="$ConnectionString" \
 	password="Endpoint=sb://fights-kafka.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=00LgwvAcx1hufDy5Kp3AeHraBvI9JSkXiKA8TJ2ov+0=";
 
-mp.messaging.connector.smallrye-kafka.apicurio.registry.url=fights-kafka.servicebus.windows.net
+mp.messaging.connector.smallrye-kafka.apicurio.registry.url=https://apicurio-app.blueisland-46fb2d13.eastus2.azurecontainerapps.io
 ```
 
 For MongoDB, get the connection string by executing the following command:
