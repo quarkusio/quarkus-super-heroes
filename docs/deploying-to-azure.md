@@ -261,6 +261,7 @@ APICURIO_URL=$(az containerapp create \
   --image apicurio/apicurio-registry-mem:2.1.5.Final \
   --name $APICURIO_APP \
   --environment $CONTAINERAPPS_ENVIRONMENT \
+  --env-vars REGISTRY_AUTH_ANONYMOUS_READ_ACCESS_ENABLED=true \
   --ingress external \
   --target-port 8080 \
   --query properties.configuration.ingress.fqdn \
@@ -413,7 +414,7 @@ az eventhubs namespace authorization-rule keys list \
   --query primaryConnectionString
 ```
 
-Add this connection string to the Statistics (and later to the Fight) microservice `application-azure.properties` file as well as the Apicurio URL (`APICURIO_URL`):
+Add this connection string to the Statistics (and later to the Fight) microservice `application-azure.properties` file as well as the Apicurio URL (`APICURIO_URL` and append `/apis/registry/v2`):
 
 ```shell
 kafka.bootstrap.servers=fights-kafka.servicebus.windows.net:9093
@@ -423,7 +424,7 @@ kafka.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule r
 	username="$ConnectionString" \
 	password="Endpoint=sb://fights-kafka.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=00LgwvAcx1hufDy5Kp3AeHraBvI9JSkXiKA8TJ2ov+0=";
 
-mp.messaging.connector.smallrye-kafka.apicurio.registry.url=https://apicurio-app.blueisland-46fb2d13.eastus2.azurecontainerapps.io
+mp.messaging.connector.smallrye-kafka.apicurio.registry.url=https://apicurio-app.blueisland-46fb2d13.eastus2.azurecontainerapps.io/apis/registry/v2
 ```
 
 We build the Statistics microservice with the following command:
@@ -474,7 +475,7 @@ az monitor log-analytics query \
 ### Fight Microservice
 
 The Fight microservice invokes the Heroes and Villains microserivces, sends fight messages to a Kafka topics and stores the fights into a MongoDB database.
-To configure Kafka, we need the same connection string as the one used by the Statistics microservice as well as the Apicurion URL (variable `APICURIO_URL`).
+To configure Kafka, we need the same connection string as the one used by the Statistics microservice as well as the Apicurio URL (variable `APICURIO_URL` and append `apis/registry/v2`).
 In the `application-azure.properties` file add:
 
 ```shell
@@ -485,7 +486,7 @@ kafka.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule r
 	username="$ConnectionString" \
 	password="Endpoint=sb://fights-kafka.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=00LgwvAcx1hufDy5Kp3AeHraBvI9JSkXiKA8TJ2ov+0=";
 
-mp.messaging.connector.smallrye-kafka.apicurio.registry.url=https://apicurio-app.blueisland-46fb2d13.eastus2.azurecontainerapps.io
+mp.messaging.connector.smallrye-kafka.apicurio.registry.url=https://apicurio-app.blueisland-46fb2d13.eastus2.azurecontainerapps.io/apis/registry/v2
 ```
 
 For MongoDB, get the connection string by executing the following command:
@@ -640,3 +641,12 @@ az containerapp update \
   --image agoncal/rest-fights:azure2 \
   --name $FIGHTS_APP
 ```
+
+```shell
+az containerapp update \
+  --resource-group $RESOURCE_GROUP \
+  --name $APICURIO_APP \
+  --set-env-vars QUARKUS_LOG_LEVEL=DEBUG
+```
+
+QUARKUS_LOG_LEVEL=DEBUG
