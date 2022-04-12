@@ -30,11 +30,11 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:17 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:11:33 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -80,11 +80,11 @@ apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:17 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:11:33 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -174,11 +174,11 @@ apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:17 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:11:33 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -201,11 +201,11 @@ spec:
   template:
     metadata:
       annotations:
-        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: villains-db
         app.openshift.io/vcs-ref: main
-        app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-        app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:17 +0000
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+        app.quarkus.io/build-timestamp: 2022-04-12 - 19:11:33 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -226,10 +226,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: rest-villains-config
             - secretRef:
                 name: rest-villains-config-creds
+            - configMapRef:
+                name: rest-villains-config
           image: quay.io/quarkus-super-heroes/rest-villains:native-java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -276,11 +276,11 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:17 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:11:33 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -348,8 +348,8 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:32 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:11:48 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -381,8 +381,8 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:32 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:11:48 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -476,8 +476,8 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:32 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:11:48 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -494,17 +494,17 @@ metadata:
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/version: native-java17-latest
+    app.kubernetes.io/part-of: heroes-service
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: heroes-db
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-        app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:32 +0000
+        app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+        app.quarkus.io/build-timestamp: 2022-04-12 - 19:11:48 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -514,9 +514,9 @@ spec:
         application: heroes-service
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/name: rest-heroes
         app.kubernetes.io/version: native-java17-latest
+        app.kubernetes.io/part-of: heroes-service
     spec:
       containers:
         - env:
@@ -578,8 +578,8 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:32 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:11:48 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -688,8 +688,8 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:47 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:12:04 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -721,8 +721,8 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:47 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:12:04 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -914,8 +914,8 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:47 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:12:04 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -932,17 +932,17 @@ metadata:
 spec:
   replicas: 1
   selector:
+    app.kubernetes.io/version: native-java17-latest
     app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/version: native-java17-latest
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-        app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:47 +0000
+        app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+        app.quarkus.io/build-timestamp: 2022-04-12 - 19:12:04 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -952,9 +952,9 @@ spec:
         application: fights-service
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/version: native-java17-latest
         app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/name: rest-fights
-        app.kubernetes.io/version: native-java17-latest
     spec:
       containers:
         - env:
@@ -1037,8 +1037,8 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:10:47 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:12:04 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -1094,8 +1094,8 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:11:01 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:12:19 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -1144,8 +1144,8 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:11:01 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:12:19 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -1291,8 +1291,8 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:11:01 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:12:19 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -1309,17 +1309,17 @@ metadata:
 spec:
   replicas: 1
   selector:
+    app.kubernetes.io/name: event-statistics
     app.kubernetes.io/version: native-java17-latest
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/name: event-statistics
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: "fights-kafka,apicurio"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-        app.quarkus.io/build-timestamp: 2022-04-12 - 14:11:01 +0000
+        app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+        app.quarkus.io/build-timestamp: 2022-04-12 - 19:12:19 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -1329,9 +1329,9 @@ spec:
         application: event-stats
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/name: event-statistics
         app.kubernetes.io/version: native-java17-latest
         app.kubernetes.io/part-of: event-stats
-        app.kubernetes.io/name: event-statistics
     spec:
       containers:
         - env:
@@ -1340,10 +1340,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:native-java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -1414,8 +1414,8 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 9e88e0bba9396b89a4e3caa060b170ec8d3b1982
-    app.quarkus.io/build-timestamp: 2022-04-12 - 14:11:01 +0000
+    app.quarkus.io/commit-id: 6476191fed665b5b786541941013f2934b194cbe
+    app.quarkus.io/build-timestamp: 2022-04-12 - 19:12:19 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
