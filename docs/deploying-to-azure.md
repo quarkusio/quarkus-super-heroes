@@ -49,6 +49,7 @@ MONGO_DB="fights-db"
 # Kafka
 KAFKA_NAMESPACE="fights-kafka"
 KAFKA_TOPIC="fights"
+SCHEMA_REGISTRY_GROUP="fights-group"
 # Heroes
 HEROES_APP="rest-heroes-app"
 HEROES_DB_SCHEMA="heroes_database"
