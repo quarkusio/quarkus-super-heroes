@@ -26,7 +26,7 @@ az extension add --name rdbms-connect
 Register the Microsoft.Web namespace
 
 ```shell
-az provider register --namespace Microsoft.App
+az provider register --namespace Microsoft.App --wait
 ```
 
 ## Setting Up the Azure Environment
@@ -45,20 +45,20 @@ CONTAINERAPPS_ENVIRONMENT="super-heroes-env"
 POSTGRES_DB_ADMIN="superheroesadmin"
 POSTGRES_DB_PWD="super-heroes-p#ssw0rd-12046"
 # MongoDB
-MONGO_DB="fights-db"
+MONGO_DB="fights-db-$(whoami)"
 # Kafka
-KAFKA_NAMESPACE="fights-kafka"
+KAFKA_NAMESPACE="fights-kafka-$(whoami)"
 KAFKA_TOPIC="fights"
 SCHEMA_REGISTRY_GROUP="fights-group"
 # Apicurio
 APICURIO_APP="apicurio-app"
 # Heroes
 HEROES_APP="heroes-app"
-HEROES_DB="heroes-db"
+HEROES_DB="heroes-db-$(whoami)"
 HEROES_DB_SCHEMA="heroes"
 # Villains
 VILLAINS_APP="villains-app"
-VILLAINS_DB="villains-db"
+VILLAINS_DB="villains-db-$(whoami)"
 VILLAINS_DB_SCHEMA="villains"
 # Fights
 FIGHTS_APP="fights-app"
