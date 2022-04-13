@@ -37,11 +37,11 @@ Set the following environment variables
 ```shell
 RESOURCE_GROUP="super-heroes"
 LOCATION="eastus2"
+TAG=native-java17-latest
 # Container Apps
 LOG_ANALYTICS_WORKSPACE="super-heroes-logs"
 CONTAINERAPPS_ENVIRONMENT="super-heroes-env"
 # Postgres
-POSTGRES_DB="super-heroes-db"
 POSTGRES_DB_ADMIN="superheroesadmin"
 POSTGRES_DB_PWD="super-heroes-p#ssw0rd-12046"
 # MongoDB
@@ -53,18 +53,20 @@ SCHEMA_REGISTRY_GROUP="fights-group"
 # Apicurio
 APICURIO_APP="apicurio-app"
 # Heroes
-HEROES_APP="rest-heroes-app"
-HEROES_DB_SCHEMA="heroes_database"
+HEROES_APP="heroes-app"
+HEROES_DB="heroes-db"
+HEROES_DB_SCHEMA="heroes"
 # Villains
-VILLAINS_APP="rest-villains-app"
-VILLAINS_DB_SCHEMA="villains_database"
+VILLAINS_APP="villains-app"
+VILLAINS_DB="villains-db"
+VILLAINS_DB_SCHEMA="villains"
 # Fights
-FIGHTS_APP="rest-fights-app"
+FIGHTS_APP="fights-app"
 FIGHTS_DB_SCHEMA="fights"
 # Statistics
-STATISTICS_APP="event-statistics-app"
+STATISTICS_APP="statistics-app"
 # UI
-UI_APP="super-heroes-app"
+UI_APP="super-heroes-ui"
 ```
 
 ### Create a resource group
@@ -92,9 +94,20 @@ az monitor log-analytics workspace create \
 Retrieve the Log Analytics Client ID and client secret:
 
 ```shell
-LOG_ANALYTICS_WORKSPACE_CLIENT_ID=`az monitor log-analytics workspace show --query customerId -g $RESOURCE_GROUP -n $LOG_ANALYTICS_WORKSPACE -o tsv | tr -d '[:space:]'`
+LOG_ANALYTICS_WORKSPACE_CLIENT_ID=`az monitor log-analytics workspace show  \
+  --resource-group $RESOURCE_GROUP \
+  --workspace-name $LOG_ANALYTICS_WORKSPACE \
+  --query customerId  \
+  --output tsv | tr -d '[:space:]'`
+
 echo $LOG_ANALYTICS_WORKSPACE_CLIENT_ID
-LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET=`az monitor log-analytics workspace get-shared-keys --query primarySharedKey -g $RESOURCE_GROUP -n $LOG_ANALYTICS_WORKSPACE -o tsv | tr -d '[:space:]'`
+
+LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET=`az monitor log-analytics workspace get-shared-keys \
+  --resource-group $RESOURCE_GROUP \
+  --workspace-name $LOG_ANALYTICS_WORKSPACE \
+  --query primarySharedKey \
+  --output tsv | tr -d '[:space:]'`
+
 echo $LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET
 ```
 
@@ -109,16 +122,30 @@ az containerapp env create \
   --logs-workspace-key $LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET
 ````
 
-### Create the managed Postgres Database
+### Create the managed Postgres Databases
 
-We need to create a PostgreSQL so the Heroes and Villains microservice can store data.
-Create the database with the following command:
+We need to create two PostgreSQL databases so the Heroes and Villains microservice can store data.
+Because we also want to access these database from external SQL client, we make them available to the outside world thanks to the `-public all` parameter.
+Create the two databases with the following commands:
 
 ```shell
 az postgres flexible-server create \
   --resource-group $RESOURCE_GROUP \
   --location $LOCATION \
-  --name $POSTGRES_DB \
+  --name $HEROES_DB \
+  --admin-user $POSTGRES_DB_ADMIN \
+  --admin-password $POSTGRES_DB_PWD \
+  --public all \
+  --sku-name Standard_D2s_v3 \
+  --storage-size 4096 \
+  --version 13
+```
+
+```shell
+az postgres flexible-server create \
+  --resource-group $RESOURCE_GROUP \
+  --location $LOCATION \
+  --name $VILLAINS_DB \
   --admin-user $POSTGRES_DB_ADMIN \
   --admin-password $POSTGRES_DB_PWD \
   --public all \
@@ -132,14 +159,14 @@ Then, we create two database schemas, one for Heroes, another one for Villains
 ```shell
 az postgres flexible-server db create \
     --resource-group $RESOURCE_GROUP \
-    --server-name $POSTGRES_DB \
+    --server-name $HEROES_DB \
     --database-name $HEROES_DB_SCHEMA
 ```
 
 ```shell
 az postgres flexible-server db create \
     --resource-group $RESOURCE_GROUP \
-    --server-name $POSTGRES_DB \
+    --server-name $VILLAINS_DB \
     --database-name $VILLAINS_DB_SCHEMA
 ```
 
@@ -147,7 +174,7 @@ Add data to both databases using the following commands:
 
 ```shell
 az postgres flexible-server execute \
-    --name $POSTGRES_DB \
+    --name $HEROES_DB \
     --admin-user $POSTGRES_DB_ADMIN \
     --admin-password $POSTGRES_DB_PWD \
     --database-name $HEROES_DB_SCHEMA \
@@ -156,7 +183,7 @@ az postgres flexible-server execute \
 
 ```shell
 az postgres flexible-server execute \
-    --name $POSTGRES_DB \
+    --name $VILLAINS_DB \
     --admin-user $POSTGRES_DB_ADMIN \
     --admin-password $POSTGRES_DB_PWD \
     --database-name $VILLAINS_DB_SCHEMA \
@@ -167,7 +194,7 @@ You can check the content of the tables with the following commands:
 
 ```shell
 az postgres flexible-server execute \
-    --name $POSTGRES_DB \
+    --name $HEROES_DB \
     --admin-user $POSTGRES_DB_ADMIN \
     --admin-password $POSTGRES_DB_PWD \
     --database-name $HEROES_DB_SCHEMA \
@@ -176,7 +203,7 @@ az postgres flexible-server execute \
 
 ```shell
 az postgres flexible-server execute \
-    --name $POSTGRES_DB \
+    --name $VILLAINS_DB \
     --admin-user $POSTGRES_DB_ADMIN \
     --admin-password $POSTGRES_DB_PWD \
     --database-name $VILLAINS_DB_SCHEMA \
@@ -204,11 +231,22 @@ az postgres flexible-server firewall-rule list  \
     --out table
 ````
 
-Get the connection string with the following command so you can connect to it:
+Get the connection strings with the following command so you can connect to it:
 
 ```shell
 az postgres flexible-server show-connection-string \
-  --database-name $POSTGRES_DB \
+  --database-name $HEROES_DB \
+  --server-name $HEROES_DB \
+  --admin-password $POSTGRES_DB_ADMIN \
+  --admin-user $POSTGRES_DB_PWD \
+  --query connectionStrings.jdbc \
+  --out tsv
+
+az postgres flexible-server show-connection-string \
+  --database-name $VILLAINS_DB \
+  --server-name $VILLAINS_DB \
+  --admin-password $POSTGRES_DB_ADMIN \
+  --admin-user $POSTGRES_DB_PWD \
   --query connectionStrings.jdbc \
   --out tsv
 ```
@@ -236,6 +274,20 @@ az cosmosdb mongodb database create \
   --name $FIGHTS_DB_SCHEMA
 ````
 
+To configure Kafka, first get the connection string of the event hub namespace.
+
+```shell
+MONGO_CONNECTION_STRING=$(az cosmosdb keys list \
+  --resource-group $RESOURCE_GROUP \
+  --name $MONGO_DB \
+  --type connection-strings \
+  --query "connectionStrings[?description=='Primary MongoDB Connection String'].connectionString" \
+  --output tsv)
+
+echo $MONGO_CONNECTION_STRING
+```
+
+
 ### Create the Managed Kafka
 
 The Fight microservice communicates with the Statistics microservice through Kafka.
@@ -255,25 +307,67 @@ az eventhubs eventhub create \
   --namespace-name $KAFKA_NAMESPACE
 ```
 
+To configure Kafka, first get the connection string of the event hub namespace.
+
 ```shell
-APICURIO_URL=$(az containerapp create \
+KAFKA_CONNECTION_STRING=$(az eventhubs namespace authorization-rule keys list \
   --resource-group $RESOURCE_GROUP \
-  --image apicurio/apicurio-registry-mem:2.1.5.Final \
+  --namespace-name $KAFKA_NAMESPACE \
+  --name RootManageSharedAccessKey \
+  --output json | jq -r .primaryConnectionString)
+
+echo $KAFKA_CONNECTION_STRING
+```
+
+
+### Create the Schema Registry
+
+Messages sent and consumed from Kafka need to be validated against a schema.
+These schemas are deployed to Apicurio.
+Notice the `--min-replicas 1` so Apicurio does not scale to 0 and is always available:
+
+```shell
+az containerapp create \
+  --resource-group $RESOURCE_GROUP \
+  --image apicurio/apicurio-registry-mem:2.2.0.Final \
   --name $APICURIO_APP \
   --environment $CONTAINERAPPS_ENVIRONMENT \
   --env-vars REGISTRY_AUTH_ANONYMOUS_READ_ACCESS_ENABLED=true \
   --ingress external \
   --target-port 8080 \
-  --query properties.configuration.ingress.fqdn \
-  --output tsv)
+  --min-replicas 1
+```
+
+```shell
+APICURIO_URL=$(az containerapp ingress show \
+  --name $APICURIO_APP \
+  --resource-group $RESOURCE_GROUP \
+  --output json | jq -r .fqdn)
   
 echo $APICURIO_URL  
+```
+
+Because we are running on HTTPS, we need to set the APICURIO_URL in the following variables:
+
+```shell
+APICURIO_REGISTRY_UI_CONFIG_APIURL="https://${APICURIO_URL}/apis/registry"
+APICURIO_REGISTRY_UI_CONFIG_UIURL="https://${APICURIO_URL}/ui"
+```
+
+And then, update the Apicurio container with these new variables:
+
+```shell
+az containerapp update \
+  --resource-group $RESOURCE_GROUP \
+  --name $APICURIO_APP \
+  --set-env-vars REGISTRY_UI_CONFIG_APIURL=$APICURIO_REGISTRY_UI_CONFIG_APIURL \
+                 REGISTRY_UI_CONFIG_UIURL=$APICURIO_REGISTRY_UI_CONFIG_UIURL
 ```
 
 You can go to the Apicurio web console:
 
 ```shell
-open https://$APICURIO_URL/ui
+open $APICURIO_REGISTRY_UI_CONFIG_UIURL
 ```
 
 ## Deploying the Application
@@ -284,50 +378,35 @@ So let's configure, build, push and deploy each Microservice.
 ### Heroes Microservice
 
 The Heroes microservice needs to access the managed Postgres database.
-Therefore, we need to set the right properties in the file `application-azure.yml`.
-We know the values for the Postgres database, admin and password (our `POSTGRES_DB`, `POSTGRES_DB_ADMIN` and `POSTGRES_DB_PWD` variables), so the configuration looks like this:
+Therefore, we need to set the right properties using our environment variables.
+Notice that the Heroes microservice is not accessible from outside.
+If you want to access it, you can add `--ingress external --target-port 8083` to the following command:
 
 ```shell
-quarkus:
-  datasource:
-    username: superheroesadmin
-    password: super-heroes-p#ssw0rd-12046
-    reactive:
-      url: postgresql://super-heroes-db.postgres.database.azure.com:5432/heroes_database?ssl=true&sslmode=require
-```
-
-We build the Heroes microservice with the following command:
-
-```shell
-rest-heroes$ ./mvnw clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
-```
-
-This creates the Docker image `quay.io/quarkus-super-heroes/rest-heroes` with the tag value `$TAG`
-
-```shell
-docker login quay.io
-docker push quay.io/quarkus-super-heroes/rest-heroes:$TAG
-```
-
-The following command will deploy the Heroes image to Azure Container Apps and set the URL of the deployed application to the `HEROES_URL` variable:
-
-```shell
-HEROES_URL=$(az containerapp create \
+az containerapp create \
   --resource-group $RESOURCE_GROUP \
   --image quay.io/quarkus-super-heroes/rest-heroes:$TAG \
   --name $HEROES_APP \
   --environment $CONTAINERAPPS_ENVIRONMENT \
   --ingress external \
   --target-port 8083 \
-  --env-vars QUARKUS_PROFILE=azure \
-  --query properties.configuration.ingress.fqdn \
-  --output tsv)
-  
-echo $HEROES_URL  
+  --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
+             QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT=no-file \
+             QUARKUS_DATASOURCE_USERNAME=$POSTGRES_DB_ADMIN \
+             QUARKUS_DATASOURCE_PASSWORD=$POSTGRES_DB_PWD \
+             QUARKUS_DATASOURCE_REACTIVE_URL="postgresql://${HEROES_DB}.postgres.database.azure.com:5432/${HEROES_DB_SCHEMA}?ssl=true&sslmode=require"
 ```
 
-TODO: --ingress external is for microservices that are accessed from the outside world, but this is not the case, it's only accesses by Fight
+The following command sets the URL of the deployed application to the `HEROES_URL` variable:
 
+```shell
+HEROES_URL=$(az containerapp ingress show \
+  --name $HEROES_APP \
+  --resource-group $RESOURCE_GROUP \
+  --output json | jq -r .fqdn)
+    
+echo $HEROES_URL
+```
 You can now invoke the Hero microservice APIs with:
 
 ```shell
@@ -346,44 +425,33 @@ az monitor log-analytics query \
 
 ### Villain Microservice
 
-The Villain microservice also needs to access the managed Postgres database, so we need to set the right properties in the `application-azure.properties` file:
+The Villain microservice also needs to access the managed Postgres database, so we need to set the right variables:
 
 ```shell
-quarkus.datasource.username=superheroesadmin
-quarkus.datasource.password=super-heroes-p#ssw0rd-12046
-quarkus.datasource.jdbc.url=jdbc:postgresql://super-heroes-db.postgres.database.azure.com:5432/villains_database?ssl=true&sslmode=require
-```
-
-We build the Villain microservice with the following command:
-
-```shell
-rest-villains$ ./mvnw clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
-```
-
-This creates the Docker image `quay.io/quarkus-super-heroes/rest-villains` with the tag value `$TAG`
-
-```shell
-docker login quay.io
-docker push quay.io/quarkus-super-heroes/rest-villains:$TAG
-```
-
-The following command will deploy the Heroes image to Azure Container Apps and set the URL of the deployed application to the `VILLAINS_URL` variable:
-
-```shell
-VILLAINS_URL=$(az containerapp create \
+az containerapp create \
   --resource-group $RESOURCE_GROUP \
   --image quay.io/quarkus-super-heroes/rest-villains:$TAG \
   --name $VILLAINS_APP \
   --environment $CONTAINERAPPS_ENVIRONMENT \
   --ingress external \
   --target-port 8084 \
-  --env-vars QUARKUS_PROFILE=azure \
-  --query properties.configuration.ingress.fqdn \
-  --output tsv)
+  --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
+             QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT=no-file \
+             QUARKUS_DATASOURCE_USERNAME=$POSTGRES_DB_ADMIN \
+             QUARKUS_DATASOURCE_PASSWORD=$POSTGRES_DB_PWD \
+             QUARKUS_DATASOURCE_JDBC_URL="jdbc:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
+```
+
+The following command sets the URL of the deployed application to the `VILLAINS_URL` variable:
+
+```shell
+VILLAINS_URL=$(az containerapp ingress show \
+  --name $VILLAINS_APP \
+  --resource-group $RESOURCE_GROUP \
+  --output json | jq -r .fqdn)
   
 echo $VILLAINS_URL
 ```
-
 You can now invoke the Hero microservice APIs with:
 
 ```shell
@@ -403,56 +471,33 @@ az monitor log-analytics query \
 ### Statistics Microservice
 
 The Statistics microservice listens to a Kafka topics and consumes all the fights.
-The fight messages are defined by an Avro schema stored in the Azure Schema Registry.
-To configure Kafka, first get the connection string of the event hub namespace.
+The fight messages are defined by an Avro schema stored in Apicurio (`APICURIO_URL` and we append `/apis/registry/v2`):.
+Notice that we use the value of the `$KAFKA_CONNECTION_STRING` in the `password`
+Add this connection string to the Statistics (and later to the Fight) microservice `application-azure.properties` file as well as the Apicurio 
 
 ```shell
-az eventhubs namespace authorization-rule keys list \
-  --resource-group $RESOURCE_GROUP \
-  --namespace-name $KAFKA_NAMESPACE \
-  --name RootManageSharedAccessKey \
-  --query primaryConnectionString
-```
-
-Add this connection string to the Statistics (and later to the Fight) microservice `application-azure.properties` file as well as the Apicurio URL (`APICURIO_URL` and append `/apis/registry/v2`):
-
-```shell
-kafka.bootstrap.servers=fights-kafka.servicebus.windows.net:9093
-kafka.security.protocol=SASL_SSL
-kafka.sasl.mechanism=PLAIN
-kafka.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
-	username="$ConnectionString" \
-	password="Endpoint=sb://fights-kafka.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=00LgwvAcx1hufDy5Kp3AeHraBvI9JSkXiKA8TJ2ov+0=";
-
-mp.messaging.connector.smallrye-kafka.apicurio.registry.url=https://apicurio-app.blueisland-46fb2d13.eastus2.azurecontainerapps.io/apis/registry/v2
-```
-
-We build the Statistics microservice with the following command:
-
-```shell
-event-statistics$ ./mvnw clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
-```
-
-This creates the Docker image `quay.io/quarkus-super-heroes/event-statistics` with the tag value `$TAG`
-
-```shell
-docker login quay.io
-docker push quay.io/quarkus-super-heroes/event-statistics:$TAG
-```
-
-The following command will deploy the Statistics image to Azure Container Apps and set the URL of the deployed application to the `STATISTICS_URL` variable:
-
-```shell
-STATISTICS_URL=$(az containerapp create \
+az containerapp create \
   --resource-group $RESOURCE_GROUP \
   --image quay.io/quarkus-super-heroes/event-statistics:$TAG \
   --name $STATISTICS_APP \
   --environment $CONTAINERAPPS_ENVIRONMENT \
   --ingress external \
   --target-port 8085 \
-  --env-vars QUARKUS_PROFILE=azure \
-  --query properties.configuration.ingress.fqdn \
-  --output tsv)
+  --env-vars KAFKA_BOOTSTRAP_SERVERS=$KAFKA_NAMESPACE.servicebus.windows.net:9093 \
+             KAFKA_SECURITY_PROTOCOL=SASL_SSL \
+             KAFKA_SASL_MECHANISM=PLAIN \
+             KAFKA_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="Endpoint=sb://fights-kafka.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=UpfDXkx631LRx4vOociEY8G5WPc14bK4A3yItFm3HPM=";' \
+             MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL=https://${APICURIO_URL}/apis/registry/v2
+```
+
+The following command sets the URL of the deployed application to the `STATISTICS_URL` variable:
+
+
+```shell
+STATISTICS_URL=$(az containerapp ingress show \
+  --name $STATISTICS_APP \
+  --resource-group $RESOURCE_GROUP \
+  --output json | jq -r .fqdn)
   
 echo $STATISTICS_URL  
 ```
@@ -475,79 +520,45 @@ az monitor log-analytics query \
 ### Fight Microservice
 
 The Fight microservice invokes the Heroes and Villains microserivces, sends fight messages to a Kafka topics and stores the fights into a MongoDB database.
-To configure Kafka, we need the same connection string as the one used by the Statistics microservice as well as the Apicurio URL (variable `APICURIO_URL` and append `apis/registry/v2`).
-In the `application-azure.properties` file add:
-
-```shell
-kafka.bootstrap.servers=fights-kafka.servicebus.windows.net:9093
-kafka.security.protocol=SASL_SSL
-kafka.sasl.mechanism=PLAIN
-kafka.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
-	username="$ConnectionString" \
-	password="Endpoint=sb://fights-kafka.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=00LgwvAcx1hufDy5Kp3AeHraBvI9JSkXiKA8TJ2ov+0=";
-
-mp.messaging.connector.smallrye-kafka.apicurio.registry.url=https://apicurio-app.blueisland-46fb2d13.eastus2.azurecontainerapps.io/apis/registry/v2
-```
-
-For MongoDB, get the connection string by executing the following command:
-
-````shell
-az cosmosdb keys list \
-  --resource-group $RESOURCE_GROUP \
-  --name $MONGO_DB \
-  --type connection-strings \
-  --query "connectionStrings[?description=='Primary MongoDB Connection String'].connectionString" \
-  --output tsv
-````
-
-Add the connection string to the `application-azure.properties` file:
-
-```shell
-quarkus.mongodb.connection-string=mongodb://fights-db:tF8pMgaFm6mgyRSKKpPp3cSEkZAEoFmxpHsqrIJ94vMLWMBTqEvHWw1CyuNPebOfinipMK3qPfKVovQAAGQ5DA==@fights-db.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@fights-db@
-```
-
+We need to configure Kafka (same connection string as the one used by the Statistics microservice) as well as Mongo and Apicurio (variable `APICURIO_URL` and append `apis/registry/v2`).
 As for the microservice invocations, you need to set the URLs of both Heroes and Villains microservices.
 For that, get the values of the `HEROES_URL` and `VILLAINS_URL` variables and add them to the `application-azure.properties` file:
 
-```shell
-quarkus.rest-client.hero-client.url=https://rest-heroes-app.thankfulpond-0365fcc1.eastus2.azurecontainerapps.io
-fight.villain.client-base-url=https://rest-villains-app.thankfulpond-0365fcc1.eastus2.azurecontainerapps.io
-```
-
-Build the Fight microservice with the following command:
 
 ```shell
-rest-fights$ ./mvnw clean package -Dmaven.test.skip=true -Dquarkus.container-image.build=true -Dquarkus.container-image.tag=$TAG
-```
-
-This creates the Docker image `quay.io/quarkus-super-heroes/rest-fights` with the tag value `$TAG`
-
-```shell
-docker login quay.io
-docker push quay.io/quarkus-super-heroes/rest-fights:$TAG
-```
-
-The following command will deploy the Fight image to Azure Container Apps and set the URL of the deployed application to the `FIGHTS_URL` variable:
-
-```shell
-FIGHTS_URL=$(az containerapp create \
+az containerapp create \
   --resource-group $RESOURCE_GROUP \
   --image quay.io/quarkus-super-heroes/rest-fights:$TAG \
   --name $FIGHTS_APP \
   --environment $CONTAINERAPPS_ENVIRONMENT \
   --ingress external \
   --target-port 8082 \
-  --env-vars QUARKUS_PROFILE=azure \
-  --query properties.configuration.ingress.fqdn \
-  --output tsv)
-  
-echo $FIGHTS_URL 
+  --env-vars QUARKUS_LIQUIBASE_MONGODB_MIGRATE_AT_START=false \
+    QUARKUS_MONGODB_CONNECTION_STRING=$MONGO_CONNECTION_STRING \
+    QUARKUS_REST_CLIENT_HERO_CLIENT_URL=https://$HEROES_URL \
+    FIGHT_VILLAIN_CLIENT_BASE_URL=https://$VILLAINS_URL \
+    KAFKA_BOOTSTRAP_SERVERS=$KAFKA_NAMESPACE.servicebus.windows.net:9093 \
+    KAFKA_SECURITY_PROTOCOL=SASL_SSL \
+    KAFKA_SASL_MECHANISM=PLAIN \
+    KAFKA_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="Endpoint=sb://fights-kafka.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=UpfDXkx631LRx4vOociEY8G5WPc14bK4A3yItFm3HPM=";' \
+    MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL=https://${APICURIO_URL}/apis/registry/v2
 ```
 
-You can now invoke the Fight microservice APIs with:
+The following command sets the URL of the deployed application to the `FIGHTS_URL` variable:
+
+```shell
+FIGHTS_URL=$(az containerapp ingress show \
+--name $FIGHTS_APP \
+--resource-group $RESOURCE_GROUP \
+--output json | jq -r .fqdn)
+
+echo $FIGHTS_URL
+```
 
 ```shell
 curl https://$FIGHTS_URL/api/fights/hello
+curl https://$FIGHTS_URL/api/fights/hello/villains
+curl https://$FIGHTS_URL/api/fights/hello/heroes
 curl https://$FIGHTS_URL/api/fights | jq
 curl https://$FIGHTS_URL/api/fights/randomfighters | jq
 ```
@@ -561,7 +572,33 @@ az monitor log-analytics query \
 --out table
 ````
 
-### Super Hero UIe
+### Super Hero UI (using Azure Container Apps)
+
+```shell
+az containerapp create \
+  --resource-group $RESOURCE_GROUP \
+  --image quay.io/quarkus-super-heroes/ui-super-heroes:latest \
+  --name $UI_APP \
+  --environment $CONTAINERAPPS_ENVIRONMENT \
+  --ingress external \
+  --target-port 8080 \
+  --env-vars API_BASE_URL=https://$FIGHTS_URL
+```
+
+```shell
+UI_URL=$(az containerapp ingress show \
+  --name $UI_APP \
+  --resource-group $RESOURCE_GROUP \
+  --output json | jq -r .fqdn)
+  
+echo $UI_URL  
+```
+
+```shell
+open http://$UI_URL
+```
+
+### Super Hero UI (optional using Azure Static Webapps)
 
 If you are building the UI locally with Node 17 you have to set the `NODE_OPTIONS` variable:
 
@@ -573,7 +610,7 @@ export NODE_OPTIONS=--openssl-legacy-provider
 Then, to execute the app locally, set `API_BASE_URL` with the same value of the Fight microservice URL (so it accesses the remote Fight microservice): 
 
 ```shell
-export API_BASE_URL=https://$FIGHT_URL 
+export API_BASE_URL=https://${FIGHT_URL}/api
 ui-super-heroes$ npm install && npm run build && npm start
 ```
 
@@ -606,7 +643,6 @@ az staticwebapp secrets list  \
   --out table
 ```
 
-
 ## Miscellaneous
 
 ### Restarting a Microservice
@@ -638,7 +674,7 @@ Then, update the container with this new tagged image:
 ```shell
 az containerapp update \
   --resource-group $RESOURCE_GROUP \
-  --image agoncal/rest-fights:azure2 \
+  --image quay.io/quarkus-super-heroes/rest-fights:azure2 \
   --name $FIGHTS_APP
 ```
 
@@ -648,5 +684,3 @@ az containerapp update \
   --name $APICURIO_APP \
   --set-env-vars QUARKUS_LOG_LEVEL=DEBUG
 ```
-
-QUARKUS_LOG_LEVEL=DEBUG
