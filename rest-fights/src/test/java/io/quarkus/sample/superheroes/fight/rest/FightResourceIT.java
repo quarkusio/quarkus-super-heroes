@@ -12,15 +12,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.params.ParameterizedTest.*;
 
-import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetResetStrategy;
+import org.apache.kafka.common.serialization.Serde;
+import org.apache.kafka.common.serialization.Serdes;
+import org.junit.jupiter.api.AfterAll;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,13 +33,19 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import io.apicurio.registry.rest.client.RegistryClientFactory;
+import io.apicurio.registry.serde.avro.AvroKafkaDeserializer;
+import io.apicurio.registry.serde.avro.AvroKafkaSerdeConfig;
+import io.apicurio.registry.serde.avro.AvroKafkaSerializer;
+
+import io.apicurio.registry.serde.avro.ReflectAvroDatumProvider;
+import io.apicurio.rest.client.VertxHttpClientProvider;
+
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource;
-import io.quarkus.sample.superheroes.fight.InjectKafkaConsumer;
 import io.quarkus.sample.superheroes.fight.InjectWireMock;
-import io.quarkus.sample.superheroes.fight.KafkaConsumerResource;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -49,6 +57,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
+import io.quarkus.test.kafka.InjectKafkaCompanion;
+
+import io.quarkus.test.kafka.KafkaCompanionResource;
+
+import io.smallrye.reactive.messaging.kafka.companion.KafkaCompanion;
+import io.vertx.core.Vertx;
+
 /**
  * Integration tests for the application as a whole. Orders tests in an order to faciliate a scenario of interactions
  * <p>
@@ -58,11 +73,10 @@ import com.github.tomakehurst.wiremock.client.WireMock;
  *   Uses an external container image for Kafka
  * </p>
  * @see HeroesVillainsWiremockServerResource
- * @see io.quarkus.sample.superheroes.fight.KafkaConsumerResource
  */
 @QuarkusIntegrationTest
 @QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
-@QuarkusTestResource(value = KafkaConsumerResource.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(value = KafkaCompanionResource.class, restrictToAnnotatedClass = true)
 @TestMethodOrder(OrderAnnotation.class)
 public class FightResourceIT {
 	private static final int DEFAULT_ORDER = 0;
@@ -130,18 +144,34 @@ public class FightResourceIT {
 	@InjectWireMock
 	WireMockServer wireMockServer;
 
-	@InjectKafkaConsumer
-	KafkaConsumer<String, io.quarkus.sample.superheroes.fight.schema.Fight> fightsConsumer;
+	@InjectKafkaCompanion
+  KafkaCompanion companion;
+
+  private static Vertx vertx;
 
 	@BeforeAll
 	public static void beforeAll() {
 		OBJECT_MAPPER.setSerializationInclusion(Include.NON_EMPTY);
-	}
+    // Set Apicurio Avro
+    vertx = Vertx.vertx();
+    RegistryClientFactory.setProvider(new VertxHttpClientProvider(vertx));
+  }
+
+  @AfterAll
+  static void afterAll() {
+    Optional.ofNullable(vertx)
+      .ifPresent(Vertx::close);
+  }
 
 	@BeforeEach
 	public void beforeEach() {
 		// Reset WireMock
 		this.wireMockServer.resetAll();
+    // Configure Avro Serde for Fight
+    companion.setCommonClientConfig(Map.of(AvroKafkaSerdeConfig.AVRO_DATUM_PROVIDER, ReflectAvroDatumProvider.class.getName()));
+    Serde<io.quarkus.sample.superheroes.fight.schema.Fight> serde = Serdes.serdeFrom(new AvroKafkaSerializer<>(), new AvroKafkaDeserializer<>());
+    serde.configure(companion.getCommonClientConfig(), false);
+    companion.registerSerde(io.quarkus.sample.superheroes.fight.schema.Fight.class, serde);
 	}
 
 	@Test
@@ -653,6 +683,12 @@ public class FightResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 2)
 	public void performFightHeroWins() {
+    var fights = companion.consume(io.quarkus.sample.superheroes.fight.schema.Fight.class)
+      .withOffsetReset(OffsetResetStrategy.LATEST)
+      .withGroupId("fights")
+      .withAutoCommit()
+      .fromTopics("fights", 1);
+
 		given()
 			.when()
 				.contentType(JSON)
@@ -679,15 +715,10 @@ public class FightResourceIT {
 				.contentType(JSON)
 				.body("size()", is(NB_FIGHTS + 1));
 
-		var records = this.fightsConsumer.poll(Duration.ofSeconds(10)).records("fights");
-		var fight = StreamSupport.stream(records.spliterator(), false)
-			.map(ConsumerRecord::value)
-			.findFirst();
+    var fight = fights.awaitCompletion().getFirstRecord().value();
 
 		assertThat(fight)
 			.isNotNull()
-			.isPresent()
-			.get()
 			.extracting(
         io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerName,
         io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerLevel,
@@ -713,7 +744,13 @@ public class FightResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 3)
 	public void performFightVillainWins() {
-		var fighters = new Fighters(
+    var fights = companion.consume(io.quarkus.sample.superheroes.fight.schema.Fight.class)
+      .withOffsetReset(OffsetResetStrategy.LATEST)
+      .withGroupId("fights")
+      .withAutoCommit()
+      .fromTopics("fights", 1);
+
+    var fighters = new Fighters(
 			new Hero(
 				DEFAULT_HERO_NAME,
 				DEFAULT_VILLAIN_LEVEL,
@@ -754,15 +791,10 @@ public class FightResourceIT {
 				.contentType(JSON)
 				.body("size()", is(NB_FIGHTS + 2));
 
-		var records = this.fightsConsumer.poll(Duration.ofSeconds(10)).records("fights");
-		var fight = StreamSupport.stream(records.spliterator(), false)
-			.map(ConsumerRecord::value)
-			.findFirst();
+    var fight = fights.awaitCompletion().getFirstRecord().value();
 
 		assertThat(fight)
 			.isNotNull()
-			.isPresent()
-			.get()
 			.extracting(
         io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerName,
         io.quarkus.sample.superheroes.fight.schema.Fight::getWinnerLevel,
