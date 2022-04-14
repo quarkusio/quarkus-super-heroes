@@ -8,6 +8,8 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
@@ -24,28 +26,48 @@ import javax.websocket.OnOpen;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.Serde;
+import org.apache.kafka.common.serialization.Serdes;
 import org.jboss.logging.Logger;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import io.apicurio.registry.rest.client.RegistryClientFactory;
+import io.apicurio.registry.serde.avro.AvroKafkaDeserializer;
+import io.apicurio.registry.serde.avro.AvroKafkaSerdeConfig;
+import io.apicurio.registry.serde.avro.AvroKafkaSerializer;
+import io.apicurio.registry.serde.avro.ReflectAvroDatumProvider;
+import io.apicurio.rest.client.VertxHttpClientProvider;
+
 import io.quarkus.sample.superheroes.fight.schema.Fight;
-import io.quarkus.sample.superheroes.statistics.InjectKafkaProducer;
-import io.quarkus.sample.superheroes.statistics.KafkaProducerResource;
 import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.quarkus.test.kafka.InjectKafkaCompanion;
+
+import io.quarkus.test.kafka.KafkaCompanionResource;
+
 import io.smallrye.mutiny.unchecked.Unchecked;
+import io.smallrye.reactive.messaging.kafka.companion.KafkaCompanion;
+import io.vertx.core.Vertx;
 
 /**
  * Integration tests for the {@link TeamStatsWebSocket} and {@link TopWinnerWebSocket} WebSockets.
  * <p>
- *   These tests use the {@link KafkaProducerResource} to create a {@link KafkaProducer}, injected via {@link InjectKafkaProducer}. The test will publish messages to the Kafka topic while also creating WebSocket clients to listen to messages. Each received message is stored in a {@link BlockingQueue} so that the test can assert the correct messages were produced by the WebSocket.
+ *   These tests use the {@link KafkaCompanionResource} to create a {@link io.smallrye.reactive.messaging.kafka.companion.KafkaCompanion}, injected via {@link InjectKafkaCompanion}.
+ *   The test will publish messages to the Kafka topic while also creating WebSocket clients to listen to messages.
+ *   Each received message is stored in a {@link BlockingQueue} so that the test can assert the correct messages were produced by the WebSocket.
  * </p>
  */
 @QuarkusIntegrationTest
-@QuarkusTestResource(value = KafkaProducerResource.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(value = KafkaCompanionResource.class, restrictToAnnotatedClass = true)
 public class WebSocketsIT {
 	private static final String HERO_NAME = "Chewbacca";
 	private static final String HERO_TEAM_NAME = "heroes";
@@ -59,8 +81,33 @@ public class WebSocketsIT {
 	@TestHTTPResource("/stats/winners")
 	URI topWinnersUri;
 
-	@InjectKafkaProducer
-	KafkaProducer<String, Fight> fightsProducer;
+  @InjectKafkaCompanion
+  KafkaCompanion companion;
+
+  private static Vertx vertx;
+
+  @BeforeAll
+  public static void beforeAll() {
+    OBJECT_MAPPER.setSerializationInclusion(Include.NON_EMPTY);
+    // Set Apicurio Avro
+    vertx = Vertx.vertx();
+    RegistryClientFactory.setProvider(new VertxHttpClientProvider(vertx));
+  }
+
+  @AfterAll
+  static void afterAll() {
+    Optional.ofNullable(vertx)
+      .ifPresent(Vertx::close);
+  }
+
+  @BeforeEach
+  public void beforeEach() {
+    // Configure Avro Serde for Fight
+    companion.setCommonClientConfig(Map.of(AvroKafkaSerdeConfig.AVRO_DATUM_PROVIDER, ReflectAvroDatumProvider.class.getName()));
+    Serde<Fight> serde = Serdes.serdeFrom(new AvroKafkaSerializer<>(), new AvroKafkaDeserializer<>());
+    serde.configure(companion.getCommonClientConfig(), false);
+    companion.registerSerde(io.quarkus.sample.superheroes.fight.schema.Fight.class, serde);
+  }
 
 	@Test
 	public void testScenarios() throws DeploymentException, IOException {
@@ -81,9 +128,10 @@ public class WebSocketsIT {
 			var sampleFights = createSampleFights();
 
 			// Publish messages to the Kafka topic
-			sampleFights.stream()
-				.map(fight -> new ProducerRecord<String, Fight>("fights", fight))
-				.forEach(this.fightsProducer::send);
+      companion.produce(Fight.class)
+        .fromRecords(sampleFights.stream()
+          .map(fight -> new ProducerRecord<String, Fight>("fights", fight))
+          .collect(Collectors.toList()));
 
 			// Wait for our messages to appear in the queue
 			await()
