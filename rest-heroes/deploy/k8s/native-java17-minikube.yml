@@ -47,11 +47,11 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: heroes-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: b629ace46995013fdacfbe1fa66174937df9231d
-    app.quarkus.io/build-timestamp: 2022-04-05 - 15:05:52 +0000
+    app.openshift.io/connects-to: heroes-db
+    app.quarkus.io/commit-id: e17503bd8ddcf37c0161c2006b25263630713261
+    app.quarkus.io/build-timestamp: 2022-04-14 - 19:51:47 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -154,11 +154,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.openshift.io/connects-to: heroes-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: b629ace46995013fdacfbe1fa66174937df9231d
-    app.quarkus.io/build-timestamp: 2022-04-05 - 15:05:52 +0000
+    app.openshift.io/connects-to: heroes-db
+    app.quarkus.io/commit-id: e17503bd8ddcf37c0161c2006b25263630713261
+    app.quarkus.io/build-timestamp: 2022-04-14 - 19:51:47 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -181,11 +181,11 @@ spec:
   template:
     metadata:
       annotations:
-        app.openshift.io/connects-to: heroes-db
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: b629ace46995013fdacfbe1fa66174937df9231d
-        app.quarkus.io/build-timestamp: 2022-04-05 - 15:05:52 +0000
+        app.openshift.io/connects-to: heroes-db
+        app.quarkus.io/commit-id: e17503bd8ddcf37c0161c2006b25263630713261
+        app.quarkus.io/build-timestamp: 2022-04-14 - 19:51:47 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -205,10 +205,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: rest-heroes-config
             - secretRef:
                 name: rest-heroes-config-creds
+            - configMapRef:
+                name: rest-heroes-config
           image: quay.io/quarkus-super-heroes/rest-heroes:native-java17-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:

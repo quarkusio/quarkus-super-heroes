@@ -63,7 +63,37 @@ public class FightResourceTests {
 		verifyNoInteractions(this.fightService);
 	}
 
-	@Test
+  @Test
+  public void helloHeroesEndpoint() {
+    when(this.fightService.helloHeroes())
+      .thenReturn(Uni.createFrom().item("Hello Hero Resource"));
+
+    get("/api/fights/hello/heroes")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Hello Hero Resource"));
+
+    verify(this.fightService).helloHeroes();
+    verifyNoMoreInteractions(this.fightService);
+  }
+
+  @Test
+  public void helloVillainsEndpoint() {
+    when(this.fightService.helloVillains())
+      .thenReturn(Uni.createFrom().item("Hello Villains Resource"));
+
+    get("/api/fights/hello/villains")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Hello Villains Resource"));
+
+    verify(this.fightService).helloVillains();
+    verifyNoMoreInteractions(this.fightService);
+  }
+
+  @Test
 	public void shouldGetRandomFighters() {
 		when(this.fightService.findRandomFighters())
 			.thenReturn(Uni.createFrom().item(createDefaultFighters()));
