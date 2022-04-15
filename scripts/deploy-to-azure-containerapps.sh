@@ -46,6 +46,7 @@ create_postgres_db() {
   az postgres flexible-server create \
     --resource-group "$RESOURCE_GROUP" \
     --location "$LOCATION" \
+    --tags system="$TAG_SYSTEM" application="$APP_NAME" \
     --name "$DB_NAME" \
     --admin-user "$POSTGRES_DB_ADMIN" \
     --admin-password "$POSTGRES_DB_PWD" \
@@ -53,7 +54,6 @@ create_postgres_db() {
     --sku-name "Standard_$POSTGRES_SKU" \
     --tier "$POSTGRES_TIER" \
     --storage-size 4096 \
-    --tags system=quarkus-super-heroes application="$APP_NAME" \
     --version "$POSTGRES_DB_VERSION"
   echo
 
@@ -86,9 +86,9 @@ create_mongo_db() {
   az cosmosdb create \
     --resource "$RESOURCE_GROUP" \
     --locations regionName="$LOCATION" failoverPriority=0 \
+    --tags system="$TAG_SYSTEM" application="$FIGHTS_APP" \
     --name "$DB_NAME" \
     --kind MongoDB \
-    --tags system=quarkus-super-heroes application="$FIGHTS_APP" \
     --server-version "$MONGO_DB_VERSION"
   echo
 
@@ -115,8 +115,8 @@ create_eventhub() {
   az eventhubs namespace create \
     --resource-group "$RESOURCE_GROUP" \
     --location "$LOCATION" \
-    --name "$KAFKA_NAMESPACE" \
-    --tags system=quarkus-super-heroes application="$FIGHTS_APP"
+    --tags system="$TAG_SYSTEM" application="$FIGHTS_APP" \
+    --name "$KAFKA_NAMESPACE"
 
   echo "Creating the Kafka topic $KAFKA_TOPIC in the EventHub namespace $KAFKA_NAMESPACE"
   az eventhubs eventhub create \
@@ -137,19 +137,19 @@ create_apicurio() {
   echo "Creating Apicurio Container App"
   az containerapp create \
     --resource-group "$RESOURCE_GROUP" \
+    --tags system="$TAG_SYSTEM" application="$FIGHTS_APP" \
     --image "$APICURIO_IMAGE" \
     --name "$APICURIO_APP" \
     --environment "$CONTAINERAPPS_ENVIRONMENT" \
     --ingress external \
     --target-port 8080 \
     --min-replicas 1 \
-    --tags system=quarkus-super-heroes application="$FIGHTS_APP" \
     --env-vars REGISTRY_AUTH_ANONYMOUS_READ_ACCESS_ENABLED=true
 
   echo "Getting Apicurio URL"
   APICURIO_URL="https://$(az containerapp ingress show \
-      --name $APICURIO_APP \
-      --resource-group $RESOURCE_GROUP \
+      --resource-group "$RESOURCE_GROUP" \
+      --name "$APICURIO_APP" \
       --output json | jq -r .fqdn)"
 
   echo "Setting https URLs for Apicurio"
@@ -164,13 +164,13 @@ create_heroes_app() {
   echo "Creating Heroes Container App"
   az containerapp create \
     --resource-group "$RESOURCE_GROUP" \
+    --tags system="$TAG_SYSTEM" application="$HEROES_APP" \
     --image "$HEROES_IMAGE" \
     --name "$HEROES_APP" \
     --environment "$CONTAINERAPPS_ENVIRONMENT" \
     --ingress external \
     --target-port 8083 \
     --min-replicas 1 \
-    --tags system=quarkus-super-heroes application="$HEROES_APP" \
     --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
                QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT=no-file \
                QUARKUS_DATASOURCE_USERNAME="$POSTGRES_DB_ADMIN" \
@@ -179,8 +179,8 @@ create_heroes_app() {
 
   echo "Getting URL to heroes app"
   HEROES_URL="https://$(az containerapp ingress show \
-      --name $HEROES_APP \
       --resource-group $RESOURCE_GROUP \
+      --name $HEROES_APP \
       --output json | jq -r .fqdn)"
 }
 
@@ -188,13 +188,13 @@ create_villains_app() {
   echo "Creating Villains Container App"
   az containerapp create \
     --resource-group "$RESOURCE_GROUP" \
+    --tags system="$TAG_SYSTEM" application="$VILLAINS_APP" \
     --image "$VILLAINS_IMAGE" \
     --name "$VILLAINS_APP" \
     --environment "$CONTAINERAPPS_ENVIRONMENT" \
     --ingress external \
     --target-port 8084 \
     --min-replicas 1 \
-    --tags system=quarkus-super-heroes application="$VILLAINS_APP" \
     --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
                QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT=no-file \
                QUARKUS_DATASOURCE_USERNAME="$POSTGRES_DB_ADMIN" \
@@ -203,8 +203,8 @@ create_villains_app() {
 
   echo "Getting URL to villains app"
   VILLAINS_URL="https://$(az containerapp ingress show \
-      --name $VILLAINS_APP \
       --resource-group $RESOURCE_GROUP \
+      --name $VILLAINS_APP \
       --output json | jq -r .fqdn)"
 }
 
@@ -212,13 +212,13 @@ create_statistics_app() {
   echo "Creating Event Statistics Container App"
   az containerapp create \
     --resource-group "$RESOURCE_GROUP" \
+    --tags system="$TAG_SYSTEM" application="$STATISTICS_APP" \
     --image "$STATISTICS_IMAGE" \
     --name "$STATISTICS_APP" \
     --environment "$CONTAINERAPPS_ENVIRONMENT" \
     --ingress external \
     --target-port 8085 \
     --min-replicas 1 \
-    --tags system=quarkus-super-heroes application="$STATISTICS_APP" \
     --env-vars KAFKA_BOOTSTRAP_SERVERS="$KAFKA_BOOTSTRAP_SERVERS" \
                KAFKA_SECURITY_PROTOCOL=SASL_SSL \
                KAFKA_SASL_MECHANISM=PLAIN \
@@ -227,8 +227,8 @@ create_statistics_app() {
 
   echo "Getting URL to event statistics app"
   STATISTICS_URL="https://$(az containerapp ingress show \
-      --name $STATISTICS_APP \
       --resource-group $RESOURCE_GROUP \
+      --name $STATISTICS_APP \
       --output json | jq -r .fqdn)"
 }
 
@@ -236,13 +236,13 @@ create_fights_app() {
   echo "Creating Fights Container App"
   az containerapp create \
     --resource-group "$RESOURCE_GROUP" \
+    --tags system="$TAG_SYSTEM" application="$FIGHTS_APP" \
     --image "$FIGHTS_IMAGE" \
     --name "$FIGHTS_APP" \
     --environment "$CONTAINERAPPS_ENVIRONMENT" \
     --ingress external \
     --target-port 8082 \
     --min-replicas 1 \
-    --tags system=quarkus-super-heroes application="$FIGHTS_APP" \
     --env-vars KAFKA_BOOTSTRAP_SERVERS="$KAFKA_BOOTSTRAP_SERVERS" \
                KAFKA_SECURITY_PROTOCOL=SASL_SSL \
                KAFKA_SASL_MECHANISM=PLAIN \
@@ -255,8 +255,8 @@ create_fights_app() {
 
   echo "Getting URL to event fights app"
   FIGHTS_URL="https://$(az containerapp ingress show \
-      --name $FIGHTS_APP \
       --resource-group $RESOURCE_GROUP \
+      --name $FIGHTS_APP \
       --output json | jq -r .fqdn)"
 }
 
@@ -264,25 +264,25 @@ create_ui_app() {
   echo "Creating Super Heroes UI Container App"
   az containerapp create \
     --resource-group "$RESOURCE_GROUP" \
+    --tags system="$TAG_SYSTEM" application="$UI_APP" \
     --image "$UI_IMAGE" \
     --name "$UI_APP" \
     --environment "$CONTAINERAPPS_ENVIRONMENT" \
     --ingress external \
     --target-port 8080 \
-    --tags system=quarkus-super-heroes application="$UI_APP" \
     --env-vars API_BASE_URL="$FIGHTS_URL"
 
   echo "Getting URL to Super Heroes UI app"
   UI_URL="https://$(az containerapp ingress show \
-      --name $UI_APP \
       --resource-group $RESOURCE_GROUP \
+      --name $UI_APP \
       --output json | jq -r .fqdn)"
 }
 
 # Define defaults
 RESOURCE_GROUP="super-heroes"
 LOCATION="eastus2"
-TAG="native-java17-latest"
+IMAGES_TAG="native-java17-latest"
 UNIQUE_IDENTIFIER=$(whoami)
 POSTGRES_SKU="D2s_v3"
 POSTGRES_TIER="GeneralPurpose"
@@ -306,7 +306,7 @@ while getopts "g:hl:p:s:t:u:" option; do
     s) POSTGRES_SKU=$OPTARG
        ;;
 
-    t) TAG=$OPTARG
+    t) IMAGES_TAG=$OPTARG
        ;;
 
     u) UNIQUE_IDENTIFIER=$OPTARG
@@ -322,6 +322,7 @@ done
 TEMP_DIR=$(mktemp -d)
 GITHUB_RAW_BASE_URL="https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main"
 SUPERHEROES_IMAGES_BASE="quay.io/quarkus-super-heroes"
+TAG_SYSTEM=quarkus-super-heroes
 
 # Container Apps
 LOG_ANALYTICS_WORKSPACE="super-heroes-logs"
@@ -348,7 +349,7 @@ APICURIO_IMAGE="apicurio/apicurio-registry-mem:2.2.0.Final"
 # Heroes
 HEROES_APP="rest-heroes"
 HEROES_DB="heroes-db-$UNIQUE_IDENTIFIER"
-HEROES_IMAGE="${SUPERHEROES_IMAGES_BASE}/${HEROES_APP}:${TAG}"
+HEROES_IMAGE="${SUPERHEROES_IMAGES_BASE}/${HEROES_APP}:${IMAGES_TAG}"
 HEROES_DB_SCHEMA="heroes"
 HEROES_DB_SQL="$GITHUB_RAW_BASE_URL/$HEROES_APP/deploy/db-init/initialize-tables.sql"
 HEROES_DB_CONNECT_STRING="postgresql://${HEROES_DB}.postgres.database.azure.com:5432/${HEROES_DB_SCHEMA}?ssl=true&sslmode=require"
@@ -356,7 +357,7 @@ HEROES_DB_CONNECT_STRING="postgresql://${HEROES_DB}.postgres.database.azure.com:
 # Villains
 VILLAINS_APP="rest-villains"
 VILLAINS_DB="villains-db-$UNIQUE_IDENTIFIER"
-VILLAINS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${VILLAINS_APP}:${TAG}"
+VILLAINS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${VILLAINS_APP}:${IMAGES_TAG}"
 VILLAINS_DB_SCHEMA="villains"
 VILLAINS_DB_SQL="$GITHUB_RAW_BASE_URL/$VILLAINS_APP/deploy/db-init/initialize-tables.sql"
 VILLAINS_DB_CONNECT_STRING="jdbc:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
@@ -364,11 +365,11 @@ VILLAINS_DB_CONNECT_STRING="jdbc:postgresql://${VILLAINS_DB}.postgres.database.a
 # Fights
 FIGHTS_APP="rest-fights"
 FIGHTS_DB_SCHEMA="fights"
-FIGHTS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${FIGHTS_APP}:${TAG}"
+FIGHTS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${FIGHTS_APP}:${IMAGES_TAG}"
 
 # Statistics
 STATISTICS_APP="event-statistics"
-STATISTICS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${STATISTICS_APP}:${TAG}"
+STATISTICS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${STATISTICS_APP}:${IMAGES_TAG}"
 
 # UI
 UI_APP="ui-super-heroes"
@@ -378,7 +379,7 @@ UI_IMAGE="${SUPERHEROES_IMAGES_BASE}/${UI_APP}:latest"
 echo "Deploying Quarkus Superheroes to Azure Container Apps with the following configuration:"
 echo "  Resource Group: $RESOURCE_GROUP"
 echo "  Location: $LOCATION"
-echo "  Container image tag: $TAG"
+echo "  Container image tag: $IMAGES_TAG"
 echo "  Unique identifier: $UNIQUE_IDENTIFIER"
 echo "  PostgreSQL SKU: $POSTGRES_SKU"
 echo "  PostgreSQL Tier: $POSTGRES_TIER"
@@ -408,7 +409,7 @@ echo "-----------------------------------------"
 az group create \
   --name "$RESOURCE_GROUP" \
   --location "$LOCATION" \
-  --tags system=quarkus-super-heroes
+  --tags system="$TAG_SYSTEM"
 echo
 
 # Create the Heroes Postgres db
@@ -450,7 +451,7 @@ echo "-----------------------------------------"
 az monitor log-analytics workspace create \
   --resource-group "$RESOURCE_GROUP" \
   --location "$LOCATION" \
-  --tags system="quarkus-super-heroes" \
+  --tags system="$TAG_SYSTEM" \
   --workspace-name "$LOG_ANALYTICS_WORKSPACE"
 echo
 
@@ -478,8 +479,8 @@ echo "-----------------------------------------"
 az containerapp env create \
   --resource-group "$RESOURCE_GROUP" \
   --location "$LOCATION" \
+  --tags system="$TAG_SYSTEM" \
   --name "$CONTAINERAPPS_ENVIRONMENT" \
-  --tags system="quarkus-super-heroes" \
   --logs-workspace-id "$LOG_ANALYTICS_WORKSPACE_CLIENT_ID" \
   --logs-workspace-key "$LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET"
 echo
