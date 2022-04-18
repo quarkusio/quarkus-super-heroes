@@ -19,6 +19,7 @@ help() {
   echo "  -h                           Prints this help message"
   echo "  -l <location>                The location (region) to deploy resources into. Default is 'eastus2'".
   echo "  -p <postgres_server_tier>    Compute tier of the PostgreSQL servers. Accepted values: Burstable, GeneralPurpose, MemoryOptimized.  Default: 'GeneralPurpose'."
+  echo "  -r                           If present, create an Azure container registry instance. This is optional. No container images are pushed here by this script."
   echo "  -s <postgres_server_sku>     The SKU to use for the PostgreSQL servers (see https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server). Default is 'D2s_v3'."
   echo "  -t <tag>                     The tag for the images to deploy. Default is 'native-java17-latest'."
   echo "  -u <unique_identifier>       A unique identifier to append to some resources. Some Azure services require unique names within a region (across users). Default is to use the output of the 'whoami' command."
@@ -33,6 +34,28 @@ exit_abnormal() {
 cleanup() {
   echo "Removing temp directory $TEMP_DIR"
   rm -rf $TMP_DIR
+}
+
+create_container_registry() {
+  echo "Creating the $CONTAINER_REGISTRY_NAME container registry"
+  az acr create \
+    --resource-group "$RESOURCE_GROUP" \
+    --location "$LOCATION" \
+    --name "$CONTAINER_REGISTRY_NAME" \
+    --sku Standard \
+    --tags system=quarkus-super-heroes
+
+  # Allow anonymous pull access
+  echo "Allowing anonymous pull access to the $CONTAINER_REGISTRY_NAME container registry"
+  az acr update \
+    --name "$CONTAINER_REGISTRY_NAME" \
+    --anonymous-pull-enabled
+
+  echo "Getting the URL for the $CONTAINER_REGISTRY_NAME container registry"
+  CONTAINER_REGISTRY_URL=$(az acr show \
+    --resource-group "$RESOURCE_GROUP" \
+    --name "$CONTAINER_REGISTRY_NAME" \
+    --output json | jq -r .loginServer)
 }
 
 create_postgres_db() {
@@ -286,9 +309,10 @@ TAG="native-java17-latest"
 UNIQUE_IDENTIFIER=$(whoami)
 POSTGRES_SKU="D2s_v3"
 POSTGRES_TIER="GeneralPurpose"
+CREATE_CONTAINER_REGISTRY=false
 
 # Process the input options
-while getopts "g:hl:p:s:t:u:" option; do
+while getopts "g:hl:p:rs:t:u:" option; do
   case $option in
     g) RESOURCE_GROUP=$OPTARG
        ;;
@@ -301,6 +325,9 @@ while getopts "g:hl:p:s:t:u:" option; do
        ;;
 
     p) POSTGRES_TIER=$OPTARG
+       ;;
+
+    r) CREATE_CONTAINER_REGISTRY=true
        ;;
 
     s) POSTGRES_SKU=$OPTARG
@@ -322,6 +349,9 @@ done
 TEMP_DIR=$(mktemp -d)
 GITHUB_RAW_BASE_URL="https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main"
 SUPERHEROES_IMAGES_BASE="quay.io/quarkus-super-heroes"
+
+# Container registry
+CONTAINER_REGISTRY_NAME="superheroes${UNIQUE_IDENTIFIER}"
 
 # Container Apps
 LOG_ANALYTICS_WORKSPACE="super-heroes-logs"
@@ -410,6 +440,14 @@ az group create \
   --location "$LOCATION" \
   --tags system=quarkus-super-heroes
 echo
+
+# Create Container registry (if needed)
+if "$CREATE_CONTAINER_REGISTRY"; then
+  echo "-----------------------------------------"
+  echo "[$(date +"%m/%d/%Y %T")]: Creating the $CONTAINER_REGISTRY_NAME container registry"
+  echo "-----------------------------------------"
+  create_container_registry
+fi
 
 # Create the Heroes Postgres db
 echo "-----------------------------------------"
@@ -526,15 +564,23 @@ echo "-----------------------------------------"
 create_ui_app
 echo
 
+cleanup
+
+echo
+echo "Deployment took $SECONDS seconds to complete."
+
 echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: All services have been deployed"
 echo "-----------------------------------------"
 echo "  Super Heroes UI: $UI_URL"
 echo "  Event stats: $STATISTICS_URL"
+echo "  Fights URL: $FIGHTS_URL"
+echo "  Heroes URL: $HEROES_URL"
+echo "  Villains URL: $VILLAINS_URL"
 echo "  Apicurio Schema Registry: $APICURIO_URL"
-echo
 
-cleanup
+if "$CREATE_CONTAINER_REGISTRY"; then
+  echo "  Container Registry URL: $CONTAINER_REGISTRY_URL"
+fi
 
 echo
-echo "Deployment took $SECONDS seconds to complete."
