@@ -19,7 +19,7 @@ help() {
   echo "  -h                           Prints this help message"
   echo "  -l <location>                The location (region) to deploy resources into. Default is 'eastus2'".
   echo "  -p <postgres_server_tier>    Compute tier of the PostgreSQL servers. Accepted values: Burstable, GeneralPurpose, MemoryOptimized.  Default: 'GeneralPurpose'."
-  echo "  -r                           If present, create an Azure container registry instance. This is optional. No container images are pushed here by this script."
+  echo "  -r                           If present, create an Azure Container Registry instance (see https://azure.microsoft.com/en-us/services/container-registry). This is optional. No container images are pushed here by this script."
   echo "  -s <postgres_server_sku>     The SKU to use for the PostgreSQL servers (see https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server). Default is 'D2s_v3'."
   echo "  -t <tag>                     The tag for the images to deploy. Default is 'native-java17-latest'."
   echo "  -u <unique_identifier>       A unique identifier to append to some resources. Some Azure services require unique names within a region (across users). Default is to use the output of the 'whoami' command."
