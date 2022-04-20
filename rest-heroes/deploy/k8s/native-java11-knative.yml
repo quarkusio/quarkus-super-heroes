@@ -50,8 +50,8 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: abb51598473c3cd9658a0850d0c943489a0e4b31
-    app.quarkus.io/build-timestamp: 2022-04-18 - 17:28:20 +0000
+    app.quarkus.io/commit-id: 10e8915bdc8a602ab4005bda2af7acf28362708f
+    app.quarkus.io/build-timestamp: 2022-04-20 - 12:46:23 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -62,8 +62,8 @@ metadata:
     application: heroes-service
     system: quarkus-super-heroes
     app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/version: native-java11-latest
   name: rest-heroes
 spec:
   template:
@@ -72,8 +72,8 @@ spec:
         app.openshift.io/connects-to: heroes-db
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: abb51598473c3cd9658a0850d0c943489a0e4b31
-        app.quarkus.io/build-timestamp: 2022-04-18 - 17:28:20 +0000
+        app.quarkus.io/commit-id: 10e8915bdc8a602ab4005bda2af7acf28362708f
+        app.quarkus.io/build-timestamp: 2022-04-20 - 12:46:23 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -84,16 +84,16 @@ spec:
         application: heroes-service
         system: quarkus-super-heroes
         app.kubernetes.io/part-of: heroes-service
-        app.kubernetes.io/version: native-java11-latest
         app.kubernetes.io/name: rest-heroes
+        app.kubernetes.io/version: native-java11-latest
     spec:
       containerConcurrency: 0
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-heroes-config-creds
             - configMapRef:
                 name: rest-heroes-config
+            - secretRef:
+                name: rest-heroes-config-creds
           image: quay.io/quarkus-super-heroes/rest-heroes:native-java11-latest
           livenessProbe:
             failureThreshold: 3

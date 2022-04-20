@@ -91,8 +91,8 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
-    app.quarkus.io/commit-id: abb51598473c3cd9658a0850d0c943489a0e4b31
-    app.quarkus.io/build-timestamp: 2022-04-18 - 17:33:50 +0000
+    app.quarkus.io/commit-id: 10e8915bdc8a602ab4005bda2af7acf28362708f
+    app.quarkus.io/build-timestamp: 2022-04-20 - 12:53:10 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -147,7 +147,7 @@ metadata:
     system: quarkus-super-heroes
     app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/name: apicurio
-    app.kubernetes.io/version: 2.1.5.Final
+    app.kubernetes.io/version: 2.2.0.Final
     app.openshift.io/runtime: apicurio
   name: apicurio
 spec:
@@ -296,8 +296,8 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
-    app.quarkus.io/commit-id: abb51598473c3cd9658a0850d0c943489a0e4b31
-    app.quarkus.io/build-timestamp: 2022-04-18 - 17:33:50 +0000
+    app.quarkus.io/commit-id: 10e8915bdc8a602ab4005bda2af7acf28362708f
+    app.quarkus.io/build-timestamp: 2022-04-20 - 12:53:10 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -323,8 +323,8 @@ spec:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
-        app.quarkus.io/commit-id: abb51598473c3cd9658a0850d0c943489a0e4b31
-        app.quarkus.io/build-timestamp: 2022-04-18 - 17:33:50 +0000
+        app.quarkus.io/commit-id: 10e8915bdc8a602ab4005bda2af7acf28362708f
+        app.quarkus.io/build-timestamp: 2022-04-20 - 12:53:10 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -344,10 +344,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
+            - secretRef:
+                name: rest-fights-config-creds
           image: quay.io/quarkus-super-heroes/rest-fights:native-java17-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
