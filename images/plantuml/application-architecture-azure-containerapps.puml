@@ -1,0 +1,74 @@
+@startuml
+skinparam NodePadding 40
+!include <azure/AzureCommon>
+!include <azure/Databases/AzureCosmosDb>
+!include <azure/Databases/AzureDatabaseForPostgreSQL>
+!include <azure/Analytics/AzureEventHub>
+!include <logos/nodejs>
+!include <logos/prometheus>
+!include style.puml
+
+left to right direction
+
+together {
+    node "Super Hero UI" <<AzureContainerApp>> as ui {
+        agent "<$nodejs>" as uiQuarkus
+    }
+
+    node "<$prometheus>" as prometheus {
+    }
+}
+
+node "Fight" <<AzureContainerApp>> as fight {
+    agent "Quarkus" <<application>> as fightQuarkus
+    AzureCosmosDb(fightMongoDb, "FightsDB", "")
+    fightQuarkus .up> fightMongoDb
+}
+
+  node "Hero" <<AzureContainerApp>> as hero {
+      agent "Quarkus (reactive)" <<application>> as heroQuarkus
+      AzureDatabaseForPostgreSQL(heroPostgresql, "HeroesDB", "")
+      heroQuarkus .up> heroPostgresql
+  }
+
+  node "Villain" <<AzureContainerApp>> as villain {
+      agent "Quarkus (imperative)" <<application>> as villainQuarkus
+      AzureDatabaseForPostgreSQL(villainPostgresql, "VillansDB", "")
+      villainQuarkus .up> villainPostgresql
+  }
+
+together {
+  AzureEventHub(kafka, "Kafka", "")
+
+  node "Apicurio" <<schema-registry>> as apicurio {
+  }
+}
+
+package "stats" <<AzureContainerApp>> {
+    node "Statistics" as stat {
+        agent "HTML+JQuery" <<frontend>> as statUI
+        agent "Quarkus (reactive event-driven)" <<application>> as statQuarkus
+        statUI .up> statQuarkus
+    }
+
+    node "Statistics UI" as statUi {
+            agent "Browser" <<frontend>> as uiStats
+    }
+}
+
+uiQuarkus --> fightQuarkus : HTTP
+fightQuarkus --> villainQuarkus : HTTP
+fightQuarkus --> heroQuarkus : HTTP
+
+fightQuarkus ..> kafka : Message
+fightQuarkus -[dotted]-> apicurio : HTTP
+
+statQuarkus <.. kafka : Message
+statQuarkus -[dotted]-> apicurio : HTTP
+statQuarkus ..> uiStats : Web Sockets
+
+prometheus .> fight : polling
+prometheus .> hero : polling
+prometheus .> villain : polling
+prometheus .> stat : polling
+@enduml
