@@ -1,0 +1,74 @@
+@startuml
+skinparam NodePadding 40
+!include <logos/kafka>
+!include <logos/postgresql>
+!include <logos/mongodb>
+!include <logos/nodejs>
+!include <logos/prometheus>
+!include style.puml
+
+left to right direction
+
+together {
+    node "Super Hero UI" as ui {
+        agent "<$nodejs>" as uiQuarkus
+    }
+
+    node "<$prometheus>" as prometheus {
+    }
+}
+
+node "Fight" as fight {
+    agent "Quarkus" <<application>> as fightQuarkus
+    database "<$mongodb>" as fightMongoDb
+    fightQuarkus .up> fightMongoDb
+}
+
+  node "Hero" as hero {
+      agent "Quarkus (reactive)" <<application>> as heroQuarkus
+      database "<$postgresql>" as heroPostgresql
+      heroQuarkus .up> heroPostgresql
+  }
+
+  node "Villain" as villain {
+      agent "Quarkus (imperative)" <<application>> as villainQuarkus
+      database "<$postgresql>" as villainPostgresql
+      villainQuarkus .up> villainPostgresql
+  }
+
+together {
+  queue "<$kafka>" as kafka {
+  }
+
+  node "Apicurio" <<schema-registry>> as apicurio {
+  }
+}
+
+package "stats" {
+    node "Statistics" as stat {
+        agent "HTML + jQuery" <<frontend>> as statUI
+        agent "Quarkus (reactive event-driven)" <<application>> as statQuarkus
+        statUI .up> statQuarkus
+    }
+
+    node "Statistics UI" as statUi {
+            agent "Browser" <<frontend>> as uiStats
+    }
+}
+
+uiQuarkus --> fightQuarkus : HTTP
+fightQuarkus --> villainQuarkus : HTTP
+fightQuarkus --> heroQuarkus : HTTP
+
+fightQuarkus ..> kafka : Message
+fightQuarkus -[dotted]-> apicurio : HTTP
+
+statQuarkus <.. kafka : Message
+statQuarkus -[dotted]-> apicurio : HTTP
+statQuarkus ..> uiStats : Web Sockets
+
+prometheus .> fight : polling
+prometheus .> hero : polling
+prometheus .> villain : polling
+prometheus .> stat : polling
+@enduml
