@@ -74,17 +74,11 @@ spec:
           envFrom:
             - secretRef:
                 name: fights-db-config
-          volumeMounts:
-            - name: fights-db-data
-              mountPath: /bitnami/mongodb
           resources:
             limits:
-              memory: 128Mi
+              memory: 256Mi
             requests:
-              memory: 32Mi
-      volumes:
-        - name: fights-db-data
-          emptyDir: {}
+              memory: 64Mi
 ---
 apiVersion: v1
 kind: Service
