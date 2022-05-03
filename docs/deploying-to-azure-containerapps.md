@@ -768,3 +768,4 @@ az containerapp update \
 * [Azure Container Apps Overview](https://azure.microsoft.com/en-us/services/container-apps/#overview)
 * [Azure Container Apps Documentation](https://docs.microsoft.com/en-us/azure/container-apps/overview)
 * [Quarkus on Azure Container Apps using Dapr](https://github-com.translate.goog/yoshioterada/Quarkus-run-on-Azure-Container-Apps-with-Dapr?_x_tr_sl=ja&_x_tr_tl=en&_x_tr_hl=ja&_x_tr_pto=wapp)
+* [Managed Kafka Quarkus](https://github.com/ozangunalp/managed-kafka-quarkus/tree/main/azure-event-hub)
