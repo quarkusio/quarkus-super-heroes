@@ -88,7 +88,7 @@ public class FightResource {
 				return Response.ok(f).build();
 			})
 			.onItem().ifNull().continueWith(() -> {
-				Log.debugf("No fight found with id %d", id);
+				Log.debugf("No fight found with id %s", id);
 				return Response.status(Status.NOT_FOUND).build();
 			});
 	}
