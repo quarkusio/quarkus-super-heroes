@@ -2,7 +2,7 @@ package io.quarkus.sample.superheroes.fight.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
@@ -35,7 +35,9 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 @QuarkusTest
 @QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
 class HeroClientTests {
-	private static final String HERO_URI = "/api/heroes/random";
+  private static final String HERO_API_BASE_URI = "/api/heroes";
+  private static final String HERO_URI = HERO_API_BASE_URI + "/random";
+  private static final String HERO_HELLO_URI = HERO_API_BASE_URI + "/hello";
 	private static final String DEFAULT_HERO_NAME = "Super Baguette";
 	private static final String DEFAULT_HERO_PICTURE = "super_baguette.png";
 	private static final String DEFAULT_HERO_POWERS = "eats baguette really quickly";
@@ -181,6 +183,25 @@ class HeroClientTests {
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 	}
+
+  @Test
+  public void helloHeroes() {
+    this.wireMockServer.stubFor(
+      get(urlEqualTo(HERO_HELLO_URI))
+        .willReturn(okForContentType(TEXT_PLAIN, "Hello heroes!"))
+    );
+
+    this.heroClient.helloHeroes()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .assertItem("Hello heroes!");
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(HERO_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
 
 	private String getDefaultHeroJson() {
 		try {

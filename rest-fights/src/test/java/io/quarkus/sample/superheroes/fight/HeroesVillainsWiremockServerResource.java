@@ -20,10 +20,15 @@ public class HeroesVillainsWiremockServerResource implements QuarkusTestResource
 	public Map<String, String> start() {
 		this.wireMockServer.start();
 
-		return Map.of(
-			"quarkus.rest-client.hero-client.url", this.wireMockServer.baseUrl(),
-			"fight.villain.client-base-url", this.wireMockServer.baseUrl()
-		);
+    var url = String.format(
+      "localhost:%d",
+      this.wireMockServer.isHttpsEnabled() ? this.wireMockServer.httpsPort() : this.wireMockServer.port()
+    );
+
+    return Map.of(
+      "quarkus.stork.hero-service.service-discovery.address-list", url,
+      "quarkus.stork.villain-service.service-discovery.address-list", url
+    );
 	}
 
 	@Override

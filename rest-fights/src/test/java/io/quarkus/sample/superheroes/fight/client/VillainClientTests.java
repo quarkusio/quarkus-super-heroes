@@ -2,7 +2,7 @@ package io.quarkus.sample.superheroes.fight.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
@@ -35,7 +35,9 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 @QuarkusTest
 @QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
 class VillainClientTests {
-	private static final String VILLAIN_API = "/api/villains/random";
+  private static final String VILLAIN_API_BASE_URI = "/api/villains";
+  private static final String VILLAIN_API = VILLAIN_API_BASE_URI + "/random";
+  private static final String VILLAIN_HELLO_URI = VILLAIN_API_BASE_URI + "/hello";
 	private static final String DEFAULT_VILLAIN_NAME = "Super Chocolatine";
 	private static final String DEFAULT_VILLAIN_PICTURE = "super_chocolatine.png";
 	private static final String DEFAULT_VILLAIN_POWERS = "does not eat pain au chocolat";
@@ -181,6 +183,25 @@ class VillainClientTests {
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 	}
+
+  @Test
+  public void helloVillains() {
+    this.wireMockServer.stubFor(
+      get(urlEqualTo(VILLAIN_HELLO_URI))
+        .willReturn(okForContentType(TEXT_PLAIN, "Hello villains!"))
+    );
+
+    this.villainClient.helloVillains()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .assertItem("Hello villains!");
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(VILLAIN_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
 
 	private String getDefaultVillainJson() {
 		try {

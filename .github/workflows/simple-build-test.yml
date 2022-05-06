@@ -1,5 +1,8 @@
 name: Basic build and test
 
+env:
+  MANDREL_VERSION: "22.0.0.2-Final"
+
 on:
   push:
     paths-ignore:
@@ -47,7 +50,7 @@ jobs:
           - rest-fights
           - rest-heroes
           - rest-villains
-    name: "build-test-${{ matrix.project }}-java-${{ matrix.java }}"
+    name: "build-test-${{ matrix.project }}-${{ matrix.java }}"
     steps:
       - uses: actions/checkout@v3
 
@@ -61,3 +64,50 @@ jobs:
       - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: ./mvnw -B clean verify -Dquarkus.http.host=0.0.0.0 -Dmaven.compiler.release=${{ matrix.java }}
+
+  native-build-test:
+    runs-on: ubuntu-latest
+    if: github.repository == 'quarkusio/quarkus-super-heroes'
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '11'
+          - '17'
+        project:
+          - event-statistics
+          - rest-fights
+          - rest-heroes
+          - rest-villains
+    name: "native-build-test-${{ matrix.project }}-${{ matrix.java }}"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache and restore Mandrel distro
+        id: check-mandrel-cache
+        uses: actions/cache@v3
+        with:
+          path: mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz
+          key: mandrel-distro-${{ env.MANDREL_VERSION }}-${{ matrix.java }}
+
+      - name: Download Mandrel
+        if: steps.check-mandrel-cache.outputs.cache-hit != 'true'
+        run: |
+          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${MANDREL_VERSION}/mandrel-java${{ matrix.java }}-linux-amd64-${MANDREL_VERSION}.tar.gz"
+          wget -q -O mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz $download_url
+
+      - name: Setup Maven+OpenJDK Distro
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'jdkfile'
+          jdkFile: mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz
+          java-version: ${{ matrix.java }}
+          architecture: x64
+          cache: maven
+
+      - name: "build-test-native-${{ matrix.project }}-java-${{ matrix.java }}"
+        working-directory: ${{ matrix.project }}
+        run: |
+          ./mvnw -B clean verify -Pnative \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }}
