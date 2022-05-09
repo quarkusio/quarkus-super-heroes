@@ -5,7 +5,6 @@ import java.util.StringJoiner;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
 /**
  * Data class for a team score
@@ -18,7 +17,7 @@ public class TeamScore {
   private final int heroWins;
   private final int villainWins;
 
-  @JsonCreator(mode = Mode.PROPERTIES)
+  @JsonCreator
   public TeamScore(int heroWins, int villainWins) {
     this.heroWins = heroWins;
     this.villainWins = villainWins;
