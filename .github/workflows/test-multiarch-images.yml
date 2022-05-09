@@ -29,7 +29,7 @@ jobs:
         arch:
           - amd64
           - arm64
-    name: "Build JVM images (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch}})"
+    name: "Build JVM images (${{ matrix.arch}}-${{ matrix.project }}-java${{ matrix.java }})"
     steps:
       - uses: actions/checkout@v3
 
@@ -54,7 +54,7 @@ jobs:
       - name: Create container tags
         working-directory: ${{ matrix.project }}
         run: |
-          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV
+          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}-multiarch" >> $GITHUB_ENV
 
       - name: Build app (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch}})
         working-directory: ${{ matrix.project }}
@@ -80,7 +80,7 @@ jobs:
           file: ${{ matrix.project }}/src/main/docker/${{ env.JVM_DOCKERFILE }}
           tags: ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}
 
-      - name: Save JVM Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})"
+      - name: Save JVM Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
@@ -142,7 +142,7 @@ jobs:
         arch:
           - amd64
           - arm64
-    name: "Push app images (${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }}-${{ matrix.arch}})"
+    name: "Push app images (${{ matrix.arch}})-${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})"
     steps:
       - uses: actions/checkout@v3
 
