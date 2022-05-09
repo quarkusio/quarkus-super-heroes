@@ -13,10 +13,15 @@ updates:
       - dependency-name: org.apache.maven.plugins:maven-compiler-plugin
 
   # Maintain dependencies for GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
+    open-pull-requests-limit: 10
     schedule:
-      interval: "daily"
+      interval: daily
+    labels:
+      - "version-upgrade"
+    pull-request-branch-name:
+      separator: "_"
       
 #  - package-ecosystem: npm
 #    directory: /ui-super-heroes
