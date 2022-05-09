@@ -2,7 +2,7 @@ name: Test building multi-arch images
 
 env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
-  IMAGE_TAG: "test-multiarch"
+  LATEST_IMAGE_TAG: "latest"
 
 on:
   workflow_dispatch:
@@ -12,9 +12,15 @@ concurrency:
   cancel-in-progress: false
   
 jobs:
-  build-push-ui-image:
+  build-ui-images:
    if: (github.repository == 'quarkusio/quarkus-super-heroes') && (github.ref == 'refs/heads/main')
    runs-on: ubuntu-latest
+   strategy:
+     fail-fast: true
+     matrix:
+       arch:
+         - amd64
+         - arm64
    steps:
      - uses: actions/checkout@v3
 
@@ -39,82 +45,97 @@ jobs:
        with:
          install: true
 
-#     - name: Build UI image (amd64)
-#       uses: docker/build-push-action@v3
-#       with:
-#         context: ui-super-heroes
-#         platforms: linux/amd64
-#         push: false
-#         load: true
-#         tags: ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.IMAGE_TAG }}
-
-     - name: Build UI images
+     - name: Build UI image (${{ matrix.arch }})
        uses: docker/build-push-action@v3
        with:
          context: ui-super-heroes
-         platforms: linux/amd64,linux/arm64
+         platforms: linux/${{ matrix.arch }}
          push: false
-#         load: true
-         tags: ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.IMAGE_TAG }},${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.IMAGE_TAG }}
+         load: true
+         tags: ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }}
 
-#     - name: Save UI image
-#       uses: ishworkh/docker-image-artifact-upload@v1
-#       with:
-#         image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.IMAGE_TAG }}"
-         
-#  push-ui-image:
-#    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && (github.ref == 'refs/heads/main'))
-#    needs:
-#      - build-ui-image
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#
-#      - name: Setup Java
-#        uses: actions/setup-java@v3
-#        with:
-#          java-version: 17
-#          distribution: temurin
-#          cache: maven
-#
-#      - name: Create env vars
-#        working-directory: ui-super-heroes
-#        run: echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-#
-#      - name: Get Saved UI Image
-#        uses: ishworkh/docker-image-artifact-download@v1
-#        with:
-#          image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.IMAGE_TAG }}"
-#
-#      - name: Login to quay
-#        uses: docker/login-action@v2
-#        with:
-#          registry: quay.io
-#          username: ${{ secrets.QUAY_REPO_USERNAME }}
-#          password: ${{ secrets.QUAY_REPO_TOKEN }}
-#
-#      - name: Tag UI image
-#        working-directory: ui-super-heroes
-#        run: "docker tag ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.IMAGE_TAG }} ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.IMAGE_TAG }}"
-#
-#      - name: Push UI image (amd64)
-#        working-directory: ui-super-heroes
-#        run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes"
-#
-#      - name: Set up QEMU (arm64)
-#        uses: docker/setup-qemu-action@v2
-#        with:
-#          platforms: arm64
-#
-#      - name: Set up Docker Buildx (arm64)
-#        uses: docker/setup-buildx-action@v2
-#        with:
-#          install: true
+     - name: Save UI image (${{ matrix.arch }})
+       uses: ishworkh/docker-image-artifact-upload@v1
+       with:
+         image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }}"
+
+  push-ui-images:
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && (github.ref == 'refs/heads/main'))
+    needs: build-ui-images
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        arch:
+          - amd64
+          - arm64
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+
+      - name: Create env vars
+        working-directory: ui-super-heroes
+        run: echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+      - name: Get Saved UI Image (${{ matrix.arch }})
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }}"
+
+      - name: Login to quay
+        uses: docker/login-action@v2
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_REPO_USERNAME }}
+          password: ${{ secrets.QUAY_REPO_TOKEN }}
+
+      - name: Tag UI image
+        working-directory: ui-super-heroes
+        run: docker tag ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }}
+
+      - name: Push UI image
+        working-directory: ui-super-heroes
+        run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes"
+
+  create-multiarch-manifests:
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && (github.ref == 'refs/heads/main'))
+    needs: push-ui-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+
+      - name: Create env vars
+        working-directory: ui-super-heroes
+        run: echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        
+      - name: Create and push multi-arch manifests
+        working-directory: ui-super-heroes
+        shell: bash
+        run: |
+          docker manifest create ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }} \
+            -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-amd64 \
+            -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-arm64
+          docker manifest push ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}
+          docker manifest create ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.LATEST_IMAGE_TAG }} \
+            -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.LATEST_IMAGE_TAG }}-amd64 \
+            -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.LATEST_IMAGE_TAG }}-arm64
+          docker manifest push ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.LATEST_IMAGE_TAG }}
 
   cleanup-artifacts:
-    needs:
-      - build-push-ui-image
-#      - push-ui-image
+    needs: create-multiarch-manifests
     if: success() || failure()
     runs-on: ubuntu-latest
     steps:
