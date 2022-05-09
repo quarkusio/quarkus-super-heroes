@@ -224,7 +224,7 @@ jobs:
 
       - name: Tag UI image (${{ matrix.arch }})
         working-directory: ui-super-heroes
-        run: docker tag ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }}
+        run: docker tag ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ matrix.arch }}
 
       - name: Push UI image (${{ matrix.arch }})
         working-directory: ui-super-heroes
@@ -321,10 +321,10 @@ jobs:
             -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-amd64 \
             -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-arm64
           docker manifest push ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}
-          docker manifest create ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.LATEST_IMAGE_TAG }} \
-            -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.LATEST_IMAGE_TAG }}-amd64 \
-            -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.LATEST_IMAGE_TAG }}-arm64
-          docker manifest push ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ env.LATEST_IMAGE_TAG }}
+          docker manifest create ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }} \
+            -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-amd64 \
+            -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-arm64
+          docker manifest push ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}
 
   cleanup-artifacts:
     needs:
