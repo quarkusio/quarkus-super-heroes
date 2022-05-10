@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -24,7 +26,6 @@ import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -34,26 +35,25 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.quarkus.sample.superheroes.fight.schema.Fight;
+import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
+import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.http.TestHTTPResource;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
+import io.quarkus.test.kafka.InjectKafkaCompanion;
+import io.quarkus.test.kafka.KafkaCompanionResource;
+
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.apicurio.registry.rest.client.RegistryClientFactory;
 import io.apicurio.registry.serde.avro.AvroKafkaDeserializer;
 import io.apicurio.registry.serde.avro.AvroKafkaSerdeConfig;
 import io.apicurio.registry.serde.avro.AvroKafkaSerializer;
 import io.apicurio.registry.serde.avro.ReflectAvroDatumProvider;
 import io.apicurio.rest.client.VertxHttpClientProvider;
-
-import io.quarkus.sample.superheroes.fight.schema.Fight;
-import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
-import io.quarkus.test.common.QuarkusTestResource;
-import io.quarkus.test.common.http.TestHTTPResource;
-import io.quarkus.test.junit.QuarkusIntegrationTest;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.quarkus.test.kafka.InjectKafkaCompanion;
-
-import io.quarkus.test.kafka.KafkaCompanionResource;
-
 import io.smallrye.mutiny.unchecked.Unchecked;
 import io.smallrye.reactive.messaging.kafka.companion.KafkaCompanion;
 import io.vertx.core.Vertx;
@@ -89,6 +89,9 @@ public class WebSocketsIT {
   @BeforeAll
   public static void beforeAll() {
     OBJECT_MAPPER.setSerializationInclusion(Include.NON_EMPTY);
+    OBJECT_MAPPER.registerModule(new ParameterNamesModule(Mode.PROPERTIES));
+    OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
     // Set Apicurio Avro
     vertx = Vertx.vertx();
     RegistryClientFactory.setProvider(new VertxHttpClientProvider(vertx));
@@ -147,45 +150,60 @@ public class WebSocketsIT {
 		System.out.println("Team Stats Messages received by test: " + teamStatsMessages);
 
 		// Perform assertions that all expected teamStatsMessages were received
-		assertThat(teamStatsMessages.poll())
-			.isNotNull()
-      .isEqualTo(createTeamScoreJsonString(new TeamScore(1, 0)));
+    var teamScores = teamStatsMessages.stream()
+      .filter(Objects::nonNull)
+      .map(WebSocketsIT::createTeamScoreFromJsonString)
+      .collect(Collectors.toCollection(LinkedList::new));
 
-		assertThat(teamStatsMessages.poll())
+		assertThat(teamScores.poll())
 			.isNotNull()
-      .isEqualTo(createTeamScoreJsonString(new TeamScore(1, 1)));
+      .usingRecursiveComparison()
+      .isEqualTo(new TeamScore(1, 0));
 
-		assertThat(teamStatsMessages.poll())
-			.isNotNull()
-      .isEqualTo(createTeamScoreJsonString(new TeamScore(2, 1)));
+    assertThat(teamScores.poll())
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new TeamScore(1, 1));
 
-		assertThat(teamStatsMessages.poll())
-			.isNotNull()
-      .isEqualTo(createTeamScoreJsonString(new TeamScore(2, 2)));
+    assertThat(teamScores.poll())
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new TeamScore(2, 1));
 
-		assertThat(teamStatsMessages.poll())
-			.isNotNull()
-      .isEqualTo(createTeamScoreJsonString(new TeamScore(3, 2)));
+    assertThat(teamScores.poll())
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new TeamScore(2, 2));
 
-		assertThat(teamStatsMessages.poll())
-			.isNotNull()
-      .isEqualTo(createTeamScoreJsonString(new TeamScore(3, 3)));
+    assertThat(teamScores.poll())
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new TeamScore(3, 2));
 
-		assertThat(teamStatsMessages.poll())
-			.isNotNull()
-      .isEqualTo(createTeamScoreJsonString(new TeamScore(4, 3)));
+    assertThat(teamScores.poll())
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new TeamScore(3, 3));
 
-		assertThat(teamStatsMessages.poll())
-			.isNotNull()
-      .isEqualTo(createTeamScoreJsonString(new TeamScore(4, 4)));
+    assertThat(teamScores.poll())
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new TeamScore(4, 3));
 
-		assertThat(teamStatsMessages.poll())
-			.isNotNull()
-      .isEqualTo(createTeamScoreJsonString(new TeamScore(5, 4)));
+    assertThat(teamScores.poll())
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new TeamScore(4, 4));
 
-		assertThat(teamStatsMessages.poll())
-			.isNotNull()
-      .isEqualTo(createTeamScoreJsonString(new TeamScore(5, 5)));
+    assertThat(teamScores.poll())
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new TeamScore(5, 4));
+
+    assertThat(teamScores.poll())
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new TeamScore(5, 5));
 	}
 
 	private static void validateTopWinnerStats(BlockingQueue<String> topWinnerMessages) {
@@ -240,8 +258,8 @@ public class WebSocketsIT {
 			.until(() -> "CONNECT".equals(teamStatsMessages.poll()) && "CONNECT".equals(topWinnerMessages.poll()));
 	}
 
-  private static String createTeamScoreJsonString(TeamScore teamScore) {
-    return Unchecked.supplier(() -> OBJECT_MAPPER.writeValueAsString(teamScore)).get();
+  private static TeamScore createTeamScoreFromJsonString(String teamScoreJson) {
+    return Unchecked.supplier(() -> OBJECT_MAPPER.readValue(teamScoreJson, TeamScore.class)).get();
   }
 
 	private static String createScoreJsonString(String name, int score) {

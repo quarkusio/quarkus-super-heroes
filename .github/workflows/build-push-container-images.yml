@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
@@ -118,7 +118,7 @@ jobs:
           wget -q -O java_package-${{ matrix.java }}.tar.gz $download_url
 
       - name: Setup Maven+OpenJDK Distro
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'jdkfile'
           jdkFile: java_package-${{ matrix.java }}.tar.gz
@@ -171,10 +171,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Build UI image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ui-super-heroes
           push: false
@@ -212,7 +212,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
@@ -236,7 +236,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
       - name: Login to quay
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
@@ -261,7 +261,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: temurin
@@ -277,7 +277,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:latest"
 
       - name: Login to quay
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
