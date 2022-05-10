@@ -176,7 +176,7 @@ jobs:
          image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }}"
 
   push-app-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && (github.ref == 'refs/heads/main'))
+    if: ((matrix.kind == 'amd64') || (matrix.kind != 'native-')) && ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && (github.ref == 'refs/heads/main'))
     needs:
       - build-jvm-images
       - build-native-images
@@ -234,12 +234,10 @@ jobs:
           password: ${{ secrets.QUAY_REPO_TOKEN }}
 
       - name: Tag image
-        if: (matrix.kind == 'amd64') || (matrix.kind != 'native-')
         working-directory: ${{ matrix.project }}
         run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-${{ matrix.arch }}"
 
       - name: Push images
-        if: (matrix.kind == 'amd64') || (matrix.kind != 'native-')
         working-directory: ${{ matrix.project }}
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
 
