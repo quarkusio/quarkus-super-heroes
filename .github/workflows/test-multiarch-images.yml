@@ -176,7 +176,7 @@ jobs:
          image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }}"
 
   push-app-images:
-    if: ((matrix.kind == 'amd64') || (matrix.kind != 'native-')) && ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && (github.ref == 'refs/heads/main'))
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && (github.ref == 'refs/heads/main'))
     needs:
       - build-jvm-images
       - build-native-images
@@ -201,8 +201,10 @@ jobs:
     name: "Push app images (${{ matrix.arch}}-${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})"
     steps:
       - uses: actions/checkout@v3
+        if: ((matrix.kind == 'amd64') || (matrix.kind != 'native-'))
 
       - name: Setup Java
+        if: ((matrix.kind == 'amd64') || (matrix.kind != 'native-'))
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
@@ -210,23 +212,27 @@ jobs:
           cache: maven
 
       - name: Create env vars
+        if: ((matrix.kind == 'amd64') || (matrix.kind != 'native-'))
         working-directory: ${{ matrix.project }}
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Create container tags
+        if: ((matrix.kind == 'amd64') || (matrix.kind != 'native-'))
         working-directory: ${{ matrix.project }}
         run: |
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-${{ matrix.kind }}java${{ matrix.java }}-multiarch" >> $GITHUB_ENV &&
           echo "ADDITIONAL_TAG=${{ matrix.kind }}java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}" >> $GITHUB_ENV
 
       - name: Get saved images (${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }}-${{ matrix.arch }})
+        if: ((matrix.kind == 'amd64') || (matrix.kind != 'native-'))
         uses: ishworkh/docker-image-artifact-download@v1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
       - name: Login to quay
+        if: ((matrix.kind == 'amd64') || (matrix.kind != 'native-'))
         uses: docker/login-action@v2
         with:
           registry: quay.io
@@ -234,10 +240,12 @@ jobs:
           password: ${{ secrets.QUAY_REPO_TOKEN }}
 
       - name: Tag image
+        if: ((matrix.kind == 'amd64') || (matrix.kind != 'native-'))
         working-directory: ${{ matrix.project }}
         run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-${{ matrix.arch }}"
 
       - name: Push images
+        if: ((matrix.kind == 'amd64') || (matrix.kind != 'native-'))
         working-directory: ${{ matrix.project }}
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
 
