@@ -38,8 +38,8 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: ffd034241f48a08d2eba982358a95fbfaa65042a
-    app.quarkus.io/build-timestamp: 2022-05-10 - 13:09:29 +0000
+    app.quarkus.io/commit-id: 831b919315386eac796f8d7226161d9d1f43f4f1
+    app.quarkus.io/build-timestamp: 2022-05-11 - 17:28:22 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -169,8 +169,8 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: ffd034241f48a08d2eba982358a95fbfaa65042a
-    app.quarkus.io/build-timestamp: 2022-05-10 - 13:09:29 +0000
+    app.quarkus.io/commit-id: 831b919315386eac796f8d7226161d9d1f43f4f1
+    app.quarkus.io/build-timestamp: 2022-05-11 - 17:28:22 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -180,24 +180,24 @@ metadata:
     application: event-stats
     system: quarkus-super-heroes
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java11-latest
     app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: java11-latest
   name: event-statistics
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/part-of: event-stats
-      app.kubernetes.io/version: java11-latest
       app.kubernetes.io/name: event-statistics
+      app.kubernetes.io/version: java11-latest
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: "fights-kafka,apicurio"
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: ffd034241f48a08d2eba982358a95fbfaa65042a
-        app.quarkus.io/build-timestamp: 2022-05-10 - 13:09:29 +0000
+        app.quarkus.io/commit-id: 831b919315386eac796f8d7226161d9d1f43f4f1
+        app.quarkus.io/build-timestamp: 2022-05-11 - 17:28:22 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -207,8 +207,8 @@ spec:
         application: event-stats
         system: quarkus-super-heroes
         app.kubernetes.io/part-of: event-stats
-        app.kubernetes.io/version: java11-latest
         app.kubernetes.io/name: event-statistics
+        app.kubernetes.io/version: java11-latest
     spec:
       containers:
         - env:
@@ -217,10 +217,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:java11-latest
           imagePullPolicy: Always
           livenessProbe:
