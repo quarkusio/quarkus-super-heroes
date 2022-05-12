@@ -47,15 +47,15 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.openshift.io/connects-to: heroes-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: heroes-db
-    app.quarkus.io/commit-id: 831b919315386eac796f8d7226161d9d1f43f4f1
-    app.quarkus.io/build-timestamp: 2022-05-11 - 17:28:59 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
     prometheus.io/scheme: http
+    app.quarkus.io/commit-id: 75cffbc65eca0e81780252f355a817f2cc232c0a
+    app.quarkus.io/build-timestamp: 2022-05-12 - 21:43:45 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -154,15 +154,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    app.openshift.io/connects-to: heroes-db
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: heroes-db
-    app.quarkus.io/commit-id: 831b919315386eac796f8d7226161d9d1f43f4f1
-    app.quarkus.io/build-timestamp: 2022-05-11 - 17:28:59 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
     prometheus.io/scheme: http
+    app.quarkus.io/commit-id: 75cffbc65eca0e81780252f355a817f2cc232c0a
+    app.quarkus.io/build-timestamp: 2022-05-12 - 21:43:45 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -181,15 +181,15 @@ spec:
   template:
     metadata:
       annotations:
+        app.openshift.io/connects-to: heroes-db
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.openshift.io/connects-to: heroes-db
-        app.quarkus.io/commit-id: 831b919315386eac796f8d7226161d9d1f43f4f1
-        app.quarkus.io/build-timestamp: 2022-05-11 - 17:28:59 +0000
-        prometheus.io/scrape: "true"
-        prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
         prometheus.io/scheme: http
+        app.quarkus.io/commit-id: 75cffbc65eca0e81780252f355a817f2cc232c0a
+        app.quarkus.io/build-timestamp: 2022-05-12 - 21:43:45 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
       labels:
         app.kubernetes.io/name: rest-heroes
         app.kubernetes.io/part-of: heroes-service
@@ -205,10 +205,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-heroes-config-creds
             - configMapRef:
                 name: rest-heroes-config
+            - secretRef:
+                name: rest-heroes-config-creds
           image: quay.io/quarkus-super-heroes/rest-heroes:java11-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
