@@ -10,6 +10,9 @@
     - [Retries](#retries)
         - [Hero Client](#hero-client)
         - [Villain Client](#villain-client)
+- [Service Discovery and Load Balancing](#service-discovery-and-client-load-balancing)
+    - [Service Discovery](#service-discovery)
+    - [Client-side Load Balancing](#client-side-load-balancing)
 - [Testing](#testing) 
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
@@ -66,6 +69,23 @@ The [`VillainClient`](src/main/java/io/quarkus/sample/superheroes/fight/client/V
 - The downstream [Villain service](../rest-villains) returns a `404` if no random [`Villain`](src/main/java/io/quarkus/sample/superheroes/fight/client/Villain.java) is found. `VillainClient` handles this case and simulates the service returning nothing.
 - In the event the downstream [Villain service](../rest-heroes) returns an error, `VillainClient` adds 3 retries with a 200ms delay between each retry.
 
+## Service Discovery and Client Load Balancing
+The fight service implements service discovery and client-side load balancing when making downstream calls to the [`rest-heroes`](../rest-heroes) and [`rest-villains`](../rest-villains) services. The service discovery is implemented in Quarkus using [SmallRye Stork](https://quarkus.io/blog/smallrye-stork-intro).
+
+Stork [integrates directly with the Quarkus REST Client Reactive](http://smallrye.io/smallrye-stork/1.1.0/quarkus). This means that there is no additional code needed in order to take advantage of Stork's service discovery and client-side load balancing.
+
+> You could disable Stork completely for the `HeroRestClient` by setting `quarkus.rest-client.hero-client.url` to any non-Stork URL (i.e. something that doesn't start with `stork://`). Similarly, you could disable Stork completely for the `VillainClient` by setting `fight.villain.client-base-url` to any non-Stork URL.
+
+### Service Discovery
+In local development mode, as well as when running via Docker Compose, SmallRye Stork is configured using [static list discovery](https://github.com/smallrye/smallrye-stork/blob/main/docs/service-discovery/static-list.md). In this mode, the downstream URLs are statically defined in an address list. In [`application.properties`](src/main/resources/application.properties), see the `quarkus.stork.hero-service.service-discovery.address-list` and `quarkus.stork.villain-service.service-discovery.address-list` properties.
+
+When [running in Kubernetes](https://quarkus.io/blog/stork-kubernetes-discovery), Stork is configured to use the [Kubernetes Service Discovery](http://smallrye.io/smallrye-stork/1.1.0/kubernetes). In this mode, Stork will read the Kubernetes `Service`s for the [`rest-heroes`](../rest-heroes) and [`rest-villains`](../rest-villains) services to obtain the instance information. Additionally, the instance information has been configured to refresh every minute. See the `rest-fights-config` ConfigMap in [the Kubernetes deployment descriptors](deploy/k8s). Look for the `quarkus.stork.*` properties within the various `ConfigMap`s.
+
+All of the other Stork service discovery mechanisms ([Consul](http://smallrye.io/smallrye-stork/1.1.0/consul) and [Eureka](http://smallrye.io/smallrye-stork/1.1.0/eureka)) can be used simply by updating the configuration appropriately according to the Stork documentation.
+
+### Client-Side Load Balancing
+In all cases, the default load balancing algorithm used is [round robin](http://smallrye.io/smallrye-stork/1.1.0/round-robin). All of the other load balancing algorithms ([random](http://smallrye.io/smallrye-stork/1.1.0/random), [least requests](http://smallrye.io/smallrye-stork/1.1.0/least-requests), [least response time](http://smallrye.io/smallrye-stork/1.1.0/response-time), and [power of two choices](http://smallrye.io/smallrye-stork/1.1.0/power-of-two-choices)) are available on the application's classpath, so feel free to play around with them by updating the configuration appropriately according to the Stork documentation.
+
 ## Testing
 This application has a full suite of tests, including an [integration test suite](src/test/java/io/quarkus/sample/superheroes/fight/rest/FightResourceIT.java). 
 - The test suite uses [Wiremock](http://wiremock.org/) for [mocking http calls](https://quarkus.io/guides/rest-client-reactive#using-a-mock-http-server-for-tests) (see [`HeroesVillainsWiremockServerResource`](src/test/java/io/quarkus/sample/superheroes/fight/HeroesVillainsWiremockServerResource.java)) to the downstream [Hero](../rest-heroes) and [Villain](../rest-villains) services.
@@ -92,8 +112,8 @@ By default, the application is configured with the following:
 | Database password        | `QUARKUS_MONGODB_CREDENTIALS_PASSWORD`                        | `quarkus.mongodb.credentials.password`                        | `superfight`                             |
 | Kafka Bootstrap servers  | `KAFKA_BOOTSTRAP_SERVERS`                                     | `kafka.bootstrap.servers`                                     | `PLAINTEXT://localhost:9092`             |
 | Apicurio Schema Registry | `MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL` | `mp.messaging.connector.smallrye-kafka.apicurio.registry.url` | `http://localhost:8086/apis/registry/v2` |
-| Heroes Service URL       | `quarkus.rest-client.hero-client.url`                         | `quarkus.rest-client.hero-client.url`                         | `http://localhost:8083`                  |
-| Villains Service URL     | `fight.villain.client-base-url`                               | `fight.villain.client-base-url`                               | `http://localhost:8084`                  |
+| Heroes Service URL       | `QUARKUS_REST_CLIENT_HERO_CLIENT_URL`                         | `quarkus.rest-client.hero-client.url`                         | `stork://hero-service`                   |
+| Villains Service URL     | `FIGHT_VILLAIN_CLIENT_BASE_URL`                               | `fight.villain.client-base-url`                               | `stork://villain-service`                |
 
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-fights`](https://quay.io/repository/quarkus-super-heroes/rest-fights?tab=tags). 
