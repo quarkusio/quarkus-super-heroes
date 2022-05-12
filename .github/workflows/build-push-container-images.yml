@@ -210,10 +210,10 @@ jobs:
     name: "Push app images (${{ matrix.arch}}-${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})"
     steps:
       - uses: actions/checkout@v3
-        if: ((matrix.arch == 'amd64') || (matrix.kind != 'native-'))
+        if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
 
       - name: Setup Java
-        if: ((matrix.arch == 'amd64') || (matrix.kind != 'native-'))
+        if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
@@ -221,27 +221,27 @@ jobs:
           cache: maven
 
       - name: Create env vars
-        if: ((matrix.arch == 'amd64') || (matrix.kind != 'native-'))
+        if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
         working-directory: ${{ matrix.project }}
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Create container tags
-        if: ((matrix.arch == 'amd64') || (matrix.kind != 'native-'))
+        if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
         working-directory: ${{ matrix.project }}
         run: |
           echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-${{ matrix.kind }}java${{ matrix.java }}" >> $GITHUB_ENV &&
           echo "ADDITIONAL_TAG=${{ matrix.kind }}java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}" >> $GITHUB_ENV
 
       - name: Get saved images (${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }}-${{ matrix.arch }})
-        if: ((matrix.arch == 'amd64') || (matrix.kind != 'native-'))
+        if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
         uses: ishworkh/docker-image-artifact-download@v1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
       - name: Login to quay
-        if: ((matrix.arch == 'amd64') || (matrix.kind != 'native-'))
+        if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
         uses: docker/login-action@v2
         with:
           registry: quay.io
@@ -249,12 +249,19 @@ jobs:
           password: ${{ secrets.QUAY_REPO_TOKEN }}
 
       - name: Tag image
-        if: ((matrix.arch == 'amd64') || (matrix.kind != 'native-'))
+        if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
         working-directory: ${{ matrix.project }}
         run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-${{ matrix.arch }}"
 
+      - name: Tag native image
+        if: (matrix.arch == 'amd64') && (matrix.kind == 'native-')
+        working-directory: ${{ matrix.project }}
+        run: |
+          docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}
+          docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}
+
       - name: Push images
-        if: ((matrix.arch == 'amd64') || (matrix.kind != 'native-'))
+        if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
         working-directory: ${{ matrix.project }}
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
 
@@ -315,7 +322,7 @@ jobs:
           - '17'
         kind:
           - ""
-          - "native-"
+#          - "native-"
         project:
           - event-statistics
           - rest-fights
@@ -352,7 +359,6 @@ jobs:
           password: ${{ secrets.QUAY_REPO_TOKEN }}
 
       - name: Create and push multi-arch JVM manifests
-        if: matrix.kind != 'native-'
         shell: bash
         run: |
           docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }} \
@@ -364,16 +370,16 @@ jobs:
             -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-arm64
           docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}
 
-      - name: Create and push single-arch native manifests
-        if: matrix.kind == 'native-'
-        shell: bash
-        run: |
-          docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }} \
-            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-amd64
-          docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}
-          docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }} \
-            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-amd64
-          docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}
+#      - name: Create and push single-arch native manifests
+#        if: matrix.kind == 'native-'
+#        shell: bash
+#        run: |
+#          docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }} \
+#            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-amd64
+#          docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}
+#          docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }} \
+#            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-amd64
+#          docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}
 
   create-ui-multiarch-manifests:
     if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && (github.ref == 'refs/heads/main'))
