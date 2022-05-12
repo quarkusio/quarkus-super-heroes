@@ -253,7 +253,7 @@ jobs:
         working-directory: ${{ matrix.project }}
         run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-${{ matrix.arch }}"
 
-      - name: Tag native image
+      - name: Tag native image (amd64)
         if: (matrix.arch == 'amd64') && (matrix.kind == 'native-')
         working-directory: ${{ matrix.project }}
         run: |
