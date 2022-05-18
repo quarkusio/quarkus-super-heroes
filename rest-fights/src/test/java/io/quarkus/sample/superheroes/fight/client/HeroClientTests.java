@@ -2,7 +2,7 @@ package io.quarkus.sample.superheroes.fight.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
@@ -35,159 +35,180 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 @QuarkusTest
 @QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
 class HeroClientTests {
-	private static final String HERO_URI = "/api/heroes/random";
-	private static final String DEFAULT_HERO_NAME = "Super Baguette";
-	private static final String DEFAULT_HERO_PICTURE = "super_baguette.png";
-	private static final String DEFAULT_HERO_POWERS = "eats baguette really quickly";
-	private static final int DEFAULT_HERO_LEVEL = 42;
+  private static final String HERO_API_BASE_URI = "/api/heroes";
+  private static final String HERO_URI = HERO_API_BASE_URI + "/random";
+  private static final String HERO_HELLO_URI = HERO_API_BASE_URI + "/hello";
+  private static final String DEFAULT_HERO_NAME = "Super Baguette";
+  private static final String DEFAULT_HERO_PICTURE = "super_baguette.png";
+  private static final String DEFAULT_HERO_POWERS = "eats baguette really quickly";
+  private static final int DEFAULT_HERO_LEVEL = 42;
 
-	private static final Hero DEFAULT_HERO = new Hero(
-		DEFAULT_HERO_NAME,
-		DEFAULT_HERO_LEVEL,
-		DEFAULT_HERO_PICTURE,
-		DEFAULT_HERO_POWERS
-	);
+  private static final Hero DEFAULT_HERO = new Hero(
+    DEFAULT_HERO_NAME,
+    DEFAULT_HERO_LEVEL,
+    DEFAULT_HERO_PICTURE,
+    DEFAULT_HERO_POWERS
+  );
 
-	@InjectWireMock
-	WireMockServer wireMockServer;
+  @InjectWireMock
+  WireMockServer wireMockServer;
 
-	@Inject
-	HeroClient heroClient;
+  @Inject
+  HeroClient heroClient;
 
-	@Inject
-	ObjectMapper objectMapper;
+  @Inject
+  ObjectMapper objectMapper;
 
-	@Inject
-	CircuitBreakerMaintenance circuitBreakerMaintenance;
+  @Inject
+  CircuitBreakerMaintenance circuitBreakerMaintenance;
 
-	@BeforeEach
-	public void beforeEach() {
-		this.wireMockServer.resetAll();
-	}
+  @BeforeEach
+  public void beforeEach() {
+    this.wireMockServer.resetAll();
+  }
 
-	@AfterEach
-	public void afterEach() {
-		// Reset all circuit breaker counts after each test
-		this.circuitBreakerMaintenance.resetAll();
-	}
+  @AfterEach
+  public void afterEach() {
+    // Reset all circuit breaker counts after each test
+    this.circuitBreakerMaintenance.resetAll();
+  }
 
-	@Test
-	public void findsRandom() {
-		this.wireMockServer.stubFor(
-			get(urlEqualTo(HERO_URI))
-				.willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
-		);
+  @Test
+  public void findsRandom() {
+    this.wireMockServer.stubFor(
+      get(urlEqualTo(HERO_URI))
+        .willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
+    );
 
-		IntStream.range(0, 5)
-			.forEach(i -> {
-				var hero = this.heroClient.findRandomHero()
-					.subscribe().withSubscriber(UniAssertSubscriber.create())
-					.assertSubscribed()
-					.awaitItem(Duration.ofSeconds(5))
-					.getItem();
+    IntStream.range(0, 5)
+      .forEach(i -> {
+        var hero = this.heroClient.findRandomHero()
+          .subscribe().withSubscriber(UniAssertSubscriber.create())
+          .assertSubscribed()
+          .awaitItem(Duration.ofSeconds(5))
+          .getItem();
 
-				assertThat(hero)
-					.isNotNull()
-					.extracting(
-						Hero::getName,
-						Hero::getLevel,
-						Hero::getPicture,
-						Hero::getPowers
-					)
-					.containsExactly(
-						DEFAULT_HERO_NAME,
-						DEFAULT_HERO_LEVEL,
-						DEFAULT_HERO_PICTURE,
-						DEFAULT_HERO_POWERS
-					);
-			});
+        assertThat(hero)
+          .isNotNull()
+          .extracting(
+            Hero::getName,
+            Hero::getLevel,
+            Hero::getPicture,
+            Hero::getPowers
+          )
+          .containsExactly(
+            DEFAULT_HERO_NAME,
+            DEFAULT_HERO_LEVEL,
+            DEFAULT_HERO_PICTURE,
+            DEFAULT_HERO_POWERS
+          );
+      });
 
-		this.wireMockServer.verify(5,
-			getRequestedFor(urlEqualTo(HERO_URI))
-				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-		);
-	}
+    this.wireMockServer.verify(5,
+      getRequestedFor(urlEqualTo(HERO_URI))
+        .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+    );
+  }
 
-	@Test
-	public void recoversFrom404() {
-		this.wireMockServer.stubFor(
-			get(urlEqualTo(HERO_URI))
-				.willReturn(notFound())
-		);
+  @Test
+  public void recoversFrom404() {
+    this.wireMockServer.stubFor(
+      get(urlEqualTo(HERO_URI))
+        .willReturn(notFound())
+    );
 
-		IntStream.range(0, 5)
-			.forEach(i ->
-					this.heroClient.findRandomHero()
-						.subscribe().withSubscriber(UniAssertSubscriber.create())
-						.assertSubscribed()
-						.awaitItem(Duration.ofSeconds(5))
-						.assertItem(null)
-			);
+    IntStream.range(0, 5)
+      .forEach(i ->
+        this.heroClient.findRandomHero()
+          .subscribe().withSubscriber(UniAssertSubscriber.create())
+          .assertSubscribed()
+          .awaitItem(Duration.ofSeconds(5))
+          .assertItem(null)
+      );
 
-		this.wireMockServer.verify(5,
-			getRequestedFor(urlEqualTo(HERO_URI))
-				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-		);
-	}
+    this.wireMockServer.verify(5,
+      getRequestedFor(urlEqualTo(HERO_URI))
+        .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+    );
+  }
 
-	@Test
-	public void doesntRecoverFrom500() {
-		this.wireMockServer.stubFor(
-			get(urlEqualTo(HERO_URI))
-				.willReturn(serverError())
-		);
+  @Test
+  public void doesntRecoverFrom500() {
+    this.wireMockServer.stubFor(
+      get(urlEqualTo(HERO_URI))
+        .willReturn(serverError())
+    );
 
-		// The way the circuit breaker works is that you have to fire at least requestVolumeThreshold
-		// requests at the breaker before it starts to trip
-		// This is so it can fill its window
+    // The way the circuit breaker works is that you have to fire at least requestVolumeThreshold
+    // requests at the breaker before it starts to trip
+    // This is so it can fill its window
 
-		// Circuit breaker should trip after 2 calls to findRandomHero
-		// 1 Call = 1 actual call + 3 fallbacks = 4 total calls
-		assertThat(this.circuitBreakerMaintenance.currentState("findRandomHero"))
-			.isEqualTo(CircuitBreakerState.CLOSED);
+    // Circuit breaker should trip after 2 calls to findRandomHero
+    // 1 Call = 1 actual call + 3 fallbacks = 4 total calls
+    assertThat(this.circuitBreakerMaintenance.currentState("findRandomHero"))
+      .isEqualTo(CircuitBreakerState.CLOSED);
 
-		// First 2 calls (and 3 subsequent retries) should just fail with WebApplicationException
-		// While making actual calls to the service
-		IntStream.rangeClosed(1, 2)
-			.forEach(i ->
-				this.heroClient.findRandomHero()
-					.subscribe().withSubscriber(UniAssertSubscriber.create())
-					.assertSubscribed()
-					.awaitFailure(Duration.ofSeconds(5))
-					.assertFailedWith(WebApplicationException.class)
-			);
+    // First 2 calls (and 3 subsequent retries) should just fail with WebApplicationException
+    // While making actual calls to the service
+    IntStream.rangeClosed(1, 2)
+      .forEach(i ->
+        this.heroClient.findRandomHero()
+          .subscribe().withSubscriber(UniAssertSubscriber.create())
+          .assertSubscribed()
+          .awaitFailure(Duration.ofSeconds(5))
+          .assertFailedWith(WebApplicationException.class)
+      );
 
-		// Next call should trip the breaker
-		// The breaker should not make an actual call
-		var ex = this.heroClient.findRandomHero()
-			.subscribe().withSubscriber(UniAssertSubscriber.create())
-			.assertSubscribed()
-			.awaitFailure(Duration.ofSeconds(5))
-			.getFailure();
+    // Next call should trip the breaker
+    // The breaker should not make an actual call
+    var ex = this.heroClient.findRandomHero()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitFailure(Duration.ofSeconds(5))
+      .getFailure();
 
-		assertThat(ex)
-			.isNotNull()
-			.isExactlyInstanceOf(CircuitBreakerOpenException.class)
+    assertThat(ex)
+      .isNotNull()
+      .isExactlyInstanceOf(CircuitBreakerOpenException.class)
       .hasMessageContainingAll(String.format("%s#getRandomHero", HeroClient.class.getName()), "circuit breaker is open");
 
-		// Verify that the breaker is open
-		assertThat(this.circuitBreakerMaintenance.currentState("findRandomHero"))
-			.isEqualTo(CircuitBreakerState.OPEN);
+    // Verify that the breaker is open
+    assertThat(this.circuitBreakerMaintenance.currentState("findRandomHero"))
+      .isEqualTo(CircuitBreakerState.OPEN);
 
-		// Verify that the server only saw 8 actual requests
-		// (2 "real" requests and 3 retries each)
-		this.wireMockServer.verify(8,
-			getRequestedFor(urlEqualTo(HERO_URI))
-				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
-		);
-	}
+    // Verify that the server only saw 8 actual requests
+    // (2 "real" requests and 3 retries each)
+    this.wireMockServer.verify(8,
+      getRequestedFor(urlEqualTo(HERO_URI))
+        .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+    );
+  }
 
-	private String getDefaultHeroJson() {
-		try {
-			return this.objectMapper.writeValueAsString(DEFAULT_HERO);
-		}
-		catch (JsonProcessingException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+  @Test
+  public void helloHeroes() {
+    this.wireMockServer.stubFor(
+      get(urlEqualTo(HERO_HELLO_URI))
+        .willReturn(okForContentType(TEXT_PLAIN, "Hello heroes!"))
+    );
+
+    this.heroClient.helloHeroes()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .assertItem("Hello heroes!");
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(HERO_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
+
+  private String getDefaultHeroJson() {
+    try {
+      return this.objectMapper.writeValueAsString(DEFAULT_HERO);
+    }
+    catch (JsonProcessingException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
 }
