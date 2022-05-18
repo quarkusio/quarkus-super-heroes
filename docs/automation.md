@@ -50,7 +50,7 @@ This image is a visual of what the workflow consists of:
 1. [Builds JVM container images](https://quarkus.io/guides/container-image#building) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), and [`rest-villains`](../rest-villains) applications on both Java 11 and 17 using the [Quarkus Docker container image extension](https://quarkus.io/guides/container-image#docker).
     - Each container image created has 2 tags: `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}` and `java{{java-version}}-latest`.
         - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-        - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.8.3.Final`).
+        - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.9.1.Final`).
         - Replace `{{java-version}}` with the Java version the application was built with (i.e. `11` or `17`).
               
 2. Once each JVM container image is built (4 applications x 2 JVM versions = 8 total JVM container images), each JVM container is launched and the [integration tests are run against the image](https://quarkus.io/guides/getting-started-testing#quarkus-integration-test).
@@ -66,7 +66,7 @@ Runs in parallel with the [_Build and test JVM container images_](#build-and-tes
    > **NOTE:** The native executable is not re-created. It is [re-used from the previous step](https://quarkus.io/guides/building-native-image#quarkus-native-pkg-native-config_quarkus.native.reuse-existing).
     - Each container image created has 2 tags: `{{app-version}}-quarkus-{{quarkus-version}}-native-java{{java-version}}` and `native-java{{java-version}}-latest`.
         - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-        - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.8.3.Final`).
+        - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.9.1.Final`).
         - Replace `{{java-version}}` with the Java version the application was built with (i.e. `11` or `17`).
               
 4. Once each native executable container image is built (8 total native executable container images), each container is launched and the [integration tests are run against the image](https://quarkus.io/guides/getting-started-testing#quarkus-integration-test).
