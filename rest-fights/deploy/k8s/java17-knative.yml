@@ -91,8 +91,8 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: 75cffbc65eca0e81780252f355a817f2cc232c0a
-    app.quarkus.io/build-timestamp: 2022-05-12 - 21:54:57 +0000
+    app.quarkus.io/commit-id: 282af549f8fba7a4e7fcca10e584c963b5b75b03
+    app.quarkus.io/build-timestamp: 2022-05-18 - 13:16:28 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -102,8 +102,8 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: fights-service
     system: quarkus-super-heroes
-    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
@@ -113,8 +113,8 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: 75cffbc65eca0e81780252f355a817f2cc232c0a
-        app.quarkus.io/build-timestamp: 2022-05-12 - 21:54:57 +0000
+        app.quarkus.io/commit-id: 282af549f8fba7a4e7fcca10e584c963b5b75b03
+        app.quarkus.io/build-timestamp: 2022-05-18 - 13:16:28 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -124,17 +124,17 @@ spec:
         app.openshift.io/runtime: quarkus
         application: fights-service
         system: quarkus-super-heroes
-        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/part-of: fights-service
     spec:
       containerConcurrency: 0
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:java17-latest
           livenessProbe:
             failureThreshold: 3
