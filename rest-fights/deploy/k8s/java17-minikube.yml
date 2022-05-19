@@ -29,15 +29,6 @@ data:
 type: Opaque
 ---
 apiVersion: v1
-kind: ServiceAccount
-metadata:
-  labels:
-    name: apicurio
-    application: fights-service
-    system: quarkus-super-heroes
-  name: apicurio
----
-apiVersion: v1
 kind: Service
 metadata:
   annotations:
@@ -97,15 +88,15 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
-    app.quarkus.io/commit-id: c0d19c6a838bab6d781d0001b28cc38e1f933f54
-    app.quarkus.io/build-timestamp: 2022-05-19 - 12:38:45 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
     prometheus.io/scheme: http
+    app.quarkus.io/commit-id: 85dad28c540d30663781beec4b276b489e6675f5
+    app.quarkus.io/build-timestamp: 2022-05-19 - 17:17:29 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -129,29 +120,6 @@ spec:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  labels:
-    name: apicurio
-    application: fights-service
-    system: quarkus-super-heroes
-    app: rest-fights
-    app.openshift.io/runtime: quarkus
-  name: apicurio-view
-roleRef:
-  kind: ClusterRole
-  apiGroup: rbac.authorization.k8s.io
-  name: view
-subjects:
-  - kind: ServiceAccount
-    name: apicurio
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  labels:
-    app: rest-fights
-    application: fights-service
-    system: quarkus-super-heroes
-    app.openshift.io/runtime: quarkus
   name: default_view
 roleRef:
   kind: ClusterRole
@@ -250,7 +218,6 @@ spec:
               memory: 768Mi
             requests:
               memory: 128Mi
-      serviceAccountName: apicurio
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -287,7 +254,6 @@ spec:
               memory: 256Mi
             requests:
               memory: 64Mi
-      serviceAccountName: fights-db
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -332,21 +298,20 @@ spec:
               memory: 768Mi
             requests:
               memory: 128Mi
-      serviceAccountName: fights-kafka
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
-    app.quarkus.io/commit-id: c0d19c6a838bab6d781d0001b28cc38e1f933f54
-    app.quarkus.io/build-timestamp: 2022-05-19 - 12:38:45 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
     prometheus.io/scheme: http
+    app.quarkus.io/commit-id: 85dad28c540d30663781beec4b276b489e6675f5
+    app.quarkus.io/build-timestamp: 2022-05-19 - 17:17:29 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -365,15 +330,15 @@ spec:
   template:
     metadata:
       annotations:
+        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
-        app.quarkus.io/commit-id: c0d19c6a838bab6d781d0001b28cc38e1f933f54
-        app.quarkus.io/build-timestamp: 2022-05-19 - 12:38:45 +0000
-        prometheus.io/scrape: "true"
-        prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
         prometheus.io/scheme: http
+        app.quarkus.io/commit-id: 85dad28c540d30663781beec4b276b489e6675f5
+        app.quarkus.io/build-timestamp: 2022-05-19 - 17:17:29 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
       labels:
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
@@ -425,4 +390,3 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
-      serviceAccountName: rest-fights
