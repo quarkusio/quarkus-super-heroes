@@ -26,7 +26,22 @@ jobs:
       actions: read
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - name: Calculate Branch (workflow_run event)
+        if: github.event_name == 'workflow_run'
+        run: |
+          echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
+          echo "BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
+
+      - name: Calculate Branch (workflow_dispatch event)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "REF=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
+          echo "BRANCH=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
+
+      - name: Checkout from ${{ env.REF }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.REF }}
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -50,3 +65,4 @@ jobs:
           message: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
           add: '["**/deploy/k8s/*.yml", "deploy/k8s/*.yml", "**/deploy/docker-compose/*.yml", "deploy/docker-compose/*.yml", "deploy/db-init/**"]'
           pathspec_error_handling: exitImmediately
+          new_branch: ${{ env.BRANCH }}
