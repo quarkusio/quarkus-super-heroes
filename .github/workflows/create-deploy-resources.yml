@@ -19,6 +19,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  print-context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
   create-deploy-resources:
     if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') || (github.event.workflow_run.event == 'workflow_run')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') &&  ((github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rhbq-2.7')))
     runs-on: ubuntu-latest
@@ -26,7 +34,21 @@ jobs:
       actions: read
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - name: Calculate Branch (workflow_run event)
+        if: github.event_name == 'workflow_run'
+        run: |
+          echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
+          echo "BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
+
+      - name: Calculate Branch (workflow_dispatch event)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "REF=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
+          echo "BRANCH=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
+
+      - name: Checkout from ${{ env.BRANCH }}
+        uses: actions/checkout@v3
+        ref: ${{ env.REF }}
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -50,3 +72,4 @@ jobs:
           message: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
           add: '["**/deploy/k8s/*.yml", "deploy/k8s/*.yml", "**/deploy/docker-compose/*.yml", "deploy/docker-compose/*.yml", "deploy/db-init/**"]'
           pathspec_error_handling: exitImmediately
+          push: origin ${{ env.BRANCH }} --force

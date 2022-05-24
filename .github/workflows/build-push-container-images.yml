@@ -22,6 +22,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  print-context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
   build-jvm-images:
     if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rhbq-2.7')))
     runs-on: ubuntu-latest
@@ -40,7 +48,17 @@ jobs:
           - arm64
     name: "Build JVM images (${{ matrix.arch}}-${{ matrix.project }}-java${{ matrix.java }})"
     steps:
-      - uses: actions/checkout@v3
+      - name: Calculate Branch (workflow_run event)
+        if: github.event_name == 'workflow_run'
+        run: echo "BRANCH=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
+
+      - name: Calculate Branch (workflow_dispatch event)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "BRANCH=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
+
+      - name: Checkout from ${{ env.BRANCH }}
+        uses: actions/checkout@v3
+        ref: ${{ env.BRANCH }}
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -113,7 +131,17 @@ jobs:
     #          - arm64
     name: "Build Native images (${{ matrix.arch}}-${{ matrix.project }}-java${{ matrix.java }})"
     steps:
-      - uses: actions/checkout@v3
+      - name: Calculate Branch (workflow_run event)
+        if: github.event_name == 'workflow_run'
+        run: echo "BRANCH=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
+
+      - name: Calculate Branch (workflow_dispatch event)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "BRANCH=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
+
+      - name: Checkout from ${{ env.BRANCH }}
+        uses: actions/checkout@v3
+        ref: ${{ env.BRANCH }}
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -158,7 +186,17 @@ jobs:
           - amd64
           - arm64
     steps:
-      - uses: actions/checkout@v3
+      - name: Calculate Branch (workflow_run event)
+        if: github.event_name == 'workflow_run'
+        run: echo "BRANCH=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
+
+      - name: Calculate Branch (workflow_dispatch event)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "BRANCH=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
+
+      - name: Checkout from ${{ env.BRANCH }}
+        uses: actions/checkout@v3
+        ref: ${{ env.BRANCH }}
 
       - name: Set up QEMU
         if: matrix.arch == 'arm64'
@@ -218,8 +256,18 @@ jobs:
           - arm64
     name: "Push app images (${{ matrix.arch}}-${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})"
     steps:
-      - uses: actions/checkout@v3
+      - name: Calculate Branch (workflow_run event)
+        if: ((matrix.arch == 'amd64') || (matrix.kind != 'native-')) && (github.event_name == 'workflow_run')
+        run: echo "BRANCH=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
+
+      - name: Calculate Branch (workflow_dispatch event)
+        if: ((matrix.arch == 'amd64') || (matrix.kind != 'native-')) && (github.event_name == 'workflow_dispatch')
+        run: echo "BRANCH=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
+
+      - name: Checkout from ${{ env.BRANCH }}
         if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
+        uses: actions/checkout@v3
+        ref: ${{ env.BRANCH }}
 
       - name: Setup Java
         if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
@@ -294,7 +342,17 @@ jobs:
           - amd64
           - arm64
     steps:
-      - uses: actions/checkout@v3
+      - name: Calculate Branch (workflow_run event)
+        if: github.event_name == 'workflow_run'
+        run: echo "BRANCH=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
+
+      - name: Calculate Branch (workflow_dispatch event)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "BRANCH=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
+
+      - name: Checkout from ${{ env.BRANCH }}
+        uses: actions/checkout@v3
+        ref: ${{ env.BRANCH }}
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -356,7 +414,17 @@ jobs:
           - rest-villains
     name: Create app multiarch manifests (${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})
     steps:
-      - uses: actions/checkout@v3
+      - name: Calculate Branch (workflow_run event)
+        if: github.event_name == 'workflow_run'
+        run: echo "BRANCH=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
+
+      - name: Calculate Branch (workflow_dispatch event)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "BRANCH=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
+
+      - name: Checkout from ${{ env.BRANCH }}
+        uses: actions/checkout@v3
+        ref: ${{ env.BRANCH }}
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -420,7 +488,17 @@ jobs:
     needs: push-ui-images
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Calculate Branch (workflow_run event)
+        if: github.event_name == 'workflow_run'
+        run: echo "BRANCH=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
+
+      - name: Calculate Branch (workflow_dispatch event)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "BRANCH=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
+
+      - name: Checkout from ${{ env.BRANCH }}
+        uses: actions/checkout@v3
+        ref: ${{ env.BRANCH }}
 
       - name: Setup Java
         uses: actions/setup-java@v3
