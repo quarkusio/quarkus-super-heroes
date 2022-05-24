@@ -14,7 +14,9 @@
 
 ## Introduction
 
-This is a sample application demonstrating Quarkus features and best practices. The application allows superheroes to fight against supervillains. The application consists of several microservices, communicating either synchronously via REST or asynchronously using Kafka. All the data used by the applications are [on the `characterdata` branch](https://github.com/quarkusio/quarkus-super-heroes/tree/characterdata) of this repository.
+This is a sample application demonstrating Quarkus features and best practices. This branch of the application is based on the [Red Hat Build of Quarkus 2.7](https://developers.redhat.com/products/quarkus/overview).
+
+The application allows superheroes to fight against supervillains. The application consists of several microservices, communicating either synchronously via REST or asynchronously using Kafka. All the data used by the applications are [on the `characterdata` branch](https://github.com/quarkusio/quarkus-super-heroes/tree/characterdata) of this repository.
 - [Super Hero Battle UI](ui-super-heroes)
     - An Angular application to pick up a random superhero, a random supervillain, and makes them fight.
 - [Villain REST API](rest-villains)
