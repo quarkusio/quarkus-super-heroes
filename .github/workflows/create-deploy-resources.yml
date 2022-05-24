@@ -9,6 +9,7 @@ on:
       - "Build and Push Container images"
     branches:
       - main
+      - rhbq-2.7
     types:
       - completed
   workflow_dispatch:
@@ -19,7 +20,7 @@ concurrency:
 
 jobs:
   create-deploy-resources:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') || (github.event.workflow_run.event == 'workflow_run')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && (github.ref == 'refs/heads/main'))
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') || (github.event.workflow_run.event == 'workflow_run')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') &&  ((github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rhbq-2.7')))
     runs-on: ubuntu-latest
     permissions:
       actions: read
