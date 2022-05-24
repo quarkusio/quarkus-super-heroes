@@ -12,6 +12,21 @@ updates:
     ignore:
       - dependency-name: org.apache.maven.plugins:maven-compiler-plugin
 
+  # Dependencies for the rhbq-2.7 branch
+  - package-ecosystem: maven
+    directory: /
+    open-pull-requests-limit: 10
+    schedule:
+      interval: daily
+    target-branch: rhbq-2.7
+    labels:
+      - "version-upgrade"
+      - "rhbq"
+    pull-request-branch-name:
+      separator: "_"
+    ignore:
+      - dependency-name: org.apache.maven.plugins:maven-compiler-plugin
+
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: github-actions
     directory: /
@@ -20,6 +35,18 @@ updates:
       interval: daily
     labels:
       - "version-upgrade"
+    pull-request-branch-name:
+      separator: "_"
+
+  - package-ecosystem: github-actions
+    directory: /
+    open-pull-requests-limit: 10
+    schedule:
+      interval: daily
+    target-branch: rhbq-2.7
+    labels:
+      - "version-upgrade"
+      - "rhbq"
     pull-request-branch-name:
       separator: "_"
       
