@@ -136,5 +136,3 @@ done
 
 ## Now handle the monitoring
 create_monitoring
-
-touch $OUTPUT_DIR/newfile.yml
