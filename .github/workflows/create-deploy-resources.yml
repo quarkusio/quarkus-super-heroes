@@ -46,7 +46,7 @@ jobs:
           echo "REF=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
           echo "BRANCH=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
 
-      - name: Checkout from ${{ env.BRANCH }}
+      - name: Checkout from ${{ env.REF }}
         uses: actions/checkout@v3
         with:
           ref: ${{ env.REF }}
@@ -58,9 +58,9 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Create k8s resources
-        shell: bash
-        run: scripts/generate-k8s-resources.sh
+#      - name: Create k8s resources
+#        shell: bash
+#        run: scripts/generate-k8s-resources.sh
 
       - name: Create docker-compose resources
         shell: bash
@@ -73,4 +73,5 @@ jobs:
           message: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
           add: '["**/deploy/k8s/*.yml", "deploy/k8s/*.yml", "**/deploy/docker-compose/*.yml", "deploy/docker-compose/*.yml", "deploy/db-init/**"]'
           pathspec_error_handling: exitImmediately
-          push: origin ${{ env.BRANCH }} --force
+          new_branch: ${{ env.BRANCH }}
+#          push: origin ${{ env.BRANCH }} --force
