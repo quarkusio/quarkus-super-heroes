@@ -433,14 +433,14 @@ jobs:
         if: github.ref_name == 'main'
         working-directory: ui-super-heroes
         run: |
-          echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }}" >> $GITHUB_ENV &&
+          echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Create env vars (${{ github.ref_name }} branch)
         if: github.ref_name != 'main'
         working-directory: ui-super-heroes
         run: |
-          echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ github.ref_name }}-${{ matrix.arch }}" >> $GITHUB_ENV &&
+          echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ github.ref_name }}" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)-${{ github.ref_name }}" >> $GITHUB_ENV
 
       - name: Login to quay
