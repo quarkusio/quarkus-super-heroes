@@ -40,9 +40,11 @@ concurrency:
 jobs:
   print-context:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_CONTEXT: ${{ toJSON(github) }}
     steps:
       - shell: bash
-        run: echo ${{ toJSON(github) }}
+        run: echo ${{ env.GITHUB_CONTEXT }}
 
 #  jvm-build-test:
 #    runs-on: ubuntu-latest
