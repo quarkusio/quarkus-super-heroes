@@ -36,10 +36,9 @@ kind: Service
 metadata:
   annotations:
     app.openshift.io/connects-to: "fights-kafka,apicurio"
-    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-ref: rhbq-2.7
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: c00262707e7448a8d67407cc8620c148c5025eea
-    app.quarkus.io/build-timestamp: 2022-04-11 - 13:35:03 +0000
+    app.quarkus.io/build-timestamp: 2022-05-25 - 17:53:02 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -47,7 +46,7 @@ metadata:
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/version: java17-latest-rhbq-2.7
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
@@ -60,7 +59,7 @@ spec:
   selector:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/version: java17-latest-rhbq-2.7
   type: ClusterIP
 ---
 apiVersion: v1
@@ -167,10 +166,9 @@ kind: Deployment
 metadata:
   annotations:
     app.openshift.io/connects-to: "fights-kafka,apicurio"
-    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-ref: rhbq-2.7
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/commit-id: c00262707e7448a8d67407cc8620c148c5025eea
-    app.quarkus.io/build-timestamp: 2022-04-11 - 13:35:03 +0000
+    app.quarkus.io/build-timestamp: 2022-05-25 - 17:53:02 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -180,24 +178,23 @@ metadata:
     application: event-stats
     system: quarkus-super-heroes
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: java17-latest-rhbq-2.7
   name: event-statistics
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/part-of: event-stats
-      app.kubernetes.io/version: java17-latest
       app.kubernetes.io/name: event-statistics
+      app.kubernetes.io/version: java17-latest-rhbq-2.7
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: "fights-kafka,apicurio"
-        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-ref: rhbq-2.7
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/commit-id: c00262707e7448a8d67407cc8620c148c5025eea
-        app.quarkus.io/build-timestamp: 2022-04-11 - 13:35:03 +0000
+        app.quarkus.io/build-timestamp: 2022-05-25 - 17:53:02 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -207,8 +204,8 @@ spec:
         application: event-stats
         system: quarkus-super-heroes
         app.kubernetes.io/part-of: event-stats
-        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: event-statistics
+        app.kubernetes.io/version: java17-latest-rhbq-2.7
     spec:
       containers:
         - env:
@@ -217,11 +214,11 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
-          image: quay.io/quarkus-super-heroes/event-statistics:java17-latest
+            - secretRef:
+                name: event-statistics-config-creds
+          image: quay.io/quarkus-super-heroes/event-statistics:java17-latest-rhbq-2.7
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
