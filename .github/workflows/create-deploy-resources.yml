@@ -4,14 +4,24 @@ env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
 
 on:
-  workflow_run:
-    workflows:
-      - "Build and Push Container images"
-    branches:
-      - main
-      - rhbq-2.7
-    types:
-      - completed
+  workflow_call:
+    inputs:
+      commit_id:
+        description: The commit id of the original commit which triggered the workflow
+        required: true
+        type: string
+      branch:
+        description: The target branch of the commit id
+        required: true
+        type: string
+#  workflow_run:
+#    workflows:
+#      - "Build and Push Container images"
+#    branches:
+#      - main
+#      - rhbq-2.7
+#    types:
+#      - completed
   workflow_dispatch:
 
 concurrency:
