@@ -23,6 +23,7 @@ do_build() {
   local tag="${kind}java${javaVersion}-latest-rhbq-2.7"
   local git_server_url="${GITHUB_SERVER_URL:=https://github.com}"
   local git_repo="${GITHUB_REPOSITORY:=quarkusio/quarkus-super-heroes}"
+  local github_ref_name="${BRANCH:=${GITHUB_REF_NAME:=rhbq-2.7}}"
 
   if [[ "$kind" == "native-" ]]; then
     local mem_limit="128Mi"
@@ -51,19 +52,19 @@ do_build() {
     -Dquarkus.kubernetes.resources.limits.memory=$mem_limit \
     -Dquarkus.kubernetes.resources.requests.memory=$mem_request \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
-    -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-ref\"=$GITHUB_REF_NAME \
+    -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-ref\"=$github_ref_name \
     -Dquarkus.openshift.version=$tag \
     -Dquarkus.openshift.route.expose=$expose \
     -Dquarkus.openshift.resources.limits.memory=$mem_limit \
     -Dquarkus.openshift.resources.requests.memory=$mem_request \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
-    -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-ref\"=$GITHUB_REF_NAME \
+    -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-ref\"=$github_ref_name \
     -Dquarkus.knative.version=$tag \
     -Dquarkus.knative.labels.\"app.openshift.io/runtime\"=quarkus \
     -Dquarkus.knative.resources.limits.memory=$mem_limit \
     -Dquarkus.knative.resources.requests.memory=$mem_request \
     -Dquarkus.knative.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
-    -Dquarkus.knative.annotations.\"app.openshift.io/vcs-ref\"=$GITHUB_REF_NAME
+    -Dquarkus.knative.annotations.\"app.openshift.io/vcs-ref\"=$github_ref_name
 }
 
 process_quarkus_project() {

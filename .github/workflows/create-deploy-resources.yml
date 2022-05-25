@@ -17,62 +17,50 @@ on:
   workflow_dispatch:
 
 jobs:
-  print-context:
+  create-deploy-resources:
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((inputs.branch == 'main') || (inputs.branch == 'rhbq-2.7')))
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
     steps:
-      - shell: bash
-        name: Print context
-        env:
-          GITHUB_CONTEXT: ${{ toJSON(github) }}
-          INP: ${{ toJSON(inputs) }}
+      - name: Calculate Branch (NOT workflow_dispatch event)
+        if: github.event_name != 'workflow_dispatch'
         run: |
-          echo "$INP"
-          echo "$GITHUB_CONTEXT"
+          echo "REF=${{ inputs.commit_id }}" >> $GITHUB_ENV
+          echo "BRANCH=${{ inputs.branch }}" >> $GITHUB_ENV
 
-#  create-deploy-resources:
-#    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') || (github.event.workflow_run.event == 'workflow_run')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') &&  ((github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rhbq-2.7')))
-#    runs-on: ubuntu-latest
-#    permissions:
-#      actions: read
-#      contents: write
-#    steps:
-#      - name: Calculate Branch (workflow_run event)
-#        if: github.event_name == 'workflow_run'
-#        run: |
-#          echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
-#          echo "BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
-#
-#      - name: Calculate Branch (workflow_dispatch event)
-#        if: github.event_name == 'workflow_dispatch'
-#        run: |
-#          echo "REF=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
-#          echo "BRANCH=${{ github.event.workflow_dispatch.ref }}" >> $GITHUB_ENV
-#
-#      - name: Checkout from ${{ env.REF }}
-#        uses: actions/checkout@v3
-#        with:
-#          ref: ${{ env.REF }}
-#
-#      - name: Setup Java
-#        uses: actions/setup-java@v3
-#        with:
-#          java-version: 17
-#          distribution: temurin
-#          cache: maven
-#
-#      - name: Create k8s resources
-#        shell: bash
-#        run: scripts/generate-k8s-resources.sh
-#
-#      - name: Create docker-compose resources
-#        shell: bash
-#        run: scripts/generate-docker-compose-resources.sh
-#
-#      - name: Commit generated resources
-#        uses: EndBug/add-and-commit@v9
-#        with:
-#          default_author: github_actions
-#          message: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
-#          add: '["**/deploy/k8s/*.yml", "deploy/k8s/*.yml", "**/deploy/docker-compose/*.yml", "deploy/docker-compose/*.yml", "deploy/db-init/**"]'
-#          pathspec_error_handling: exitImmediately
-#          new_branch: ${{ env.BRANCH }}
+      - name: Calculate Branch (workflow_dispatch event)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "REF=${{ github.sha }}" >> $GITHUB_ENV
+          echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
+
+      - name: Checkout from ${{ env.REF }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.REF }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+
+      - name: Create k8s resources
+        shell: bash
+        run: scripts/generate-k8s-resources.sh
+
+      - name: Create docker-compose resources
+        shell: bash
+        run: scripts/generate-docker-compose-resources.sh
+
+      - name: Commit generated resources
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          message: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
+          add: '["**/deploy/k8s/*.yml", "deploy/k8s/*.yml", "**/deploy/docker-compose/*.yml", "deploy/docker-compose/*.yml", "deploy/db-init/**"]'
+          pathspec_error_handling: exitImmediately
+          new_branch: ${{ env.BRANCH }}
