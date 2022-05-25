@@ -24,11 +24,11 @@ concurrency:
 jobs:
   print-context:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_CONTEXT: ${{ toJSON(github) }}
     steps:
       - shell: bash
-        run: echo ${{ env.GITHUB_CONTEXT }}
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
 
 #  build-jvm-images:
 #    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rhbq-2.7')))
