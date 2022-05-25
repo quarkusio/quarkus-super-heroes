@@ -33,9 +33,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - shell: bash
+        name: Print context
         env:
           GITHUB_CONTEXT: ${{ toJSON(github) }}
-        run: echo "$GITHUB_CONTEXT"
+          INP: ${{ toJSON(inputs) }}
+        run: |
+          echo "$INP"
+          echo "$GITHUB_CONTEXT"
 
 #  create-deploy-resources:
 #    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') || (github.event.workflow_run.event == 'workflow_run')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') &&  ((github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rhbq-2.7')))
