@@ -39,6 +39,15 @@ jobs:
       commit_id: ${{ github.event.workflow_run.head_commit.id }}
       branch: ${{ github.event.workflow_run.head_branch }}
 
+  call-deploy-resources-workflow-dispatch:
+    if: github.event_name == 'workflow_dispatch'
+    needs: print-context
+    uses: ./.github/workflows/create-deploy-resources.yml
+    secrets: inherit
+    with:
+      commit_id: ${{ github.sha }}
+      branch: ${{ github.ref_name }}
+
 #  build-jvm-images:
 #    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'main') || (github.event.workflow_run.head_branch == 'rhbq-2.7')))
 #    runs-on: ubuntu-latest
