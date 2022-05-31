@@ -91,7 +91,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-05-26 - 12:56:54 +0000
+    app.quarkus.io/build-timestamp: 2022-05-31 - 11:30:53 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -102,14 +102,14 @@ metadata:
     application: fights-service
     system: quarkus-super-heroes
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/name: rest-fights
   name: rest-fights
 spec:
   template:
     metadata:
       annotations:
-        app.quarkus.io/build-timestamp: 2022-05-26 - 12:56:54 +0000
+        app.quarkus.io/build-timestamp: 2022-05-31 - 11:30:53 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -123,16 +123,16 @@ spec:
         application: fights-service
         system: quarkus-super-heroes
         app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: java11-latest
+        app.kubernetes.io/name: rest-fights
     spec:
       containerConcurrency: 0
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:java11-latest
           livenessProbe:
             failureThreshold: 3
