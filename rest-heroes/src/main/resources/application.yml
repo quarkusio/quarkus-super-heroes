@@ -1,3 +1,9 @@
+paths:
+  base-image:
+    jvm-17: registry.access.redhat.com/ubi8/openjdk-17:1.11
+  dockerfile:
+    jvm-17: src/main/docker/Dockerfile.jvm17
+
 quarkus:
   application:
     name: rest-heroes
@@ -69,3 +75,103 @@ quarkus:
   quarkus:
     hibernate-orm:
       sql-load-script: import.sql
+
+"%kubernetes":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+
+"%kubernetes-17":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    docker:
+      dockerfile-jvm-path: "${paths.dockerfile.jvm-17}"
+
+"%openshift":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    container-image:
+      builder: openshift
+    kubernetes:
+      deployment-target: openshift
+
+"%openshift-17":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    container-image:
+      builder: openshift
+    docker:
+      dockerfile-jvm-path: "${paths.dockerfile.jvm-17}"
+    kubernetes:
+      deployment-target: openshift
+    openshift:
+      jvm-dockerfile: "${paths.dockerfile.jvm-17}"
+      base-jvm-image: "${paths.base-image.jvm-17}"
+
+"%knative":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    kubernetes:
+      deployment-target: knative
+
+"%knative-17":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    docker:
+      dockerfile-jvm-path: "${paths.dockerfile.jvm-17}"
+    kubernetes:
+      deployment-target: knative
+
+"%knative-openshift":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    container-image:
+      builder: openshift
+    kubernetes:
+      deployment-target: knative
+
+"%knative-openshift-17":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    container-image:
+      builder: openshift
+    docker:
+      dockerfile-jvm-path: "${paths.dockerfile.jvm-17}"
+    kubernetes:
+      deployment-target: knative
+    openshift:
+      jvm-dockerfile: "${paths.dockerfile.jvm-17}"
+      base-jvm-image: "${paths.base-image.jvm-17}"
+
+"%minikube":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    kubernetes:
+      deployment-target: minikube
+
+"%minikube-17":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    docker:
+      dockerfile-jvm-path: "${paths.dockerfile.jvm-17}"
+    kubernetes:
+      deployment-target: minikube
