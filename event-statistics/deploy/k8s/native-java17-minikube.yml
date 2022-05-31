@@ -35,10 +35,10 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: "fights-kafka,apicurio"
     app.quarkus.io/vcs-ref: rhbq-2.7
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-05-25 - 17:57:41 +0000
+    app.openshift.io/connects-to: "fights-kafka,apicurio"
+    app.quarkus.io/build-timestamp: 2022-05-31 - 11:52:38 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -166,10 +166,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.openshift.io/connects-to: "fights-kafka,apicurio"
     app.quarkus.io/vcs-ref: rhbq-2.7
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-05-25 - 17:57:41 +0000
+    app.openshift.io/connects-to: "fights-kafka,apicurio"
+    app.quarkus.io/build-timestamp: 2022-05-31 - 11:52:38 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -192,10 +192,10 @@ spec:
   template:
     metadata:
       annotations:
-        app.openshift.io/connects-to: "fights-kafka,apicurio"
         app.quarkus.io/vcs-ref: rhbq-2.7
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-05-25 - 17:57:41 +0000
+        app.openshift.io/connects-to: "fights-kafka,apicurio"
+        app.quarkus.io/build-timestamp: 2022-05-31 - 11:52:38 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -215,10 +215,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:native-java17-latest-rhbq-2.7
           imagePullPolicy: IfNotPresent
           livenessProbe:
