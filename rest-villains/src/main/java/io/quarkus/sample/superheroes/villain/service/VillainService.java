@@ -84,6 +84,11 @@ public class VillainService {
 			.map(this::validatePartialUpdate);
 	}
 
+  public void replaceAllVillains(List<Villain> villains) {
+    deleteAllVillains();
+    Villain.persist(villains);
+  }
+
 	/**
 	 * Validates a {@link Villain} for a partial update according to annotated validation rules on the {@link Villain} object.
 	 * @param villain The {@link Villain}

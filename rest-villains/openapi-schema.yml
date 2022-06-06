@@ -34,6 +34,28 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Villain'
+    put:
+      tags:
+      - villains
+      summary: Completely replace all villains with the passed-in villains
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Villain'
+      responses:
+        "201":
+          description: The URI to retrieve all the created villains
+          headers:
+            Location:
+              style: simple
+              schema:
+                format: uri
+                type: string
+        "400":
+          description: Invalid villains passed in (or no request body found)
     post:
       tags:
       - villains
@@ -46,8 +68,9 @@ paths:
       responses:
         "201":
           description: The URI of the created villain
-          content:
-            application/json:
+          headers:
+            Location:
+              style: simple
               schema:
                 format: uri
                 type: string

@@ -3,9 +3,6 @@ package io.quarkus.sample.superheroes.villain.rest;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.*;
 import static javax.ws.rs.core.Response.Status.*;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -18,6 +15,7 @@ import java.util.Set;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.HttpHeaders;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 
@@ -499,6 +497,44 @@ public class VillainResourceTests {
 		verify(this.villainService).deleteAllVillains();
 		verifyNoMoreInteractions(this.villainService);
 	}
+
+  @Test
+  public void shouldReplaceAllVillains() {
+    var villains = List.of(createDefaultVillian(), createFullyUpdatedVillain());
+    villains.forEach(v -> v.id = null);
+
+    ArgumentMatcher<List<Villain>> villainsMatcher = v ->
+      (v.size() == 2) &&
+			(v.get(0).id == null) &&
+			v.get(0).name.equals(DEFAULT_NAME) &&
+			v.get(0).otherName.equals(DEFAULT_OTHER_NAME) &&
+			v.get(0).picture.equals(DEFAULT_PICTURE) &&
+			v.get(0).powers.equals(DEFAULT_POWERS) &&
+			(v.get(0).level == DEFAULT_LEVEL) &&
+      (v.get(1).id == null) &&
+			v.get(1).name.equals(UPDATED_NAME) &&
+			v.get(1).otherName.equals(UPDATED_OTHER_NAME) &&
+			v.get(1).picture.equals(UPDATED_PICTURE) &&
+			v.get(1).powers.equals(UPDATED_POWERS) &&
+			(v.get(1).level == UPDATED_LEVEL);
+
+    doNothing()
+      .when(this.villainService)
+      .replaceAllVillains(argThat(villainsMatcher));
+
+		given()
+			.when()
+				.body(villains)
+				.contentType(JSON)
+				.accept(JSON)
+				.put("/api/villains")
+			.then()
+				.statusCode(CREATED.getStatusCode())
+				.header(HttpHeaders.LOCATION, Matchers.endsWith("/api/villains"));
+
+    verify(this.villainService).replaceAllVillains(argThat(villainsMatcher));
+    verifyNoMoreInteractions(this.villainService);
+  }
 
 	@Test
 	public void shouldPingOpenAPI() {

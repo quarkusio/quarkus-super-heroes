@@ -34,6 +34,28 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Hero'
+    put:
+      tags:
+      - heroes
+      summary: Completely replace all heroes with the passed-in heroes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Hero'
+      responses:
+        "201":
+          description: The URI to retrieve all the created heroes
+          headers:
+            Location:
+              style: simple
+              schema:
+                format: uri
+                type: string
+        "400":
+          description: Invalid heroes passed in (or no request body found)
     post:
       tags:
       - heroes
@@ -46,8 +68,9 @@ paths:
       responses:
         "201":
           description: The URI of the created hero
-          content:
-            application/json:
+          headers:
+            Location:
+              style: simple
               schema:
                 format: uri
                 type: string

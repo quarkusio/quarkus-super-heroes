@@ -584,6 +584,29 @@ class VillainServiceTests {
 		PanacheMock.verifyNoMoreInteractions(Villain.class);
 	}
 
+  @Test
+  public void replaceAllVillains() {
+    var v1 = createDefaultVillian();
+		var v2 = createUpdatedVillain();
+		v2.id = v1.id + 1;
+
+    var villains = List.of(createDefaultVillian(), createPartialUpdatedVillain());
+    villains.forEach(v -> v.id = null);
+
+		PanacheMock.mock(Villain.class);
+		when(Villain.deleteById(anyLong())).thenReturn(true);
+		when(Villain.listAll()).thenReturn(List.of(v1, v2));
+    PanacheMock.doNothing().when(Villain.class).persist(anyIterable());
+
+    this.villainService.replaceAllVillains(villains);
+
+    PanacheMock.verify(Villain.class).listAll();
+		PanacheMock.verify(Villain.class).deleteById(eq(v1.id));
+		PanacheMock.verify(Villain.class).deleteById(eq(v2.id));
+		PanacheMock.verify(Villain.class).persist(anyIterable());
+		PanacheMock.verifyNoMoreInteractions(Villain.class);
+  }
+
 	private static Villain createDefaultVillian() {
 		Villain villain = new Villain();
 		villain.id = DEFAULT_ID;
