@@ -91,7 +91,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.openshift.io/vcs-ref: rhbq-2.7
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-06-06 - 13:11:57 +0000
+    app.quarkus.io/build-timestamp: 2022-06-06 - 20:58:23 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -112,7 +112,7 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
         app.openshift.io/vcs-ref: rhbq-2.7
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-06-06 - 13:11:57 +0000
+        app.quarkus.io/build-timestamp: 2022-06-06 - 20:58:23 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -129,10 +129,10 @@ spec:
       containerConcurrency: 0
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
+            - secretRef:
+                name: rest-fights-config-creds
           image: quay.io/quarkus-super-heroes/rest-fights:native-java17-latest-rhbq-2.7
           livenessProbe:
             failureThreshold: 3
@@ -283,15 +283,9 @@ spec:
             - containerPort: 27017
           resources:
             limits:
-              memory: 128Mi
+              memory: 256Mi
             requests:
-              memory: 32Mi
-          volumeMounts:
-            - mountPath: /bitnami/mongodb
-              name: fights-db-data
-      volumes:
-        - emptyDir: {}
-          name: fights-db-data
+              memory: 64Mi
 ---
 apiVersion: apps/v1
 kind: Deployment
