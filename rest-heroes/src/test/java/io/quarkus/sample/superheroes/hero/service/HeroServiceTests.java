@@ -659,6 +659,32 @@ class HeroServiceTests {
 		verifyNoMoreInteractions(this.heroRepository);
 	}
 
+  @Test
+  public void replaceAllHeroes() {
+    var h1 = createDefaultHero();
+		var h2 = createUpdatedHero();
+    h2.setId(h1.getId() + 1);
+
+    var heroes = List.of(createDefaultHero(), createPartialUpdatedHero());
+    heroes.forEach(h -> h.setId(null));
+
+    when(this.heroRepository.deleteById(anyLong())).thenReturn(Uni.createFrom().item(true));
+		when(this.heroRepository.listAll()).thenReturn(Uni.createFrom().item(List.of(h1, h2)));
+    when(this.heroRepository.persist(anyIterable())).thenReturn(Uni.createFrom().voidItem());
+
+    this.heroService.replaceAllHeroes(heroes)
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .getItem();
+
+    verify(this.heroRepository).listAll();
+		verify(this.heroRepository).deleteById(eq(h1.getId()));
+		verify(this.heroRepository).deleteById(eq(h2.getId()));
+    verify(this.heroRepository).persist(anyIterable());
+		verifyNoMoreInteractions(this.heroRepository);
+  }
+
 	private static Hero createDefaultHero() {
 		Hero hero = new Hero();
 		hero.setId(DEFAULT_ID);

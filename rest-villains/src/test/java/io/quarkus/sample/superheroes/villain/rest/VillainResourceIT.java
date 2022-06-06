@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.*;
 
+import java.util.List;
 import java.util.Random;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -284,12 +285,16 @@ public class VillainResourceIT {
 				.body("picture", is(DEFAULT_PICTURE))
 				.body("powers", is(DEFAULT_POWERS));
 
-		get("/api/villains")
+		verifyNumberOfVillains(NB_VILLAINS + 1);
+	}
+
+  private static void verifyNumberOfVillains(int expected) {
+    get("/api/villains")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-			.body("size()", is(NB_VILLAINS + 1));
-	}
+			  .body("size()", is(expected));
+  }
 
 	@Test
 	@Order(DEFAULT_ORDER + 3)
@@ -388,6 +393,63 @@ public class VillainResourceIT {
 			.when().get("/api/villains/random")
 			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
+
+  @Test
+  @Order(DEFAULT_ORDER + 8)
+  public void shouldReplaceAllVillains() {
+    var v1 = new Villain();
+		v1.name = DEFAULT_NAME;
+		v1.otherName = DEFAULT_OTHER_NAME;
+		v1.picture = DEFAULT_PICTURE;
+		v1.powers = DEFAULT_POWERS;
+		v1.level = DEFAULT_LEVEL;
+
+    var v2 = new Villain();
+    v2.name = UPDATED_NAME;
+    v2.otherName = UPDATED_OTHER_NAME;
+    v2.picture = UPDATED_PICTURE;
+    v2.powers = UPDATED_POWERS;
+    v2.level = UPDATED_LEVEL;
+
+		given()
+			.when()
+				.body(v1)
+				.contentType(JSON)
+				.accept(JSON)
+				.post("/api/villains")
+			.then()
+				.statusCode(CREATED.getStatusCode())
+				.header(HttpHeaders.LOCATION, containsString("/api/villains"));
+
+    verifyNumberOfVillains(1);
+
+    given()
+			.when()
+				.body(List.of(v1, v2))
+				.contentType(JSON)
+				.accept(JSON)
+				.put("/api/villains")
+			.then()
+				.statusCode(CREATED.getStatusCode())
+				.header(HttpHeaders.LOCATION, endsWith("/api/villains"));
+
+    get("/api/villains")
+			.then()
+				.statusCode(OK.getStatusCode())
+				.contentType(JSON)
+			  .body("$.size()", is(2),
+          "[0].name", is(DEFAULT_NAME),
+          "[0].otherName", is(DEFAULT_OTHER_NAME),
+          "[0].picture", is(DEFAULT_PICTURE),
+          "[0].powers", is(DEFAULT_POWERS),
+          "[0].level", is(DEFAULT_LEVEL),
+          "[1].name", is(UPDATED_NAME),
+          "[1].otherName", is(UPDATED_OTHER_NAME),
+          "[1].picture", is(UPDATED_PICTURE),
+          "[1].powers", is(UPDATED_POWERS),
+          "[1].level", is(UPDATED_LEVEL)
+        );
+  }
 
 	@Test
 	public void shouldPingOpenAPI() {

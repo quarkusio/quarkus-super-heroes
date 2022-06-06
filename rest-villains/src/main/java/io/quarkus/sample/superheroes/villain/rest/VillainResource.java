@@ -20,6 +20,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -27,6 +28,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.headers.Header;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -121,7 +123,7 @@ public class VillainResource {
 	@APIResponse(
 		responseCode = "201",
 		description = "The URI of the created villain",
-		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = URI.class))
+    headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(implementation = URI.class))
 	)
 	@APIResponse(
 		responseCode = "400",
@@ -161,6 +163,25 @@ public class VillainResource {
 				return Response.status(Status.NOT_FOUND).build();
 			});
 	}
+
+  @PUT
+  @Consumes(APPLICATION_JSON)
+  @Operation(summary = "Completely replace all villains with the passed-in villains")
+  @APIResponse(
+		responseCode = "201",
+		description = "The URI to retrieve all the created villains",
+		headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(implementation = URI.class))
+	)
+	@APIResponse(
+		responseCode = "400",
+		description = "Invalid villains passed in (or no request body found)"
+	)
+  public Response replaceAllVillains(@NotNull List<Villain> villains, @Context UriInfo uriInfo) {
+    this.service.replaceAllVillains(villains);
+		var uri = uriInfo.getAbsolutePathBuilder().build();
+		this.logger.debugf("New villain created with URI %s", uri.toString());
+		return Response.created(uri).build();
+  }
 
 	@PATCH
 	@Path("/{id}")

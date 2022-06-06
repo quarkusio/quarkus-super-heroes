@@ -14,6 +14,7 @@ import java.util.Set;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.HttpHeaders;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 
@@ -481,6 +482,43 @@ public class HeroResourceTests {
 		verify(this.heroService).deleteHero(eq(DEFAULT_ID));
 		verifyNoMoreInteractions(this.heroService);
 	}
+
+  @Test
+  public void shouldReplaceAllHeroes() {
+    var heroes = List.of(createDefaultHero(), createFullyUpdatedHero());
+    heroes.forEach(h -> h.setId(null));
+
+    ArgumentMatcher<List<Hero>> heroesMatcher = h ->
+      (h.size() == 2) &&
+			(h.get(0).getId() == null) &&
+			h.get(0).getName().equals(DEFAULT_NAME) &&
+			h.get(0).getOtherName().equals(DEFAULT_OTHER_NAME) &&
+			h.get(0).getPicture().equals(DEFAULT_PICTURE) &&
+			h.get(0).getPowers().equals(DEFAULT_POWERS) &&
+			(h.get(0).getLevel() == DEFAULT_LEVEL) &&
+      (h.get(1).getId() == null) &&
+			h.get(1).getName().equals(UPDATED_NAME) &&
+			h.get(1).getOtherName().equals(UPDATED_OTHER_NAME) &&
+			h.get(1).getPicture().equals(UPDATED_PICTURE) &&
+			h.get(1).getPowers().equals(UPDATED_POWERS) &&
+			(h.get(1).getLevel() == UPDATED_LEVEL);
+
+    when(this.heroService.replaceAllHeroes(argThat(heroesMatcher)))
+      .thenReturn(Uni.createFrom().voidItem());
+
+		given()
+			.when()
+				.body(heroes)
+				.contentType(JSON)
+				.accept(JSON)
+				.put("/api/heroes")
+			.then()
+				.statusCode(CREATED.getStatusCode())
+				.header(HttpHeaders.LOCATION, Matchers.endsWith("/api/heroes"));
+
+    verify(this.heroService).replaceAllHeroes(argThat(heroesMatcher));
+    verifyNoMoreInteractions(this.heroService);
+  }
 
 	@Test
 	public void shouldDeleteAllHeros() {

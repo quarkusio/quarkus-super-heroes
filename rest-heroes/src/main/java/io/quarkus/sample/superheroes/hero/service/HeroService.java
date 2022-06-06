@@ -74,6 +74,12 @@ public class HeroService {
 			.onItem().ifNotNull().transform(this::validatePartialUpdate);
 	}
 
+  @ReactiveTransactional
+  public Uni<Void> replaceAllHeroes(List<Hero> heroes) {
+    return deleteAllHeroes()
+      .replaceWith(this.heroRepository.persist(heroes));
+  }
+
 	/**
 	 * Validates a {@link Hero} for partial update according to annotation validation rules on the {@link Hero} object.
 	 * @param hero The {@link Hero}
