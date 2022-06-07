@@ -268,3 +268,44 @@ spec:
   to:
     kind: Service
     name: apicurio
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: rest-fights
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: java11-latest-rhbq-2.7
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'quay.io/quarkus-super-heroes/rest-fights:java11-latest-rhbq-2.7'
+      importPolicy: {}
+      referencePolicy:
+        type: Source
+    - name: java17-latest-rhbq-2.7
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'quay.io/quarkus-super-heroes/rest-fights:java17-latest-rhbq-2.7'
+      importPolicy: { }
+      referencePolicy:
+        type: Source
+    - name: native-java11-latest-rhbq-2.7
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'quay.io/quarkus-super-heroes/rest-fights:native-java11-latest-rhbq-2.7'
+      importPolicy: { }
+      referencePolicy:
+        type: Source
+    - name: native-java17-latest-rhbq-2.7
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'quay.io/quarkus-super-heroes/rest-fights:native-java17-latest-rhbq-2.7'
+      importPolicy: { }
+      referencePolicy:
+        type: Source
