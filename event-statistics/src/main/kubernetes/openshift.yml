@@ -192,3 +192,44 @@ spec:
   to:
     kind: Service
     name: apicurio
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: event-statistics
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: java11-latest
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'quay.io/quarkus-super-heroes/event-statistics:java11-latest'
+      importPolicy: {}
+      referencePolicy:
+        type: Source
+    - name: java17-latest
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'quay.io/quarkus-super-heroes/event-statistics:java17-latest'
+      importPolicy: { }
+      referencePolicy:
+        type: Source
+    - name: native-java11-latest
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'quay.io/quarkus-super-heroes/event-statistics:native-java11-latest'
+      importPolicy: { }
+      referencePolicy:
+        type: Source
+    - name: native-java17-latest
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'quay.io/quarkus-super-heroes/event-statistics:native-java17-latest'
+      importPolicy: { }
+      referencePolicy:
+        type: Source
