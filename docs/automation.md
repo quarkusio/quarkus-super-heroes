@@ -35,12 +35,14 @@ The [Build and push container images](../.github/workflows/build-push-container-
 It only runs on pushes to the `main` branch after successful completion of the above [_Basic building and testing_](#basic-building-and-testing-workflow) workflow.
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
 
-It consists of 5 jobs: 
+It consists of 7 jobs: 
 - [_Build JVM container images_](#build-jvm-container-images-job)
 - [_Build native container images_](#build-native-container-images-job)
 - [_Build UI images_](#build-ui-images-job)
 - [_Push application container images_](#push-application-container-images-job)
 - [_Push UI images_](#push-ui-images-job)
+- [Create application multi-arch manifests](#create-application-multi-arch-manifests)
+- [Create UI multi-arch manifests](#create-ui-multi-arch-manifests)
 
 If any step in any of the jobs fail then the entire workflow fails.
 
