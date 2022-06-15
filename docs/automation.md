@@ -3,11 +3,13 @@
 - [GitHub action automation](#github-action-automation)
     - [Basic building and testing](#basic-building-and-testing-workflow)
     - [Build and push container images](#build-and-push-container-images-workflow)
-        - [Build and test JVM container image job](#build-and-test-jvm-container-images-job)
-        - [Build and test native container image job](#build-and-test-native-container-images-job)
-        - [Build UI image job](#build-ui-image-job)
+        - [Build JVM container image job](#build-jvm-container-images-job)
+        - [Build native container image job](#build-native-container-images-job)
+        - [Build UI images job](#build-ui-images-job)
         - [Push application container images job](#push-application-container-images-job)
-        - [Push UI image job](#push-ui-image-job)
+        - [Push UI images job](#push-ui-images-job)
+        - [Create application multi-arch manifests](#create-application-multi-arch-manifests)
+        - [Create UI multi-arch manifests](#create-ui-multi-arch-manifests)
     - [Create deploy resources](#create-deploy-resources-workflow)
 - [Application Resource Generation](#application-resource-generation)
     - [Kubernetes (and variants) resource generation](#kubernetes-and-variants-resource-generation)
@@ -34,11 +36,11 @@ It only runs on pushes to the `main` branch after successful completion of the a
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
 
 It consists of 5 jobs: 
-- [_Build and test JVM container images_](#build-and-test-jvm-container-images-job)
-- [_Build and test native container images_](#build-and-test-native-container-images-job)
-- [_Build UI image_](#build-ui-image-job)
+- [_Build JVM container images_](#build-jvm-container-images-job)
+- [_Build native container images_](#build-native-container-images-job)
+- [_Build UI images_](#build-ui-images-job)
 - [_Push application container images_](#push-application-container-images-job)
-- [_Push UI image_](#push-ui-image-job)
+- [_Push UI images_](#push-ui-images-job)
 
 If any step in any of the jobs fail then the entire workflow fails.
 
@@ -46,47 +48,49 @@ This image is a visual of what the workflow consists of:
 
 ![build-push-images-workflow](../images/build-push-container-images-workflow.png)
 
-### Build and test JVM container images job
-1. [Builds JVM container images](https://quarkus.io/guides/container-image#building) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), and [`rest-villains`](../rest-villains) applications on both Java 11 and 17 using the [Quarkus Docker container image extension](https://quarkus.io/guides/container-image#docker).
-    - Each container image created has 2 tags: `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}` and `java{{java-version}}-latest`.
+### Build JVM container images job
+This job [Builds JVM container images](https://quarkus.io/guides/container-image#building) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), and [`rest-villains`](../rest-villains) applications on both Java 11 and 17 (both amd64 & arm64 platforms) using the [Docker Build action](https://github.com/docker/build-push-action).
+    - Each container image created has 4 tags: `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}-amd64`, `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}-arm64`, `java{{java-version}}-latest-amd64`, and `java{{java-version}}-latest-arm64`.
         - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-        - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.9.1.Final`).
+        - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.9.2.Final`).
         - Replace `{{java-version}}` with the Java version the application was built with (i.e. `11` or `17`).
-              
-2. Once each JVM container image is built (4 applications x 2 JVM versions = 8 total JVM container images), each JVM container is launched and the [integration tests are run against the image](https://quarkus.io/guides/getting-started-testing#quarkus-integration-test).
+    - There are a total of 16 images built (4 applications x 2 JVM versions x 2 platforms).
       
-### Build and test native container images job
-Runs in parallel with the [_Build and test JVM container images_](#build-and-test-jvm-container-images-job) and [_Build UI image_](#build-ui-image-job) jobs.
+### Build native container images job
+This job runs in parallel with the [_Build JVM container images_](#build-jvm-container-images-job) and [_Build UI images_](#build-ui-images-job) jobs.
 
-1. [Builds native executables](https://quarkus.io/guides/building-native-image) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), and [`rest-villains`](../rest-villains) applications on both Java 11 and 17 using [Mandrel](https://github.com/graalvm/mandrel).
-       
-2. Once each native executable is created (4 applications x 2 JVM versions = 8 total native executables), each native executable is launched and the [integration tests are run against the executable](https://quarkus.io/guides/getting-started-testing#quarkus-integration-test).
-       
-3. Once tested, [a container image is created from each native executable](https://quarkus.io/guides/building-native-image#using-the-container-image-extensions) using the [Quarkus Docker container image extension](https://quarkus.io/guides/container-image#docker).
-   > **NOTE:** The native executable is not re-created. It is [re-used from the previous step](https://quarkus.io/guides/building-native-image#quarkus-native-pkg-native-config_quarkus.native.reuse-existing).
-    - Each container image created has 2 tags: `{{app-version}}-quarkus-{{quarkus-version}}-native-java{{java-version}}` and `native-java{{java-version}}-latest`.
+The job [Builds native executable container images](https://quarkus.io/guides/building-native-image#using-the-container-image-extensions) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), and [`rest-villains`](../rest-villains) applications on both Java 11 and 17 using [Mandrel](https://github.com/graalvm/mandrel).
+    - Each container image created has 2 tags: `{{app-version}}-quarkus-{{quarkus-version}}-native-java{{java-version}}-amd64` and `native-java{{java-version}}-latest-amd64`.
         - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-        - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.9.1.Final`).
+        - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.9.2.Final`).
         - Replace `{{java-version}}` with the Java version the application was built with (i.e. `11` or `17`).
-              
-4. Once each native executable container image is built (8 total native executable container images), each container is launched and the [integration tests are run against the image](https://quarkus.io/guides/getting-started-testing#quarkus-integration-test).
+    - There are a total of 8 images built (4 applications x 2 JVM versions).
 
-### Build UI image job
-Runs in parallel with the [_Build and test JVM container images_](#build-and-test-jvm-container-images-job) and [_Build and test native container images_](#build-and-test-native-container-images-job) jobs.
+### Build UI images job
+This job runs in parallel with the [_Build JVM container images_](#build-jvm-container-images-job) and [_Build native container images_](#build-native-container-images-job) jobs.
 
-Builds the [`ui-super-heroes`](../ui-super-heroes) container image with the following 2 tags: `{{app-version}}` and `latest`.
+It builds the [`ui-super-heroes`](../ui-super-heroes) container image (both amd64 & arm64 platforms) with the following 4 tags: `{{app-version}}-amd64`, `{{app-version}}-arm64`, `latest-amd64`, and `latest-arm64`.
 - Replace `{{app-version}}` with the application version (i.e. `1.0`).
       
 ### Push application container images job
-Runs after successful completion of the [_Build and test JVM container image_](#build-and-test-jvm-container-images-job), [_Build and test native container image_](#build-and-test-native-container-images-job), and [_Build UI image_](#build-ui-image-job) jobs and in parallel with the [_Push UI image_](#push-ui-image-job) job.
+Runs after successful completion of the [_Build JVM container image_](#build-jvm-container-images-job), [_Build native container image_](#build-native-container-images-job), and [_Build UI images_](#build-ui-images-job) jobs and in parallel with the [_Push UI images_](#push-ui-images-job) job.
 
-All of the container images created in the [_Build and test JVM container image_](#build-and-test-jvm-container-images-job) and [_Build and test native container image_](#build-and-test-native-container-images-job) jobs (16 total container images/32 tags) are pushed to https://quay.io/quarkus-super-heroes.
+All the container images created in the [_Build JVM container image_](#build-jvm-container-images-job) and [_Build native container image_](#build-native-container-images-job) jobs (24 total container images/48 tags) are pushed to https://quay.io/quarkus-super-heroes.
 
-### Push UI image job
-Runs after successful completion of the [_Build and test JVM container image_](#build-and-test-jvm-container-images-job), [_Build and test native container image_](#build-and-test-native-container-images-job), and [_Build UI image_](#build-ui-image-job) jobs and in parallel with the [_Push application container images_](#push-application-container-images-job) job.
+### Push UI images job
+Runs after successful completion of the [_Build JVM container image_](#build-jvm-container-images-job), [_Build native container image_](#build-native-container-images-job), and [_Build UI images_](#build-ui-images-job) jobs and in parallel with the [_Push application container images_](#push-application-container-images-job) job.
 
-Pushes the [`ui-super-heroes`](../ui-super-heroes) container image with the following 2 tags: `{{app-version}}` and `latest`.
-- Replace `{{app-version}}` with the application version (i.e. `1.0`).
+All the container images created in the [_Build UI images_](#build-ui-images-job) job (2 total container images/4 tags) are pushed to https://quay.io/quarkus-super-heroes.
+
+### Create application multi-arch manifests
+Runs after successful completion of the [_Push application container images_](#push-application-container-images-job) job and in parallel with the [_Create UI multi-arch manifests_](#create-ui-multi-arch-manifests) job.
+
+All the application container images for each platform (amd64 & arm64) are combined into manifest lists using the [`docker manifest`](https://docs.docker.com/engine/reference/commandline/manifest) command. For example, the `java{{java-version}}-latest-amd64` and `java{{java-version}}-latest-arm64` tags are combined into a single manifest list with the tag `java{{java-version}}-latest`.
+
+### Create UI multi-arch manifests
+Runs after successful completion of the [_Push UI images_](#push-ui-images-job) job and in parallel with the [_Create application multi-arch manifests_](#create-application-multi-arch-manifests) job.
+
+All the UI container images for each platform (amd64 & arm64) are combined into manifest lists using the [`docker manifest`](https://docs.docker.com/engine/reference/commandline/manifest) command. For example, the `latest-amd64` and `latest-arm64` tags are combined into a single manifest list with the tag `latest`.
 
 ## Create deploy resources workflow
 The [Create deploy resources](../.github/workflows/create-deploy-resources.yml) workflow is responsible for [generating all of the application resources](#application-resource-generation), described in a later section of this document.
