@@ -52,27 +52,46 @@ This image is a visual of what the workflow consists of:
 
 ### Build JVM container images job
 This job [Builds JVM container images](https://quarkus.io/guides/container-image#building) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), and [`rest-villains`](../rest-villains) applications on both Java 11 and 17 (both amd64 & arm64 platforms) using the [Docker Build action](https://github.com/docker/build-push-action).
-    - Each container image created has 4 tags: `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}-amd64`, `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}-arm64`, `java{{java-version}}-latest-amd64`, and `java{{java-version}}-latest-arm64`.
-        - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-        - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.9.2.Final`).
-        - Replace `{{java-version}}` with the Java version the application was built with (i.e. `11` or `17`).
-    - There are a total of 16 images built (4 applications x 2 JVM versions x 2 platforms).
+
+Each container image created has 4 tags:
+- `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}-amd64`
+- `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}-arm64`
+- `java{{java-version}}-latest-amd64`
+- `java{{java-version}}-latest-arm64`
+
+> - Replace `{{app-version}}` with the application version (i.e. `1.0`).
+> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.9.2.Final`).
+> - Replace `{{java-version}}` with the Java version the application was built with (i.e. `11` or `17`).
+
+There are a total of 16 images built (4 applications x 2 JVM versions x 2 platforms).
       
 ### Build native container images job
 This job runs in parallel with the [_Build JVM container images_](#build-jvm-container-images-job) and [_Build UI images_](#build-ui-images-job) jobs.
 
 The job [Builds native executable container images](https://quarkus.io/guides/building-native-image#using-the-container-image-extensions) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), and [`rest-villains`](../rest-villains) applications on both Java 11 and 17 using [Mandrel](https://github.com/graalvm/mandrel).
-    - Each container image created has 2 tags: `{{app-version}}-quarkus-{{quarkus-version}}-native-java{{java-version}}-amd64` and `native-java{{java-version}}-latest-amd64`.
-        - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-        - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.9.2.Final`).
-        - Replace `{{java-version}}` with the Java version the application was built with (i.e. `11` or `17`).
-    - There are a total of 8 images built (4 applications x 2 JVM versions).
+
+Each container image created has 2 tags:
+- `{{app-version}}-quarkus-{{quarkus-version}}-native-java{{java-version}}-amd64`
+- `native-java{{java-version}}-latest-amd64`
+
+> - Replace `{{app-version}}` with the application version (i.e. `1.0`).
+> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.9.2.Final`).
+> - Replace `{{java-version}}` with the Java version the application was built with (i.e. `11` or `17`).
+
+There are a total of 8 images built (4 applications x 2 JVM versions).
 
 ### Build UI images job
 This job runs in parallel with the [_Build JVM container images_](#build-jvm-container-images-job) and [_Build native container images_](#build-native-container-images-job) jobs.
 
-It builds the [`ui-super-heroes`](../ui-super-heroes) container image (both amd64 & arm64 platforms) with the following 4 tags: `{{app-version}}-amd64`, `{{app-version}}-arm64`, `latest-amd64`, and `latest-arm64`.
-- Replace `{{app-version}}` with the application version (i.e. `1.0`).
+It builds the [`ui-super-heroes`](../ui-super-heroes) container image (both amd64 & arm64 platforms) with the following 4 tags:
+- `{{app-version}}-amd64`
+- `{{app-version}}-arm64`
+- `latest-amd64`
+- `latest-arm64`
+
+> - Replace `{{app-version}}` with the application version (i.e. `1.0`).
+
+There are a total of 2 images built, 1 each for amd64 & arm64 platforms.
       
 ### Push application container images job
 Runs after successful completion of the [_Build JVM container image_](#build-jvm-container-images-job), [_Build native container image_](#build-native-container-images-job), and [_Build UI images_](#build-ui-images-job) jobs and in parallel with the [_Push UI images_](#push-ui-images-job) job.
