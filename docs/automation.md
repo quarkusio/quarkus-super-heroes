@@ -11,6 +11,7 @@
         - [Create application multi-arch manifests](#create-application-multi-arch-manifests)
         - [Create UI multi-arch manifests](#create-ui-multi-arch-manifests)
     - [Create deploy resources](#create-deploy-resources-workflow)
+    - [Cleanup artifacts](#cleanup-artifacts)
 - [Application Resource Generation](#application-resource-generation)
     - [Kubernetes (and variants) resource generation](#kubernetes-and-variants-resource-generation)
     - [Docker compose resource generation](#docker-compose-resource-generation)
@@ -120,6 +121,11 @@ It only runs on pushes to the `main` branch after successful completion of the [
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
 
 All generated resources are subsequently pushed back into the repo by the action in a single commit.
+
+## Cleanup artifacts
+The cleanup artifacts job is responsible for cleaning up and deleting all artifacts produced by all the other jobs in the workflow. Many container images are created, stored, and shared amongst all the jobs. This could result in several gigabytes of storage used by each instance of the workflow.
+
+This job will always run regardless of the status of the other jobs in the workflow. It uses the [`delete-run-artifacts` GitHub action](https://github.com/marketplace/actions/delete-run-artifacts) to perform its work.
 
 # Application resource generation
 The resources and descriptors in the [root `deploy` directory](../deploy) as well as in each individual project's `deploy` directory ([`event-statistics`](../event-statistics/deploy), [`rest-fights`](../rest-fights/deploy), [`rest-heroes`](../rest-heroes/deploy), [`rest-villains`](../rest-villains/deploy), and [`ui-super-heroes`](../ui-super-heroes/deploy)) are used for deploying the entire system or subsets of it into various environments (i.e. Docker compose, OpenShift, Minikube, Kubernetes, etc).
