@@ -15,7 +15,6 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.InternalServerErrorException;
 
 import org.bson.types.ObjectId;
-import org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -450,26 +449,29 @@ class FightServiceTests {
 	public void findRandomFightersAddDelayTriggersTimeout() {
 		PanacheMock.mock(Fight.class);
 
-		// Mock the addDelay method so it returns a 4 second delay on whatever argument (a Uni<Fighters>) was passed into it
+		// Mock the addDelay method so it returns a 5 second delay on whatever argument (a Uni<Fighters>) was passed into it
 		// This should trigger the timeout on findRandomFighters
 		doAnswer(invocation -> ((Uni<Fighters>) invocation.getArgument(0)).onItem().delayIt().by(Duration.ofSeconds(5)))
 			.when(this.fightService)
 			.addDelay(any(Uni.class));
 
-		var timeout = this.fightService.findRandomFighters()
-			.subscribe().withSubscriber(UniAssertSubscriber.create())
-			.assertSubscribed()
-			.awaitFailure(Duration.ofSeconds(5))
-			.getFailure();
+    var fighters = this.fightService.findRandomFighters()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(10))
+      .getItem();
 
-		assertThat(timeout)
-			.isNotNull()
-			.isExactlyInstanceOf(TimeoutException.class)
-      .hasMessageContainingAll(String.format("%s#findRandomFighters", FightService.class.getName()), "timed out");
+		assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(createFallbackFighters());
 
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService).findRandomHero();
 		verify(this.fightService).findRandomVillain();
+    verify(this.fightService).fallbackRandomFighters();
+    verify(this.fightService, never()).fallbackRandomHero();
+		verify(this.fightService, never()).fallbackRandomVillain();
 		PanacheMock.verifyNoInteractions(Fight.class);
 	}
 
@@ -488,20 +490,21 @@ class FightServiceTests {
 			.findRandomVillain();
 
 		// The 2 delays should trigger the timeout on findRandomFighters
-		var timeout = this.fightService.findRandomFighters()
-			.subscribe().withSubscriber(UniAssertSubscriber.create())
-			.assertSubscribed()
-			.awaitFailure(Duration.ofSeconds(5))
-			.getFailure();
+		var fighters = this.fightService.findRandomFighters()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(10))
+      .getItem();
 
-		assertThat(timeout)
-			.isNotNull()
-			.isExactlyInstanceOf(TimeoutException.class)
-      .hasMessageContainingAll(String.format("%s#findRandomFighters", FightService.class.getName()), "timed out");
+		assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(createFallbackFighters());
 
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService).findRandomHero();
 		verify(this.fightService).findRandomVillain();
+    verify(this.fightService).fallbackRandomFighters();
 		verify(this.fightService, never()).fallbackRandomHero();
 		verify(this.fightService, never()).fallbackRandomVillain();
 		PanacheMock.verifyNoInteractions(Fight.class);
@@ -881,6 +884,10 @@ class FightServiceTests {
     verify(this.fightService).fallbackHelloVillains();
     verifyNoMoreInteractions(this.villainClient);
     verifyNoInteractions(this.heroClient);
+  }
+
+  private Fighters createFallbackFighters() {
+    return new Fighters(createFallbackHero(), createFallbackVillain());
   }
 
 	private static Hero createDefaultHero() {

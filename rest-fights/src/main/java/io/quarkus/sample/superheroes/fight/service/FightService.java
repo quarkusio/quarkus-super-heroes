@@ -72,6 +72,7 @@ public class FightService {
 	}
 
 	@Timeout(value = 4, unit = ChronoUnit.SECONDS)
+  @Fallback(fallbackMethod = "fallbackRandomFighters")
 	public Uni<Fighters> findRandomFighters() {
 		Uni<Hero> hero = findRandomHero()
 			.onItem().ifNull().continueWith(this::createFallbackHero);
@@ -105,6 +106,11 @@ public class FightService {
   public Uni<String> helloHeroes() {
     return this.heroClient.helloHeroes()
       .invoke(hello -> Log.debugf("Got %s from the Heroes microservice", hello));
+  }
+
+  Uni<Fighters> fallbackRandomFighters() {
+    return Uni.createFrom().item(new Fighters(createFallbackHero(), createFallbackVillain()))
+      .invoke(() -> Log.warn("Falling back on finding random fighters"));
   }
 
   Uni<String> fallbackHelloHeroes() {
