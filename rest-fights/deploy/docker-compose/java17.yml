@@ -14,12 +14,12 @@ services:
       - ../../../rest-fights/deploy/db-init/initialize-database.js:/docker-entrypoint-initdb.d/1-init-db.js
 
   apicurio:
-    image: apicurio/apicurio-registry-mem:2.1.5.Final
+    image: quay.io/apicurio/apicurio-registry-mem:2.1.5.Final
     container_name: apicurio
     ports:
       - "8086:8086"
     environment:
-      REGISTRY_AUTH_ANONYMOUS_READ_ACCESS_ENABLED: true
+      REGISTRY_AUTH_ANONYMOUS_READ_ACCESS_ENABLED: "true"
       QUARKUS_HTTP_PORT: 8086
 
   fights-kafka:
@@ -51,7 +51,7 @@ services:
     environment:
       QUARKUS_MONGODB_HOSTS: fights-db:27017
       KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://fights-kafka:9092
-      QUARKUS_LIQUIBASE_MONGODB_MIGRATE_AT_START: false
+      QUARKUS_LIQUIBASE_MONGODB_MIGRATE_AT_START: "false"
       QUARKUS_MONGODB_CREDENTIALS_USERNAME: superfight
       QUARKUS_MONGODB_CREDENTIALS_PASSWORD: superfight
       QUARKUS_REST_CLIENT_HERO_CLIENT_URL: http://rest-heroes:8083
