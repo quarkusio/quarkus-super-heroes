@@ -62,6 +62,8 @@ Pick one of the 4 versions of the application from the table below and execute t
 | Native compiled with Java 11 | `native-java11-latest-rhbq-2.7` | `docker compose -f deploy/docker-compose/native-java11.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/native-java11.yml -f deploy/docker-compose/prometheus.yml up --remove-orphans` |
 | Native compiled with Java 17 | `native-java17-latest-rhbq-2.7` | `docker compose -f deploy/docker-compose/native-java17.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/native-java17.yml -f deploy/docker-compose/prometheus.yml up --remove-orphans` |
 
+> **NOTE:** If your system does not have the `compose` sub-command, you can try the above commands with the `docker-compose` command instead of `docker compose`.
+
 Once started the main application will be exposed at `http://localhost:8080`. If you want to watch the [Event Statistics UI](event-statistics), that will be available at `http://localhost:8085`.
 
 If you launched Prometheus monitoring, Prometheus will be available at `http://localhost:9090`. The Apicurio Registry will be available at `http://localhost:8086`.
