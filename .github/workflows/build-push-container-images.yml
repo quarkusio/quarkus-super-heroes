@@ -79,15 +79,15 @@ jobs:
         working-directory: ${{ matrix.project }}
         run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV
 
-      - name: Build app (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch}})
-        working-directory: ${{ matrix.project }}
-        run: ./mvnw -B clean package -DskipTests -Dmaven.compiler.release=${{ matrix.java }} -Dquarkus.http.host=0.0.0.0
+#      - name: Build app (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch}})
+#        working-directory: ${{ matrix.project }}
+#        run: ./mvnw -B clean package -DskipTests -Dmaven.compiler.release=${{ matrix.java }} -Dquarkus.http.host=0.0.0.0
 
       - name: Set up QEMU
         if: matrix.arch == 'arm64'
         uses: docker/setup-qemu-action@v2
         with:
-          platforms: arm64
+          platforms: ${{ matrix.arch }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -95,14 +95,25 @@ jobs:
           install: true
 
       - name: Build JVM image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch}})
-        uses: docker/build-push-action@v3
-        with:
-          context: ${{ matrix.project }}
-          platforms: linux/${{ matrix.arch }}
-          push: false
-          load: true
-          file: ${{ matrix.project }}/src/main/docker/${{ env.JVM_DOCKERFILE }}
-          tags: ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}
+        working-directory: ${{ matrix.project }}
+        run: |
+          ./mvnw -B clean package -DskipTests \
+            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dquarkus.container-image.build=true \
+            -Dquarkus.container-image.push=false \
+            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}-${{ matrix.arch }} \
+            -Dquarkus.docker.dockerfile-jvm-path=src/main/docker/${{ env.JVM_DOCKERFILE }} \
+            -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
+
+#        uses: docker/build-push-action@v3
+#        with:
+#          context: ${{ matrix.project }}
+#          platforms: linux/${{ matrix.arch }}
+#          push: false
+#          load: true
+#          file: ${{ matrix.project }}/src/main/docker/${{ env.JVM_DOCKERFILE }}
+#          tags: ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}
 
       - name: Save JVM Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
         uses: ishworkh/docker-image-artifact-upload@v1
@@ -162,6 +173,17 @@ jobs:
         working-directory: ${{ matrix.project }}
         run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV
 
+      - name: Set up QEMU
+        if: matrix.arch == 'arm64'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: ${{ matrix.arch }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          install: true
+
       - name: Build native image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch}})
         working-directory: ${{ matrix.project }}
         run: |
@@ -172,7 +194,8 @@ jobs:
             -Dquarkus.native.builder-image=${{ env.MANDREL_IMAGE }}:${{ env.MANDREL_VERSION }}-java${{ matrix.java }} \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=false \
-            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}-${{ matrix.arch }}
+            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}-${{ matrix.arch }} \
+            -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
 
       - name: Save native Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
         uses: ishworkh/docker-image-artifact-upload@v1
