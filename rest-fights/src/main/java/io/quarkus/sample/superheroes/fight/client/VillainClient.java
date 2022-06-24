@@ -1,8 +1,6 @@
 package io.quarkus.sample.superheroes.fight.client;
 
-import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.CompletionStage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.client.ClientBuilder;
@@ -10,6 +8,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.resteasy.reactive.client.impl.UniInvoker;
 
 import io.quarkus.logging.Log;
@@ -35,15 +34,16 @@ public class VillainClient {
   }
 
   /**
-   * Gets a Villain from the Villain service wrapped with a recovery on a {@code 404} error. Also wrapped in a {@link CircuitBreaker}.
-   * @return The Villain
+   * Finds a random {@link Villain}. The retry logic is applied to the result of the {@link CircuitBreaker}, meaning that retries that return failures could trigger the breaker to open.
+   * @return A random {@link Villain}
    */
   @CircuitBreaker(requestVolumeThreshold = 8, failureRatio = 0.5, delay = 2, delayUnit = ChronoUnit.SECONDS)
   @CircuitBreakerName("findRandomVillain")
-  CompletionStage<Villain> getRandomVillain() {
+  @Retry(maxRetries = 3, delay = 200, delayUnit = ChronoUnit.MILLIS)
+  public Uni<Villain> findRandomVillain() {
     // Want the 404 handling to be part of the circuit breaker
     // This means that the 404 responses aren't considered errors by the circuit breaker
-    var target =this.villainClient.path("random");
+    var target = this.villainClient.path("random");
     Log.debugf("Going to make request to %s", target.getUri());
 
     return target
@@ -51,19 +51,7 @@ public class VillainClient {
       .rx(UniInvoker.class)
       .get(Villain.class)
       .invoke(villain -> Log.debugf("Got villain back from %s: %s", target.getUri(), villain))
-      .onFailure(Is404Exception.IS_404).recoverWithNull()
-      .subscribeAsCompletionStage();
-  }
-
-  /**
-   * Finds a random {@link Villain}. The retry logic is applied to the result of the {@link CircuitBreaker}, meaning that retries that return failures could trigger the breaker to open.
-   * @return A random {@link Villain}
-   */
-  public Uni<Villain> findRandomVillain() {
-    // The CompletionState is important so that on retry the Uni re-subscribes to a new
-    // CompletionStage rather than the original one (which has already completed)
-    return Uni.createFrom().completionStage(this::getRandomVillain)
-      .onFailure().retry().withBackOff(Duration.ofMillis(200)).atMost(3);
+      .onFailure(Is404Exception.IS_404).recoverWithNull();
   }
 
   /**
