@@ -6,6 +6,8 @@ metadata:
   labels:
     name: prometheus
     system: quarkus-super-heroes
+    app: prometheus
+    role: monitoring
 spec:
   ports:
     - port: 9090
@@ -14,4 +16,54 @@ spec:
       targetPort: 9090
   selector:
     name: prometheus
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  labels:
+    name: jaeger
+    system: quarkus-super-heroes
+    app: jaeger
+    role: monitoring
+spec:
+  ports:
+    - port: 16686
+      name: ui
+      protocol: TCP
+      targetPort: 16686
+    - port: 14268
+      name: thrift
+      protocol: TCP
+      targetPort: 14268
+    - port: 14250
+      name: grpc
+      protocol: TCP
+      targetPort: 14250
+  selector:
+    name: jaeger
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  labels:
+    name: otel-collector
+    system: quarkus-super-heroes
+    app: otel-collector
+    role: monitoring
+spec:
+  ports:
+    - port: 13133
+      name: healthcheck
+      protocol: TCP
+      targetPort: 13133
+    - port: 4317
+      name: grpc
+      protocol: TCP
+      targetPort: 4317
+  selector:
+    name: otel-collector
   type: NodePort

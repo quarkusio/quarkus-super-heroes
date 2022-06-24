@@ -132,9 +132,6 @@ process_ui_project() {
 
 create_monitoring() {
   local monitoring_name="monitoring"
-  local kubernetes_output="$OUTPUT_DIR/prometheus-kubernetes.yml"
-  local minikube_output="$OUTPUT_DIR/prometheus-minikube.yml"
-  local openshift_output="$OUTPUT_DIR/prometheus-openshift.yml"
 
   echo ""
   echo "-----------------------------------------"
@@ -142,7 +139,7 @@ create_monitoring() {
 
   for deployment_type in "kubernetes" "minikube" "openshift"
   do
-    local output_file_name="prometheus-${deployment_type}.yml"
+    local output_file_name="${monitoring_name}-${deployment_type}.yml"
     local output_file="$OUTPUT_DIR/$output_file_name"
     local input_dir="$monitoring_name/k8s"
     create_output_file $output_file
@@ -161,21 +158,21 @@ create_monitoring() {
 
 rm -rf $OUTPUT_DIR/*.yml
 
-for javaVersion in 11 17
-do
-  for kind in "" "native-"
-  do
-    for deployment_type in "kubernetes" "minikube" "openshift" "knative"
-    do
-      for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
-      do
-        process_quarkus_project $project $deployment_type $javaVersion $kind
-      done
-
-      process_ui_project $javaVersion $deployment_type $kind
-    done
-  done
-done
+#for javaVersion in 11 17
+#do
+#  for kind in "" "native-"
+#  do
+#    for deployment_type in "kubernetes" "minikube" "openshift" "knative"
+#    do
+#      for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
+#      do
+#        process_quarkus_project $project $deployment_type $javaVersion $kind
+#      done
+#
+#      process_ui_project $javaVersion $deployment_type $kind
+#    done
+#  done
+#done
 
 ## Handle the monitoring
 create_monitoring

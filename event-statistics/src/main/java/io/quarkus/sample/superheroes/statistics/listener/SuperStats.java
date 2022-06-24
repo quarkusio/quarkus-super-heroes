@@ -10,6 +10,7 @@ import io.quarkus.sample.superheroes.fight.schema.Fight;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
 import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 
+import io.opentelemetry.extension.annotations.WithSpan;
 import io.smallrye.mutiny.Multi;
 
 /**
@@ -29,6 +30,7 @@ public class SuperStats {
 	 */
 	@Incoming("fights")
 	@Outgoing("team-stats")
+  @WithSpan("SuperStats.computeTeamStats")
 	public Multi<TeamScore> computeTeamStats(Multi<Fight> results) {
 		return results.map(this.stats::add)
 			.invoke(score -> LOGGER.debugf("Fight received. Computed the team statistics: %s", score));
@@ -44,6 +46,7 @@ public class SuperStats {
 	 */
 	@Incoming("fights")
 	@Outgoing("winner-stats")
+  @WithSpan("SuperStats.computeTeamStats")
 	public Multi<Iterable<Score>> computeTopWinners(Multi<Fight> results) {
 		return results
 			.group().by(Fight::getWinnerName)

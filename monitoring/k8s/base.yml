@@ -17,6 +17,8 @@ metadata:
   name: prometheus-config
   labels:
     system: quarkus-super-heroes
+    app: prometheus
+    role: monitoring
 data:
   prometheus.yml: |2
     global:
@@ -61,6 +63,45 @@ data:
             action: replace
             target_label: kubernetes_pod_name
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  labels:
+    system: quarkus-super-heroes
+    app: otel-collector
+    role: monitoring
+data:
+  otel-collector-config.yml: |2
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+
+    exporters:
+      jaeger:
+        endpoint: jaeger:14250
+        tls:
+          insecure: true
+
+    processors:
+      batch:
+
+    extensions:
+      health_check:
+
+    service:
+      extensions:
+        - health_check
+      pipelines:
+        traces:
+          receivers:
+            - otlp
+          processors:
+            - batch
+          exporters:
+            - jaeger
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -68,6 +109,8 @@ metadata:
   labels:
     system: quarkus-super-heroes
     name: prometheus
+    app: prometheus
+    role: monitoring
     app.kubernetes.io/part-of: monitoring
     app.openshift.io/runtime: prometheus
   annotations:
@@ -82,6 +125,8 @@ spec:
       labels:
         system: quarkus-super-heroes
         name: prometheus
+        app: prometheus
+        role: monitoring
     spec:
       containers:
         - image: quay.io/prometheus/prometheus:v2.33.1
@@ -104,3 +149,116 @@ spec:
         - name: prometheus-config
           configMap:
             name: prometheus-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  labels:
+    system: quarkus-super-heroes
+    name: jaeger
+    app: jaeger
+    role: monitoring
+    app.kubernetes.io/part-of: monitoring
+    app.openshift.io/runtime: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: jaeger
+  template:
+    metadata:
+      labels:
+        system: quarkus-super-heroes
+        name: jaeger
+        app: jaeger
+        role: monitoring
+    spec:
+      containers:
+        - image: jaegertracing/all-in-one:1
+          name: jaeger
+          ports:
+            - containerPort: 16686
+            - containerPort: 14268
+            - containerPort: 14250
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  labels:
+    system: quarkus-super-heroes
+    name: otel-collector
+    app: otel-collector
+    role: monitoring
+    app.kubernetes.io/part-of: monitoring
+    app.openshift.io/runtime: opentelemetry
+  annotations:
+    app.openshift.io/connects-to: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: otel-collector
+  template:
+    metadata:
+      labels:
+        system: quarkus-super-heroes
+        name: otel-collector
+        app: otel-collector
+        role: monitoring
+    spec:
+      containers:
+        - image: otel/opentelemetry-collector:0.53.0
+          name: otel-collector
+          args:
+            - "--config=/conf/otel-collector-config.yml"
+          ports:
+            - name: health_check
+              containerPort: 13133
+            - name: grpc-oltp-receiver
+              containerPort: 4317
+          volumeMounts:
+            - name: otel-collector-config
+              mountPath: /conf
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
+          livenessProbe:
+            timeoutSeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+              port: health_check
+              scheme: HTTP
+              path: /
+          readinessProbe:
+            timeoutSeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+              port: health_check
+              scheme: HTTP
+              path: /
+          startupProbe:
+            timeoutSeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+              port: health_check
+              scheme: HTTP
+              path: /
+      volumes:
+        - name: otel-collector-config
+          configMap:
+            name: otel-collector-config
