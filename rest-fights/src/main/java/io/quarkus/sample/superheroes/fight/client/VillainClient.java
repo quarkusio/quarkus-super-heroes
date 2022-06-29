@@ -9,9 +9,11 @@ import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.rest.client.ext.DefaultClientHeadersFactoryImpl;
 import org.jboss.resteasy.reactive.client.impl.UniInvoker;
 
 import io.quarkus.logging.Log;
+import io.quarkus.rest.client.reactive.runtime.MicroProfileRestClientRequestFilter;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 
 import io.smallrye.faulttolerance.api.CircuitBreakerName;
@@ -29,6 +31,7 @@ public class VillainClient {
 
   public VillainClient(FightConfig fightConfig) {
     this.villainClient = ClientBuilder.newClient()
+      .register(new MicroProfileRestClientRequestFilter(new DefaultClientHeadersFactoryImpl()))
       .target(fightConfig.villain().clientBaseUrl())
       .path("api/villains/");
   }

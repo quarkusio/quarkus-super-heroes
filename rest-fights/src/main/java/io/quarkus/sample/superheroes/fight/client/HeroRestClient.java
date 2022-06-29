@@ -6,6 +6,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import io.smallrye.mutiny.Uni;
@@ -19,6 +20,7 @@ import io.smallrye.mutiny.Uni;
 @Path("/api/heroes")
 @Produces(APPLICATION_JSON)
 @RegisterRestClient(configKey = "hero-client")
+@RegisterClientHeaders
 interface HeroRestClient {
 	/**
 	 * HTTP <code>GET</code> call to {@code /api/heroes/random} on the Heroes service
