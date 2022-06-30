@@ -14,6 +14,8 @@ import org.bson.types.ObjectId;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Message;
+import org.eclipse.microprofile.reactive.messaging.Metadata;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
@@ -25,10 +27,12 @@ import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
 
+import io.opentelemetry.context.Context;
 import io.opentelemetry.extension.annotations.SpanAttribute;
 import io.opentelemetry.extension.annotations.WithSpan;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
+import io.smallrye.reactive.messaging.TracingMetadata;
 
 /**
  * Business logic for the Fight service
@@ -186,7 +190,7 @@ public class FightService {
 		return Fight.persist(fight)
       .replaceWith(fight)
       .map(this.fightMapper::toSchema)
-      .chain(this.emitter::send)
+      .invoke(f -> this.emitter.send(Message.of(f, Metadata.of(TracingMetadata.withCurrent(Context.current())))))
       .replaceWith(fight);
 	}
 

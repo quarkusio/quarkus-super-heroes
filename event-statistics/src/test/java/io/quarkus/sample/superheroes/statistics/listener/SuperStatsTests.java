@@ -8,14 +8,21 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.enterprise.inject.Any;
+import javax.inject.Inject;
+
+import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.fight.schema.Fight;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
 import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectSpy;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.helpers.test.AssertSubscriber;
+import io.smallrye.reactive.messaging.providers.connectors.InMemoryConnector;
 
 /**
  * Tests for the {@link SuperStats} class. Not a {@link io.quarkus.test.junit.QuarkusTest @QuarkusTest} because the test can simply call the methods with the appropriate input.
@@ -23,26 +30,61 @@ import io.smallrye.mutiny.helpers.test.AssertSubscriber;
  *   The listening capabilities will be tested in the integration tests.
  * </p>
  */
+@QuarkusTest
 class SuperStatsTests {
-	private static final String HERO_TEAM_NAME = "heroes";
-	private static final String HERO_NAME = "Chewbacca";
-	private static final String VILLAIN_TEAM_NAME = "villains";
-	private static final String VILLAIN_NAME = "Darth Vader";
-	private SuperStats superStats = new SuperStats();
+  private static final String HERO_TEAM_NAME = "heroes";
+  private static final String HERO_NAME = "Chewbacca";
+  private static final String VILLAIN_TEAM_NAME = "villains";
+  private static final String VILLAIN_NAME = "Darth Vader";
 
-	@Test
-	public void computeTeamStats() {
-		// Create 10 fights, split between heroes and villains winning
-		var fights = createSampleFights(true);
+  @InjectSpy
+  SuperStats superStats;
 
-		// Call computeTeamStats and assert the items
-		var scores = this.superStats.computeTeamStats(Multi.createFrom().items(fights))
-			.subscribe().withSubscriber(AssertSubscriber.create(10))
-			.assertSubscribed()
-      .awaitItems(10, Duration.ofSeconds(20))
-			.assertCompleted()
+  @Inject
+  @Any
+  InMemoryConnector inMemoryConnector;
+
+  @Inject
+  @Channel(SuperStats.TEAM_STATS_CHANNEL_NAME)
+  Multi<TeamScore> teamStatsMulti;
+
+  @Inject
+  @Channel(SuperStats.TOP_WINNERS_CHANNEL_NAME)
+  Multi<Iterable<Score>> topWinnersMulti;
+
+  @Test
+  public void processFight() {
+    // Create the consumer subscriptions
+    var teamScoresSubscription = this.teamStatsMulti
+      .subscribe().withSubscriber(AssertSubscriber.create(10))
+      .assertSubscribed();
+
+    var topWinnersSubscription = this.topWinnersMulti
+      .subscribe().withSubscriber(AssertSubscriber.create(10))
+      .assertSubscribed();
+
+    // Create 10 fights, split between heroes & villains winning
+    createSampleFights()
+      .forEach(fight -> this.inMemoryConnector.source(SuperStats.FIGHTS_CHANNEL_NAME).send(fight));
+
+    // Get team scores
+    var teamScores = teamScoresSubscription
+      .awaitItems(10, Duration.ofSeconds(10))
       .getItems();
 
+    // Verify team scores
+    verifyTeamStats(teamScores);
+
+    // Get top winners
+    var topWinners = topWinnersSubscription
+      .awaitItems(10, Duration.ofSeconds(10))
+      .getItems();
+
+    // Verify top winners
+    verifyTopWinners(topWinners);
+  }
+
+  private void verifyTeamStats(List<TeamScore> scores) {
     assertThat(scores)
       .isNotNull()
       .hasSize(10)
@@ -65,142 +107,127 @@ class SuperStatsTests {
         tuple(5, 5, 10, (double) 5/10)
       );
 
-		// Get the computed stats and assert that 5 heroes and 5 villains won
-		var stats = this.superStats.getTeamStats();
-		assertThat(stats)
-			.isNotNull()
-			.extracting(TeamStats::getHeroesCount, TeamStats::getVillainsCount)
-			.containsExactly(5, 5);
-	}
+    // Get the computed stats and assert that 5 heroes and 5 villains won
+    assertThat(this.superStats.getTeamStats())
+      .isNotNull()
+      .extracting(TeamStats::getHeroesCount, TeamStats::getVillainsCount)
+      .containsExactly(5, 5);
+  }
 
-	@Test
-	public void computeTopWinners() {
-		var fights = createSampleFights(false);
+  private void verifyTopWinners(List<Iterable<Score>> scores) {
+    assertThat(scores.get(0))
+      .isNotNull()
+      .hasSize(1)
+      .extracting(Score::getName, Score::getScore)
+      .containsExactly(tuple(HERO_NAME, 1));
 
-		List<Iterable<Score>> scores = this.superStats.computeTopWinners(Multi.createFrom().items(fights))
-			.subscribe().withSubscriber(AssertSubscriber.create(10))
-			.assertSubscribed()
-			.assertCompleted()
-			.getItems();
+    assertThat(scores.get(1))
+      .isNotNull()
+      .hasSize(2)
+      .extracting(Score::getName, Score::getScore)
+      .containsExactly(
+        tuple(HERO_NAME, 1),
+        tuple(VILLAIN_NAME, 1)
+      );
 
-		assertThat(scores.get(0))
-			.isNotNull()
-			.hasSize(1)
-			.extracting(Score::getName, Score::getScore)
-			.containsExactly(tuple(HERO_NAME, 1));
+    assertThat(scores.get(2))
+      .isNotNull()
+      .hasSize(2)
+      .extracting(Score::getName, Score::getScore)
+      .containsExactly(
+        tuple(HERO_NAME, 2),
+        tuple(VILLAIN_NAME, 1)
+      );
 
-		assertThat(scores.get(1))
-			.isNotNull()
-			.hasSize(2)
-			.extracting(Score::getName, Score::getScore)
-			.containsExactly(
-				tuple(HERO_NAME, 1),
-				tuple(VILLAIN_NAME, 1)
-			);
+    assertThat(scores.get(3))
+      .isNotNull()
+      .hasSize(2)
+      .extracting(Score::getName, Score::getScore)
+      .containsExactly(
+        tuple(HERO_NAME, 2),
+        tuple(VILLAIN_NAME, 2)
+      );
 
-		assertThat(scores.get(2))
-			.isNotNull()
-			.hasSize(2)
-			.extracting(Score::getName, Score::getScore)
-			.containsExactly(
-				tuple(HERO_NAME, 2),
-				tuple(VILLAIN_NAME, 1)
-			);
+    assertThat(scores.get(4))
+      .isNotNull()
+      .hasSize(2)
+      .extracting(Score::getName, Score::getScore)
+      .containsExactly(
+        tuple(HERO_NAME, 3),
+        tuple(VILLAIN_NAME, 2)
+      );
 
-		assertThat(scores.get(3))
-			.isNotNull()
-			.hasSize(2)
-			.extracting(Score::getName, Score::getScore)
-			.containsExactly(
-				tuple(HERO_NAME, 2),
-				tuple(VILLAIN_NAME, 2)
-			);
+    assertThat(scores.get(5))
+      .isNotNull()
+      .hasSize(2)
+      .extracting(Score::getName, Score::getScore)
+      .containsExactly(
+        tuple(HERO_NAME, 3),
+        tuple(VILLAIN_NAME, 3)
+      );
 
-		assertThat(scores.get(4))
-			.isNotNull()
-			.hasSize(2)
-			.extracting(Score::getName, Score::getScore)
-			.containsExactly(
-				tuple(HERO_NAME, 3),
-				tuple(VILLAIN_NAME, 2)
-			);
+    assertThat(scores.get(6))
+      .isNotNull()
+      .hasSize(2)
+      .extracting(Score::getName, Score::getScore)
+      .containsExactly(
+        tuple(HERO_NAME, 4),
+        tuple(VILLAIN_NAME, 3)
+      );
 
-		assertThat(scores.get(5))
-			.isNotNull()
-			.hasSize(2)
-			.extracting(Score::getName, Score::getScore)
-			.containsExactly(
-				tuple(HERO_NAME, 3),
-				tuple(VILLAIN_NAME, 3)
-			);
+    assertThat(scores.get(7))
+      .isNotNull()
+      .hasSize(2)
+      .extracting(Score::getName, Score::getScore)
+      .containsExactly(
+        tuple(HERO_NAME, 4),
+        tuple(VILLAIN_NAME, 4)
+      );
 
-		assertThat(scores.get(6))
-			.isNotNull()
-			.hasSize(2)
-			.extracting(Score::getName, Score::getScore)
-			.containsExactly(
-				tuple(HERO_NAME, 4),
-				tuple(VILLAIN_NAME, 3)
-			);
+    assertThat(scores.get(8))
+      .isNotNull()
+      .hasSize(2)
+      .extracting(Score::getName, Score::getScore)
+      .containsExactly(
+        tuple(HERO_NAME, 5),
+        tuple(VILLAIN_NAME, 4)
+      );
 
-		assertThat(scores.get(7))
-			.isNotNull()
-			.hasSize(2)
-			.extracting(Score::getName, Score::getScore)
-			.containsExactly(
-				tuple(HERO_NAME, 4),
-				tuple(VILLAIN_NAME, 4)
-			);
+    assertThat(scores.get(9))
+      .isNotNull()
+      .hasSize(2)
+      .extracting(Score::getName, Score::getScore)
+      .containsExactly(
+        tuple(HERO_NAME, 5),
+        tuple(VILLAIN_NAME, 5)
+      );
+  }
 
-		assertThat(scores.get(8))
-			.isNotNull()
-			.hasSize(2)
-			.extracting(Score::getName, Score::getScore)
-			.containsExactly(
-				tuple(HERO_NAME, 5),
-				tuple(VILLAIN_NAME, 4)
-			);
-
-		assertThat(scores.get(9))
-			.isNotNull()
-			.hasSize(2)
-			.extracting(Score::getName, Score::getScore)
-			.containsExactly(
-				tuple(HERO_NAME, 5),
-				tuple(VILLAIN_NAME, 5)
-			);
-	}
-
-	private Stream<Fight> createSampleFights(boolean uniqueNames) {
-		return IntStream.range(0, 10)
-			.mapToObj(i -> {
-				var heroName = HERO_NAME;
-				var villainName = VILLAIN_NAME;
-
-				if (uniqueNames) {
-					heroName += "-" + i;
-					villainName += "-" + i;
-				}
+  private Stream<Fight> createSampleFights() {
+    return IntStream.range(0, 10)
+      .mapToObj(i -> {
+        var heroName = HERO_NAME;
+        var villainName = VILLAIN_NAME;
 
         var fight = Fight.newBuilder()
           .setFightDate(Instant.now())
           .setWinnerLevel(2)
           .setLoserLevel(1);
 
-				if (i % 2 == 0) {
+        if (i % 2 == 0) {
           fight = fight.setWinnerTeam(HERO_TEAM_NAME)
-						.setLoserTeam(VILLAIN_TEAM_NAME)
-						.setWinnerName(heroName)
-						.setLoserName(villainName);
-				}
-				else {
-					fight = fight.setWinnerTeam(VILLAIN_TEAM_NAME)
-						.setLoserTeam(HERO_TEAM_NAME)
-						.setWinnerName(villainName)
-						.setLoserName(heroName);
-				}
+            .setLoserTeam(VILLAIN_TEAM_NAME)
+            .setWinnerName(heroName)
+            .setLoserName(villainName);
+        }
+        else {
+          fight = fight.setWinnerTeam(VILLAIN_TEAM_NAME)
+            .setLoserTeam(HERO_TEAM_NAME)
+            .setWinnerName(villainName)
+            .setLoserName(heroName);
+        }
 
-				return fight.build();
-			});
-	}
+        return fight.build();
+      });
+  }
 }
