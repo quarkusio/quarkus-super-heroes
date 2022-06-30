@@ -158,21 +158,21 @@ create_monitoring() {
 
 rm -rf $OUTPUT_DIR/*.yml
 
-#for javaVersion in 11 17
-#do
-#  for kind in "" "native-"
-#  do
-#    for deployment_type in "kubernetes" "minikube" "openshift" "knative"
-#    do
-#      for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
-#      do
-#        process_quarkus_project $project $deployment_type $javaVersion $kind
-#      done
-#
-#      process_ui_project $javaVersion $deployment_type $kind
-#    done
-#  done
-#done
+for javaVersion in 11 17
+do
+  for kind in "" "native-"
+  do
+    for deployment_type in "kubernetes" "minikube" "openshift" "knative"
+    do
+      for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
+      do
+        process_quarkus_project $project $deployment_type $javaVersion $kind
+      done
+
+      process_ui_project $javaVersion $deployment_type $kind
+    done
+  done
+done
 
 ## Handle the monitoring
 create_monitoring

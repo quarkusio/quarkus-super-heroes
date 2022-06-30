@@ -117,22 +117,22 @@ rm -rf $OUTPUT_DIR/*.yml
 rm -rf $OUTPUT_DIR/monitoring
 rm -rf deploy/db-init
 
-#for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
-#do
-#  for javaVersion in 11 17
-#  do
-#    for kind in "" "native-"
-#    do
-#      if [[ "$project" == "ui-super-heroes" ]]; then
-#        filename="app"
-#      else
-#        filename="${kind}java${javaVersion}"
-#      fi
-#
-#      create_project_output $project $filename $javaVersion $kind
-#    done
-#  done
-#done
+for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
+do
+  for javaVersion in 11 17
+  do
+    for kind in "" "native-"
+    do
+      if [[ "$project" == "ui-super-heroes" ]]; then
+        filename="app"
+      else
+        filename="${kind}java${javaVersion}"
+      fi
+
+      create_project_output $project $filename $javaVersion $kind
+    done
+  done
+done
 
 ## Now handle the monitoring
 create_monitoring
