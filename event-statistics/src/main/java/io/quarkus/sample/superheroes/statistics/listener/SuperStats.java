@@ -65,8 +65,7 @@ public class SuperStats {
       return computeTopWinners(teamStatsMulti)
         .onItem().invoke(() -> closeSpanFromContext(ctx))
         .onFailure().invoke(() -> closeSpanFromContext(ctx))
-        .call(() -> Uni.createFrom().completionStage(ctx.<Message<Fight>>get(MESSAGE_KEY).ack()))
-        .invoke(() -> ctx.delete(MESSAGE_KEY))
+        .call(() -> ackMessage(ctx))
         .map(Message::of);
     });
   }
@@ -140,6 +139,11 @@ public class SuperStats {
 
   TeamStats getTeamStats() {
     return this.stats;
+  }
+
+  private static Uni<Void> ackMessage(Context ctx) {
+    return Uni.createFrom().completionStage(ctx.<Message<Fight>>get(MESSAGE_KEY).ack())
+      .invoke(() -> ctx.delete(MESSAGE_KEY));
   }
 
   private static void closeSpanFromContext(Context ctx, String spanName) {
