@@ -61,6 +61,9 @@ quarkus:
       app: "${quarkus.kubernetes.labels.app}"
       application: "${quarkus.openshift.part-of}"
       system: "${quarkus.kubernetes.labels.system}"
+
+      # This is to fix https://github.com/quarkusio/quarkus/issues/26516 for now
+      "app.openshift.io/runtime": quarkus
   knative:
     part-of: "${quarkus.kubernetes.part-of}"
     annotations:
