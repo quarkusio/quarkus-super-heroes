@@ -578,7 +578,7 @@ jobs:
           docker manifest push ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}
 
   deploy-resources-workflow-run:
-    if: ((github.event_name == 'workflow_run') && (github.event.workflow_run.event == 'push') && (github.event.workflow_run.conclusion == 'success') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.event.workflow_run.head_branch == 'main') || (github.event.workflow_run.head_branch == 'rhbq-2.7'))
+    if: ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.event.workflow_run.head_branch == 'main') || (github.event.workflow_run.head_branch == 'rhbq-2.7'))
     needs:
       - create-app-multiarch-manifests
       - create-ui-multiarch-manifests
