@@ -50,7 +50,7 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-07-01 - 19:24:27 +0000
+    app.quarkus.io/build-timestamp: 2022-07-05 - 15:55:58 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -60,6 +60,7 @@ metadata:
     app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: java17-latest
     app: rest-heroes
+    app.openshift.io/runtime: quarkus
     application: heroes-service
     system: quarkus-super-heroes
   name: rest-heroes
@@ -81,13 +82,14 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-07-01 - 19:24:27 +0000
+    app.quarkus.io/build-timestamp: 2022-07-05 - 15:55:58 +0000
   labels:
     app: rest-heroes
+    app.openshift.io/runtime: quarkus
     application: heroes-service
     system: quarkus-super-heroes
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
   name: rest-heroes
 spec:
@@ -204,7 +206,7 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-07-01 - 19:24:27 +0000
+    app.quarkus.io/build-timestamp: 2022-07-05 - 15:55:58 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -214,14 +216,15 @@ metadata:
     app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: java17-latest
     app: rest-heroes
+    app.openshift.io/runtime: quarkus
     application: heroes-service
     system: quarkus-super-heroes
   name: rest-heroes
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
   template:
     metadata:
@@ -229,17 +232,18 @@ spec:
         app.openshift.io/connects-to: heroes-db
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-07-01 - 19:24:27 +0000
+        app.quarkus.io/build-timestamp: 2022-07-05 - 15:55:58 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
         prometheus.io/scheme: http
       labels:
         app: rest-heroes
+        app.openshift.io/runtime: quarkus
         application: heroes-service
         system: quarkus-super-heroes
-        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/version: java17-latest
+        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/name: rest-heroes
     spec:
       containers:
@@ -285,15 +289,6 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
-  triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-          - rest-heroes
-        from:
-          kind: ImageStreamTag
-          name: rest-heroes:java17-latest
-      type: ImageChange
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -302,12 +297,13 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-07-01 - 19:24:27 +0000
+    app.quarkus.io/build-timestamp: 2022-07-05 - 15:55:58 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: java17-latest
     app: rest-heroes
+    app.openshift.io/runtime: quarkus
     application: heroes-service
     system: quarkus-super-heroes
   name: rest-heroes
