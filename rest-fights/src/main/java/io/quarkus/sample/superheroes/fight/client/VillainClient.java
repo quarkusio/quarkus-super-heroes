@@ -13,6 +13,7 @@ import org.eclipse.microprofile.rest.client.ext.DefaultClientHeadersFactoryImpl;
 import org.jboss.resteasy.reactive.client.impl.UniInvoker;
 
 import io.quarkus.logging.Log;
+import io.quarkus.opentelemetry.runtime.tracing.restclient.OpenTelemetryClientFilter;
 import io.quarkus.rest.client.reactive.runtime.MicroProfileRestClientRequestFilter;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 
@@ -31,9 +32,10 @@ import io.smallrye.mutiny.Uni;
 public class VillainClient {
   private final WebTarget villainClient;
 
-  public VillainClient(FightConfig fightConfig) {
+  public VillainClient(FightConfig fightConfig, OpenTelemetryClientFilter otelClientFilter) {
     this.villainClient = ClientBuilder.newClient()
       .register(new MicroProfileRestClientRequestFilter(new DefaultClientHeadersFactoryImpl()))
+      .register(otelClientFilter)
       .target(fightConfig.villain().clientBaseUrl())
       .path("api/villains/");
   }
