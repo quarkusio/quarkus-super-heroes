@@ -219,9 +219,9 @@ spec:
           args:
             - "--config=/conf/otel-collector-config.yml"
           ports:
-            - name: health_check
+            - name: health-check
               containerPort: 13133
-            - name: grpc-oltp-receiver
+            - name: otlp-receiver
               containerPort: 4317
           volumeMounts:
             - name: otel-collector-config
@@ -237,7 +237,7 @@ spec:
             successThreshold: 1
             failureThreshold: 3
             httpGet:
-              port: health_check
+              port: health-check
               scheme: HTTP
               path: /
           readinessProbe:
@@ -246,7 +246,7 @@ spec:
             successThreshold: 1
             failureThreshold: 3
             httpGet:
-              port: health_check
+              port: health-check
               scheme: HTTP
               path: /
           startupProbe:
@@ -255,7 +255,7 @@ spec:
             successThreshold: 1
             failureThreshold: 3
             httpGet:
-              port: health_check
+              port: health-check
               scheme: HTTP
               path: /
       volumes:
