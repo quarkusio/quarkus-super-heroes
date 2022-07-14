@@ -78,18 +78,18 @@ public class SuperStats {
    * @return A continuous stream of percentages of battles won by heroes sent to the {@code team-stats} in-memory channel.
    */
   private Uni<Void> computeTeamStats(Fight fight, Optional<Span> parentSpan) {
-    var span = createChildSpan("SuperStats.computeTeamStats", fight, parentSpan);
+    return Uni.createFrom().item(fight)
+      .withContext((uni, ctx) -> {
+        var spanName = "SuperStats.computeTeamStats";
 
-    try {
-      LOGGER.debugf("[computeTeamStats] - Got message: %s", fight);
-      var score = this.stats.add(fight);
-
-      LOGGER.debugf("[computeTeamStats] - Computed the team statistics: %s", score);
-      return this.teamStatsEmitter.send(score);
-    }
-    finally {
-      span.end();
-    }
+        return uni
+          .invoke(f -> ctx.put(spanName, createChildSpan(spanName, f, parentSpan)))
+          .invoke(() -> LOGGER.debugf("[computeTeamStats] - Got message: %s", fight))
+          .map(s -> this.stats.add(fight))
+          .invoke(score -> LOGGER.debugf("[computeTeamStats] - Computed the team statistics: %s", score))
+          .chain(this.teamStatsEmitter::send)
+          .eventually(() -> closeSpanFromContext(ctx, spanName));
+      });
   }
 
   /**
