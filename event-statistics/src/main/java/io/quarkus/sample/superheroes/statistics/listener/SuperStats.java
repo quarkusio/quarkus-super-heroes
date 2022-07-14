@@ -84,8 +84,8 @@ public class SuperStats {
 
         return uni
           .invoke(f -> ctx.put(spanName, createChildSpan(spanName, f, parentSpan)))
-          .invoke(() -> LOGGER.debugf("[computeTeamStats] - Got message: %s", fight))
-          .map(s -> this.stats.add(fight))
+          .invoke(f -> LOGGER.debugf("[computeTeamStats] - Got message: %s", f))
+          .map(this.stats::add)
           .invoke(score -> LOGGER.debugf("[computeTeamStats] - Computed the team statistics: %s", score))
           .chain(this.teamStatsEmitter::send)
           .eventually(() -> closeSpanFromContext(ctx, spanName));
