@@ -132,9 +132,6 @@ process_ui_project() {
 
 create_monitoring() {
   local monitoring_name="monitoring"
-  local kubernetes_output="$OUTPUT_DIR/prometheus-kubernetes.yml"
-  local minikube_output="$OUTPUT_DIR/prometheus-minikube.yml"
-  local openshift_output="$OUTPUT_DIR/prometheus-openshift.yml"
 
   echo ""
   echo "-----------------------------------------"
@@ -142,7 +139,7 @@ create_monitoring() {
 
   for deployment_type in "kubernetes" "minikube" "openshift"
   do
-    local output_file_name="prometheus-${deployment_type}.yml"
+    local output_file_name="${monitoring_name}-${deployment_type}.yml"
     local output_file="$OUTPUT_DIR/$output_file_name"
     local input_dir="$monitoring_name/k8s"
     create_output_file $output_file

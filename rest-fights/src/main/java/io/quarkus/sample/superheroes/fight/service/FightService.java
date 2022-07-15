@@ -14,6 +14,8 @@ import org.bson.types.ObjectId;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Message;
+import org.eclipse.microprofile.reactive.messaging.Metadata;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
@@ -25,8 +27,12 @@ import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
 
+import io.opentelemetry.context.Context;
+import io.opentelemetry.extension.annotations.SpanAttribute;
+import io.opentelemetry.extension.annotations.WithSpan;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
+import io.smallrye.reactive.messaging.TracingMetadata;
 
 /**
  * Business logic for the Fight service
@@ -63,22 +69,29 @@ public class FightService {
 		       fighters;
 	}
 
+  @WithSpan("FightService.findAllFights")
 	public Uni<List<Fight>> findAllFights() {
+    Log.debug("Getting all fights");
 		return Fight.listAll();
 	}
 
-	public Uni<Fight> findFightById(String id) {
+  @WithSpan("FightService.findFightById")
+	public Uni<Fight> findFightById(@SpanAttribute("arg.id") String id) {
+    Log.debugf("Finding fight by id = %s", id);
 		return Fight.findById(new ObjectId(id));
 	}
 
 	@Timeout(value = 4, unit = ChronoUnit.SECONDS)
   @Fallback(fallbackMethod = "fallbackRandomFighters")
+  @WithSpan("FightService.findRandomFighters")
 	public Uni<Fighters> findRandomFighters() {
-		Uni<Hero> hero = findRandomHero()
-			.onItem().ifNull().continueWith(this::createFallbackHero);
+    Log.debug("Finding random fighters");
 
-		Uni<Villain> villain = findRandomVillain()
-			.onItem().ifNull().continueWith(this::createFallbackVillain);
+    var villain = findRandomVillain()
+      .onItem().ifNull().continueWith(this::createFallbackVillain);
+
+		var hero = findRandomHero()
+      .onItem().ifNull().continueWith(this::createFallbackHero);
 
 		return addDelay(Uni.combine()
 			.all()
@@ -90,6 +103,7 @@ public class FightService {
 	@Timeout(value = 2, unit = ChronoUnit.SECONDS)
 	@Fallback(fallbackMethod = "fallbackRandomHero")
 	Uni<Hero> findRandomHero() {
+    Log.debug("Finding a random hero");
 		return this.heroClient.findRandomHero()
 			.invoke(hero -> Log.debugf("Got random hero: %s", hero));
 	}
@@ -97,13 +111,16 @@ public class FightService {
 	@Timeout(value = 2, unit = ChronoUnit.SECONDS)
 	@Fallback(fallbackMethod = "fallbackRandomVillain")
 	Uni<Villain> findRandomVillain() {
+    Log.debug("Finding a random villain");
 		return this.villainClient.findRandomVillain()
 			.invoke(villain -> Log.debugf("Got random villain: %s", villain));
 	}
 
   @Timeout(value = 5, unit = ChronoUnit.SECONDS)
   @Fallback(fallbackMethod = "fallbackHelloHeroes")
+  @WithSpan("FightService.helloHeroes")
   public Uni<String> helloHeroes() {
+    Log.debug("Pinging heroes service");
     return this.heroClient.helloHeroes()
       .invoke(hello -> Log.debugf("Got %s from the Heroes microservice", hello));
   }
@@ -120,7 +137,9 @@ public class FightService {
 
   @Timeout(value = 5, unit = ChronoUnit.SECONDS)
   @Fallback(fallbackMethod = "fallbackHelloVillains")
+  @WithSpan("FightService.helloVillains")
   public Uni<String> helloVillains() {
+    Log.debug("Pinging villains service");
     return this.villainClient.helloVillains()
       .invoke(hello -> Log.debugf("Got %s from the Villains microservice", hello));
   }
@@ -158,20 +177,26 @@ public class FightService {
 		);
 	}
 
-	public Uni<Fight> performFight(@NotNull @Valid Fighters fighters) {
+  @WithSpan("FightService.performFight")
+	public Uni<Fight> performFight(@SpanAttribute("arg.fighters") @NotNull @Valid Fighters fighters) {
+    Log.debugf("Performing a fight with fighters: %s", fighters);
 		return determineWinner(fighters)
 			.chain(this::persistFight);
 	}
 
-	Uni<Fight> persistFight(Fight fight) {
+  @WithSpan("FightService.persistFight")
+	Uni<Fight> persistFight(@SpanAttribute("arg.fight") Fight fight) {
+    Log.debugf("Persisting a fight: %s", fight);
 		return Fight.persist(fight)
       .replaceWith(fight)
       .map(this.fightMapper::toSchema)
-      .chain(this.emitter::send)
-			.replaceWith(fight);
+      .invoke(f -> this.emitter.send(Message.of(f, Metadata.of(TracingMetadata.withCurrent(Context.current())))))
+      .replaceWith(fight);
 	}
 
-	Uni<Fight> determineWinner(Fighters fighters) {
+	Uni<Fight> determineWinner(@SpanAttribute("arg.fighters") Fighters fighters) {
+    Log.debugf("Determining winner between fighters: %s", fighters);
+
 		// Amazingly fancy logic to determine the winner...
 		return Uni.createFrom().item(() -> {
 				Fight fight;

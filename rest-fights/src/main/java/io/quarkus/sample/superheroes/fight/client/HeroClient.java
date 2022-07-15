@@ -10,6 +10,8 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.quarkus.logging.Log;
 
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.extension.annotations.WithSpan;
 import io.smallrye.faulttolerance.api.CircuitBreakerName;
 import io.smallrye.mutiny.Uni;
 
@@ -31,6 +33,7 @@ public class HeroClient {
   @CircuitBreaker(requestVolumeThreshold = 8, failureRatio = 0.5, delay = 2, delayUnit = ChronoUnit.SECONDS)
 	@CircuitBreakerName("findRandomHero")
   @Retry(maxRetries = 3, delay = 200, delayUnit = ChronoUnit.MILLIS)
+  @WithSpan(kind = SpanKind.CLIENT, value = "HeroClient.findRandomHero")
 	public Uni<Hero> findRandomHero() {
 		// Want the 404 handling to be part of the circuit breaker
 		// This means that the 404 responses aren't considered errors by the circuit breaker
@@ -43,6 +46,7 @@ public class HeroClient {
 	 * Calls hello on the Heroes service.
 	 * @return A "hello" from Heroes
 	 */
+  @WithSpan(kind = SpanKind.CLIENT, value = "HeroClient.helloHeroes")
 	public Uni<String> helloHeroes() {
     Log.debug("Pinging hero service");
 		return heroClient.hello();

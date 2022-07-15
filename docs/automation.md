@@ -142,7 +142,7 @@ These extensions generate the manifests needed for the application itself but no
 
 The [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) loops through all versions of each application (Java versions 11 & 17, both JVM and native - 16 total versions) and merges the contents of files these extensions generate and places them into each project's `deploy/k8s` directory as well as the respective files in the [root `deploy/k8s` directory](../deploy/k8s).
 
-The [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) additionally creates the Prometheus descriptors within the [root `deploy/k8s` directory](../deploy/k8s) for each Kubernetes variant platform.
+The [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) additionally creates the monitoring (Prometheus/Jaeger/OpenTelemetry Collector) descriptors within the [root `deploy/k8s` directory](../deploy/k8s) for each Kubernetes variant platform.
 
 In the [`rest-fights` project](../rest-fights), the [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) additionally copies in generated resources from the [`rest-heroes`](../rest-heroes) and [`rest-villains`](../rest-villains) projects into the `all-downstream.yml` files in the [`deploy/k8s` directory of the `rest-fights` project](../rest-fights/deploy/k8s).
 
@@ -173,7 +173,7 @@ This table describes the different files that can be found inside a project's `s
 
 The [`generate-docker-compose-resources.sh` script](../scripts/generate-docker-compose-resources.sh) loops through all versions of each application (Java versions 11 & 17, both JVM and native - 16 total versions) and merges contents of these files from each project's `src/main/docker-compose` directory into each project's `deploy/docker-compose` directory as well as the respective files in the [root `deploy/docker-compose` directory](../deploy/docker-compose).
 
-The [`generate-docker-compose-resources.sh` script](../scripts/generate-docker-compose-resources.sh) additionally creates the [Prometheus compose file (`prometheus.yml`)](../deploy/docker-compose/prometheus.yml) within the [root `deploy/docker-compose` directory](../deploy/docker-compose).
+The [`generate-docker-compose-resources.sh` script](../scripts/generate-docker-compose-resources.sh) additionally creates the [monitoring compose file (`monitoring.yml`)](../deploy/docker-compose/monitoring.yml) within the [root `deploy/docker-compose` directory](../deploy/docker-compose).
 
 ### UI Project
 Like the Quarkus projects, the [`ui-super-heroes` project](../ui-super-heroes) also has a [`src/main/docker-compose` directory](../ui-super-heroes/src/main/docker-compose). There is only a single [`app.yml` file](../ui-super-heroes/src/main/docker-compose/app.yml) containing the _Docker compose snippet_.

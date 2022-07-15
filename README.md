@@ -36,7 +36,11 @@ This is a sample application demonstrating Quarkus features and best practices. 
 - [Statistics](event-statistics)
     - Calculates statistics about each fight and serves them to an HTML + JQuery UI using [WebSockets](https://quarkus.io/guides/websockets).
 - [Prometheus](https://prometheus.io/)
-    - Polls metrics from all of the services within the system.
+    - Polls metrics from all the services within the system.
+- [OpenTelemetry Collector](https://opentelemetry.io/docs/collector)
+    - All services export distributed trace information to the collector.
+- [Jaeger](https://www.jaegertracing.io)
+    - The collector exports trace information into Jaeger.
 
 Here is an architecture diagram of the application:
 ![Superheroes architecture diagram](images/application-architecture.png)
@@ -53,18 +57,18 @@ Pick one of the 4 versions of the application from the table below and execute t
    >
    > There is a [`watch-services.sh`](scripts/watch-services.sh) script that can be run in a separate terminal that will watch the startup of all the services and report when they are all up and ready to serve requests. 
 
-| Description                  | Image Tag              | Docker Compose Run Command                                                      | Docker Compose Run Command with Prometheus Monitoring                                                                   |
+| Description                  | Image Tag              | Docker Compose Run Command                                                      | Docker Compose Run Command with Monitoring                                                                              |
 |------------------------------|------------------------|---------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| JVM Java 11                  | `java11-latest`        | `docker compose -f deploy/docker-compose/java11.yml up --remove-orphans`        | `docker compose -f deploy/docker-compose/java11.yml -f deploy/docker-compose/prometheus.yml up --remove-orphans`        |
-| JVM Java 17                  | `java17-latest`        | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans`            | `docker compose -f deploy/docker-compose/java17.yml -f deploy/docker-compose/prometheus.yml up --remove-orphans`        |
-| Native compiled with Java 11 | `native-java11-latest` | `docker compose -f deploy/docker-compose/native-java11.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/native-java11.yml -f deploy/docker-compose/prometheus.yml up --remove-orphans` |
-| Native compiled with Java 17 | `native-java17-latest` | `docker compose -f deploy/docker-compose/native-java17.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/native-java17.yml -f deploy/docker-compose/prometheus.yml up --remove-orphans` |
+| JVM Java 11                  | `java11-latest`        | `docker compose -f deploy/docker-compose/java11.yml up --remove-orphans`        | `docker compose -f deploy/docker-compose/java11.yml -f deploy/docker-compose/monitoring.yml up --remove-orphans`        |
+| JVM Java 17                  | `java17-latest`        | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans`        | `docker compose -f deploy/docker-compose/java17.yml -f deploy/docker-compose/monitoring.yml up --remove-orphans`        |
+| Native compiled with Java 11 | `native-java11-latest` | `docker compose -f deploy/docker-compose/native-java11.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/native-java11.yml -f deploy/docker-compose/monitoring.yml up --remove-orphans` |
+| Native compiled with Java 17 | `native-java17-latest` | `docker compose -f deploy/docker-compose/native-java17.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/native-java17.yml -f deploy/docker-compose/monitoring.yml up --remove-orphans` |
 
 > **NOTE:** If your system does not have the `compose` sub-command, you can try the above commands with the `docker-compose` command instead of `docker compose`.
 
-Once started the main application will be exposed at `http://localhost:8080`. If you want to watch the [Event Statistics UI](event-statistics), that will be available at `http://localhost:8085`.
+Once started the main application will be exposed at `http://localhost:8080`. If you want to watch the [Event Statistics UI](event-statistics), that will be available at `http://localhost:8085`. The Apicurio Registry will be available at `http://localhost:8086`.
 
-If you launched Prometheus monitoring, Prometheus will be available at `http://localhost:9090`. The Apicurio Registry will be available at `http://localhost:8086`.
+If you launched the monitoring stack, Prometheus will be available at `http://localhost:9090` and Jaeger will be available at `http://localhost:16686`.
 
 ## Deploying to Kubernetes
 Pre-built images for all of the applications in the system can be found at [`quay.io/quarkus-super-heroes`](http://quay.io/quarkus-super-heroes).
@@ -101,10 +105,14 @@ Pick one of the 4 versions of the system from the table below and deploy the app
 | Native compiled with Java 17 | `native-java17-latest` | [`native-java17-openshift.yml`](deploy/k8s/native-java17-openshift.yml) | [`native-java17-minikube.yml`](deploy/k8s/native-java17-minikube.yml) | [`native-java17-kubernetes.yml`](deploy/k8s/native-java17-kubernetes.yml) | [`native-java17-knative.yml`](deploy/k8s/native-java17-knative.yml) |
 
 ### Monitoring
-There are also Kubernetes deployment descriptors for Prometheus monitoring in the [`deploy/k8s` directory](deploy/k8s) ([`prometheus-openshift.yml`](deploy/k8s/prometheus-openshift.yml), [`prometheus-minikube.yml`](deploy/k8s/prometheus-minikube.yml), [`prometheus-kubernetes.yml`](deploy/k8s/prometheus-kubernetes.yml)). Each descriptor contains the resources necessary to monitor and gather metrics from all of the applications in the system. Deploy the appropriate descriptor to your cluster if you want it.
+There are also Kubernetes deployment descriptors for monitoring with [OpenTelemetry](https://opentelemetry.io), [Prometheus](https://prometheus.io), and [Jaeger](https://www.jaegertracing.io) in the [`deploy/k8s` directory](deploy/k8s) ([`monitoring-openshift.yml`](deploy/k8s/monitoring-openshift.yml), [`monitoring-minikube.yml`](deploy/k8s/monitoring-minikube.yml), [`monitoring-kubernetes.yml`](deploy/k8s/monitoring-kubernetes.yml)). Each descriptor contains the resources necessary to monitor and gather metrics and traces from all of the applications in the system. Deploy the appropriate descriptor to your cluster if you want it.
 
-The OpenShift descriptor will automatically create a `Route` for Prometheus. On Kubernetes/Minikube you may need to expose the Prometheus service in order to access it from outside your cluster, either by using an `Ingress` or by using `kubectl port-forward`. On Minikube, the Prometheus `Service` is also exposed as a `NodePort`.
+The OpenShift descriptor will automatically create `Route`s for Prometheus and Jaeger. On Kubernetes/Minikube you may need to expose the Prometheus and Jaeger services in order to access them from outside your cluster, either by using an `Ingress` or by using `kubectl port-forward`. On Minikube, the Prometheus and Jaeger `Service`s are also exposed as a `NodePort`.
 
-   > **NOTE:** These descriptors are **NOT** considered to be production-ready. They are basic enough to deploy Prometheus with as little configuration as possible. It is not highly-available and does not use any [Kubernetes operators](https://operatorhub.io/operator/prometheus) for management or monitoring. It also only uses ephemeral storage.
+   > **NOTE:** These descriptors are **NOT** considered to be production-ready. They are basic enough to deploy Prometheus, Jaeger, and the [OpenTelemetry Collector](https://opentelemetry.io/docs/collector) with as little configuration as possible. They are not highly-available and does not use any Kubernetes operators for management or monitoring. They also only uses ephemeral storage.
    >
    > For production-ready Prometheus instances, please see the [Prometheus Operator documentation](https://operatorhub.io/operator/prometheus) for how to properly deploy and configure production-ready instances. 
+   >
+   > For production-ready Jaeger instances, please see the [Jaeger Operator documentation](https://operatorhub.io/operator/jaeger) for how to properly deploy and configure production-ready instances.
+   >
+   > For production-ready OpenTelemetry Collector instances, please see the [OpenTelemetry Operator documentation](https://operatorhub.io/operator/opentelemetry-operator) for how to properly deploy and configure production-ready instances.

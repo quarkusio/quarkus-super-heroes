@@ -9,11 +9,19 @@ quarkus:
     name: rest-heroes
   log:
     level: INFO
+    category:
+      "io.quarkus.sample.superheroes":
+        level: DEBUG
     console:
-      enable: true
-      format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+      format: "%d{HH:mm:ss} %-5p traceId=%X{traceId}, parentId=%X{parentId}, spanId=%X{spanId}, sampled=%X{sampled} [%c{2.}] (%t) %s%e%n"
       level: INFO
       darken: 1
+  opentelemetry:
+    tracer:
+      resource-attributes: "app=${quarkus.application.name},application=heroes-service,system=quarkus-super-heroes"
+      exporter:
+        otlp:
+          endpoint: http://localhost:4317
   hibernate-orm:
     database:
       generation: drop-and-create
@@ -40,7 +48,7 @@ quarkus:
   kubernetes:
     part-of: heroes-service
     annotations:
-      "app.openshift.io/connects-to": heroes-db
+      "app.openshift.io/connects-to": heroes-db,otel-collector
     env:
       configmaps: "${quarkus.application.name}-config"
       secrets: "${quarkus.application.name}-config-creds"
@@ -53,7 +61,7 @@ quarkus:
     route:
       expose: true
     annotations:
-      "app.openshift.io/connects-to": heroes-db
+      "app.openshift.io/connects-to": heroes-db,otel-collector
     env:
       configmaps: "${quarkus.kubernetes.env.configmaps}"
       secrets: "${quarkus.kubernetes.env.secrets}"
@@ -67,7 +75,7 @@ quarkus:
   knative:
     part-of: "${quarkus.kubernetes.part-of}"
     annotations:
-      "app.openshift.io/connects-to": heroes-db
+      "app.openshift.io/connects-to": heroes-db,otel-collector
     env:
       configmaps: "${quarkus.kubernetes.env.configmaps}"
       secrets: "${quarkus.kubernetes.env.secrets}"
@@ -75,6 +83,20 @@ quarkus:
       app: "${quarkus.kubernetes.labels.app}"
       application: "${quarkus.openshift.part-of}"
       system: "${quarkus.kubernetes.labels.system}"
+
+"%dev":
+  quarkus:
+    log:
+      console:
+        format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+        level: DEBUG
+
+"%test":
+  quarkus:
+    log:
+      console:
+        format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+        level: DEBUG
 
 "%prod":
   quarkus:

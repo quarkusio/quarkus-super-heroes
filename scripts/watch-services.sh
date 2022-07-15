@@ -94,5 +94,8 @@ else
   echo "Super Heroes UI: http://localhost:8080"
   echo "Event stats: http://localhost:8085"
   echo "Apicurio Schema Registry: http://localhost:8086"
-  echo "Prometheus (if started): http://localhost:9090"
+  echo
+  echo "---- Monitoring (if started) ----"
+  echo "Prometheus: http://localhost:9090"
+  echo "Jaeger: http://localhost:16686"
 fi

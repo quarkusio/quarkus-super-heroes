@@ -13,10 +13,14 @@ import javax.validation.Valid;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 
+import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.config.VillainConfig;
 import io.quarkus.sample.superheroes.villain.mapping.VillainFullUpdateMapper;
 import io.quarkus.sample.superheroes.villain.mapping.VillainPartialUpdateMapper;
+
+import io.opentelemetry.extension.annotations.SpanAttribute;
+import io.opentelemetry.extension.annotations.WithSpan;
 
 /**
  * Service class containing business methods for the application.
@@ -37,35 +41,47 @@ public class VillainService {
   VillainFullUpdateMapper villainFullUpdateMapper;
 
 	@Transactional(SUPPORTS)
+  @WithSpan("VillainService.findAllVillains")
 	public List<Villain> findAllVillains() {
+    Log.debug("Getting all villains");
     return Optional.ofNullable(Villain.<Villain>listAll())
       .orElseGet(List::of);
 	}
 
   @Transactional(SUPPORTS)
-  public List<Villain> findAllVillainsHavingName(String name) {
+  @WithSpan("VillainService.findAllVillainsHavingName")
+  public List<Villain> findAllVillainsHavingName(@SpanAttribute("arg.name") String name) {
+    Log.debugf("Finding all villains having name = %s", name);
     return Optional.ofNullable(Villain.listAllWhereNameLike(name))
       .orElseGet(List::of);
   }
 
-	@Transactional(SUPPORTS)
-	public Optional<Villain> findVillainById(Long id) {
-		return Villain.findByIdOptional(id);
-	}
+  @Transactional(SUPPORTS)
+  @WithSpan("VillainService.findVillainById")
+  public Optional<Villain> findVillainById(@SpanAttribute("arg.id") Long id) {
+    Log.debugf("Finding villain by id = %d", id);
+    return Villain.findByIdOptional(id);
+  }
 
 	@Transactional(SUPPORTS)
+  @WithSpan("VillainService.findRandomVillain")
 	public Optional<Villain> findRandomVillain() {
+    Log.debug("Finding a random villain");
 		return Villain.findRandom();
 	}
 
-	public Villain persistVillain(@NotNull @Valid Villain villain) {
+  @WithSpan("VillainService.persistVillain")
+	public Villain persistVillain(@SpanAttribute("arg.villain") @NotNull @Valid Villain villain) {
+    Log.debugf("Persisting villain: %s", villain);
 		villain.level = (int) Math.round(villain.level * this.villainConfig.level().multiplier());
 		Villain.persist(villain);
 
 		return villain;
 	}
 
-	public Optional<Villain> replaceVillain(@NotNull @Valid Villain villain) {
+  @WithSpan("VillainService.replaceVillain")
+	public Optional<Villain> replaceVillain(@SpanAttribute("arg.villain") @NotNull @Valid Villain villain) {
+    Log.debugf("Replacing villain: %s", villain);
 		return Villain.findByIdOptional(villain.id)
 			.map(Villain.class::cast) // Only here for type erasure within the IDE
 			.map(v -> {
@@ -74,7 +90,9 @@ public class VillainService {
 			});
 	}
 
-	public Optional<Villain> partialUpdateVillain(@NotNull Villain villain) {
+  @WithSpan("VillainService.partialUpdateVillain")
+	public Optional<Villain> partialUpdateVillain(@SpanAttribute("arg.villain") @NotNull Villain villain) {
+    Log.debugf("Partially updating villain: %s", villain);
 		return Villain.findByIdOptional(villain.id)
 			.map(Villain.class::cast) // Only here for type erasure within the IDE
 			.map(v -> {
@@ -84,7 +102,9 @@ public class VillainService {
 			.map(this::validatePartialUpdate);
 	}
 
-  public void replaceAllVillains(List<Villain> villains) {
+  @WithSpan("VillainService.replaceAllVillains")
+  public void replaceAllVillains(@SpanAttribute("arg.villains") List<Villain> villains) {
+    Log.debug("Replacing all villains");
     deleteAllVillains();
     Villain.persist(villains);
   }
@@ -105,14 +125,18 @@ public class VillainService {
 		return villain;
 	}
 
+  @WithSpan("VillainService.deleteAllVillains")
 	public void deleteAllVillains() {
+    Log.debug("Deleting all villains");
 		List<Villain> villains = Villain.listAll();
 		villains.stream()
 			.map(v -> v.id)
 			.forEach(this::deleteVillain);
 	}
 
-	public void deleteVillain(Long id) {
+  @WithSpan("VillainService.deleteVillain")
+	public void deleteVillain(@SpanAttribute("arg.id") Long id) {
+    Log.debugf("Deleting villain by id = %d", id);
 		Villain.deleteById(id);
 	}
 }

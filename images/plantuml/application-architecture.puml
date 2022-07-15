@@ -5,16 +5,23 @@ skinparam NodePadding 40
 !include <logos/mongodb>
 !include <logos/nodejs>
 !include <logos/prometheus>
+!include <logos/jaeger>
 !include style.puml
 
 left to right direction
 
 together {
-    node "Super Hero UI" as ui {
-        agent "<$nodejs>" as uiQuarkus
+    node "<$prometheus>" as prometheus {
     }
 
-    node "<$prometheus>" as prometheus {
+    node "<$jaeger>" as jaeger {
+    }
+
+    node "OpenTelemetry Collector" as otelCollector {
+    }
+
+    node "Super Hero UI" as ui {
+        agent "<$nodejs>" as uiQuarkus
     }
 }
 
@@ -24,17 +31,17 @@ node "Fight" as fight {
     fightQuarkus .up> fightMongoDb
 }
 
-  node "Hero" as hero {
-      agent "Quarkus (reactive)" <<application>> as heroQuarkus
-      database "<$postgresql>" as heroPostgresql
-      heroQuarkus .up> heroPostgresql
-  }
+node "Hero" as hero {
+    agent "Quarkus (reactive)" <<application>> as heroQuarkus
+    database "<$postgresql>" as heroPostgresql
+    heroQuarkus .up> heroPostgresql
+}
 
-  node "Villain" as villain {
-      agent "Quarkus (imperative)" <<application>> as villainQuarkus
-      database "<$postgresql>" as villainPostgresql
-      villainQuarkus .up> villainPostgresql
-  }
+node "Villain" as villain {
+    agent "Quarkus (imperative)" <<application>> as villainQuarkus
+    database "<$postgresql>" as villainPostgresql
+    villainQuarkus .up> villainPostgresql
+}
 
 together {
   queue "<$kafka>" as kafka {
@@ -70,5 +77,11 @@ statQuarkus ..> uiStats : Web Sockets
 prometheus .> fight : polling
 prometheus .> hero : polling
 prometheus .> villain : polling
-prometheus .> stat : polling
+prometheus .> stats : polling
+
+otelCollector .> jaeger : gRPC
+otelCollector <-[dotted]- fight : gRPC
+otelCollector <-[dotted]- hero : gRPC
+otelCollector <-[dotted]- villain : gRPC
+otelCollector <-[dotted]- stats : gRPC
 @enduml

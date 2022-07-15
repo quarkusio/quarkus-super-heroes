@@ -1,0 +1,31 @@
+version: "3"
+services:
+
+  prometheus:
+    image: quay.io/prometheus/prometheus:v2.33.1
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../../deploy/docker-compose/monitoring/prometheus_scrape_configs.yml:/etc/prometheus/prometheus.yml
+
+  jaeger:
+    image: jaegertracing/all-in-one:1
+    container_name: jaeger
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "14268"       # Accept thrift spans
+      - "14250"       # Accept gRPC spans
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.53.0
+    container_name: otel-collector
+    command:
+      - "--config=/conf/otel-collector-config.yml"
+    volumes:
+      - ../../deploy/docker-compose/monitoring/otel-collector-config.yml:/conf/otel-collector-config.yml
+    ports:
+      - "13133:13133" # health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+    depends_on:
+      - jaeger
