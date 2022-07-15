@@ -47,10 +47,10 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: heroes-db
+    app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-07-12 - 08:50:32 +0000
+    app.quarkus.io/build-timestamp: 2022-07-15 - 16:35:43 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -60,18 +60,18 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: heroes-service
     system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/version: native-java11-latest
+    app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   template:
     metadata:
       annotations:
-        app.openshift.io/connects-to: heroes-db
+        app.openshift.io/connects-to: "heroes-db,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-07-12 - 08:50:32 +0000
+        app.quarkus.io/build-timestamp: 2022-07-15 - 16:35:43 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -81,8 +81,8 @@ spec:
         app.openshift.io/runtime: quarkus
         application: heroes-service
         system: quarkus-super-heroes
-        app.kubernetes.io/name: rest-heroes
         app.kubernetes.io/version: native-java11-latest
+        app.kubernetes.io/name: rest-heroes
         app.kubernetes.io/part-of: heroes-service
     spec:
       containerConcurrency: 0
@@ -150,6 +150,7 @@ data:
   quarkus.hibernate-orm.database.generation: validate
   quarkus.hibernate-orm.sql-load-script: no-file
   quarkus.datasource.reactive.url: postgresql://heroes-db:5432/heroes_database
+  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -37,8 +37,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "fights-kafka,apicurio"
-    app.quarkus.io/build-timestamp: 2022-07-12 - 08:49:10 +0000
+    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
+    app.quarkus.io/build-timestamp: 2022-07-15 - 16:34:20 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -91,6 +91,7 @@ metadata:
 data:
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
+  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -168,8 +169,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "fights-kafka,apicurio"
-    app.quarkus.io/build-timestamp: 2022-07-12 - 08:49:10 +0000
+    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
+    app.quarkus.io/build-timestamp: 2022-07-15 - 16:34:20 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -194,8 +195,8 @@ spec:
       annotations:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.openshift.io/connects-to: "fights-kafka,apicurio"
-        app.quarkus.io/build-timestamp: 2022-07-12 - 08:49:10 +0000
+        app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
+        app.quarkus.io/build-timestamp: 2022-07-15 - 16:34:20 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -215,10 +216,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: event-statistics-config
             - secretRef:
                 name: event-statistics-config-creds
+            - configMapRef:
+                name: event-statistics-config
           image: quay.io/quarkus-super-heroes/event-statistics:native-java11-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:

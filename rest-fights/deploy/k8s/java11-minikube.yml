@@ -90,8 +90,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
-    app.quarkus.io/build-timestamp: 2022-07-12 - 08:45:22 +0000
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+    app.quarkus.io/build-timestamp: 2022-07-15 - 16:30:21 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -145,6 +145,7 @@ data:
   quarkus.stork.villain-service.service-discovery.type: kubernetes
   quarkus.stork.villain-service.service-discovery.application: rest-villains
   quarkus.stork.villain-service.service-discovery.refresh-period: 1M
+  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
 ---
@@ -304,8 +305,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
-    app.quarkus.io/build-timestamp: 2022-07-12 - 08:45:22 +0000
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+    app.quarkus.io/build-timestamp: 2022-07-15 - 16:30:21 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -330,8 +331,8 @@ spec:
       annotations:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
-        app.quarkus.io/build-timestamp: 2022-07-12 - 08:45:22 +0000
+        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+        app.quarkus.io/build-timestamp: 2022-07-15 - 16:30:21 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"

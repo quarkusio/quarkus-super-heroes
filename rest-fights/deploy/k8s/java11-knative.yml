@@ -88,10 +88,10 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-07-12 - 08:47:10 +0000
+    app.quarkus.io/build-timestamp: 2022-07-15 - 16:32:13 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -101,30 +101,30 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: fights-service
     system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: java11-latest
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/name: rest-fights
   name: rest-fights
 spec:
   template:
     metadata:
       annotations:
-        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
-        app.openshift.io/vcs-ref: main
-        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-07-12 - 08:47:10 +0000
+        app.quarkus.io/build-timestamp: 2022-07-15 - 16:32:13 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
         prometheus.io/scheme: http
+        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+        app.openshift.io/vcs-ref: main
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
       labels:
         app: rest-fights
         app.openshift.io/runtime: quarkus
         application: fights-service
         system: quarkus-super-heroes
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: java11-latest
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/name: rest-fights
     spec:
       containerConcurrency: 0
       containers:
@@ -194,6 +194,7 @@ data:
   quarkus.stork.villain-service.service-discovery.type: kubernetes
   quarkus.stork.villain-service.service-discovery.application: rest-villains
   quarkus.stork.villain-service.service-discovery.refresh-period: 1M
+  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
 ---

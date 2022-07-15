@@ -1,0 +1,369 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: default_view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+  - kind: ServiceAccount
+    name: default
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  labels:
+    system: quarkus-super-heroes
+    app: prometheus
+    role: monitoring
+data:
+  prometheus.yml: |2
+    global:
+      scrape_interval: 10s
+      external_labels:
+        system: quarkus-super-heroes
+    
+    scrape_configs:
+      - job_name: prometheus
+        static_configs:
+          - targets: ['localhost:9090']
+
+      - job_name: k8s-discovery
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              own_namespace: true
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: kubernetes_namespace
+          
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: kubernetes_pod_name
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  labels:
+    system: quarkus-super-heroes
+    app: otel-collector
+    role: monitoring
+data:
+  otel-collector-config.yml: |2
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+
+    exporters:
+      jaeger:
+        endpoint: jaeger:14250
+        tls:
+          insecure: true
+
+    processors:
+      batch:
+
+    extensions:
+      health_check:
+
+    service:
+      extensions:
+        - health_check
+      pipelines:
+        traces:
+          receivers:
+            - otlp
+          processors:
+            - batch
+          exporters:
+            - jaeger
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  labels:
+    system: quarkus-super-heroes
+    name: prometheus
+    app: prometheus
+    role: monitoring
+    app.kubernetes.io/part-of: monitoring
+    app.openshift.io/runtime: prometheus
+  annotations:
+    app.openshift.io/connects-to: ui-super-heroes,rest-fights,rest-villains,rest-heroes,event-statistics,apicurio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: prometheus
+  template:
+    metadata:
+      labels:
+        system: quarkus-super-heroes
+        name: prometheus
+        app: prometheus
+        role: monitoring
+    spec:
+      containers:
+        - image: quay.io/prometheus/prometheus:v2.33.1
+          name: prometheus
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-config
+              mountPath: /etc/prometheus
+            - name: prometheus-data
+              mountPath: /prometheus
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
+      volumes:
+        - name: prometheus-data
+          emptyDir: { }
+        - name: prometheus-config
+          configMap:
+            name: prometheus-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  labels:
+    system: quarkus-super-heroes
+    name: jaeger
+    app: jaeger
+    role: monitoring
+    app.kubernetes.io/part-of: monitoring
+    app.openshift.io/runtime: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: jaeger
+  template:
+    metadata:
+      labels:
+        system: quarkus-super-heroes
+        name: jaeger
+        app: jaeger
+        role: monitoring
+    spec:
+      containers:
+        - image: jaegertracing/all-in-one:1
+          name: jaeger
+          ports:
+            - containerPort: 16686
+            - containerPort: 14268
+            - containerPort: 14250
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  labels:
+    system: quarkus-super-heroes
+    name: otel-collector
+    app: otel-collector
+    role: monitoring
+    app.kubernetes.io/part-of: monitoring
+    app.openshift.io/runtime: opentelemetry
+  annotations:
+    app.openshift.io/connects-to: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: otel-collector
+  template:
+    metadata:
+      labels:
+        system: quarkus-super-heroes
+        name: otel-collector
+        app: otel-collector
+        role: monitoring
+    spec:
+      containers:
+        - image: otel/opentelemetry-collector:0.53.0
+          name: otel-collector
+          args:
+            - "--config=/conf/otel-collector-config.yml"
+          ports:
+            - name: health-check
+              containerPort: 13133
+            - name: otlp-receiver
+              containerPort: 4317
+          volumeMounts:
+            - name: otel-collector-config
+              mountPath: /conf
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
+          livenessProbe:
+            timeoutSeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+              port: health-check
+              scheme: HTTP
+              path: /
+          readinessProbe:
+            timeoutSeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+              port: health-check
+              scheme: HTTP
+              path: /
+          startupProbe:
+            timeoutSeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+              port: health-check
+              scheme: HTTP
+              path: /
+      volumes:
+        - name: otel-collector-config
+          configMap:
+            name: otel-collector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  labels:
+    name: prometheus
+    system: quarkus-super-heroes
+    app: prometheus
+    role: monitoring
+spec:
+  ports:
+    - port: 9090
+      name: scrape
+      protocol: TCP
+      targetPort: 9090
+  selector:
+    name: prometheus
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  labels:
+    name: jaeger
+    system: quarkus-super-heroes
+    app: jaeger
+    role: monitoring
+spec:
+  ports:
+    - port: 16686
+      name: ui
+      protocol: TCP
+      targetPort: 16686
+    - port: 14268
+      name: thrift
+      protocol: TCP
+      targetPort: 14268
+    - port: 14250
+      name: grpc
+      protocol: TCP
+      targetPort: 14250
+  selector:
+    name: jaeger
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  labels:
+    name: otel-collector
+    system: quarkus-super-heroes
+    app: otel-collector
+    role: monitoring
+spec:
+  ports:
+    - port: 13133
+      name: healthcheck
+      protocol: TCP
+      targetPort: 13133
+    - port: 4317
+      name: grpc
+      protocol: TCP
+      targetPort: 4317
+  selector:
+    name: otel-collector
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: monitoring
+    system: quarkus-super-heroes
+    name: prometheus
+    app: prometheus
+    role: monitoring
+  name: prometheus
+spec:
+  port:
+    targetPort: 9090
+  to:
+    kind: Service
+    name: prometheus
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/part-of: monitoring
+    system: quarkus-super-heroes
+    name: jaeger
+    app: jaeger
+    role: monitoring
+  name: jaeger
+spec:
+  port:
+    targetPort: 16686
+  to:
+    kind: Service
+    name: jaeger

@@ -49,8 +49,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: heroes-db
-    app.quarkus.io/build-timestamp: 2022-07-12 - 08:48:42 +0000
+    app.openshift.io/connects-to: "heroes-db,otel-collector"
+    app.quarkus.io/build-timestamp: 2022-07-15 - 16:33:50 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -101,6 +101,7 @@ data:
   quarkus.hibernate-orm.database.generation: validate
   quarkus.hibernate-orm.sql-load-script: no-file
   quarkus.datasource.reactive.url: postgresql://heroes-db:5432/heroes_database
+  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -155,8 +156,8 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: heroes-db
-    app.quarkus.io/build-timestamp: 2022-07-12 - 08:48:42 +0000
+    app.openshift.io/connects-to: "heroes-db,otel-collector"
+    app.quarkus.io/build-timestamp: 2022-07-15 - 16:33:50 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -181,8 +182,8 @@ spec:
       annotations:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.openshift.io/connects-to: heroes-db
-        app.quarkus.io/build-timestamp: 2022-07-12 - 08:48:42 +0000
+        app.openshift.io/connects-to: "heroes-db,otel-collector"
+        app.quarkus.io/build-timestamp: 2022-07-15 - 16:33:50 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
