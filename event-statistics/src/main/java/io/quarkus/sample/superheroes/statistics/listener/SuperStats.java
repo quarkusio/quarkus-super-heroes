@@ -17,6 +17,8 @@ import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.extension.annotations.SpanAttribute;
+import io.opentelemetry.extension.annotations.WithSpan;
 import io.smallrye.mutiny.Context;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -49,7 +51,7 @@ public class SuperStats {
   }
 
   /**
-   * Processes a stream of {@link Fight}s. Computes {@link #computeTeamStats(io.quarkus.sample.superheroes.fight.schema.Fight, java.util.Optional) team stats}
+   * Processes a stream of {@link Fight}s. Computes {@link #computeTeamStats(io.quarkus.sample.superheroes.fight.schema.Fight) team stats}
    * and {@link #computeTopWinners(io.smallrye.mutiny.Multi) top winners}
    * @param fights
    * @return
@@ -60,7 +62,7 @@ public class SuperStats {
   public Multi<Message<Iterable<Score>>> processFight(Multi<Message<Fight>> fights) {
     return fights.withContext((multi, ctx) -> {
       var teamStatsMulti = createTracedMulti(multi, ctx)
-        .call(fight -> computeTeamStats(fight, getParentSpan(ctx)));
+        .call(this::computeTeamStats);
 
       return computeTopWinners(teamStatsMulti)
         .onItem().invoke(() -> closeSpanFromContext(ctx))
@@ -74,22 +76,15 @@ public class SuperStats {
    * Transforms the {@link Fight} stream into a stream of {@link io.quarkus.sample.superheroes.statistics.domain.TeamScore scores}.
    * Each score indicates the running percentage of battles won by heroes.
    * @param fight The {@link Fight} to compute
-   * @param parentSpan The parent {@link io.opentelemetry.api.trace.Span span}. Used for tracing purposes.
    * @return A continuous stream of percentages of battles won by heroes sent to the {@code team-stats} in-memory channel.
    */
-  private Uni<Void> computeTeamStats(Fight fight, Optional<Span> parentSpan) {
-    return Uni.createFrom().item(fight)
-      .withContext((uni, ctx) -> {
-        var spanName = "SuperStats.computeTeamStats";
+  @WithSpan("SuperStats.computeTeamStats")
+  Uni<Void> computeTeamStats(@SpanAttribute("arg.fight") Fight fight) {
+    LOGGER.debugf("[computeTeamStats] - Got message: %s", fight);
 
-        return uni
-          .invoke(f -> ctx.put(spanName, createChildSpan(spanName, f, parentSpan)))
-          .invoke(f -> LOGGER.debugf("[computeTeamStats] - Got message: %s", f))
-          .map(this.stats::add)
-          .invoke(score -> LOGGER.debugf("[computeTeamStats] - Computed the team statistics: %s", score))
-          .chain(this.teamStatsEmitter::send)
-          .eventually(() -> closeSpanFromContext(ctx, spanName));
-      });
+    return Uni.createFrom().item(() -> this.stats.add(fight))
+      .invoke(score -> LOGGER.debugf("[computeTeamStats] - Computed the team statistics: %s", score))
+      .chain(this.teamStatsEmitter::send);
   }
 
   /**
@@ -127,7 +122,10 @@ public class SuperStats {
         ctx.put(MESSAGE_KEY, m);
 
         handleTrace(m, "SuperStats.processFight")
-          .ifPresent(s -> ctx.put(SPAN_KEY, s));
+          .ifPresent(s -> {
+            s.makeCurrent();
+            ctx.put(SPAN_KEY, s);
+          });
 
         return m.getPayload();
       });
