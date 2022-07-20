@@ -23,7 +23,7 @@ This document describes the overall automation strategy for the Quarkus superher
 There are 3 GitHub action workflows that run when code is pushed: [Basic building and testing](#basic-building-and-testing-workflow), [Build and push container images](#build-and-push-container-images-workflow), and [Create deploy resources](#create-deploy-resources-workflow).
 
 ## Basic building and testing workflow
-The [Basic building and testing](../.github/workflows/simple-build-test.yml) workflow is a "sanity check". It is required to pass before pull requests can be merged.
+The [Basic building and testing](../.github/workflows/simple-build-test-rhbq-2.7.yml) workflow is a "sanity check". It is required to pass before pull requests can be merged.
 
 It runs whenever code is pushed to the `main` branch as well as upon any pull requests.
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
@@ -31,7 +31,7 @@ It runs whenever code is pushed to the `main` branch as well as upon any pull re
 It runs `./mvnw clean verify` and `./mvnw clean verify -Pnative` on the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), and [`rest-villains`](../rest-villains) applications on both Java 11 and 17.
 
 ## Build and push container images workflow
-The [Build and push container images](../.github/workflows/build-push-container-images.yml) workflow does pretty much what it sounds like: builds and pushes container images. For JVM images and for the `ui-super-heroes` application, it builds both `amd64` and `arm64` images. Multi-arch native images are coming soon.
+The [Build and push container images](../.github/workflows/build-push-container-images-rhbq-2.7.yml) workflow does pretty much what it sounds like: builds and pushes container images. For JVM images and for the `ui-super-heroes` application, it builds both `amd64` and `arm64` images. Multi-arch native images are coming soon.
 
 It only runs on pushes to the `main` branch after successful completion of the above [_Basic building and testing_](#basic-building-and-testing-workflow) workflow.
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
@@ -115,7 +115,7 @@ Runs after successful completion of the [_Push UI images_](#push-ui-images-job) 
 All the UI container images for each platform (amd64 & arm64) are combined into manifest lists using the [`docker manifest`](https://docs.docker.com/engine/reference/commandline/manifest) command. For example, the `latest-amd64` and `latest-arm64` tags are combined into a single manifest list with the tag `latest`.
 
 ## Create deploy resources workflow
-The [Create deploy resources](../.github/workflows/create-deploy-resources.yml) workflow is responsible for [generating all of the application resources](#application-resource-generation), described in a later section of this document.
+The [Create deploy resources](../.github/workflows/create-deploy-resources-rhbq-2.7.yml) workflow is responsible for [generating all of the application resources](#application-resource-generation), described in a later section of this document.
 
 It only runs on pushes to the `main` branch after successful completion of the [_Build and push container images_](#build-and-push-container-images-workflow) workflow.
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
