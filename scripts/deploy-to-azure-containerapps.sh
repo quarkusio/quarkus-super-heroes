@@ -76,7 +76,7 @@ create_postgres_db() {
     --public all \
     --sku-name "Standard_$POSTGRES_SKU" \
     --tier "$POSTGRES_TIER" \
-    --storage-size 4096 \
+    --storage-size 2048 \
     --version "$POSTGRES_DB_VERSION"
   echo
 
@@ -307,8 +307,8 @@ RESOURCE_GROUP="super-heroes"
 LOCATION="eastus2"
 IMAGES_TAG="native-java17-latest"
 UNIQUE_IDENTIFIER=$(whoami)
-POSTGRES_SKU="D2s_v3"
-POSTGRES_TIER="GeneralPurpose"
+POSTGRES_SKU="B1ms"
+POSTGRES_TIER="Burstable"
 CREATE_CONTAINER_REGISTRY=false
 
 # Process the input options
@@ -360,12 +360,12 @@ CONTAINERAPPS_ENVIRONMENT="super-heroes-env"
 
 # Postgres
 POSTGRES_DB_ADMIN="superheroesadmin"
-POSTGRES_DB_PWD="super-heroes-p@ssw0rd-12046"
-POSTGRES_DB_VERSION=13
+POSTGRES_DB_PWD="p@ssw0rd-12046"
+POSTGRES_DB_VERSION=14
 
 # MongoDB
 MONGO_DB="fights-db-$UNIQUE_IDENTIFIER"
-MONGO_DB_VERSION="4.0"
+MONGO_DB_VERSION="4.2"
 
 # Kafka
 KAFKA_NAMESPACE="fights-kafka-$UNIQUE_IDENTIFIER"

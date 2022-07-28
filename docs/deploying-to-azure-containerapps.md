@@ -54,8 +54,9 @@ You only have to setup this once.
 Install the Azure Container Apps and Database extensions for the Azure CLI:
 
 ```shell
-az extension add --name containerapp
-az extension add --name rdbms-connect
+az extension add --name containerapp --upgrade
+az extension add --name rdbms-connect --upgrade
+az extension add --name log-analytics --upgrade
 ```
 
 Register the Microsoft.App namespace
@@ -87,14 +88,14 @@ CONTAINERAPPS_ENVIRONMENT="super-heroes-env"
 
 # Postgres
 POSTGRES_DB_ADMIN="superheroesadmin"
-POSTGRES_DB_PWD="super-heroes-p#ssw0rd-12046"
-POSTGRES_DB_VERSION="13"
-POSTGRES_SKU="D2s_v3"
-POSTGRES_TIER="GeneralPurpose"
+POSTGRES_DB_PWD="p#ssw0rd-12046"
+POSTGRES_DB_VERSION="14"
+POSTGRES_SKU="B1ms"
+POSTGRES_TIER="Burstable"
 
 # MongoDB
 MONGO_DB="fights-db-$UNIQUE_IDENTIFIER"
-MONGO_DB_VERSION="4.0"
+MONGO_DB_VERSION="4.2"
 
 # Kafka
 KAFKA_NAMESPACE="fights-kafka-$UNIQUE_IDENTIFIER"
@@ -207,7 +208,8 @@ az postgres flexible-server create \
   --admin-password "$POSTGRES_DB_PWD" \
   --public all \
   --sku-name "Standard_$POSTGRES_SKU" \
-  --storage-size 4096 \
+  --tier "$POSTGRES_TIER" \
+  --storage-size 2048 \
   --version "$POSTGRES_DB_VERSION"
 ```
 
@@ -221,7 +223,8 @@ az postgres flexible-server create \
   --admin-password "$POSTGRES_DB_PWD" \
   --public all \
   --sku-name "Standard_$POSTGRES_SKU" \
-  --storage-size 4096 \
+  --tier "$POSTGRES_TIER" \
+  --storage-size 2048 \
   --version "$POSTGRES_DB_VERSION"
 ```
 
@@ -335,7 +338,7 @@ To configure the Fight microservice we will need to set the MongoDB connection s
 To get this connection string use the following command:
 
 ```shell
-MONGO_COLLECTION_CONNECT_STRING=$(az cosmosdb keys list \
+MONGO_CONNECTION_STRING=$(az cosmosdb keys list \
   --resource-group "$RESOURCE_GROUP" \
   --name "$MONGO_DB" \
   --type connection-strings \
@@ -480,7 +483,7 @@ To access the logs of the Heroes microservice, you can write the following query
 ````shell
 az monitor log-analytics query \
   --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
-  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$HEROES_APP' | project ContainerAppName_s, Log_s, TimeGenerated " \
+  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$HEROES_APP' | project ContainerAppName_s, Log_s, TimeGenerated" \
   --output table
 ````
 
@@ -528,7 +531,7 @@ To access the logs of the Villain microservice, you can write the following quer
 ````shell
 az monitor log-analytics query \
   --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
-  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$VILLAINS_APP' | project ContainerAppName_s, Log_s, TimeGenerated " \
+  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$VILLAINS_APP' | project ContainerAppName_s, Log_s, TimeGenerated" \
   --output table
 ````
 
@@ -604,7 +607,7 @@ az containerapp create \
              KAFKA_SASL_JAAS_CONFIG="$KAFKA_JAAS_CONFIG" \
              MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL="${APICURIO_URL}/apis/registry/v2" \
              QUARKUS_LIQUIBASE_MONGODB_MIGRATE_AT_START=false \
-             QUARKUS_MONGODB_CONNECTION_STRING="$MONGO_COLLECTION_CONNECT_STRING" \
+             QUARKUS_MONGODB_CONNECTION_STRING="$MONGO_CONNECTION_STRING" \
              QUARKUS_REST_CLIENT_HERO_CLIENT_URL="$HEROES_URL" \
              FIGHT_VILLAIN_CLIENT_BASE_URL="$VILLAINS_URL"
 ```
