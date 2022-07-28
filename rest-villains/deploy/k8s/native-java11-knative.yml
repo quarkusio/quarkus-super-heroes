@@ -33,7 +33,7 @@ metadata:
     app.openshift.io/connects-to: "villains-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-07-20 - 18:01:15 +0000
+    app.quarkus.io/build-timestamp: 2022-07-28 - 17:26:08 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -43,32 +43,31 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: villains-service
     system: quarkus-super-heroes
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: native-java11-latest
   name: rest-villains
 spec:
   template:
     metadata:
       annotations:
-        app.openshift.io/connects-to: "villains-db,otel-collector"
-        app.openshift.io/vcs-ref: main
-        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-07-20 - 18:01:15 +0000
+        app.quarkus.io/build-timestamp: 2022-07-28 - 17:26:08 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
         prometheus.io/scheme: http
+        app.openshift.io/connects-to: "villains-db,otel-collector"
+        app.openshift.io/vcs-ref: main
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
       labels:
         app: rest-villains
         app.openshift.io/runtime: quarkus
         application: villains-service
         system: quarkus-super-heroes
-        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/name: rest-villains
+        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/version: native-java11-latest
     spec:
-      containerConcurrency: 0
       containers:
         - envFrom:
             - secretRef:
@@ -76,6 +75,7 @@ spec:
             - configMapRef:
                 name: rest-villains-config
           image: quay.io/quarkus-super-heroes/rest-villains:native-java11-latest
+          imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -178,6 +178,7 @@ spec:
             - secretRef:
                 name: villains-db-config
           image: bitnami/postgresql:14
+          imagePullPolicy: IfNotPresent
           name: villains-db
           ports:
             - containerPort: 5432

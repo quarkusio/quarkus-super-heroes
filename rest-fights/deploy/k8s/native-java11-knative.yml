@@ -91,7 +91,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-07-20 - 18:02:00 +0000
+    app.quarkus.io/build-timestamp: 2022-07-28 - 17:26:41 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -101,9 +101,9 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: fights-service
     system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/name: rest-fights
   name: rest-fights
 spec:
   template:
@@ -112,7 +112,7 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-07-20 - 18:02:00 +0000
+        app.quarkus.io/build-timestamp: 2022-07-28 - 17:26:41 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -122,11 +122,10 @@ spec:
         app.openshift.io/runtime: quarkus
         application: fights-service
         system: quarkus-super-heroes
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: native-java11-latest
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/name: rest-fights
     spec:
-      containerConcurrency: 0
       containers:
         - envFrom:
             - secretRef:
@@ -134,6 +133,7 @@ spec:
             - configMapRef:
                 name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:native-java11-latest
+          imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -237,6 +237,7 @@ spec:
             - name: REGISTRY_AUTH_ANONYMOUS_READ_ACCESS_ENABLED
               value: "true"
           image: quay.io/apicurio/apicurio-registry-mem:2.2.3.Final
+          imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -295,6 +296,7 @@ spec:
             - secretRef:
                 name: fights-db-config
           image: bitnami/mongodb:5.0
+          imagePullPolicy: IfNotPresent
           name: fights-db
           ports:
             - containerPort: 27017
@@ -339,6 +341,7 @@ spec:
             - name: KAFKA_ADVERTISED_LISTENERS
               value: PLAINTEXT://fights-kafka:9092
           image: quay.io/strimzi/kafka:0.28.0-kafka-3.1.0
+          imagePullPolicy: IfNotPresent
           name: fights-kafka
           ports:
             - containerPort: 9092
