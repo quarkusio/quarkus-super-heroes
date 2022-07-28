@@ -91,7 +91,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-07-28 - 18:28:11 +0000
+    app.quarkus.io/build-timestamp: 2022-07-28 - 19:37:50 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -305,7 +305,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-07-28 - 18:28:11 +0000
+    app.quarkus.io/build-timestamp: 2022-07-28 - 19:37:50 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -314,24 +314,24 @@ metadata:
     app: rest-fights
     application: fights-service
     system: quarkus-super-heroes
+    app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: java11-latest
-    app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/part-of: fights-service
       app.kubernetes.io/name: rest-fights
       app.kubernetes.io/version: java11-latest
-      app.kubernetes.io/part-of: fights-service
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-07-28 - 18:28:11 +0000
+        app.quarkus.io/build-timestamp: 2022-07-28 - 19:37:50 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -340,9 +340,9 @@ spec:
         app: rest-fights
         application: fights-service
         system: quarkus-super-heroes
+        app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: java11-latest
-        app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - env:
@@ -351,10 +351,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:java11-latest
           imagePullPolicy: Always
           livenessProbe:
