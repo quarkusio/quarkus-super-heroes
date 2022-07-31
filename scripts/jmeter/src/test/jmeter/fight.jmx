@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.4.1">
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.5">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -16,10 +16,10 @@
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">10</stringProp>
+          <stringProp name="LoopController.loops">${__P(LOOPS,10)}</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">2</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(THREADS,2)}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${__P(RAMP,1)}</stringProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
@@ -32,7 +32,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${FIGHT_URL}</stringProp>
+            <stringProp name="HTTPSampler.domain">${FIGHT_HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${FIGHT_PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${FIGHT_PROTOCOL}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -93,7 +93,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${FIGHT_URL}</stringProp>
+            <stringProp name="HTTPSampler.domain">${FIGHT_HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${FIGHT_PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${FIGHT_PROTOCOL}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -154,7 +154,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${FIGHT_URL}</stringProp>
+            <stringProp name="HTTPSampler.domain">${FIGHT_HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${FIGHT_PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${FIGHT_PROTOCOL}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -215,7 +215,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${FIGHT_URL}</stringProp>
+            <stringProp name="HTTPSampler.domain">${FIGHT_HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${FIGHT_PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${FIGHT_PROTOCOL}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -276,7 +276,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${FIGHT_URL}</stringProp>
+            <stringProp name="HTTPSampler.domain">${FIGHT_HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${FIGHT_PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${FIGHT_PROTOCOL}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -347,7 +347,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${FIGHT_URL}</stringProp>
+            <stringProp name="HTTPSampler.domain">${FIGHT_HOST}</stringProp>
             <stringProp name="HTTPSampler.port">${FIGHT_PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">${FIGHT_PROTOCOL}</stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -474,19 +474,19 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="FIGHT_PROTOCOL" elementType="Argument">
             <stringProp name="Argument.name">FIGHT_PROTOCOL</stringProp>
-            <stringProp name="Argument.value">http</stringProp>
+            <stringProp name="Argument.value">${__P(FIGHT_PROTOCOL,http)}</stringProp>
             <stringProp name="Argument.desc">Can be http or https</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="FIGHT_URL" elementType="Argument">
-            <stringProp name="Argument.name">FIGHT_URL</stringProp>
-            <stringProp name="Argument.value">localhost</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
+          <elementProp name="FIGHT_HOST" elementType="Argument">
+            <stringProp name="Argument.name">FIGHT_HOST</stringProp>
+            <stringProp name="Argument.value">${__P(FIGHT_HOST,localhost)}</stringProp>
             <stringProp name="Argument.desc">Base URL of the Fight endpoint</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="FIGHT_PORT" elementType="Argument">
             <stringProp name="Argument.name">FIGHT_PORT</stringProp>
-            <stringProp name="Argument.value">8082</stringProp>
+            <stringProp name="Argument.value">${__P(FIGHT_PORT,8082)}</stringProp>
             <stringProp name="Argument.desc">Port number</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
