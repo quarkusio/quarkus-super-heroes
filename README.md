@@ -10,6 +10,7 @@
     - [Routing](#routing)
     - [Versions](#versions)
     - [Monitoring](#monitoring)
+    - [Jaeger](#jaeger)
 - [Deploying to Azure Container Apps](docs/deploying-to-azure-containerapps.md)
 
 ## Introduction
@@ -116,3 +117,27 @@ The OpenShift descriptor will automatically create `Route`s for Prometheus and J
    > For production-ready Jaeger instances, please see the [Jaeger Operator documentation](https://operatorhub.io/operator/jaeger) for how to properly deploy and configure production-ready instances.
    >
    > For production-ready OpenTelemetry Collector instances, please see the [OpenTelemetry Operator documentation](https://operatorhub.io/operator/opentelemetry-operator) for how to properly deploy and configure production-ready instances.
+
+### Jaeger
+
+By now you've performed a few battles, so let's analyze the telemetry data.
+Open the Jaeger UI based on how you are running the system, either through Docker Compose or by deploying the monitoring stack to kubernetes.
+
+![Jaeger Filters](images/jaeger-1-inputs.png)
+
+Now, let's analyze the traces for when requesting new fighters.
+When clicking the **New Fighters** button in the Superheroes UI, the browser makes an HTTP request to the `/api/fights/randomfighters` endpoint within the `rest-fights` application.
+In the Jaeger UI, select `rest-fights` for the Service and `/api/fights/randomfighters` for the Operation, then click **Find Traces**.
+You should see all the traces corresponding to the request of getting new fighters.
+
+![Jaeger Filters](images/jaeger-2-list-traces.png)
+
+Then, select one trace.
+A trace consists of a series of spans.
+Each span is a time interval representing a unit of work.
+Spans can have a parent/child relationship and form a hierarchy.
+You can see that each trace contains 14 total spans:
+six spans in the `rest-fights` application, four spans in the `rest-heroes` application, and four spans in the `rest-villains` application.
+Each trace also provides the total round-trip time of the request into the `/api/fights/randomfighters` endpoint within the `rest-fights` application and the total time spent within each unit of work.
+
+![Jaeger Filters](images/jaeger-3-trace.png)
