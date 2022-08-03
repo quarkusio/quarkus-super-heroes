@@ -10,6 +10,7 @@
     - [Routing](#routing)
     - [Versions](#versions)
     - [Monitoring](#monitoring)
+    - [Jaeger](#jaeger)
 - [Deploying to Azure Container Apps](docs/deploying-to-azure-containerapps.md)
 
 ## Introduction
@@ -119,9 +120,8 @@ The OpenShift descriptor will automatically create `Route`s for Prometheus and J
 
 ### Jaeger
 
-Telemetry data is exported to a Jaeger instance, which can be analyzed and visualized at `http://localhost:16686`. 
 By now you've performed a few battles, so let's analyze the telemetry data.
-Open the Jaeger UI by going to `http://localhost:16686`.
+Open the Jaeger UI based on how you are running the system, either through Docker Compose or by deploying the monitoring stack to kubernetes.
 
 ![Jaeger Filters](images/jaeger-1-inputs.png)
 
