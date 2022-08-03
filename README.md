@@ -136,8 +136,8 @@ Then, select one trace.
 A trace consists of a series of spans.
 Each span is a time interval representing a unit of work.
 Spans can have a parent/child relationship and form a hierarchy.
-You can see that each trace contains 12 total spans:
-six spans in the `rest-fights` application, four spans in the `rest-heroes` application, and two spans in the `rest-villains` application.
+You can see that each trace contains 14 total spans:
+six spans in the `rest-fights` application, four spans in the `rest-heroes` application, and four spans in the `rest-villains` application.
 Each trace also provides the total round-trip time of the request into the `/api/fights/randomfighters` endpoint within the `rest-fights` application and the total time spent within each unit of work.
 
 ![Jaeger Filters](images/jaeger-3-trace.png)
