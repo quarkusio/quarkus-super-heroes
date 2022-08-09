@@ -91,7 +91,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-08-06 - 19:51:07 +0000
+    app.quarkus.io/build-timestamp: 2022-08-09 - 13:38:40 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -102,8 +102,8 @@ metadata:
     application: fights-service
     system: quarkus-super-heroes
     app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/version: native-java11-latest
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: native-java11-latest
   name: rest-fights
 spec:
   template:
@@ -112,7 +112,7 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-08-06 - 19:51:07 +0000
+        app.quarkus.io/build-timestamp: 2022-08-09 - 13:38:40 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -123,15 +123,15 @@ spec:
         application: fights-service
         system: quarkus-super-heroes
         app.kubernetes.io/name: rest-fights
-        app.kubernetes.io/version: native-java11-latest
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/version: native-java11-latest
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:native-java11-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
