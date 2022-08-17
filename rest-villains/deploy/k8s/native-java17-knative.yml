@@ -33,7 +33,7 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: rhbq-2.7
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-07-20 - 18:05:55 +0000
+    app.quarkus.io/build-timestamp: 2022-08-17 - 15:40:06 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -54,7 +54,7 @@ spec:
         app.openshift.io/connects-to: villains-db
         app.openshift.io/vcs-ref: rhbq-2.7
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-07-20 - 18:05:55 +0000
+        app.quarkus.io/build-timestamp: 2022-08-17 - 15:40:06 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -71,10 +71,10 @@ spec:
       containerConcurrency: 0
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:native-java17-latest-rhbq-2.7
           livenessProbe:
             failureThreshold: 3
@@ -149,7 +149,7 @@ data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/rhbq-2.7/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: apps/v1
 kind: Deployment
