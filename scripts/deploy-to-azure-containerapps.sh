@@ -18,9 +18,9 @@ help() {
   echo "  -g <resource_group_name>     Name of the Azure resource group to use to deploy resources. Default is 'super-heroes'."
   echo "  -h                           Prints this help message"
   echo "  -l <location>                The location (region) to deploy resources into. Default is 'eastus2'".
-  echo "  -p <postgres_server_tier>    Compute tier of the PostgreSQL servers. Accepted values: Burstable, GeneralPurpose, MemoryOptimized.  Default: 'GeneralPurpose'."
+  echo "  -p <postgres_server_tier>    Compute tier of the PostgreSQL servers. Accepted values: Burstable, GeneralPurpose, MemoryOptimized.  Default: 'Burstable'."
   echo "  -r                           If present, create an Azure Container Registry instance (see https://azure.microsoft.com/en-us/services/container-registry). This is optional. No container images are pushed here by this script."
-  echo "  -s <postgres_server_sku>     The SKU to use for the PostgreSQL servers (see https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server). Default is 'D2s_v3'."
+  echo "  -s <postgres_server_sku>     The SKU to use for the PostgreSQL servers (see https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server). Default is 'B1ms'."
   echo "  -t <tag>                     The tag for the images to deploy. Default is 'native-java17-latest'."
   echo "  -u <unique_identifier>       A unique identifier to append to some resources. Some Azure services require unique names within a region (across users). Default is to use the output of the 'whoami' command."
 }
@@ -355,7 +355,6 @@ TAG_SYSTEM=quarkus-super-heroes
 CONTAINER_REGISTRY_NAME="superheroes${UNIQUE_IDENTIFIER}"
 
 # Container Apps
-LOG_ANALYTICS_WORKSPACE="super-heroes-logs"
 CONTAINERAPPS_ENVIRONMENT="super-heroes-env"
 
 # Postgres
@@ -390,7 +389,7 @@ VILLAINS_DB="villains-db-$UNIQUE_IDENTIFIER"
 VILLAINS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${VILLAINS_APP}:${IMAGES_TAG}"
 VILLAINS_DB_SCHEMA="villains"
 VILLAINS_DB_SQL="$GITHUB_RAW_BASE_URL/$VILLAINS_APP/deploy/db-init/initialize-tables.sql"
-VILLAINS_DB_CONNECT_STRING="jdbc:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
+VILLAINS_DB_CONNECT_STRING="jdbc:otel:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
 
 # Fights
 FIGHTS_APP="rest-fights"
@@ -423,6 +422,7 @@ echo "[$(date +"%m/%d/%Y %T")]: Installing required Azure CLI extensions"
 echo "-----------------------------------------"
 az extension add --name containerapp
 az extension add --name rdbms-connect
+az extension add --name log-analytics
 echo
 
 # Register the Microsoft.App namespace
@@ -430,6 +430,13 @@ echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: Registering the Microsoft.App namespace"
 echo "-----------------------------------------"
 az provider register --namespace Microsoft.App --wait
+echo
+
+# Register the Microsoft.OperationalInsights provider
+echo "-----------------------------------------"
+echo "[$(date +"%m/%d/%Y %T")]: Registering the Microsoft.OperationalInsights provider"
+echo "-----------------------------------------"
+az provider register --namespace Microsoft.OperationalInsights --wait
 echo
 
 # Create resource group
@@ -482,34 +489,6 @@ JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required us
 KAFKA_JAAS_CONFIG="${JAAS_CONFIG}${KAFKA_CONNECTION_STRING}\";"
 echo
 
-# Create a Log Analytics workspace
-echo "-----------------------------------------"
-echo "[$(date +"%m/%d/%Y %T")]: Creating the $LOG_ANALYTICS_WORKSPACE Log Analytics workspace"
-echo "-----------------------------------------"
-az monitor log-analytics workspace create \
-  --resource-group "$RESOURCE_GROUP" \
-  --location "$LOCATION" \
-  --tags system="$TAG_SYSTEM" \
-  --workspace-name "$LOG_ANALYTICS_WORKSPACE"
-echo
-
-# Retrieve the Log Analytics Client ID & Secret
-echo "-----------------------------------------"
-echo "[$(date +"%m/%d/%Y %T")]: Retrieving the Log Analytics Client ID and secret"
-echo "-----------------------------------------"
-LOG_ANALYTICS_WORKSPACE_CLIENT_ID=$(az monitor log-analytics workspace show  \
-  --resource-group "$RESOURCE_GROUP" \
-  --workspace-name "$LOG_ANALYTICS_WORKSPACE" \
-  --query customerId  \
-  --output tsv | tr -d '[:space:]')
-
-LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET=$(az monitor log-analytics workspace get-shared-keys \
-  --resource-group "$RESOURCE_GROUP" \
-  --workspace-name "$LOG_ANALYTICS_WORKSPACE" \
-  --query primarySharedKey \
-  --output tsv | tr -d '[:space:]')
-echo
-
 # Create the Container Apps environment
 echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: Creating the $CONTAINERAPPS_ENVIRONMENT Container Apps environment"
@@ -518,9 +497,7 @@ az containerapp env create \
   --resource-group "$RESOURCE_GROUP" \
   --location "$LOCATION" \
   --tags system="$TAG_SYSTEM" \
-  --name "$CONTAINERAPPS_ENVIRONMENT" \
-  --logs-workspace-id "$LOG_ANALYTICS_WORKSPACE_CLIENT_ID" \
-  --logs-workspace-key "$LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET"
+  --name "$CONTAINERAPPS_ENVIRONMENT"
 echo
 
 # Create Apicurio

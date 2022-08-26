@@ -65,6 +65,12 @@ Register the Microsoft.App namespace
 az provider register --namespace Microsoft.App --wait
 ```
 
+Register the Microsoft.OperationalInsights provider
+
+```shell
+az provider register --namespace Microsoft.OperationalInsights --wait
+```
+
 ## Setting Up the Environment Variables
 
 The Super Heroes environment and application will be created and deployed using a set of Azure CLI commands.
@@ -83,7 +89,6 @@ UNIQUE_IDENTIFIER=$(whoami)
 TAG_SYSTEM=quarkus-super-heroes
 
 # Container Apps
-LOG_ANALYTICS_WORKSPACE="super-heroes-logs"
 CONTAINERAPPS_ENVIRONMENT="super-heroes-env"
 
 # Postgres
@@ -118,7 +123,7 @@ VILLAINS_APP="rest-villains"
 VILLAINS_DB="villains-db-$UNIQUE_IDENTIFIER"
 VILLAINS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${VILLAINS_APP}:${IMAGES_TAG}"
 VILLAINS_DB_SCHEMA="villains"
-VILLAINS_DB_CONNECT_STRING="jdbc:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
+VILLAINS_DB_CONNECT_STRING="jdbc:otel:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
 
 # Fights
 FIGHTS_APP="rest-fights"
@@ -148,36 +153,6 @@ az group create \
 
 ## Create a Container Apps environment
 
-Create a Log Analytics workspace:
-
-```shell
-az monitor log-analytics workspace create \
-  --resource-group "$RESOURCE_GROUP" \
-  --location "$LOCATION" \
-  --tags system="$TAG_SYSTEM" \
-  --workspace-name "$LOG_ANALYTICS_WORKSPACE"
-```
-
-Retrieve the Log Analytics Client ID and client secret:
-
-```shell
-LOG_ANALYTICS_WORKSPACE_CLIENT_ID=`az monitor log-analytics workspace show  \
-  --resource-group "$RESOURCE_GROUP" \
-  --workspace-name "$LOG_ANALYTICS_WORKSPACE" \
-  --query customerId  \
-  --output tsv | tr -d '[:space:]'`
-
-echo $LOG_ANALYTICS_WORKSPACE_CLIENT_ID
-
-LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET=`az monitor log-analytics workspace get-shared-keys \
-  --resource-group "$RESOURCE_GROUP" \
-  --workspace-name "$LOG_ANALYTICS_WORKSPACE" \
-  --query primarySharedKey \
-  --output tsv | tr -d '[:space:]'`
-
-echo $LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET
-```
-
 A container apps environment acts as a boundary for our containers.
 Containers deployed on the same environment use the same virtual network and the same Log Analytics workspace.
 Create the container apps environment with the following command:
@@ -187,9 +162,7 @@ az containerapp env create \
   --resource-group "$RESOURCE_GROUP" \
   --location "$LOCATION" \
   --tags system="$TAG_SYSTEM" \
-  --name "$CONTAINERAPPS_ENVIRONMENT" \
-  --logs-workspace-id "$LOG_ANALYTICS_WORKSPACE_CLIENT_ID" \
-  --logs-workspace-key "$LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET"
+  --name "$CONTAINERAPPS_ENVIRONMENT"
 ````
 
 ## Create the managed Postgres Databases
@@ -480,12 +453,12 @@ curl "$HEROES_URL/api/heroes" | jq
 
 To access the logs of the Heroes microservice, you can write the following query:
 
-````shell
-az monitor log-analytics query \
-  --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
-  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$HEROES_APP' | project ContainerAppName_s, Log_s, TimeGenerated" \
+```shell
+az containerapp logs show \
+  --name "$HEROES_APP" \
+  --resource-group "$RESOURCE_GROUP" \
   --output table
-````
+```
 
 ### Villains Microservice
 
@@ -529,9 +502,9 @@ curl "$VILLAINS_URL/api/villains" | jq
 To access the logs of the Villain microservice, you can write the following query:
 
 ````shell
-az monitor log-analytics query \
-  --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
-  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$VILLAINS_APP' | project ContainerAppName_s, Log_s, TimeGenerated" \
+az containerapp logs show \
+  --name "$VILLAINS_APP" \
+  --resource-group "$RESOURCE_GROUP" \
   --output table
 ````
 
@@ -578,12 +551,12 @@ open "$STATISTICS_URL"
 
 To access the logs of the Statistics microservice, you can write the following query:
 
-````shell
-az monitor log-analytics query \
-  --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
-  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$STATISTICS_APP' | project ContainerAppName_s, Log_s, TimeGenerated " \
+```shell
+az containerapp logs show \
+  --name "$STATISTICS_APP" \
+  --resource-group "$RESOURCE_GROUP" \
   --output table
-````
+```
 
 ### Fights Microservice
 
@@ -638,12 +611,12 @@ curl "$FIGHTS_URL/api/fights/randomfighters" | jq
 
 To access the logs of the Fight microservice, you can write the following query:
 
-````shell
-az monitor log-analytics query \
-  --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
-  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$FIGHTS_APP' | project ContainerAppName_s, Log_s, TimeGenerated " \
+```shell
+az containerapp logs show \
+  --name "$FIGHTS_APP" \
+  --resource-group "$RESOURCE_GROUP" \
   --output table
-````
+```
 
 ### Super Hero UI
 
