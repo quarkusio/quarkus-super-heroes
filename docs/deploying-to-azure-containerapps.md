@@ -54,9 +54,9 @@ You only have to setup this once.
 Install the Azure Container Apps and Database extensions for the Azure CLI:
 
 ```shell
-az extension add --name containerapp --upgrade
-az extension add --name rdbms-connect --upgrade
-az extension add --name log-analytics --upgrade
+az extension add --name containerapp
+az extension add --name rdbms-connect
+az extension add --name log-analytics
 ```
 
 Register the Microsoft.App namespace
@@ -89,6 +89,7 @@ UNIQUE_IDENTIFIER=$(whoami)
 TAG_SYSTEM=quarkus-super-heroes
 
 # Container Apps
+LOG_ANALYTICS_WORKSPACE="super-heroes-logs"
 CONTAINERAPPS_ENVIRONMENT="super-heroes-env"
 
 # Postgres
@@ -153,6 +154,36 @@ az group create \
 
 ## Create a Container Apps environment
 
+Create a Log Analytics workspace:
+
+```shell
+az monitor log-analytics workspace create \
+  --resource-group "$RESOURCE_GROUP" \
+  --location "$LOCATION" \
+  --tags system="$TAG_SYSTEM" \
+  --workspace-name "$LOG_ANALYTICS_WORKSPACE"
+```
+
+Retrieve the Log Analytics Client ID and client secret:
+
+```shell
+LOG_ANALYTICS_WORKSPACE_CLIENT_ID=`az monitor log-analytics workspace show  \
+  --resource-group "$RESOURCE_GROUP" \
+  --workspace-name "$LOG_ANALYTICS_WORKSPACE" \
+  --query customerId  \
+  --output tsv | tr -d '[:space:]'`
+
+echo $LOG_ANALYTICS_WORKSPACE_CLIENT_ID
+
+LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET=`az monitor log-analytics workspace get-shared-keys \
+  --resource-group "$RESOURCE_GROUP" \
+  --workspace-name "$LOG_ANALYTICS_WORKSPACE" \
+  --query primarySharedKey \
+  --output tsv | tr -d '[:space:]'`
+
+echo $LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET
+```
+
 A container apps environment acts as a boundary for our containers.
 Containers deployed on the same environment use the same virtual network and the same Log Analytics workspace.
 Create the container apps environment with the following command:
@@ -162,7 +193,9 @@ az containerapp env create \
   --resource-group "$RESOURCE_GROUP" \
   --location "$LOCATION" \
   --tags system="$TAG_SYSTEM" \
-  --name "$CONTAINERAPPS_ENVIRONMENT"
+  --name "$CONTAINERAPPS_ENVIRONMENT" \
+  --logs-workspace-id "$LOG_ANALYTICS_WORKSPACE_CLIENT_ID" \
+  --logs-workspace-key "$LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET"
 ````
 
 ## Create the managed Postgres Databases

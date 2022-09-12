@@ -43,7 +43,7 @@ create_container_registry() {
     --location "$LOCATION" \
     --name "$CONTAINER_REGISTRY_NAME" \
     --sku Standard \
-    --tags system=quarkus-super-heroes
+    --tags system="$TAG_SYSTEM"
 
   # Allow anonymous pull access
   echo "Allowing anonymous pull access to the $CONTAINER_REGISTRY_NAME container registry"
@@ -355,6 +355,7 @@ TAG_SYSTEM=quarkus-super-heroes
 CONTAINER_REGISTRY_NAME="superheroes${UNIQUE_IDENTIFIER}"
 
 # Container Apps
+LOG_ANALYTICS_WORKSPACE="super-heroes-logs"
 CONTAINERAPPS_ENVIRONMENT="super-heroes-env"
 
 # Postgres
@@ -489,6 +490,34 @@ JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required us
 KAFKA_JAAS_CONFIG="${JAAS_CONFIG}${KAFKA_CONNECTION_STRING}\";"
 echo
 
+# Create a Log Analytics workspace
+echo "-----------------------------------------"
+echo "[$(date +"%m/%d/%Y %T")]: Creating the $LOG_ANALYTICS_WORKSPACE Log Analytics workspace"
+echo "-----------------------------------------"
+az monitor log-analytics workspace create \
+  --resource-group "$RESOURCE_GROUP" \
+  --location "$LOCATION" \
+  --tags system="$TAG_SYSTEM" \
+  --workspace-name "$LOG_ANALYTICS_WORKSPACE"
+echo
+
+# Retrieve the Log Analytics Client ID & Secret
+echo "-----------------------------------------"
+echo "[$(date +"%m/%d/%Y %T")]: Retrieving the Log Analytics Client ID and secret"
+echo "-----------------------------------------"
+LOG_ANALYTICS_WORKSPACE_CLIENT_ID=$(az monitor log-analytics workspace show  \
+  --resource-group "$RESOURCE_GROUP" \
+  --workspace-name "$LOG_ANALYTICS_WORKSPACE" \
+  --query customerId  \
+  --output tsv | tr -d '[:space:]')
+
+LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET=$(az monitor log-analytics workspace get-shared-keys \
+  --resource-group "$RESOURCE_GROUP" \
+  --workspace-name "$LOG_ANALYTICS_WORKSPACE" \
+  --query primarySharedKey \
+  --output tsv | tr -d '[:space:]')
+echo
+
 # Create the Container Apps environment
 echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: Creating the $CONTAINERAPPS_ENVIRONMENT Container Apps environment"
@@ -497,7 +526,9 @@ az containerapp env create \
   --resource-group "$RESOURCE_GROUP" \
   --location "$LOCATION" \
   --tags system="$TAG_SYSTEM" \
-  --name "$CONTAINERAPPS_ENVIRONMENT"
+  --name "$CONTAINERAPPS_ENVIRONMENT" \
+  --logs-workspace-id "$LOG_ANALYTICS_WORKSPACE_CLIENT_ID" \
+  --logs-workspace-key "$LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET"
 echo
 
 # Create Apicurio
