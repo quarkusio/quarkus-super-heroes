@@ -10,10 +10,10 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.ext.DefaultClientHeadersFactoryImpl;
+import org.jboss.resteasy.reactive.client.impl.StorkClientRequestFilter;
 import org.jboss.resteasy.reactive.client.impl.UniInvoker;
 
 import io.quarkus.logging.Log;
-import io.quarkus.opentelemetry.runtime.tracing.restclient.OpenTelemetryClientFilter;
 import io.quarkus.rest.client.reactive.runtime.MicroProfileRestClientRequestFilter;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 
@@ -32,10 +32,10 @@ import io.smallrye.mutiny.Uni;
 public class VillainClient {
   private final WebTarget villainClient;
 
-  public VillainClient(FightConfig fightConfig, OpenTelemetryClientFilter otelClientFilter) {
+  public VillainClient(FightConfig fightConfig, StorkClientRequestFilter storkFilter) {
     this.villainClient = ClientBuilder.newClient()
       .register(new MicroProfileRestClientRequestFilter(new DefaultClientHeadersFactoryImpl()))
-      .register(otelClientFilter)
+      .register(storkFilter)
       .target(fightConfig.villain().clientBaseUrl())
       .path("api/villains/");
   }
