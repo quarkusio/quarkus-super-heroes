@@ -2,13 +2,13 @@
 FROM registry.access.redhat.com/ubi8/nodejs-16:1 as builder
 
 # Add dependencies
-COPY --chown=1001:1001 package*.json $HOME
+COPY --chown=1001:1001 package*.json $HOME/
 
 # Install dependencies
 RUN npm install
 
 # Add application sources
-COPY --chown=1001:1001 . $HOME
+COPY --chown=1001:1001 . $HOME/
 
 # Run build
 RUN npm run build && \
