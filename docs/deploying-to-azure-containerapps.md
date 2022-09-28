@@ -16,6 +16,7 @@
         - [Statistics Microservice](#statistics-microservice)
         - [Fights microservice](#fights-microservice)
         - [Super Hero UI](#super-hero-ui)
+- [Load Testing](#Load-testing)
 - [Miscellaneous](#miscellaneous)
 - [References](#references)
 
@@ -54,15 +55,21 @@ You only have to setup this once.
 Install the Azure Container Apps and Database extensions for the Azure CLI:
 
 ```shell
-az extension add --name containerapp --upgrade
-az extension add --name rdbms-connect --upgrade
-az extension add --name log-analytics --upgrade
+az extension add --name containerapp
+az extension add --name rdbms-connect
+az extension add --name log-analytics
 ```
 
 Register the Microsoft.App namespace
 
 ```shell
 az provider register --namespace Microsoft.App --wait
+```
+
+Register the Microsoft.OperationalInsights provider
+
+```shell
+az provider register --namespace Microsoft.OperationalInsights --wait
 ```
 
 ## Setting Up the Environment Variables
@@ -118,7 +125,7 @@ VILLAINS_APP="rest-villains"
 VILLAINS_DB="villains-db-$UNIQUE_IDENTIFIER"
 VILLAINS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${VILLAINS_APP}:${IMAGES_TAG}"
 VILLAINS_DB_SCHEMA="villains"
-VILLAINS_DB_CONNECT_STRING="jdbc:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
+VILLAINS_DB_CONNECT_STRING="jdbc:otel:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
 
 # Fights
 FIGHTS_APP="rest-fights"
@@ -480,12 +487,12 @@ curl "$HEROES_URL/api/heroes" | jq
 
 To access the logs of the Heroes microservice, you can write the following query:
 
-````shell
-az monitor log-analytics query \
-  --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
-  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$HEROES_APP' | project ContainerAppName_s, Log_s, TimeGenerated" \
+```shell
+az containerapp logs show \
+  --name "$HEROES_APP" \
+  --resource-group "$RESOURCE_GROUP" \
   --output table
-````
+```
 
 ### Villains Microservice
 
@@ -529,9 +536,9 @@ curl "$VILLAINS_URL/api/villains" | jq
 To access the logs of the Villain microservice, you can write the following query:
 
 ````shell
-az monitor log-analytics query \
-  --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
-  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$VILLAINS_APP' | project ContainerAppName_s, Log_s, TimeGenerated" \
+az containerapp logs show \
+  --name "$VILLAINS_APP" \
+  --resource-group "$RESOURCE_GROUP" \
   --output table
 ````
 
@@ -578,12 +585,12 @@ open "$STATISTICS_URL"
 
 To access the logs of the Statistics microservice, you can write the following query:
 
-````shell
-az monitor log-analytics query \
-  --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
-  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$STATISTICS_APP' | project ContainerAppName_s, Log_s, TimeGenerated " \
+```shell
+az containerapp logs show \
+  --name "$STATISTICS_APP" \
+  --resource-group "$RESOURCE_GROUP" \
   --output table
-````
+```
 
 ### Fights Microservice
 
@@ -638,12 +645,12 @@ curl "$FIGHTS_URL/api/fights/randomfighters" | jq
 
 To access the logs of the Fight microservice, you can write the following query:
 
-````shell
-az monitor log-analytics query \
-  --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
-  --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == '$FIGHTS_APP' | project ContainerAppName_s, Log_s, TimeGenerated " \
+```shell
+az containerapp logs show \
+  --name "$FIGHTS_APP" \
+  --resource-group "$RESOURCE_GROUP" \
   --output table
-````
+```
 
 ### Super Hero UI
 
@@ -723,6 +730,75 @@ az staticwebapp secrets list  \
   --name $UI_APP \
   --output table
 ```
+
+# Load Testing
+
+Now time to add some load to the application.
+This way, we will be able to see the auto-scaling in Azure Container Apps.
+
+To add some load to an application, you can do it locally using [JMeter](https://jmeter.apache.org), but you can also do it remotely on Azure using [Azure Load Testing](https://azure.microsoft.com/services/load-testing) and JMeter.
+Azure Load Testing is a fully managed load-testing service built for Azure that makes it easy to generate high-scale load and identify app performance bottlenecks.
+It is available on the [Azure Marketplace](https://azuremarketplace.microsoft.com).
+For that, we need to go the 
+
+To use Azure Load Testing, go to the [Azure Portal](https://portal.azure.com), search for the Marketplace and look for "_Azure Load Testing_"  in the Marketplace.
+Click on "_Create_":
+
+![load-testing-1-marketplace](../images/load-testing-1-marketplace.png)
+
+Create a load testing resource by giving it a unique name (eg. `super-heroes-load-testing` with your id), a location, and a resource group.
+Click on "Create":
+
+![load-testing-2-create](../images/load-testing-2-create.png)
+
+Creating a load testing resource can take a few moment.
+Once created, you should see the Azure Load Testing available in your resource group: 
+
+![load-testing-3-list](../images/load-testing-3-list.png)
+
+Select `super-heroes-load-testing` and click on "_Tests_" and then "Create".
+You can either create a quick load test using a wizard, or create a load test using a JMeter script.
+Choose this second option:
+
+![load-testing-4-upload-jmeter](../images/load-testing-4-upload-jmeter.png)
+
+Before uploading a JMeter script, create a load test by entering a name (eg. "_Make them fight_"), a description and click "_Next: Test plan >_: 
+
+![load-testing-5-create-test-1](../images/load-testing-5-create-test-1.png)
+
+The JMeter file that will upload (located under `scripts/jmeter/src/test/jmeter/fight.jmx`) sets up a load campaign targeting the "Fight" microservice.
+Basically, it will invoke the `FightResource` endpoint so super heroes and super villains will fight.
+Before uploading the `user.properties` file, make sure you change the properties so you target the `FightResource` endpoint URL:
+
+```properties
+# Change these numbers depending on the load you want to add to the application
+LOOPS=20
+THREADS=2
+RAMP=1
+
+# Azure
+FIGHT_PROTOCOL=https
+FIGHT_PORT=443
+# Change the host depending on your settings
+FIGHT_HOST=rest-fights.kindocean-1cba89db.eastus.azurecontainerapps.io
+```
+
+Now, go to the "_Test plan_" menu, and upload the JMeter file `fight.jmx`
+Then, upload the `user.properties` file (select "_User properties_" under "_File Relevance_").
+
+![load-testing-5-create-test-2](../images/load-testing-5-create-test-2.png)
+
+Execute the test and you will get some metrics:
+
+![load-testing-6-stats](../images/load-testing-6-stats.png)
+
+Go back to the resource group of your Azure portal and select the `rest-fights` app.
+Click on "_Metrics_".
+Add the "_Replica Count_" metric to the dashboard.
+You will notice that the number of replicas have increased from 1 replica to 10.
+Azure Container Apps has scaled automatically the application depending on the load.
+
+![load-testing-7-scale](../images/load-testing-7-scale.png)
 
 # Miscellaneous
 

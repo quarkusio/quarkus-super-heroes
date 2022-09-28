@@ -18,7 +18,7 @@ import io.quarkus.rest.client.reactive.runtime.MicroProfileRestClientRequestFilt
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 
 import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.extension.annotations.WithSpan;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.smallrye.faulttolerance.api.CircuitBreakerName;
 import io.smallrye.mutiny.Uni;
 

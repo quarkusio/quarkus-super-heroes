@@ -50,7 +50,7 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-08-31 - 13:29:12 +0000
+    app.quarkus.io/build-timestamp: 2022-09-27 - 14:50:08 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -71,7 +71,7 @@ spec:
         app.openshift.io/connects-to: "heroes-db,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-08-31 - 13:29:12 +0000
+        app.quarkus.io/build-timestamp: 2022-09-27 - 14:50:08 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -92,7 +92,6 @@ spec:
             - secretRef:
                 name: rest-heroes-config-creds
           image: quay.io/quarkus-super-heroes/rest-heroes:native-java11-latest
-          imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -179,7 +178,6 @@ spec:
             - secretRef:
                 name: heroes-db-config
           image: bitnami/postgresql:14
-          imagePullPolicy: IfNotPresent
           name: heroes-db
           ports:
             - containerPort: 5432

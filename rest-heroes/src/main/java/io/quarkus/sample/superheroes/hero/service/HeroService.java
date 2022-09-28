@@ -15,8 +15,8 @@ import io.quarkus.sample.superheroes.hero.mapping.HeroFullUpdateMapper;
 import io.quarkus.sample.superheroes.hero.mapping.HeroPartialUpdateMapper;
 import io.quarkus.sample.superheroes.hero.repository.HeroRepository;
 
-import io.opentelemetry.extension.annotations.SpanAttribute;
-import io.opentelemetry.extension.annotations.WithSpan;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
