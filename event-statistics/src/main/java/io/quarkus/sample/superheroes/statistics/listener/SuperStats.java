@@ -140,8 +140,11 @@ public class SuperStats {
   }
 
   private static Uni<Void> ackMessage(Context ctx) {
-    return Uni.createFrom().completionStage(ctx.<Message<Fight>>get(MESSAGE_KEY).ack())
-      .invoke(() -> ctx.delete(MESSAGE_KEY));
+    return Uni.createFrom().completionStage(() -> {
+        Message<Fight> message = ctx.get(MESSAGE_KEY);
+        ctx.delete(MESSAGE_KEY);
+        return message.ack();
+      });
   }
 
   private static void closeSpanFromContext(Context ctx, String spanName) {
