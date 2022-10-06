@@ -10,7 +10,6 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.ext.DefaultClientHeadersFactoryImpl;
-import org.jboss.resteasy.reactive.client.impl.StorkClientRequestFilter;
 import org.jboss.resteasy.reactive.client.impl.UniInvoker;
 
 import io.quarkus.logging.Log;
@@ -32,10 +31,9 @@ import io.smallrye.mutiny.Uni;
 public class VillainClient {
   private final WebTarget villainClient;
 
-  public VillainClient(FightConfig fightConfig, StorkClientRequestFilter storkFilter) {
+  public VillainClient(FightConfig fightConfig) {
     this.villainClient = ClientBuilder.newClient()
       .register(new MicroProfileRestClientRequestFilter(new DefaultClientHeadersFactoryImpl()))
-      .register(storkFilter)
       .target(fightConfig.villain().clientBaseUrl())
       .path("api/villains/");
   }
