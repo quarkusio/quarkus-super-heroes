@@ -50,7 +50,7 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:35:34 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:49:32 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -82,14 +82,14 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:35:34 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:49:32 +0000
   labels:
     app: rest-heroes
     application: heroes-service
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
   name: rest-heroes
 spec:
@@ -179,7 +179,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: heroes-db-config
-          image: bitnami/postgresql:14.4.0
+          image: bitnami/postgresql:14
           name: heroes-db
           ports:
             - containerPort: 5432
@@ -191,11 +191,25 @@ spec:
           volumeMounts:
             - mountPath: /bitnami/postgresql
               name: heroes-db-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: heroes-db-init-data
+      initContainers:
+        - command:
+            - sh
+            - get-data.sh
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          name: get-data
+          volumeMounts:
             - mountPath: /docker-entrypoint-preinitdb.d
               name: heroes-db-init
+            - mountPath: /docker-entrypoint-initdb.d
+              name: heroes-db-init-data
+          workingDir: /docker-entrypoint-preinitdb.d
       volumes:
         - emptyDir: {}
           name: heroes-db-data
+        - emptyDir: {}
+          name: heroes-db-init-data
         - configMap:
             name: heroes-db-init
           name: heroes-db-init
@@ -207,7 +221,7 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:35:34 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:49:32 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -224,8 +238,8 @@ metadata:
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
   template:
     metadata:
@@ -233,7 +247,7 @@ spec:
         app.openshift.io/connects-to: "heroes-db,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-10-06 - 17:35:34 +0000
+        app.quarkus.io/build-timestamp: 2022-10-07 - 15:49:32 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -243,8 +257,8 @@ spec:
         application: heroes-service
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/version: java17-latest
+        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/name: rest-heroes
     spec:
       containers:
@@ -307,7 +321,7 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:35:34 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:49:32 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service

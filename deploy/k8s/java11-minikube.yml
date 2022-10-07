@@ -33,7 +33,7 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:25:50 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:20 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -110,7 +110,7 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:25:50 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:20 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -136,7 +136,7 @@ spec:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "villains-db,otel-collector"
-        app.quarkus.io/build-timestamp: 2022-10-06 - 17:25:50 +0000
+        app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:20 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -218,7 +218,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: villains-db-config
-          image: bitnami/postgresql:14.4.0
+          image: bitnami/postgresql:14
           name: villains-db
           ports:
             - containerPort: 5432
@@ -230,11 +230,25 @@ spec:
           volumeMounts:
             - mountPath: /bitnami/postgresql
               name: villains-db-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: villains-db-init-data
+      initContainers:
+        - command:
+            - sh
+            - get-data.sh
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          name: get-data
+          volumeMounts:
             - mountPath: /docker-entrypoint-preinitdb.d
               name: villains-db-init
+            - mountPath: /docker-entrypoint-initdb.d
+              name: villains-db-init-data
+          workingDir: /docker-entrypoint-preinitdb.d
       volumes:
         - emptyDir: {}
           name: villains-db-data
+        - emptyDir: {}
+          name: villains-db-init-data
         - configMap:
             name: villains-db-init
           name: villains-db-init
@@ -292,7 +306,7 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     prometheus.io/port: "8083"
     prometheus.io/scheme: http
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:06 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:34 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
   labels:
@@ -369,7 +383,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: heroes-db-config
-          image: bitnami/postgresql:14.4.0
+          image: bitnami/postgresql:14
           name: heroes-db
           ports:
             - containerPort: 5432
@@ -381,11 +395,25 @@ spec:
           volumeMounts:
             - mountPath: /bitnami/postgresql
               name: heroes-db-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: heroes-db-init-data
+      initContainers:
+        - command:
+            - sh
+            - get-data.sh
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          name: get-data
+          volumeMounts:
             - mountPath: /docker-entrypoint-preinitdb.d
               name: heroes-db-init
+            - mountPath: /docker-entrypoint-initdb.d
+              name: heroes-db-init-data
+          workingDir: /docker-entrypoint-preinitdb.d
       volumes:
         - emptyDir: {}
           name: heroes-db-data
+        - emptyDir: {}
+          name: heroes-db-init-data
         - configMap:
             name: heroes-db-init
           name: heroes-db-init
@@ -399,7 +427,7 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     prometheus.io/port: "8083"
     prometheus.io/scheme: http
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:06 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:34 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
   labels:
@@ -425,7 +453,7 @@ spec:
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         prometheus.io/port: "8083"
         prometheus.io/scheme: http
-        app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:06 +0000
+        app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:34 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
       labels:
@@ -572,7 +600,7 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:24 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:52 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -787,7 +815,7 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:24 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:52 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -813,7 +841,7 @@ spec:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
-        app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:24 +0000
+        app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:52 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -909,7 +937,7 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:39 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:41:05 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -1041,7 +1069,7 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:39 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:41:05 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -1067,7 +1095,7 @@ spec:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-        app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:39 +0000
+        app.quarkus.io/build-timestamp: 2022-10-07 - 15:41:05 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -1087,10 +1115,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:java11-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:

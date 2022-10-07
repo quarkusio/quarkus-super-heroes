@@ -52,7 +52,7 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     prometheus.io/port: "8083"
     prometheus.io/scheme: http
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:06 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:34 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
   labels:
@@ -129,7 +129,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: heroes-db-config
-          image: bitnami/postgresql:14.4.0
+          image: bitnami/postgresql:14
           name: heroes-db
           ports:
             - containerPort: 5432
@@ -141,11 +141,25 @@ spec:
           volumeMounts:
             - mountPath: /bitnami/postgresql
               name: heroes-db-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: heroes-db-init-data
+      initContainers:
+        - command:
+            - sh
+            - get-data.sh
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          name: get-data
+          volumeMounts:
             - mountPath: /docker-entrypoint-preinitdb.d
               name: heroes-db-init
+            - mountPath: /docker-entrypoint-initdb.d
+              name: heroes-db-init-data
+          workingDir: /docker-entrypoint-preinitdb.d
       volumes:
         - emptyDir: {}
           name: heroes-db-data
+        - emptyDir: {}
+          name: heroes-db-init-data
         - configMap:
             name: heroes-db-init
           name: heroes-db-init
@@ -159,7 +173,7 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     prometheus.io/port: "8083"
     prometheus.io/scheme: http
-    app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:06 +0000
+    app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:34 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
   labels:
@@ -185,7 +199,7 @@ spec:
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         prometheus.io/port: "8083"
         prometheus.io/scheme: http
-        app.quarkus.io/build-timestamp: 2022-10-06 - 17:26:06 +0000
+        app.quarkus.io/build-timestamp: 2022-10-07 - 15:40:34 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
       labels:
