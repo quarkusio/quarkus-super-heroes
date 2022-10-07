@@ -75,8 +75,20 @@ spec:
         application: villains-service
         name: villains-db
     spec:
+      initContainers:
+        - name: get-data
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          workingDir: /docker-entrypoint-preinitdb.d
+          command:
+            - 'sh'
+            - 'get-data.sh'
+          volumeMounts:
+            - name: villains-db-init
+              mountPath: /docker-entrypoint-preinitdb.d
+            - name: villains-db-init-data
+              mountPath: /docker-entrypoint-initdb.d
       containers:
-        - image: bitnami/postgresql:14.4.0
+        - image: bitnami/postgresql:14
           name: villains-db
           ports:
             - containerPort: 5432
@@ -86,8 +98,8 @@ spec:
           volumeMounts:
             - name: villains-db-data
               mountPath: /bitnami/postgresql
-            - name: villains-db-init
-              mountPath: /docker-entrypoint-preinitdb.d
+            - name: villains-db-init-data
+              mountPath: /docker-entrypoint-initdb.d
           resources:
             limits:
               memory: 128Mi
@@ -95,6 +107,8 @@ spec:
               memory: 32Mi
       volumes:
         - name: villains-db-data
+          emptyDir: {}
+        - name: villains-db-init-data
           emptyDir: {}
         - name: villains-db-init
           configMap:
