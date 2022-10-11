@@ -216,7 +216,7 @@ az postgres flexible-server create \
   --public all \
   --sku-name "Standard_$POSTGRES_SKU" \
   --tier "$POSTGRES_TIER" \
-  --storage-size 2048 \
+  --storage-size 256 \
   --version "$POSTGRES_DB_VERSION"
 ```
 
@@ -231,7 +231,7 @@ az postgres flexible-server create \
   --public all \
   --sku-name "Standard_$POSTGRES_SKU" \
   --tier "$POSTGRES_TIER" \
-  --storage-size 2048 \
+  --storage-size 256 \
   --version "$POSTGRES_DB_VERSION"
 ```
 
