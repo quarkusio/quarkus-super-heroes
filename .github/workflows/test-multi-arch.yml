@@ -1,0 +1,66 @@
+name: Test building multi-arch native
+
+env:
+  IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
+  MANDREL_IMAGE: "quay.io/quarkus/ubi-quarkus-mandrel-builder-image"
+  MANDREL_VERSION: "22.2.0.0-Final"
+  LATEST_IMAGE_TAG: "latest"
+
+on:
+  workflow_dispatch:
+    
+jobs:
+  build-native-images:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '17'
+        project:
+          - rest-villains
+        arch:
+          - arm64
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: temurin
+          cache: maven
+
+      - name: Create env vars
+        working-directory: ${{ matrix.project }}
+        run: |
+          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV && \
+          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+      - name: Create container tags
+        working-directory: ${{ matrix.project }}
+        run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native-java${{ matrix.java }}" >> $GITHUB_ENV
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: ${{ matrix.arch }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          install: true
+
+      - name: Build native image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
+        working-directory: ${{ matrix.project }}
+        run: |
+          ./mvnw -B clean package -DskipTests -Pnative \
+            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dquarkus.native.container-build=true \
+            -Dquarkus.native.builder-image=${{ env.MANDREL_IMAGE }}:${{ env.MANDREL_VERSION }}-java${{ matrix.java }}-${{ matrix.arch }} \
+            -Dquarkus.native.container-runtime-options="--platform linux/${{ matrix.arch }}" \
+            -Dquarkus.container-image.build=true \
+            -Dquarkus.container-image.push=false \
+            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}-${{ matrix.arch }} \
+            -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
