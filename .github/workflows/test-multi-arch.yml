@@ -54,6 +54,7 @@ jobs:
       - name: Build native image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
         working-directory: ${{ matrix.project }}
         run: |
+          docker run --help && \
           ./mvnw -B clean package -DskipTests -Pnative \
             -Dmaven.compiler.release=${{ matrix.java }} \
             -Dquarkus.http.host=0.0.0.0 \
