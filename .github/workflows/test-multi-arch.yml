@@ -3,7 +3,7 @@ name: Test building multi-arch native
 env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
   MANDREL_IMAGE: "quay.io/quarkus/ubi-quarkus-mandrel-builder-image"
-  MANDREL_VERSION: "22.2.0.0-Final"
+  MANDREL_VERSION: "22.2"
   LATEST_IMAGE_TAG: "latest"
 
 on:
@@ -59,7 +59,7 @@ jobs:
             -Dmaven.compiler.release=${{ matrix.java }} \
             -Dquarkus.http.host=0.0.0.0 \
             -Dquarkus.native.container-build=true \
-            -Dquarkus.native.builder-image=${{ env.MANDREL_IMAGE }}:${{ env.MANDREL_VERSION }}-java${{ matrix.java }}-${{ matrix.arch }} \
+            -Dquarkus.native.builder-image=${{ env.MANDREL_IMAGE }}:${{ env.MANDREL_VERSION }}-java${{ matrix.java }} \
             -Dquarkus.native.container-runtime-options=--platform=linux/${{ matrix.arch }} \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=false \
