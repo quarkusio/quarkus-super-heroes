@@ -37,7 +37,7 @@ jobs:
         arch:
           - amd64
           - arm64
-    name: "Build JVM images (${{ matrix.arch}}-${{ matrix.project }}-java${{ matrix.java }})"
+    name: "Build JVM images (${{ matrix.arch }}-${{ matrix.project }}-java${{ matrix.java }})"
     steps:
       - name: Calculate Branch (workflow_run event)
         if: github.event_name == 'workflow_run'
@@ -89,7 +89,7 @@ jobs:
         with:
           install: true
 
-      - name: Build JVM image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch}})
+      - name: Build JVM image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
         working-directory: ${{ matrix.project }}
         run: |
           ./mvnw -B clean package -DskipTests \
@@ -170,7 +170,7 @@ jobs:
         with:
           install: true
 
-      - name: Build native image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch}})
+      - name: Build native image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
         working-directory: ${{ matrix.project }}
         run: |
           ./mvnw -B clean package -DskipTests -Pnative \
@@ -271,7 +271,7 @@ jobs:
         arch:
           - amd64
           - arm64
-    name: "Push app images (${{ matrix.arch}}-${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})"
+    name: "Push app images (${{ matrix.arch }}-${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})"
     steps:
       - name: Calculate Branch (workflow_run event)
         if: github.event_name == 'workflow_run'
