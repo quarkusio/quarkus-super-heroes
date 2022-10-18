@@ -1,0 +1,161 @@
+{
+  "consumer": {
+    "name": "rest-fights"
+  },
+  "interactions": [
+    {
+      "comments": {
+        "testname": "io.quarkus.sample.superheroes.fight.client.VillainConsumerContractTests.helloVillains()",
+        "text": [
+
+        ]
+      },
+      "description": "A hello request",
+      "key": "2ec6e2e8",
+      "pending": false,
+      "request": {
+        "headers": {
+          "Accept": [
+            "text/plain"
+          ]
+        },
+        "method": "GET",
+        "path": "/api/villains/hello"
+      },
+      "response": {
+        "body": {
+          "content": "Hello villains!",
+          "contentType": "text/plain",
+          "contentTypeHint": "DEFAULT",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "text/plain"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": ".+"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "comments": {
+        "testname": "io.quarkus.sample.superheroes.fight.client.VillainConsumerContractTests.randomVillainFound()",
+        "text": [
+
+        ]
+      },
+      "description": "A request for a random villain",
+      "key": "937f7526",
+      "pending": false,
+      "request": {
+        "headers": {
+          "Accept": [
+            "application/json"
+          ]
+        },
+        "method": "GET",
+        "path": "/api/villains/random"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "level": 42,
+            "name": "Super Chocolatine",
+            "picture": "super_chocolatine.png"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.level": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.picture": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "comments": {
+        "testname": "io.quarkus.sample.superheroes.fight.client.VillainConsumerContractTests.randomVillainNotFound()",
+        "text": [
+
+        ]
+      },
+      "description": "A request for a random villain",
+      "key": "7438ddcd",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "No random villain found"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": [
+            "application/json"
+          ]
+        },
+        "method": "GET",
+        "path": "/api/villains/random"
+      },
+      "response": {
+        "status": 404
+      },
+      "type": "Synchronous/HTTP"
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.3.14"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "rest-villains"
+  }
+}
