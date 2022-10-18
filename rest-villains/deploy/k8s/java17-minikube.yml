@@ -30,10 +30,10 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: villains-db
     app.quarkus.io/vcs-ref: rhbq-2.7
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-09-16 - 13:01:19 +0000
+    app.openshift.io/connects-to: villains-db
+    app.quarkus.io/build-timestamp: 2022-10-16 - 13:46:16 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -106,10 +106,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.openshift.io/connects-to: villains-db
     app.quarkus.io/vcs-ref: rhbq-2.7
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-09-16 - 13:01:19 +0000
+    app.openshift.io/connects-to: villains-db
+    app.quarkus.io/build-timestamp: 2022-10-16 - 13:46:16 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -132,10 +132,10 @@ spec:
   template:
     metadata:
       annotations:
-        app.openshift.io/connects-to: villains-db
         app.quarkus.io/vcs-ref: rhbq-2.7
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-09-16 - 13:01:19 +0000
+        app.openshift.io/connects-to: villains-db
+        app.quarkus.io/build-timestamp: 2022-10-16 - 13:46:16 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -155,10 +155,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:java17-latest-rhbq-2.7
           imagePullPolicy: IfNotPresent
           livenessProbe:
