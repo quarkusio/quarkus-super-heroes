@@ -96,6 +96,8 @@ This application has a full suite of tests, including an [integration test suite
 ### Contract testing with Pact
 [Pact](https://pact.io) is a code-first tool for testing HTTP and message integrations using `contract tests`. Contract tests assert that inter-application messages conform to a shared understanding that is documented in a contract. Without contract testing, the only way to ensure that applications will work correctly together is by using expensive and brittle integration tests.
 
+[Eric Deandrea](https://developers.redhat.com/author/eric-deandrea) and [Holly Cummins](https://hollycummins.com) recently spoke about contract testing with Pact and used the Quarkus Superheroes for their demos. [Watch the replay](https://www.youtube.com/watch?v=vYwkDPrzqV8) and [view the slides](https://hollycummins.com/modern-microservices-testing-pitfalls-devoxx/) if you'd like to learn more about contract testing.
+
 The `rest-fights` application is a [Pact _Consumer_](https://docs.pact.io/consumer), and as such, should be responsible for defining the contracts between itself and its providers ([`rest-heroes`](../rest-heroes) & [`rest-villains`](../rest-villains)).
 
 Contracts generally should be hosted in a [Pact Broker](https://docs.pact.io/pact_broker) and then automatically discovered in the provider verification tests.
