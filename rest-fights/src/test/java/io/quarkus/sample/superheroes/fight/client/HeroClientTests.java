@@ -29,20 +29,12 @@ import io.smallrye.faulttolerance.api.CircuitBreakerState;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
 /**
- * Tests for the {@link HeroClient}. Uses wiremock to stub responses and verify interactions.
- * @see HeroesVillainsWiremockServerResource
+ * Tests for the {@link io.quarkus.sample.superheroes.fight.client.HeroClient}. Uses wiremock to stub responses and verify interactions.
+ * @see io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource
  */
 @QuarkusTest
 @QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
-class HeroClientTests {
-  private static final String HERO_API_BASE_URI = "/api/heroes";
-  private static final String HERO_URI = HERO_API_BASE_URI + "/random";
-  private static final String HERO_HELLO_URI = HERO_API_BASE_URI + "/hello";
-  private static final String DEFAULT_HERO_NAME = "Super Baguette";
-  private static final String DEFAULT_HERO_PICTURE = "super_baguette.png";
-  private static final String DEFAULT_HERO_POWERS = "eats baguette really quickly";
-  private static final int DEFAULT_HERO_LEVEL = 42;
-
+class HeroClientTests extends HeroClientTestRunner {
   private static final Hero DEFAULT_HERO = new Hero(
     DEFAULT_HERO_NAME,
     DEFAULT_HERO_LEVEL,
@@ -52,9 +44,6 @@ class HeroClientTests {
 
   @InjectWireMock
   WireMockServer wireMockServer;
-
-  @Inject
-  HeroClient heroClient;
 
   @Inject
   ObjectMapper objectMapper;
@@ -76,36 +65,15 @@ class HeroClientTests {
   @Test
   public void findsRandom() {
     this.wireMockServer.stubFor(
-      get(urlEqualTo(HERO_URI))
+      get(urlEqualTo(HERO_RANDOM_URI))
         .willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
     );
 
     IntStream.range(0, 5)
-      .forEach(i -> {
-        var hero = this.heroClient.findRandomHero()
-          .subscribe().withSubscriber(UniAssertSubscriber.create())
-          .assertSubscribed()
-          .awaitItem(Duration.ofSeconds(5))
-          .getItem();
-
-        assertThat(hero)
-          .isNotNull()
-          .extracting(
-            Hero::getName,
-            Hero::getLevel,
-            Hero::getPicture,
-            Hero::getPowers
-          )
-          .containsExactly(
-            DEFAULT_HERO_NAME,
-            DEFAULT_HERO_LEVEL,
-            DEFAULT_HERO_PICTURE,
-            DEFAULT_HERO_POWERS
-          );
-      });
+      .forEach(i -> runRandomHeroFound(true));
 
     this.wireMockServer.verify(5,
-      getRequestedFor(urlEqualTo(HERO_URI))
+      getRequestedFor(urlEqualTo(HERO_RANDOM_URI))
         .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
     );
   }
@@ -113,21 +81,15 @@ class HeroClientTests {
   @Test
   public void recoversFrom404() {
     this.wireMockServer.stubFor(
-      get(urlEqualTo(HERO_URI))
+      get(urlEqualTo(HERO_RANDOM_URI))
         .willReturn(notFound())
     );
 
     IntStream.range(0, 5)
-      .forEach(i ->
-        this.heroClient.findRandomHero()
-          .subscribe().withSubscriber(UniAssertSubscriber.create())
-          .assertSubscribed()
-          .awaitItem(Duration.ofSeconds(5))
-          .assertItem(null)
-      );
+      .forEach(i -> runRandomHeroNotFound());
 
     this.wireMockServer.verify(5,
-      getRequestedFor(urlEqualTo(HERO_URI))
+      getRequestedFor(urlEqualTo(HERO_RANDOM_URI))
         .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
     );
   }
@@ -135,7 +97,7 @@ class HeroClientTests {
   @Test
   public void doesntRecoverFrom500() {
     this.wireMockServer.stubFor(
-      get(urlEqualTo(HERO_URI))
+      get(urlEqualTo(HERO_RANDOM_URI))
         .willReturn(serverError())
     );
 
@@ -179,7 +141,7 @@ class HeroClientTests {
     // Verify that the server only saw 8 actual requests
     // (2 "real" requests and 3 retries each)
     this.wireMockServer.verify(8,
-      getRequestedFor(urlEqualTo(HERO_URI))
+      getRequestedFor(urlEqualTo(HERO_RANDOM_URI))
         .withHeader(ACCEPT, equalTo(APPLICATION_JSON))
     );
   }
@@ -188,14 +150,10 @@ class HeroClientTests {
   public void helloHeroes() {
     this.wireMockServer.stubFor(
       get(urlEqualTo(HERO_HELLO_URI))
-        .willReturn(okForContentType(TEXT_PLAIN, "Hello heroes!"))
+        .willReturn(okForContentType(TEXT_PLAIN, DEFAULT_HELLO_RESPONSE))
     );
 
-    this.heroClient.helloHeroes()
-      .subscribe().withSubscriber(UniAssertSubscriber.create())
-      .assertSubscribed()
-      .awaitItem(Duration.ofSeconds(5))
-      .assertItem("Hello heroes!");
+    runHelloHeroes();
 
     this.wireMockServer.verify(1,
       getRequestedFor(urlEqualTo(HERO_HELLO_URI))
