@@ -23,17 +23,20 @@ This is a sample application demonstrating Quarkus features and best practices. 
     - Implemented with blocking endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) and [Quarkus Hibernate ORM with Panache's active record pattern](https://quarkus.io/guides/hibernate-orm-panache).
     - Favors field injection of beans (`@Inject` annotation) over construction injection.
     - Uses the [Quarkus Qute templating engine](https://quarkus.io/guides/qute) for its [UI](rest-villains/README.md#running-the-application).
+    - Contains [contract verification tests](rest-villains/README.md#contract-testing-with-pact) using [Pact](https://pact.io).
 - [Hero REST API](rest-heroes)
     - A reactive HTTP microservice exposing CRUD operations on Heroes, stored in a PostgreSQL database.
     - Implemented with reactive endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) and [Quarkus Hibernate Reactive with Panache's repository pattern](http://quarkus.io/guides/hibernate-reactive-panache).
     - Favors constructor injection of beans over field injection (`@Inject` annotation).
     - Uses the [Quarkus Qute templating engine](https://quarkus.io/guides/qute) for its [UI](rest-heroes/README.md#running-the-application).
+    - Contains [contract verification tests](rest-heroes/README.md#contract-testing-with-pact) using [Pact](https://pact.io).
 - [Fight REST API](rest-fights)
     - A REST API invoking the Hero and Villain APIs to get a random superhero and supervillain. Each fight is then stored in a MongoDB database.
     - Implemented with reactive endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) and [Quarkus MongoDB Reactive with Panache's active record pattern](https://quarkus.io/guides/mongodb-panache#reactive).
     - Invocations to the Hero and Villain APIs are done using the [reactive rest client](https://quarkus.io/guides/rest-client-reactive) and are protected using [resilience patterns](https://quarkus.io/guides/smallrye-fault-tolerance), such as retry, timeout, and circuit breaking.
     - Each fight is asynchronously sent, via Kafka, to the [Statistics](event-statistics) microservice.
         - Messages on Kafka use [Apache Avro](https://avro.apache.org/docs/current) schemas and are stored in an [Apicurio Registry](https://www.apicur.io/registry), all using [built-in support from Quarkus](https://quarkus.io/guides/kafka-schema-registry-avro).
+    - Contains [consumer contract tests](rest-fights/README.md#contract-testing-with-pact) using [Pact](https://pact.io).
 - [Statistics](event-statistics)
     - Calculates statistics about each fight and serves them to an HTML + JQuery UI using [WebSockets](https://quarkus.io/guides/websockets).
 - [Prometheus](https://prometheus.io/)
