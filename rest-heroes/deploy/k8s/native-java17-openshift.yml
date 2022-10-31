@@ -47,10 +47,10 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2022-10-28 - 15:11:58 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/build-timestamp: 2022-10-31 - 16:42:45 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -79,10 +79,10 @@ apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2022-10-28 - 15:11:58 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/build-timestamp: 2022-10-31 - 16:42:45 +0000
   labels:
     app: rest-heroes
     application: heroes-service
@@ -218,10 +218,10 @@ apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2022-10-28 - 15:11:58 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/build-timestamp: 2022-10-31 - 16:42:45 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -244,10 +244,10 @@ spec:
   template:
     metadata:
       annotations:
-        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "heroes-db,otel-collector"
         app.openshift.io/vcs-ref: main
-        app.quarkus.io/build-timestamp: 2022-10-28 - 15:11:58 +0000
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/build-timestamp: 2022-10-31 - 16:42:45 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -268,10 +268,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-heroes-config-creds
             - configMapRef:
                 name: rest-heroes-config
+            - secretRef:
+                name: rest-heroes-config-creds
           image: rest-heroes:native-java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -318,10 +318,10 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2022-10-28 - 15:11:58 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/build-timestamp: 2022-10-31 - 16:42:45 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
