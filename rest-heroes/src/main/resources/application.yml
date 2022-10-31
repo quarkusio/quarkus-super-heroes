@@ -1,6 +1,8 @@
 paths:
   base-image:
-    jvm-17: registry.access.redhat.com/ubi8/openjdk-17:1.11
+    native: quay.io/quarkus/ubi-quarkus-native-binary-s2i:2.0
+    jvm-11: registry.access.redhat.com/ubi8/openjdk-11:1:14
+    jvm-17: registry.access.redhat.com/ubi8/openjdk-17:1.14
   dockerfile:
     jvm-17: src/main/docker/Dockerfile.jvm17
 
@@ -57,6 +59,8 @@ quarkus:
       application: "${quarkus.kubernetes.part-of}"
       system: quarkus-super-heroes
   openshift:
+    base-jvm-image: "${paths.base-image.jvm-11}"
+    base-native-image: "${paths.base-image.native}"
     part-of: "${quarkus.kubernetes.part-of}"
     route:
       expose: true
