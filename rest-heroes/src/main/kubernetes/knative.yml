@@ -75,6 +75,18 @@ spec:
         application: heroes-service
         system: quarkus-super-heroes
     spec:
+      initContainers:
+        - name: get-data
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          workingDir: /docker-entrypoint-preinitdb.d
+          command:
+            - 'sh'
+            - 'get-data.sh'
+          volumeMounts:
+            - name: heroes-db-init
+              mountPath: /docker-entrypoint-preinitdb.d
+            - name: heroes-db-init-data
+              mountPath: /docker-entrypoint-initdb.d
       containers:
         - image: bitnami/postgresql:14
           name: heroes-db
@@ -86,8 +98,8 @@ spec:
           volumeMounts:
             - name: heroes-db-data
               mountPath: /bitnami/postgresql
-            - name: heroes-db-init
-              mountPath: /docker-entrypoint-preinitdb.d
+            - name: heroes-db-init-data
+              mountPath: /docker-entrypoint-initdb.d
           resources:
             limits:
               memory: 128Mi
@@ -95,6 +107,8 @@ spec:
               memory: 32Mi
       volumes:
         - name: heroes-db-data
+          emptyDir: {}
+        - name: heroes-db-init-data
           emptyDir: {}
         - name: heroes-db-init
           configMap:
