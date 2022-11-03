@@ -47,10 +47,10 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.openshift.io/connects-to: heroes-db
     app.quarkus.io/vcs-ref: rhbq-2.7
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: heroes-db
-    app.quarkus.io/build-timestamp: 2022-10-18 - 15:41:43 +0000
+    app.quarkus.io/build-timestamp: 2022-11-03 - 15:06:08 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -140,11 +140,25 @@ spec:
           volumeMounts:
             - mountPath: /bitnami/postgresql
               name: heroes-db-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: heroes-db-init-data
+      initContainers:
+        - command:
+            - sh
+            - get-data.sh
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          name: get-data
+          volumeMounts:
             - mountPath: /docker-entrypoint-preinitdb.d
               name: heroes-db-init
+            - mountPath: /docker-entrypoint-initdb.d
+              name: heroes-db-init-data
+          workingDir: /docker-entrypoint-preinitdb.d
       volumes:
         - emptyDir: {}
           name: heroes-db-data
+        - emptyDir: {}
+          name: heroes-db-init-data
         - configMap:
             name: heroes-db-init
           name: heroes-db-init
@@ -153,10 +167,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    app.openshift.io/connects-to: heroes-db
     app.quarkus.io/vcs-ref: rhbq-2.7
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: heroes-db
-    app.quarkus.io/build-timestamp: 2022-10-18 - 15:41:43 +0000
+    app.quarkus.io/build-timestamp: 2022-11-03 - 15:06:08 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -179,10 +193,10 @@ spec:
   template:
     metadata:
       annotations:
+        app.openshift.io/connects-to: heroes-db
         app.quarkus.io/vcs-ref: rhbq-2.7
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.openshift.io/connects-to: heroes-db
-        app.quarkus.io/build-timestamp: 2022-10-18 - 15:41:43 +0000
+        app.quarkus.io/build-timestamp: 2022-11-03 - 15:06:08 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"

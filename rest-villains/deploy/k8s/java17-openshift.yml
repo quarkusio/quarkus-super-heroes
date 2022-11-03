@@ -33,7 +33,7 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: rhbq-2.7
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-10-18 - 15:42:28 +0000
+    app.quarkus.io/build-timestamp: 2022-11-03 - 15:06:51 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -82,14 +82,14 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: rhbq-2.7
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-10-18 - 15:42:28 +0000
+    app.quarkus.io/build-timestamp: 2022-11-03 - 15:06:51 +0000
   labels:
     app: rest-villains
     application: villains-service
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: java17-latest-rhbq-2.7
   name: rest-villains
 spec:
@@ -189,11 +189,25 @@ spec:
           volumeMounts:
             - mountPath: /bitnami/postgresql
               name: villains-db-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: villains-db-init-data
+      initContainers:
+        - command:
+            - sh
+            - get-data.sh
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          name: get-data
+          volumeMounts:
             - mountPath: /docker-entrypoint-preinitdb.d
               name: villains-db-init
+            - mountPath: /docker-entrypoint-initdb.d
+              name: villains-db-init-data
+          workingDir: /docker-entrypoint-preinitdb.d
       volumes:
         - emptyDir: {}
           name: villains-db-data
+        - emptyDir: {}
+          name: villains-db-init-data
         - configMap:
             name: villains-db-init
           name: villains-db-init
@@ -205,7 +219,7 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: rhbq-2.7
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-10-18 - 15:42:28 +0000
+    app.quarkus.io/build-timestamp: 2022-11-03 - 15:06:51 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -222,8 +236,8 @@ metadata:
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: java17-latest-rhbq-2.7
   template:
     metadata:
@@ -231,7 +245,7 @@ spec:
         app.openshift.io/connects-to: villains-db
         app.openshift.io/vcs-ref: rhbq-2.7
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-10-18 - 15:42:28 +0000
+        app.quarkus.io/build-timestamp: 2022-11-03 - 15:06:51 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -241,8 +255,8 @@ spec:
         application: villains-service
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/name: rest-villains
+        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/version: java17-latest-rhbq-2.7
     spec:
       containers:
@@ -305,7 +319,7 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: rhbq-2.7
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-10-18 - 15:42:28 +0000
+    app.quarkus.io/build-timestamp: 2022-11-03 - 15:06:51 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service

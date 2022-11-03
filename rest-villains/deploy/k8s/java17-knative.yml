@@ -33,7 +33,7 @@ metadata:
     app.openshift.io/connects-to: villains-db
     app.openshift.io/vcs-ref: rhbq-2.7
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-10-18 - 15:43:27 +0000
+    app.quarkus.io/build-timestamp: 2022-11-03 - 15:07:49 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -51,14 +51,14 @@ spec:
   template:
     metadata:
       annotations:
-        app.openshift.io/connects-to: villains-db
-        app.openshift.io/vcs-ref: rhbq-2.7
-        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-10-18 - 15:43:27 +0000
+        app.quarkus.io/build-timestamp: 2022-11-03 - 15:07:49 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
         prometheus.io/scheme: http
+        app.openshift.io/connects-to: villains-db
+        app.openshift.io/vcs-ref: rhbq-2.7
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
       labels:
         app: rest-villains
         app.openshift.io/runtime: quarkus
@@ -71,10 +71,10 @@ spec:
       containerConcurrency: 0
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:java17-latest-rhbq-2.7
           livenessProbe:
             failureThreshold: 3
@@ -188,11 +188,25 @@ spec:
           volumeMounts:
             - mountPath: /bitnami/postgresql
               name: villains-db-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: villains-db-init-data
+      initContainers:
+        - command:
+            - sh
+            - get-data.sh
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          name: get-data
+          volumeMounts:
             - mountPath: /docker-entrypoint-preinitdb.d
               name: villains-db-init
+            - mountPath: /docker-entrypoint-initdb.d
+              name: villains-db-init-data
+          workingDir: /docker-entrypoint-preinitdb.d
       volumes:
         - emptyDir: {}
           name: villains-db-data
+        - emptyDir: {}
+          name: villains-db-init-data
         - configMap:
             name: villains-db-init
           name: villains-db-init
