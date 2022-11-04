@@ -71,15 +71,17 @@ This job runs in parallel with the [_Build JVM container images_](#build-jvm-con
 
 The job [Builds native executable container images](https://quarkus.io/guides/building-native-image#using-the-container-image-extensions) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), and [`rest-villains`](../rest-villains) applications on both Java 11 and 17 using [Mandrel](https://github.com/graalvm/mandrel).
 
-Each container image created has 2 tags:
+Each container image created has 4 tags:
 - `{{app-version}}-quarkus-{{quarkus-version}}-native-java{{java-version}}-amd64`
+- `{{app-version}}-quarkus-{{quarkus-version}}-native-java{{java-version}}-arm64`
 - `native-java{{java-version}}-latest-amd64`
+- `native-java{{java-version}}-latest-arm64`
 
 > - Replace `{{app-version}}` with the application version (i.e. `1.0`).
 > - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.13.3.Final`).
 > - Replace `{{java-version}}` with the Java version the application was built with (i.e. `11` or `17`).
 
-There are a total of 8 images built (4 applications x 2 JVM versions).
+There are a total of 16 images built (4 applications x 2 JVM versions x 2 platforms).
 
 ### Build UI images job
 This job runs in parallel with the [_Build JVM container images_](#build-jvm-container-images-job) and [_Build native container images_](#build-native-container-images-job) jobs.
