@@ -18,9 +18,10 @@ create_output_file() {
 do_build() {
   local project=$1
   local deployment_type=$2
-  local javaVersion=$3
-  local kind=$4
-  local tag="${kind}java${javaVersion}-latest"
+  local version_tag=$3
+  local javaVersion=$4
+  local kind=$5
+  local container_tag="${version_tag}-latest"
   local git_server_url="${GITHUB_SERVER_URL:=https://github.com}"
   local git_repo="${GITHUB_REPOSITORY:=quarkusio/quarkus-super-heroes}"
   local github_ref_name="${BRANCH:=${GITHUB_REF_NAME:=main}}"
@@ -39,27 +40,28 @@ do_build() {
     local expose=false
   fi
 
-  echo "Generating app resources for $project/$tag/$deployment_type"
+  echo "Generating app resources for $project/$container_tag/$deployment_type"
   rm -rf $project/target
 
   $project/mvnw -f $project/pom.xml versions:set clean package \
     -DskipTests \
-    -DnewVersion=$tag \
-    -Dquarkus.container-image.tag=$tag \
+    -DnewVersion=$container_tag \
+    -Dmaven.compiler.release=$javaVersion \
+    -Dquarkus.container-image.tag=$container_tag \
     -Dquarkus.kubernetes.deployment-target=$deployment_type \
-    -Dquarkus.kubernetes.version=$tag \
+    -Dquarkus.kubernetes.version=$container_tag \
     -Dquarkus.kubernetes.ingress.expose=$expose \
     -Dquarkus.kubernetes.resources.limits.memory=$mem_limit \
     -Dquarkus.kubernetes.resources.requests.memory=$mem_request \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-ref\"=$github_ref_name \
-    -Dquarkus.openshift.version=$tag \
+    -Dquarkus.openshift.version=$container_tag \
     -Dquarkus.openshift.route.expose=$expose \
     -Dquarkus.openshift.resources.limits.memory=$mem_limit \
     -Dquarkus.openshift.resources.requests.memory=$mem_request \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-ref\"=$github_ref_name \
-    -Dquarkus.knative.version=$tag \
+    -Dquarkus.knative.version=$container_tag \
     -Dquarkus.knative.labels.\"app.openshift.io/runtime\"=quarkus \
     -Dquarkus.knative.resources.limits.memory=$mem_limit \
     -Dquarkus.knative.resources.requests.memory=$mem_request \
@@ -70,16 +72,17 @@ do_build() {
 process_quarkus_project() {
   local project=$1
   local deployment_type=$2
-  local javaVersion=$3
-  local kind=$4
-  local output_filename="${kind}java${javaVersion}-${deployment_type}"
+  local version_tag=$3
+  local javaVersion=$4
+  local kind=$5
+  local output_filename="${version_tag}-${deployment_type}"
   local app_generated_input_file="$project/target/kubernetes/${deployment_type}.yml"
   local project_output_file="$project/$OUTPUT_DIR/${output_filename}.yml"
   local all_apps_output_file="$OUTPUT_DIR/${output_filename}.yml"
 
   # 1st do the build
   # The build will generate all the resources for the project
-  do_build $project $deployment_type $javaVersion $kind
+  do_build $project $deployment_type $version_tag $javaVersion $kind
 
   rm -rf $project_output_file
 
@@ -111,14 +114,13 @@ process_quarkus_project() {
 }
 
 process_ui_project() {
-  local javaVersion=$1
-  local deployment_type=$2
-  local kind=$3
+  local deployment_type=$1
+  local version_tag=$2
   local project="ui-super-heroes"
   local project_input_directory="$project/$INPUT_DIR"
   local input_file="$project_input_directory/${deployment_type}.yml"
   local project_output_file="$project/$OUTPUT_DIR/app-${deployment_type}.yml"
-  local all_apps_output_file="$OUTPUT_DIR/${kind}java${javaVersion}-${deployment_type}.yml"
+  local all_apps_output_file="$OUTPUT_DIR/${version_tag}-${deployment_type}.yml"
 
   rm -rf $project_output_file
 
@@ -158,18 +160,30 @@ create_monitoring() {
 
 rm -rf $OUTPUT_DIR/*.yml
 
-for javaVersion in 11 17
+for kind in "" "native-"
 do
-  for kind in "" "native-"
+  if [[ "$kind" == "native-" ]]; then
+    javaVersions=(17)
+  else
+    javaVersions=(11 17)
+  fi
+
+  for javaVersion in ${javaVersions[@]}
   do
     for deployment_type in "kubernetes" "minikube" "openshift" "knative"
     do
+      if [[ "$kind" == "native-" ]]; then
+        version_tag="native"
+      else
+        version_tag="${kind}java${javaVersion}"
+      fi
+
       for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
       do
-        process_quarkus_project $project $deployment_type $javaVersion $kind
+        process_quarkus_project $project $deployment_type $version_tag $javaVersion $kind
       done
 
-      process_ui_project $javaVersion $deployment_type $kind
+      process_ui_project $deployment_type $version_tag
     done
   done
 done

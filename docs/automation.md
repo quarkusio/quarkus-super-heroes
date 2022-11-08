@@ -69,19 +69,18 @@ There are a total of 16 images built (4 applications x 2 JVM versions x 2 platfo
 ### Build native container images job
 This job runs in parallel with the [_Build JVM container images_](#build-jvm-container-images-job) and [_Build UI images_](#build-ui-images-job) jobs.
 
-The job [Builds native executable container images](https://quarkus.io/guides/building-native-image#using-the-container-image-extensions) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), and [`rest-villains`](../rest-villains) applications on both Java 11 and 17 using [Mandrel](https://github.com/graalvm/mandrel).
+The job [Builds native executable container images](https://quarkus.io/guides/building-native-image#using-the-container-image-extensions) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), and [`rest-villains`](../rest-villains) applications using [Mandrel](https://github.com/graalvm/mandrel).
 
 Each container image created has 4 tags:
-- `{{app-version}}-quarkus-{{quarkus-version}}-native-java{{java-version}}-amd64`
-- `{{app-version}}-quarkus-{{quarkus-version}}-native-java{{java-version}}-arm64`
-- `native-java{{java-version}}-latest-amd64`
-- `native-java{{java-version}}-latest-arm64`
+- `{{app-version}}-quarkus-{{quarkus-version}}-native-amd64`
+- `{{app-version}}-quarkus-{{quarkus-version}}-native-arm64`
+- `native-latest-amd64`
+- `native-latest-arm64`
 
 > - Replace `{{app-version}}` with the application version (i.e. `1.0`).
 > - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.13.3.Final`).
-> - Replace `{{java-version}}` with the Java version the application was built with (i.e. `11` or `17`).
 
-There are a total of 16 images built (4 applications x 2 JVM versions x 2 platforms).
+There are a total of 8 images built (4 applications x 2 platforms).
 
 ### Build UI images job
 This job runs in parallel with the [_Build JVM container images_](#build-jvm-container-images-job) and [_Build native container images_](#build-native-container-images-job) jobs.
@@ -163,15 +162,15 @@ Docker compose resources are generated into a `deploy/docker-compose` directory,
 ### Quarkus projects
 Each Quarkus project ([`event-statistics`](../event-statistics/src/main/docker-compose), [`rest-fights`](../rest-fights/src/main/docker-compose), [`rest-heroes`](../rest-heroes/src/main/docker-compose), [`rest-villains`](../rest-villains/src/main/docker-compose)) contains a `src/main/docker-compose` directory.
 
-Inside this directory are a set of yaml files with a particular naming convention: `infra.yml`, `java{{java-version}}.yml`, and `native-java{{java-version}}.yml`. Each of these files contains what we are calling _Docker compose snippets_. These snippets aren't a complete Docker compose file on their own. Instead, they contain service definitions that will ultimately end up inside the `services` block in a Docker compose file.
+Inside this directory are a set of yaml files with a particular naming convention: `infra.yml`, `java{{java-version}}.yml`, and `native.yml`. Each of these files contains what we are calling _Docker compose snippets_. These snippets aren't a complete Docker compose file on their own. Instead, they contain service definitions that will ultimately end up inside the `services` block in a Docker compose file.
 
 This table describes the different files that can be found inside a project's `src/main/docker-compose` directory.
 
-| File name                         | Description                                                                                                                                                                                                                                                                                                                                                                                                                  |
-|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `infra.yml`                       | Any infrastructure definitions that are needed by the application. Definitions in here a re-used for each version of the application (i.e. JVM 11, JVM 17, Native Java 11, Native Java 17).                                                                                                                                                                                                                                  |
-| `java{{java-version}}.yml`        | Definition for the JVM version of application itself for a particular java version, denoted by `{{java-version}}`.                                                                                                                                                                                                                                                                                                           |
-| `native-java{{java-version}}.yml` | Definition for the native image version of the application itself, built with a particular java version, denoted by `{{java-version}}`.                                                                                                                                                                                                                                                                                      |
+| File name                  | Description                                                                                                                                                         |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `infra.yml`                | Any infrastructure definitions that are needed by the application. Definitions in here a re-used for each version of the application (i.e. JVM 11, JVM 17, Native). |
+| `java{{java-version}}.yml` | Definition for the JVM version of application itself for a particular java version, denoted by `{{java-version}}`.                                                  |
+| `native.yml`               | Definition for the native image version of the application itself.                                                                                                  |
 
 The [`generate-docker-compose-resources.sh` script](../scripts/generate-docker-compose-resources.sh) loops through all versions of each application (Java versions 11 & 17, both JVM and native - 16 total versions) and merges contents of these files from each project's `src/main/docker-compose` directory into each project's `deploy/docker-compose` directory as well as the respective files in the [root `deploy/docker-compose` directory](../deploy/docker-compose).
 
