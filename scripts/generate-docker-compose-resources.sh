@@ -19,19 +19,18 @@ create_output_file() {
 create_project_output() {
   local project=$1
   local filename=$2
-  local javaVersion=$3
-  local kind=$4
+  local versionFilename=$3
   local infra_input_file_name="infra.yml"
   local infra_input_file="$project/$INPUT_DIR/$infra_input_file_name"
-  local input_file_name="$filename.yml"
-  local version_file_name="${kind}java${javaVersion}.yml"
+  local input_file_name="${filename}.yml"
+  local version_file_name="${versionFilename}.yml"
   local all_apps_output_file="$OUTPUT_DIR/$version_file_name"
   local project_input_file="$project/$INPUT_DIR/$input_file_name"
   local project_output_file="$project/$OUTPUT_DIR/$input_file_name"
 
   echo ""
   echo "-----------------------------------------"
-  echo "Creating output for project $project"
+  echo "Creating output for project = $project filename = $filename version_file_name = $version_file_name"
 
   if [[ ! -f "$all_apps_output_file" ]]; then
     create_output_file $all_apps_output_file
@@ -58,12 +57,10 @@ create_project_output() {
   if [[ "$project" == "rest-fights" ]]; then
     # Need to process/create the downstream version
     # With the rest-villains/rest-heroes apps & their dependencies
-    local downstream_project_output_file="$project/$OUTPUT_DIR/${kind}java${javaVersion}-all-downstream.yml"
+    local downstream_project_output_file="$project/$OUTPUT_DIR/${filename}-all-downstream.yml"
 
-    if [[ -f "$downstream_project_output_file" ]]; then
-      rm -rf $downstream_project_output_file
-      create_output_file $downstream_project_output_file
-    fi
+    rm -rf $downstream_project_output_file
+    create_output_file $downstream_project_output_file
 
     if [[ -d "$project/deploy/db-init" ]]; then
       cp -r $project/deploy/db-init deploy
@@ -119,20 +116,34 @@ rm -rf deploy/db-init
 
 for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
 do
-  for javaVersion in 11 17
+  rm -rf $project/$OUTPUT_DIR/*.yml
+
+  for kind in "" "native-"
   do
-    for kind in "" "native-"
+    if [[ "$kind" == "native-" ]]; then
+      javaVersions=(17)
+    else
+      javaVersions=(11 17)
+    fi
+
+    for javaVersion in ${javaVersions[@]}
     do
+      if [[ "$kind" == "native-" ]]; then
+        versionFilename="native"
+      else
+        versionFilename="${kind}java${javaVersion}"
+      fi
+
       if [[ "$project" == "ui-super-heroes" ]]; then
         filename="app"
       else
-        filename="${kind}java${javaVersion}"
+        filename=$versionFilename
       fi
 
-      create_project_output $project $filename $javaVersion $kind
+      create_project_output $project $filename $versionFilename
     done
   done
 done
 
-## Now handle the monitoring
+# Now handle the monitoring
 create_monitoring
