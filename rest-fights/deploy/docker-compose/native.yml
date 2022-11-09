@@ -1,6 +1,18 @@
 version: "3"
 services:
 
+  fights-db:
+    image: mongo:5.0
+    container_name: fights-db
+    ports:
+      - "27017"
+    environment:
+      MONGO_INITDB_DATABASE: fights
+      MONGO_INITDB_ROOT_USERNAME: super
+      MONGO_INITDB_ROOT_PASSWORD: super
+    volumes:
+      - ../../../rest-fights/deploy/db-init/initialize-database.js:/docker-entrypoint-initdb.d/1-init-db.js
+
   apicurio:
     image: quay.io/apicurio/apicurio-registry-mem:2.2.3.Final
     container_name: apicurio
@@ -25,23 +37,32 @@ services:
       LOG_DIR: /tmp/logs
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://fights-kafka:9092
 
-  event-statistics-native-java11:
-    image: quay.io/quarkus-super-heroes/event-statistics:native-java11-latest
-    container_name: event-statistics-native-java11
+  rest-fights-native:
+    image: quay.io/quarkus-super-heroes/rest-fights:native-latest
+    container_name: rest-fights-native
     depends_on:
+      - fights-db
       - apicurio
       - fights-kafka
+      - rest-heroes-native
+      - rest-villains-native
     ports:
-      - "8085:8085"
+      - "8082:8082"
     environment:
+      QUARKUS_MONGODB_HOSTS: fights-db:27017
       KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://fights-kafka:9092
+      QUARKUS_LIQUIBASE_MONGODB_MIGRATE_AT_START: "false"
+      QUARKUS_MONGODB_CREDENTIALS_USERNAME: superfight
+      QUARKUS_MONGODB_CREDENTIALS_PASSWORD: superfight
+      QUARKUS_STORK_HERO_SERVICE_SERVICE_DISCOVERY_ADDRESS_LIST: rest-heroes:8083
+      QUARKUS_STORK_VILLAIN_SERVICE_SERVICE_DISCOVERY_ADDRESS_LIST: rest-villains:8084
       MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL: http://apicurio:8086/apis/registry/v2
       QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     restart: on-failure
     networks:
       default:
         aliases:
-          - event-statistics
+          - rest-fights
     deploy:
       resources:
         limits:

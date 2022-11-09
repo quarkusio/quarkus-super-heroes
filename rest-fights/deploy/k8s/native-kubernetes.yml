@@ -88,10 +88,10 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
-    app.quarkus.io/build-timestamp: 2022-11-09 - 17:05:14 +0000
+    app.quarkus.io/build-timestamp: 2022-11-09 - 17:09:25 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -99,7 +99,7 @@ metadata:
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/version: native-latest
     app: rest-fights
     application: fights-service
     system: quarkus-super-heroes
@@ -107,14 +107,13 @@ metadata:
 spec:
   ports:
     - name: http
-      nodePort: 30489
       port: 80
       targetPort: 8082
   selector:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: java17-latest
-  type: NodePort
+    app.kubernetes.io/version: native-latest
+  type: ClusterIP
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -303,47 +302,47 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
-    app.quarkus.io/build-timestamp: 2022-11-09 - 17:05:14 +0000
+    app.quarkus.io/build-timestamp: 2022-11-09 - 17:09:25 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
     prometheus.io/scheme: http
   labels:
-    app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: java17-latest
     app: rest-fights
     application: fights-service
     system: quarkus-super-heroes
+    app.kubernetes.io/version: native-latest
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/version: native-latest
       app.kubernetes.io/name: rest-fights
       app.kubernetes.io/part-of: fights-service
-      app.kubernetes.io/version: java17-latest
   template:
     metadata:
       annotations:
+        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
-        app.quarkus.io/build-timestamp: 2022-11-09 - 17:05:14 +0000
+        app.quarkus.io/build-timestamp: 2022-11-09 - 17:09:25 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
         prometheus.io/scheme: http
       labels:
-        app.kubernetes.io/name: rest-fights
-        app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/version: java17-latest
         app: rest-fights
         application: fights-service
         system: quarkus-super-heroes
+        app.kubernetes.io/version: native-latest
+        app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - env:
@@ -356,8 +355,8 @@ spec:
                 name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
-          image: quay.io/quarkus-super-heroes/rest-fights:java17-latest
-          imagePullPolicy: IfNotPresent
+          image: quay.io/quarkus-super-heroes/rest-fights:native-latest
+          imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -385,6 +384,6 @@ spec:
             timeoutSeconds: 10
           resources:
             limits:
-              memory: 768Mi
+              memory: 128Mi
             requests:
-              memory: 256Mi
+              memory: 32Mi

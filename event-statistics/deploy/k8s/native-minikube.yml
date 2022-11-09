@@ -35,10 +35,10 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-11-09 - 17:04:11 +0000
+    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
+    app.quarkus.io/build-timestamp: 2022-11-09 - 17:11:09 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -46,7 +46,7 @@ metadata:
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/version: native-latest
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
@@ -54,13 +54,14 @@ metadata:
 spec:
   ports:
     - name: http
+      nodePort: 30938
       port: 80
       targetPort: 8085
   selector:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java17-latest
-  type: ClusterIP
+    app.kubernetes.io/version: native-latest
+  type: NodePort
 ---
 apiVersion: v1
 kind: Service
@@ -166,21 +167,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-11-09 - 17:04:11 +0000
+    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
+    app.quarkus.io/build-timestamp: 2022-11-09 - 17:11:09 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
     prometheus.io/scheme: http
   labels:
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: native-latest
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
-    app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java17-latest
   name: event-statistics
 spec:
   replicas: 1
@@ -188,25 +189,25 @@ spec:
     matchLabels:
       app.kubernetes.io/name: event-statistics
       app.kubernetes.io/part-of: event-stats
-      app.kubernetes.io/version: java17-latest
+      app.kubernetes.io/version: native-latest
   template:
     metadata:
       annotations:
-        app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-11-09 - 17:04:11 +0000
+        app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
+        app.quarkus.io/build-timestamp: 2022-11-09 - 17:11:09 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
         prometheus.io/scheme: http
       labels:
+        app.kubernetes.io/name: event-statistics
+        app.kubernetes.io/part-of: event-stats
+        app.kubernetes.io/version: native-latest
         app: event-statistics
         application: event-stats
         system: quarkus-super-heroes
-        app.kubernetes.io/name: event-statistics
-        app.kubernetes.io/part-of: event-stats
-        app.kubernetes.io/version: java17-latest
     spec:
       containers:
         - env:
@@ -219,8 +220,8 @@ spec:
                 name: event-statistics-config
             - secretRef:
                 name: event-statistics-config-creds
-          image: quay.io/quarkus-super-heroes/event-statistics:java17-latest
-          imagePullPolicy: Always
+          image: quay.io/quarkus-super-heroes/event-statistics:native-latest
+          imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -248,9 +249,9 @@ spec:
             timeoutSeconds: 10
           resources:
             limits:
-              memory: 768Mi
+              memory: 128Mi
             requests:
-              memory: 256Mi
+              memory: 32Mi
 ---
 apiVersion: apps/v1
 kind: Deployment
