@@ -17,11 +17,11 @@ help() {
   echo "options:"
   echo "  -g <resource_group_name>     Name of the Azure resource group to use to deploy resources. Default is 'super-heroes'."
   echo "  -h                           Prints this help message"
-  echo "  -l <location>                The location (region) to deploy resources into. Default is 'eastus2'".
-  echo "  -p <postgres_server_tier>    Compute tier of the PostgreSQL servers. Accepted values: Burstable, GeneralPurpose, MemoryOptimized.  Default: 'Burstable'."
+  echo "  -l <location>                The location (region) to deploy resources into. Default: 'eastus2'".
+  echo "  -p <postgres_server_tier>    Compute tier of the PostgreSQL servers. Accepted values: Burstable, GeneralPurpose, MemoryOptimized. Default: 'Burstable'."
   echo "  -r                           If present, create an Azure Container Registry instance (see https://azure.microsoft.com/en-us/services/container-registry). This is optional. No container images are pushed here by this script."
-  echo "  -s <postgres_server_sku>     The SKU to use for the PostgreSQL servers (see https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server). Default is 'B1ms'."
-  echo "  -t <tag>                     The tag for the images to deploy. Default is 'native-java17-latest'."
+  echo "  -s <postgres_server_sku>     The SKU to use for the PostgreSQL servers (see https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server). Default: 'B1ms'."
+  echo "  -t <tag>                     The tag for the images to deploy. Accepted values: 'java11-latest', 'java17-latest', or 'native-latest'. Default: 'native-latest'."
   echo "  -u <unique_identifier>       A unique identifier to append to some resources. Some Azure services require unique names within a region (across users). Default is to use the output of the 'whoami' command."
 }
 
@@ -305,7 +305,7 @@ create_ui_app() {
 # Define defaults
 RESOURCE_GROUP="super-heroes"
 LOCATION="eastus2"
-IMAGES_TAG="native-java17-latest"
+IMAGES_TAG="native-latest"
 UNIQUE_IDENTIFIER=$(whoami)
 POSTGRES_SKU="B1ms"
 POSTGRES_TIER="Burstable"

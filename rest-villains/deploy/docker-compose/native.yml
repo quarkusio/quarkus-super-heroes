@@ -1,0 +1,42 @@
+version: "3"
+services:
+
+  villains-db:
+    image: postgres:14
+    container_name: villains-db
+    ports:
+      - "5432"
+    environment:
+      POSTGRES_USER: superbad
+      POSTGRES_PASSWORD: superbad
+      POSTGRES_DB: villains_database
+    volumes:
+      - ../../../rest-villains/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/1-init-tables.sql
+
+  rest-villains-native:
+    image: quay.io/quarkus-super-heroes/rest-villains:native-latest
+    container_name: rest-villains-native
+    depends_on:
+      - villains-db
+    ports:
+      - "8084:8084"
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:otel:postgresql://villains-db:5432/villains_database
+      QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: validate
+      QUARKUS_DATASOURCE_USERNAME: superbad
+      QUARKUS_DATASOURCE_PASSWORD: superbad
+      QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: no-file
+      QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    restart: on-failure
+    networks:
+      default:
+        aliases:
+          - rest-villains
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
+        reservations:
+          memory: 256M
+          cpus: '0.5'

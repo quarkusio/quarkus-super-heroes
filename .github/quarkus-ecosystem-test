@@ -6,7 +6,15 @@ run_build() {
 
   for project in "event-statistics" "rest-fights" "rest-heroes" "rest-villains"
   do
-    $project/mvnw -f $project/pom.xml --settings .github/quarkus-ecosystem-maven-settings.xml -B clean verify -Dquarkus.platform.group-id=io.quarkus -Dquarkus.platform.version=${QUARKUS_VERSION} -Dquarkus.http.host=0.0.0.0 -Dmaven.compiler.release=$java_version
+    $project/mvnw -f $project/pom.xml \
+      --settings .github/quarkus-ecosystem-maven-settings.xml \
+      -B clean verify \
+      -Dquarkus.platform.group-id=io.quarkus \
+      -Dquarkus.platform.version=${QUARKUS_VERSION} \
+      -Dquarkus.http.host=0.0.0.0 \
+      -Dmaven.compiler.release=$java_version \
+      -DrunContractVerificationTests=true \
+      -DrunConsumerContractTests=true
   done
 }
 
