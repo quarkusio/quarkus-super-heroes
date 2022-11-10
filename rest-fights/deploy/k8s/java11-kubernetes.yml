@@ -1,120 +1,4 @@
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  labels:
-    app: fights-db
-    application: fights-service
-    system: quarkus-super-heroes
-  name: fights-db-config
-data:
-  MONGODB_DATABASE: ZmlnaHRz
-  MONGODB_USERNAME: c3VwZXJmaWdodA==
-  MONGODB_PASSWORD: c3VwZXJmaWdodA==
-  MONGODB_ROOT_USER: c3VwZXI=
-  MONGODB_ROOT_PASSWORD: c3VwZXI=
-type: Opaque
----
-apiVersion: v1
-kind: Secret
-metadata:
-  labels:
-    app: rest-fights
-    application: fights-service
-    system: quarkus-super-heroes
-  name: rest-fights-config-creds
-data:
-  quarkus.mongodb.credentials.username: c3VwZXJmaWdodA==
-  quarkus.mongodb.credentials.password: c3VwZXJmaWdodA==
-type: Opaque
----
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /metrics
-    prometheus.io/port: "8080"
-    prometheus.io/scheme: http
-  labels:
-    name: apicurio
-    application: fights-service
-    system: quarkus-super-heroes
-  name: apicurio
-spec:
-  ports:
-    - port: 8080
-      protocol: TCP
-      targetPort: 8080
-  selector:
-    name: apicurio
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: fights-db
-    application: fights-service
-    system: quarkus-super-heroes
-  name: fights-db
-spec:
-  ports:
-    - port: 27017
-      protocol: TCP
-      targetPort: 27017
-  selector:
-    name: fights-db
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: fights-kafka
-    application: fights-service
-    system: quarkus-super-heroes
-  name: fights-kafka
-spec:
-  ports:
-    - port: 9092
-      protocol: TCP
-      targetPort: 9092
-  selector:
-    name: fights-kafka
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
-    app.quarkus.io/vcs-ref: main
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-11-09 - 18:57:42 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
-    prometheus.io/port: "8082"
-    prometheus.io/scheme: http
-  labels:
-    app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: java11-latest
-    app: rest-fights
-    application: fights-service
-    system: quarkus-super-heroes
-  name: rest-fights
-spec:
-  ports:
-    - name: http
-      port: 80
-      targetPort: 8082
-  selector:
-    app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: java11-latest
-  type: ClusterIP
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -147,6 +31,149 @@ data:
   quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: rest-fights
+    application: fights-service
+    system: quarkus-super-heroes
+  name: rest-fights-config-creds
+data:
+  quarkus.mongodb.credentials.username: c3VwZXJmaWdodA==
+  quarkus.mongodb.credentials.password: c3VwZXJmaWdodA==
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: fights-db
+    application: fights-service
+    system: quarkus-super-heroes
+  name: fights-db-config
+data:
+  MONGODB_DATABASE: ZmlnaHRz
+  MONGODB_USERNAME: c3VwZXJmaWdodA==
+  MONGODB_PASSWORD: c3VwZXJmaWdodA==
+  MONGODB_ROOT_USER: c3VwZXI=
+  MONGODB_ROOT_PASSWORD: c3VwZXI=
+type: Opaque
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fights-db
+    application: fights-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/part-of: fights-service
+    app.openshift.io/runtime: mongodb
+  name: fights-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: fights-db
+  template:
+    metadata:
+      labels:
+        application: fights-service
+        name: fights-db
+        system: quarkus-super-heroes
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: fights-db-config
+          image: bitnami/mongodb:5.0
+          name: fights-db
+          ports:
+            - containerPort: 27017
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-db
+    application: fights-service
+    system: quarkus-super-heroes
+  name: fights-db
+spec:
+  ports:
+    - port: 27017
+      protocol: TCP
+      targetPort: 27017
+  selector:
+    name: fights-db
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fights-kafka
+    application: fights-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/part-of: fights-service
+    app.openshift.io/runtime: amq
+  name: fights-kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: fights-kafka
+  template:
+    metadata:
+      labels:
+        application: fights-service
+        name: fights-kafka
+        system: quarkus-super-heroes
+    spec:
+      containers:
+        - command:
+            - sh
+            - -c
+            - "export CLUSTER_ID=$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh\
+              \ format -t ${CLUSTER_ID} -c config/kraft/server.properties && bin/kafka-server-start.sh\
+              \ config/kraft/server.properties --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS}"
+          env:
+            - name: LOG_DIR
+              value: /tmp/logs
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: PLAINTEXT://fights-kafka:9092
+          image: quay.io/strimzi/kafka:0.28.0-kafka-3.1.0
+          name: fights-kafka
+          ports:
+            - containerPort: 9092
+          resources:
+            limits:
+              memory: 768Mi
+            requests:
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-kafka
+    application: fights-service
+    system: quarkus-super-heroes
+  name: fights-kafka
+spec:
+  ports:
+    - port: 9092
+      protocol: TCP
+      targetPort: 9092
+  selector:
+    name: fights-kafka
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -218,85 +245,27 @@ spec:
             requests:
               memory: 128Mi
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8080"
+    prometheus.io/scheme: http
   labels:
-    app: fights-db
+    name: apicurio
     application: fights-service
     system: quarkus-super-heroes
-    app.kubernetes.io/part-of: fights-service
-    app.openshift.io/runtime: mongodb
-  name: fights-db
+  name: apicurio
 spec:
-  replicas: 1
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
   selector:
-    matchLabels:
-      name: fights-db
-  template:
-    metadata:
-      labels:
-        application: fights-service
-        name: fights-db
-        system: quarkus-super-heroes
-    spec:
-      containers:
-        - envFrom:
-            - secretRef:
-                name: fights-db-config
-          image: bitnami/mongodb:5.0
-          name: fights-db
-          ports:
-            - containerPort: 27017
-          resources:
-            limits:
-              memory: 256Mi
-            requests:
-              memory: 64Mi
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: fights-kafka
-    application: fights-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/part-of: fights-service
-    app.openshift.io/runtime: amq
-  name: fights-kafka
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: fights-kafka
-  template:
-    metadata:
-      labels:
-        application: fights-service
-        name: fights-kafka
-        system: quarkus-super-heroes
-    spec:
-      containers:
-        - command:
-            - sh
-            - -c
-            - "export CLUSTER_ID=$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh\
-              \ format -t ${CLUSTER_ID} -c config/kraft/server.properties && bin/kafka-server-start.sh\
-              \ config/kraft/server.properties --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS}"
-          env:
-            - name: LOG_DIR
-              value: /tmp/logs
-            - name: KAFKA_ADVERTISED_LISTENERS
-              value: PLAINTEXT://fights-kafka:9092
-          image: quay.io/strimzi/kafka:0.28.0-kafka-3.1.0
-          name: fights-kafka
-          ports:
-            - containerPort: 9092
-          resources:
-            limits:
-              memory: 768Mi
-            requests:
-              memory: 128Mi
+    name: apicurio
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -305,7 +274,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-11-09 - 18:57:42 +0000
+    app.quarkus.io/build-timestamp: 2022-11-10 - 15:07:35 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -314,24 +283,24 @@ metadata:
     app: rest-fights
     application: fights-service
     system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/name: rest-fights
   name: rest-fights
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: rest-fights
       app.kubernetes.io/part-of: fights-service
       app.kubernetes.io/version: java11-latest
+      app.kubernetes.io/name: rest-fights
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2022-11-09 - 18:57:42 +0000
+        app.quarkus.io/build-timestamp: 2022-11-10 - 15:07:35 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -340,9 +309,9 @@ spec:
         app: rest-fights
         application: fights-service
         system: quarkus-super-heroes
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/version: java11-latest
+        app.kubernetes.io/name: rest-fights
     spec:
       containers:
         - env:
@@ -351,10 +320,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
+            - secretRef:
+                name: rest-fights-config-creds
           image: quay.io/quarkus-super-heroes/rest-fights:java11-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -387,3 +356,35 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/build-timestamp: 2022-11-10 - 15:07:35 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8082"
+    prometheus.io/scheme: http
+  labels:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: java11-latest
+    app: rest-fights
+    application: fights-service
+    system: quarkus-super-heroes
+  name: rest-fights
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8082
+  selector:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: java11-latest
+  type: ClusterIP

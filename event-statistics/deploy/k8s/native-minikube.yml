@@ -1,5 +1,18 @@
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: event-statistics
+    application: event-stats
+    system: quarkus-super-heroes
+  name: event-statistics-config
+data:
+  kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
+  mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
+  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
+---
+apiVersion: v1
 kind: Secret
 metadata:
   labels:
@@ -9,59 +22,49 @@ metadata:
   name: event-statistics-config-creds
 type: Opaque
 ---
-apiVersion: v1
-kind: Service
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /metrics
-    prometheus.io/port: "8080"
-    prometheus.io/scheme: http
   labels:
-    name: apicurio
+    app: fights-kafka
     application: fights-service
+    app.kubernetes.io/part-of: fights-service
+    app.openshift.io/runtime: amq
     system: quarkus-super-heroes
-  name: apicurio
+  name: fights-kafka
 spec:
-  ports:
-    - port: 8080
-      protocol: TCP
-      targetPort: 8080
+  replicas: 1
   selector:
-    name: apicurio
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    app.quarkus.io/vcs-ref: main
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.quarkus.io/build-timestamp: 2022-11-09 - 19:10:12 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
-    prometheus.io/port: "8085"
-    prometheus.io/scheme: http
-  labels:
-    app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: native-latest
-    app: event-statistics
-    application: event-stats
-    system: quarkus-super-heroes
-  name: event-statistics
-spec:
-  ports:
-    - name: http
-      nodePort: 30938
-      port: 80
-      targetPort: 8085
-  selector:
-    app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: native-latest
-  type: NodePort
+    matchLabels:
+      name: fights-kafka
+  template:
+    metadata:
+      labels:
+        application: fights-service
+        name: fights-kafka
+        system: quarkus-super-heroes
+    spec:
+      containers:
+        - command:
+            - sh
+            - -c
+            - "export CLUSTER_ID=$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh\
+              \ format -t ${CLUSTER_ID} -c config/kraft/server.properties && bin/kafka-server-start.sh\
+              \ config/kraft/server.properties --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS}"
+          env:
+            - name: LOG_DIR
+              value: /tmp/logs
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: PLAINTEXT://fights-kafka:9092
+          image: quay.io/strimzi/kafka:0.28.0-kafka-3.1.0
+          name: fights-kafka
+          ports:
+            - containerPort: 9092
+          resources:
+            limits:
+              memory: 768Mi
+            requests:
+              memory: 128Mi
 ---
 apiVersion: v1
 kind: Service
@@ -79,19 +82,6 @@ spec:
   selector:
     name: fights-kafka
   type: ClusterIP
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    app: event-statistics
-    application: event-stats
-    system: quarkus-super-heroes
-  name: event-statistics-config
-data:
-  kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
-  mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
-  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -163,6 +153,28 @@ spec:
             requests:
               memory: 128Mi
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8080"
+    prometheus.io/scheme: http
+  labels:
+    name: apicurio
+    application: fights-service
+    system: quarkus-super-heroes
+  name: apicurio
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    name: apicurio
+  type: ClusterIP
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -170,7 +182,7 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.quarkus.io/build-timestamp: 2022-11-09 - 19:10:12 +0000
+    app.quarkus.io/build-timestamp: 2022-11-10 - 15:20:01 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -196,7 +208,7 @@ spec:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-        app.quarkus.io/build-timestamp: 2022-11-09 - 19:10:12 +0000
+        app.quarkus.io/build-timestamp: 2022-11-10 - 15:20:01 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -216,10 +228,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: event-statistics-config
             - secretRef:
                 name: event-statistics-config-creds
+            - configMapRef:
+                name: event-statistics-config
           image: quay.io/quarkus-super-heroes/event-statistics:native-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
@@ -253,46 +265,35 @@ spec:
             requests:
               memory: 32Mi
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
+    app.quarkus.io/build-timestamp: 2022-11-10 - 15:20:01 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8085"
+    prometheus.io/scheme: http
   labels:
-    app: fights-kafka
-    application: fights-service
-    app.kubernetes.io/part-of: fights-service
-    app.openshift.io/runtime: amq
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: native-latest
+    app: event-statistics
+    application: event-stats
     system: quarkus-super-heroes
-  name: fights-kafka
+  name: event-statistics
 spec:
-  replicas: 1
+  ports:
+    - name: http
+      nodePort: 30938
+      port: 80
+      protocol: TCP
+      targetPort: 8085
   selector:
-    matchLabels:
-      name: fights-kafka
-  template:
-    metadata:
-      labels:
-        application: fights-service
-        name: fights-kafka
-        system: quarkus-super-heroes
-    spec:
-      containers:
-        - command:
-            - sh
-            - -c
-            - "export CLUSTER_ID=$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh\
-              \ format -t ${CLUSTER_ID} -c config/kraft/server.properties && bin/kafka-server-start.sh\
-              \ config/kraft/server.properties --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS}"
-          env:
-            - name: LOG_DIR
-              value: /tmp/logs
-            - name: KAFKA_ADVERTISED_LISTENERS
-              value: PLAINTEXT://fights-kafka:9092
-          image: quay.io/strimzi/kafka:0.28.0-kafka-3.1.0
-          name: fights-kafka
-          ports:
-            - containerPort: 9092
-          resources:
-            limits:
-              memory: 768Mi
-            requests:
-              memory: 128Mi
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: native-latest
+  type: NodePort
