@@ -1,0 +1,284 @@
+{
+  "consumer": {
+    "name": "ui-super-heroes"
+  },
+  "interactions": [
+    {
+      "description": "A hello request",
+      "key": "2ec6e2e8",
+      "pending": false,
+      "request": {
+        "headers": {
+          "Accept": [
+            "text/plain"
+          ]
+        },
+        "method": "GET",
+        "path": "/api/fights/hello"
+      },
+      "response": {
+        "body": {
+          "content": "Hello Fight Resource",
+          "contentType": "text/plain",
+          "contentTypeHint": "DEFAULT",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "text/plain"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": ".+"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "https",
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "A request for all fights",
+      "key": "6024d7f5",
+      "pending": false,
+      "request": {
+        "headers": {
+          "Accept": [
+            "application/json"
+          ]
+        },
+        "method": "GET",
+        "path": "/api/fights"
+      },
+      "response": {
+        "body": {
+          "content": [
+            {
+              "loserName": "Super Chocolatine",
+              "winnerName": "Super Baguette"
+            }
+          ],
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            },
+            "$[*].loserName": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].winnerName": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "https",
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "A request for random fighters",
+      "key": "29587036",
+      "pending": false,
+      "request": {
+        "headers": {
+          "Accept": [
+            "application/json"
+          ]
+        },
+        "method": "GET",
+        "path": "/api/fights/randomfighters"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "hero": {
+              "level": 42,
+              "name": "Super Baguette",
+              "picture": "super_baguette.png",
+              "powers": "eats baguette really quickly"
+            },
+            "villain": {
+              "level": 40,
+              "name": "Super Chocolatine",
+              "picture": "super_chocolatine.png",
+              "powers": "does not eat pain au chocolat"
+            }
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.hero.level": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.hero.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.hero.picture": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.hero.powers": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.villain.level": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.villain.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.villain.picture": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.villain.powers": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "https",
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "A request for all fights",
+      "key": "cb74d45a",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "No fights exist"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": [
+            "application/json"
+          ]
+        },
+        "method": "GET",
+        "path": "/api/fights"
+      },
+      "response": {
+        "body": {
+          "content": [
+
+          ],
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "max": 0,
+                  "min": 0
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "https",
+      "type": "Synchronous/HTTP"
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.4.2"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "rest-fights"
+  }
+}
