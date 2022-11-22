@@ -36,7 +36,7 @@ This is a sample application demonstrating Quarkus features and best practices. 
     - Invocations to the Hero and Villain APIs are done using the [reactive rest client](https://quarkus.io/guides/rest-client-reactive) and are protected using [resilience patterns](https://quarkus.io/guides/smallrye-fault-tolerance), such as retry, timeout, and circuit breaking.
     - Each fight is asynchronously sent, via Kafka, to the [Statistics](event-statistics) microservice.
         - Messages on Kafka use [Apache Avro](https://avro.apache.org/docs/current) schemas and are stored in an [Apicurio Registry](https://www.apicur.io/registry), all using [built-in support from Quarkus](https://quarkus.io/guides/kafka-schema-registry-avro).
-    - Contains [consumer contract tests](rest-fights/README.md#contract-testing-with-pact) using [Pact](https://pact.io).
+    - Contains [consumer contract and contract verification tests](rest-fights/README.md#contract-testing-with-pact) using [Pact](https://pact.io).
 - [Statistics](event-statistics)
     - Calculates statistics about each fight and serves them to an HTML + JQuery UI using [WebSockets](https://quarkus.io/guides/websockets).
 - [Prometheus](https://prometheus.io/)
