@@ -2,7 +2,7 @@
 
 ## Table of Contents
 - [Introduction](#introduction)
-    - [Exposed Endpoints](#exposed-endpoints) 
+    - [Exposed Endpoints](#exposed-endpoints)
 - [Configuration](#configuration)
 - [Resiliency](#resiliency)
     - [Timeouts](#timeouts)
@@ -98,9 +98,9 @@ This application has a full suite of tests, including an [integration test suite
 
 [Eric Deandrea](https://developers.redhat.com/author/eric-deandrea) and [Holly Cummins](https://hollycummins.com) recently spoke about contract testing with Pact and used the Quarkus Superheroes for their demos. [Watch the replay](https://www.youtube.com/watch?v=vYwkDPrzqV8) and [view the slides](https://hollycummins.com/modern-microservices-testing-pitfalls-devoxx/) if you'd like to learn more about contract testing.
 
-The `rest-fights` application is a [Pact _Consumer_](https://docs.pact.io/consumer), and as such, should be responsible for defining the contracts between itself and its providers ([`rest-heroes`](../rest-heroes) & [`rest-villains`](../rest-villains)).
+The `rest-fights` application is both a [Pact _Consumer_](https://docs.pact.io/consumer) and a [Pact _Provider_](https://docs.pact.io/provider). As a _Consumer_, it should be responsible for defining the contracts between itself and its providers ([`rest-heroes`](../rest-heroes) & [`rest-villains`](../rest-villains)). As a _Provider_, is should run provider verification tests against contracts produced by consumers.
 
-Contracts generally should be hosted in a [Pact Broker](https://docs.pact.io/pact_broker) and then automatically discovered in the provider verification tests.
+As [this README states](src/test/resources/pacts/README.md), contracts generally should be hosted in a [Pact Broker](https://docs.pact.io/pact_broker) and then automatically discovered in the provider verification tests.
 
 One of the main goals of the Superheroes application is to be super simple and just "work" by anyone who may clone this repo. That being said, we can't make any assumptions about where a Pact broker may be or any of the credentials required to access it.
 
@@ -110,9 +110,11 @@ This consumer generates the following contracts:
 
 The contracts are committed into the provider's version control simply for easy of use and reproducibility.
 
-Additionally, Pact consumer contract tests don't currently work with Quarkus dev mode and continuous testing. Therefore, the consumer contract tests ([`HeroConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/HeroConsumerContractTests.java) & [`VillainConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/VillainConsumerContractTests.java)) are only executed if the `-DrunConsumerContractTests=true` flag is passed. You could do this when running `./mvnw test`, `./mvnw verify`, or `./mvnw package`.
+Additionally, the [Pact contract](src/test/resources/pacts/ui-super-heroes-rest-fights.json) is committed into this application's source tree inside the [`src/test/resources/pacts` directory](src/test/resources/pacts).
 
-The consumer contract tests **ARE** executed during this project's CI/CD processes. They run against any pull requests and any commits back to the `main` branch.
+Pact tests don't currently work with Quarkus dev mode and continuous testing. Therefore, the consumer contract tests ([`HeroConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/HeroConsumerContractTests.java) & [`VillainConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/VillainConsumerContractTests.java)) are only executed if the `-DrunConsumerContractTests=true` flag is passed. The [contract verification tests](src/test/java/io/quarkus/sample/superheroes/fight/ContractVerificationTests.java) are only executed if the `-DrunContractVerificationTests=true` flag is passed. You could do this when running `./mvnw test`, `./mvnw verify`, or `./mvnw package`.
+
+The consumer contract tests and provider verification tests **ARE** executed during this project's CI/CD processes. They run against any pull requests and any commits back to the `main` branch.
 
 There is a [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact) under development aiming to make integration with Pact simple and easy. It will be integrated with this project once it becomes available.
 
