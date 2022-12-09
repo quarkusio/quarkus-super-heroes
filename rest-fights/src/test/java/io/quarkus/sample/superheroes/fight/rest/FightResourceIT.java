@@ -12,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.params.ParameterizedTest.*;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,8 +23,8 @@ import java.util.stream.Stream;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
-import org.junit.jupiter.api.AfterAll;
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -32,14 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import io.apicurio.registry.rest.client.RegistryClientFactory;
-import io.apicurio.registry.serde.avro.AvroKafkaDeserializer;
-import io.apicurio.registry.serde.avro.AvroKafkaSerdeConfig;
-import io.apicurio.registry.serde.avro.AvroKafkaSerializer;
-
-import io.apicurio.registry.serde.avro.ReflectAvroDatumProvider;
-import io.apicurio.rest.client.VertxHttpClientProvider;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
@@ -50,17 +43,20 @@ import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
+import io.quarkus.test.kafka.InjectKafkaCompanion;
+import io.quarkus.test.kafka.KafkaCompanionResource;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
-
-import io.quarkus.test.kafka.InjectKafkaCompanion;
-
-import io.quarkus.test.kafka.KafkaCompanionResource;
-
+import io.apicurio.registry.rest.client.RegistryClientFactory;
+import io.apicurio.registry.serde.avro.AvroKafkaDeserializer;
+import io.apicurio.registry.serde.avro.AvroKafkaSerdeConfig;
+import io.apicurio.registry.serde.avro.AvroKafkaSerializer;
+import io.apicurio.registry.serde.avro.ReflectAvroDatumProvider;
+import io.apicurio.rest.client.VertxHttpClientProvider;
 import io.smallrye.reactive.messaging.kafka.companion.KafkaCompanion;
 import io.vertx.core.Vertx;
 
@@ -684,7 +680,7 @@ public class FightResourceIT {
 	@Order(DEFAULT_ORDER + 2)
 	public void performFightHeroWins() {
     var fights = companion.consume(io.quarkus.sample.superheroes.fight.schema.Fight.class)
-      .withOffsetReset(OffsetResetStrategy.LATEST)
+      .withOffsetReset(OffsetResetStrategy.EARLIEST)
       .withGroupId("fights")
       .withAutoCommit()
       .fromTopics("fights", 1);
@@ -715,7 +711,9 @@ public class FightResourceIT {
 				.contentType(JSON)
 				.body("size()", is(NB_FIGHTS + 1));
 
-    var fight = fights.awaitCompletion().getFirstRecord().value();
+    var fight = fights.awaitCompletion(Duration.ofSeconds(10))
+      .getFirstRecord()
+      .value();
 
 		assertThat(fight)
 			.isNotNull()
@@ -745,7 +743,7 @@ public class FightResourceIT {
 	@Order(DEFAULT_ORDER + 3)
 	public void performFightVillainWins() {
     var fights = companion.consume(io.quarkus.sample.superheroes.fight.schema.Fight.class)
-      .withOffsetReset(OffsetResetStrategy.LATEST)
+      .withOffsetReset(OffsetResetStrategy.EARLIEST)
       .withGroupId("fights")
       .withAutoCommit()
       .fromTopics("fights", 1);
@@ -791,7 +789,9 @@ public class FightResourceIT {
 				.contentType(JSON)
 				.body("size()", is(NB_FIGHTS + 2));
 
-    var fight = fights.awaitCompletion().getFirstRecord().value();
+    var fight = fights.awaitCompletion(Duration.ofSeconds(10))
+      .getFirstRecord()
+      .value();
 
 		assertThat(fight)
 			.isNotNull()
