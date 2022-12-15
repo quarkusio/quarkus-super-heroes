@@ -61,7 +61,7 @@ Each container image created has 4 tags:
 - `java{{java-version}}-latest-arm64`
 
 > - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.13.3.Final`).
+> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.15.0.Final`).
 > - Replace `{{java-version}}` with the Java version the application was built with (i.e. `11` or `17`).
 
 There are a total of 16 images built (4 applications x 2 JVM versions x 2 platforms).
@@ -78,7 +78,7 @@ Each container image created has 4 tags:
 - `native-latest-arm64`
 
 > - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.13.3.Final`).
+> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `2.15.0.Final`).
 
 There are a total of 8 images built (4 applications x 2 platforms).
 
