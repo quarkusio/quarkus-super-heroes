@@ -1,17 +1,17 @@
 ---
 apiVersion: v1
-kind: ConfigMap
+kind: Secret
 metadata:
   labels:
-    app: rest-heroes
+    app: heroes-db
     application: heroes-service
     system: quarkus-super-heroes
-  name: rest-heroes-config
+  name: heroes-db-config
 data:
-  quarkus.hibernate-orm.database.generation: validate
-  quarkus.hibernate-orm.sql-load-script: no-file
-  quarkus.datasource.reactive.url: postgresql://heroes-db:5432/heroes_database
-  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
+  POSTGRESQL_DATABASE: aGVyb2VzX2RhdGFiYXNl
+  POSTGRESQL_USERNAME: c3VwZXJtYW4=
+  POSTGRESQL_PASSWORD: c3VwZXJtYW4=
+type: Opaque
 ---
 apiVersion: v1
 kind: Secret
@@ -27,18 +27,101 @@ data:
 type: Opaque
 ---
 apiVersion: v1
-kind: Secret
+kind: Service
 metadata:
   labels:
-    app: heroes-db
+    name: heroes-db
     application: heroes-service
     system: quarkus-super-heroes
-  name: heroes-db-config
-data:
-  POSTGRESQL_DATABASE: aGVyb2VzX2RhdGFiYXNl
-  POSTGRESQL_USERNAME: c3VwZXJtYW4=
-  POSTGRESQL_PASSWORD: c3VwZXJtYW4=
-type: Opaque
+  name: heroes-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: heroes-db
+  type: ClusterIP
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    app.openshift.io/connects-to: "heroes-db,otel-collector"
+    app.openshift.io/vcs-ref: rhbq-2.13
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/build-timestamp: 2022-12-16 - 15:48:41 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8083"
+    prometheus.io/scheme: http
+  labels:
+    app: rest-heroes
+    app.openshift.io/runtime: quarkus
+    application: heroes-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/version: java11-latest-rhbq-2.13
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+  name: rest-heroes
+spec:
+  template:
+    metadata:
+      annotations:
+        app.quarkus.io/build-timestamp: 2022-12-16 - 15:48:41 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
+        prometheus.io/port: "8083"
+        prometheus.io/scheme: http
+        app.openshift.io/connects-to: "heroes-db,otel-collector"
+        app.openshift.io/vcs-ref: rhbq-2.13
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+      labels:
+        app: rest-heroes
+        app.openshift.io/runtime: quarkus
+        application: heroes-service
+        system: quarkus-super-heroes
+        app.kubernetes.io/version: java11-latest-rhbq-2.13
+        app.kubernetes.io/name: rest-heroes
+        app.kubernetes.io/part-of: heroes-service
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: rest-heroes-config-creds
+            - configMapRef:
+                name: rest-heroes-config
+          image: quay.io/quarkus-super-heroes/rest-heroes:java11-latest-rhbq-2.13
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: null
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: rest-heroes
+          ports:
+            - containerPort: 8083
+              name: http1
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: null
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              memory: 768Mi
+            requests:
+              memory: 256Mi
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -52,7 +135,21 @@ data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/rhbq-2.13/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: rest-heroes
+    application: heroes-service
+    system: quarkus-super-heroes
+  name: rest-heroes-config
+data:
+  quarkus.hibernate-orm.database.generation: validate
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.reactive.url: postgresql://heroes-db:5432/heroes_database
+  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -114,82 +211,3 @@ spec:
         - configMap:
             name: heroes-db-init
           name: heroes-db-init
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: heroes-db
-    application: heroes-service
-    system: quarkus-super-heroes
-  name: heroes-db
-spec:
-  ports:
-    - port: 5432
-      protocol: TCP
-      targetPort: 5432
-  selector:
-    name: heroes-db
-  type: ClusterIP
----
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  annotations:
-    app.openshift.io/connects-to: "heroes-db,otel-collector"
-    app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2022-12-15 - 18:00:30 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
-    prometheus.io/port: "8083"
-    prometheus.io/scheme: http
-  labels:
-    app: rest-heroes
-    app.openshift.io/runtime: quarkus
-    application: heroes-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/version: java11-latest
-    app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
-  name: rest-heroes
-spec:
-  template:
-    spec:
-      containers:
-        - envFrom:
-            - secretRef:
-                name: rest-heroes-config-creds
-            - configMapRef:
-                name: rest-heroes-config
-          image: quay.io/quarkus-super-heroes/rest-heroes:java11-latest
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/live
-              port: null
-              scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
-            successThreshold: 1
-            timeoutSeconds: 10
-          name: rest-heroes
-          ports:
-            - containerPort: 8083
-              name: http1
-              protocol: TCP
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/ready
-              port: null
-              scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
-            successThreshold: 1
-            timeoutSeconds: 10
-          resources:
-            limits:
-              memory: 768Mi
-            requests:
-              memory: 256Mi
