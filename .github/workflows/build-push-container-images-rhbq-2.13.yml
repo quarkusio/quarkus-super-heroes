@@ -477,14 +477,14 @@ jobs:
       - name: Create and push multi-arch JVM manifests
         shell: bash
         run: |
-          echo "docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }} \
+          docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }} \
             -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-amd64 \
-            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-arm64"
-          echo "docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
-          echo "docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }} \
+            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-arm64
+          docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}
+          docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }} \
             -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-amd64 \
-            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-arm64"
-          echo "docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}"
+            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-arm64
+          docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}
 
   create-ui-multiarch-manifests:
     if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == 'rhbq-2.13')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
