@@ -22,18 +22,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - shell: bash
-        run: |          
-          echo "github.event_name = ${{ github.event_name }}"
-          echo "github.repository = ${{ github.repository }}"
-          echo "github.ref_name = ${{ github.ref_name }}"
-          echo "github.event.workflow_run.head_branch = ${{ github.event.workflow_run.head_branch }}"
-          echo "github.event.workflow_run.event = ${{ github.event.workflow_run.event }}"
-          echo "github.event.workflow_run.conclusion = ${{ github.event.workflow_run.conclusion }}"
-
   build-jvm-images:
     if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == 'rhbq-2.13')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
     runs-on: ubuntu-latest
@@ -350,9 +338,9 @@ jobs:
           docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}
           docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}
 
-#      - name: Push images
-#        working-directory: ${{ matrix.project }}
-#        run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
+      - name: Push images
+        working-directory: ${{ matrix.project }}
+        run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
 
   push-ui-images:
     if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == 'rhbq-2.13')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
@@ -436,15 +424,11 @@ jobs:
           - '17'
         kind:
           - ""
-#          - "native-"
         project:
           - event-statistics
           - rest-fights
           - rest-heroes
           - rest-villains
-#        exclude:
-#          - kind: 'native-'
-#            java: '11'
     name: Create app multiarch manifests (${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})
     steps:
       - name: Calculate Branch (workflow_run event)
