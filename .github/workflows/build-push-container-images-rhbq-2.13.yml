@@ -1,10 +1,11 @@
-name: Build and Push Container images (RHBQ 2.13)
+name: Build and Push Container images - rhbq-2.13
 
 env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
   MANDREL_IMAGE: "quay.io/quarkus/ubi-quarkus-mandrel-builder-image"
   MANDREL_VERSION: "22.3"
   LATEST_IMAGE_TAG: "latest"
+  NATIVE_JAVA_VERSION: "17"
 
 on:
   workflow_run:
@@ -21,6 +22,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          echo "github.event_name = ${{ github.event_name }}"
+          echo "github.repository = ${{ github.repository }}"
+          echo "github.event.workflow_run.head_branch = ${{ github.event.workflow_run.head_branch }}"
+          echo "github.event.workflow_run.event = ${{ github.event.workflow_run.event }}"
+          echo "github.event.workflow_run.conclusion = ${{ github.event.workflow_run.conclusion }}"
+
   build-jvm-images:
     if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))
     runs-on: ubuntu-latest
@@ -112,8 +124,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java:
-          - '17'
         project:
           - event-statistics
           - rest-fights
@@ -121,7 +131,7 @@ jobs:
           - rest-villains
         arch:
           - amd64
-    name: "Build Native images (${{ matrix.arch }}-${{ matrix.project }}-java${{ matrix.java }})"
+    name: "Build Native images (${{ matrix.arch }}-${{ matrix.project }})"
     steps:
       - name: Calculate Branch (workflow_run event)
         if: github.event_name == 'workflow_run'
@@ -143,7 +153,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
-          java-version: ${{ matrix.java }}
+          java-version: ${{ env.NATIVE_JAVA_VERSION }}
           distribution: temurin
           cache: maven
 
@@ -157,19 +167,19 @@ jobs:
         working-directory: ${{ matrix.project }}
         run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native" >> $GITHUB_ENV
 
-      - name: Build native image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
+      - name: Build native image (${{ matrix.project }}-${{ matrix.arch }})
         working-directory: ${{ matrix.project }}
         run: |
           ./mvnw -B clean package -DskipTests -Pnative \
-            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dmaven.compiler.release=${{ env.NATIVE_JAVA_VERSION }} \
             -Dquarkus.http.host=0.0.0.0 \
             -Dquarkus.native.container-build=true \
-            -Dquarkus.native.builder-image=${{ env.MANDREL_IMAGE }}:${{ env.MANDREL_VERSION }}-java${{ matrix.java }} \
+            -Dquarkus.native.builder-image=${{ env.MANDREL_IMAGE }}:${{ env.MANDREL_VERSION }}-java${{ env.NATIVE_JAVA_VERSION }} \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=false \
             -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}-${{ matrix.arch }}
 
-      - name: Save native Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
+      - name: Save native Image (${{ matrix.project }}-${{ matrix.arch }})
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
