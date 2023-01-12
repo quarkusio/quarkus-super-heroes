@@ -9,8 +9,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
-import io.quarkus.sample.superheroes.fight.DisableIfContinuousTesting;
-
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -29,7 +28,7 @@ import au.com.dius.pact.core.model.annotations.Pact;
  */
 @QuarkusTest
 @TestProfile(PactConsumerContractTestProfile.class)
-@DisableIfContinuousTesting // See https://github.com/quarkiverse/quarkus-pact/issues/58
+@Tag("NotSafeForContinuousTesting") // See https://github.com/quarkiverse/quarkus-pact/issues/58
 @ExtendWith(PactConsumerTestExt.class)
 @PactTestFor(
   providerName = "rest-heroes",
