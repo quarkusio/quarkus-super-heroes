@@ -27,8 +27,7 @@ import io.smallrye.mutiny.Uni;
 @QuarkusTest
 @Provider("rest-fights")
 @PactFolder("pacts")
-@EnabledIfSystemProperty(named = "runContractVerificationTests", matches = "true", disabledReason = "runContractVerificationTests system property not set or equals false")
-// You could comment out the @PactFolder and above @EnabledIfSystemPropery annotations
+// You could comment out the @PactFolder annotation
 // if you'd like to use a Pact broker. You'd also un-comment the following 2 annotations
 //@PactBroker(url = "https://quarkus-super-heroes.pactflow.io")
 //@EnabledIfSystemProperty(named = "pactbroker.auth.token", matches = ".+", disabledReason = "pactbroker.auth.token system property not set")

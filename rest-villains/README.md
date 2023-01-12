@@ -50,15 +50,10 @@ The `rest-villains` application is a [Pact _Provider_](https://docs.pact.io/prov
 
 As [this README states](src/test/resources/pacts/README.md), contracts generally should be hosted in a [Pact Broker](https://docs.pact.io/pact_broker) and then automatically discovered in the provider verification tests.
 
-One of the main goals of the Superheroes application is to be super simple and just "work" by anyone who may clone this repo. That being said, we can't make any assumptions about where a Pact broker may be or any of the credentials required to access it.
+Therefore, the [Pact contract](src/test/resources/pacts/rest-fights-rest-heroes.json) is committed into this application's source tree inside the [`src/test/resources/pacts` directory](src/test/resources/pacts). In a realistic
+scenario, if a broker wasn't used, the consumer's CI/CD would commit the contracts into this repository's source control.
 
-Therefore, the [Pact contract](src/test/resources/pacts/rest-fights-rest-villains.json) is committed into this application's source tree inside the [`src/test/resources/pacts` directory](src/test/resources/pacts).
-
-Additionally, Pact provider verification tests don't currently work with Quarkus dev mode and continuous testing. Therefore, the [contract verification tests](src/test/java/io/quarkus/sample/superheroes/villain/ContractVerificationTests.java) are only executed if the `-DrunContractVerificationTests=true` flag is passed. You could do this when running `./mvnw test`, `./mvnw verify`, or `./mvnw package`.
-
-The provider verification tests **ARE** executed during this project's CI/CD processes. They run against any pull requests and any commits back to the `main` branch.
-
-There is a [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact) under development aiming to make integration with Pact simple and easy. It will be integrated with this project once it becomes available.
+The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility
 
 ## Running the Application
 The application runs on port `8084` (defined by `quarkus.http.port` in [`application.properties`](src/main/resources/application.properties)).

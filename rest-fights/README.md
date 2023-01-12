@@ -112,11 +112,14 @@ The contracts are committed into the provider's version control simply for easy 
 
 Additionally, the [Pact contract](src/test/resources/pacts/ui-super-heroes-rest-fights.json) is committed into this application's source tree inside the [`src/test/resources/pacts` directory](src/test/resources/pacts).
 
-Pact tests don't currently work with Quarkus dev mode and continuous testing. Therefore, the consumer contract tests ([`HeroConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/HeroConsumerContractTests.java) & [`VillainConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/VillainConsumerContractTests.java)) are only executed if the `-DrunConsumerContractTests=true` flag is passed. The [contract verification tests](src/test/java/io/quarkus/sample/superheroes/fight/ContractVerificationTests.java) are only executed if the `-DrunContractVerificationTests=true` flag is passed. You could do this when running `./mvnw test`, `./mvnw verify`, or `./mvnw package`.
+The Pact consumer contract tests don't currently work with Quarkus dev mode and continuous testing for this project, because of the [test profiles](https://github.com/quarkiverse/quarkus-pact/issues/58).
+The consumer contract tests ([`HeroConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/HeroConsumerContractTests.java) & [`VillainConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/VillainConsumerContractTests.java)) are only executed in 'normal' testing, not continuous testing.
+
+Provider tests do work, with the workaround that the scope of the extension to be more generous than the natural `test` scope.
 
 The consumer contract tests and provider verification tests **ARE** executed during this project's CI/CD processes. They run against any pull requests and any commits back to the `main` branch.
 
-There is a [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact) under development aiming to make integration with Pact simple and easy. It will be integrated with this project once it becomes available.
+The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility
 
 ## Running the Application
 First you need to start up all of the downstream services ([Heroes Service](../rest-heroes) and [Villains Service](../rest-villains) - the [Event Statistics Service](../event-statistics) is optional).
