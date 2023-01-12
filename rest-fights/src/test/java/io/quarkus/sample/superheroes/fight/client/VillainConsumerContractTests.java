@@ -9,8 +9,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
+import io.quarkus.sample.superheroes.fight.DisableIfContinuousTesting;
+
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -20,7 +21,6 @@ import au.com.dius.pact.consumer.dsl.PactDslRootValue;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
-import au.com.dius.pact.core.model.PactSpecVersion;
 import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
 
@@ -28,17 +28,14 @@ import au.com.dius.pact.core.model.annotations.Pact;
  * Pact consumer contract tests for the {@link io.quarkus.sample.superheroes.fight.client.VillainClient}.
  */
 @QuarkusTest
+@DisableIfContinuousTesting // See https://github.com/quarkiverse/quarkus-pact/issues/58
 @TestProfile(PactConsumerContractTestProfile.class)
 @ExtendWith(PactConsumerTestExt.class)
 @PactTestFor(
   providerName = "rest-villains",
-  pactVersion = PactSpecVersion.V4,
-  hostInterface = "localhost",
   // Make an assumption and hard-code the Pact MockServer to be running on port 8081
   // I don't like it but couldn't figure out any other way
-  port = "8081"
-)
-@EnabledIfSystemProperty(named = "runConsumerContractTests", matches = "true", disabledReason = "runConsumerContractTests system property not set or equals false")
+  port = "8081")
 public class VillainConsumerContractTests extends VillainClientTestRunner {
   @Pact(consumer = "rest-fights")
   public V4Pact helloPact(PactDslWithProvider builder) {
