@@ -218,7 +218,7 @@ spec:
             failureThreshold: 3
             httpGet:
               path: /health/live
-              port: null
+              port: 8080
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 30
@@ -227,13 +227,13 @@ spec:
           name: apicurio
           ports:
             - containerPort: 8080
-              name: http1
+              name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
             httpGet:
               path: /health/ready
-              port: null
+              port: 8080
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 30
@@ -274,7 +274,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:16:53 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:32:10 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -293,17 +293,24 @@ spec:
     metadata:
       annotations:
         autoscaling.knative.dev/minScale: "1"
+        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+        app.openshift.io/vcs-ref: main
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
       labels:
+        app: rest-fights
+        app.openshift.io/runtime: quarkus
+        application: fights-service
+        system: quarkus-super-heroes
         app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: java11-latest
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:java11-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -312,8 +319,8 @@ spec:
               path: /q/health/live
               port: null
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           name: rest-fights
@@ -327,8 +334,8 @@ spec:
               path: /q/health/ready
               port: null
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           resources:

@@ -138,7 +138,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "villains-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:19:56 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:35:21 +0000
   labels:
     app: rest-villains
     application: villains-service
@@ -182,7 +182,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "villains-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:19:56 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:35:21 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -208,7 +208,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "villains-db,otel-collector"
         app.openshift.io/vcs-ref: main
-        app.quarkus.io/build-timestamp: 2023-01-17 - 14:19:56 +0000
+        app.quarkus.io/build-timestamp: 2023-01-26 - 13:35:21 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -228,10 +228,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: rest-villains:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -240,8 +240,8 @@ spec:
               path: /q/health/live
               port: 8084
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           name: rest-villains
@@ -255,8 +255,8 @@ spec:
               path: /q/health/ready
               port: 8084
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           resources:
@@ -282,7 +282,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "villains-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:19:56 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:35:21 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -314,7 +314,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "villains-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:19:56 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:35:21 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -471,15 +471,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:14 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:35:41 +0000
   labels:
     app: rest-heroes
     application: heroes-service
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/version: java17-latest
   name: rest-heroes
 spec:
   lookupPolicy:
@@ -515,7 +515,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:14 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:35:41 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -531,9 +531,9 @@ metadata:
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/version: java17-latest
   template:
     metadata:
       annotations:
@@ -541,7 +541,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "heroes-db,otel-collector"
         app.openshift.io/vcs-ref: main
-        app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:14 +0000
+        app.quarkus.io/build-timestamp: 2023-01-26 - 13:35:41 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -550,9 +550,9 @@ spec:
         application: heroes-service
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/name: rest-heroes
+        app.kubernetes.io/version: java17-latest
     spec:
       containers:
         - env:
@@ -573,8 +573,8 @@ spec:
               path: /q/health/live
               port: 8083
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           name: rest-heroes
@@ -588,8 +588,8 @@ spec:
               path: /q/health/ready
               port: 8083
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           resources:
@@ -615,7 +615,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:14 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:35:41 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -647,7 +647,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:14 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:35:41 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -960,15 +960,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:35 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:36:03 +0000
   labels:
     app: rest-fights
     application: fights-service
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
   lookupPolicy:
@@ -1004,7 +1004,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:35 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:36:03 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -1020,9 +1020,9 @@ metadata:
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
   template:
     metadata:
       annotations:
@@ -1030,7 +1030,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
         app.openshift.io/vcs-ref: main
-        app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:35 +0000
+        app.quarkus.io/build-timestamp: 2023-01-26 - 13:36:03 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -1039,9 +1039,9 @@ spec:
         application: fights-service
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - env:
@@ -1050,10 +1050,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
+            - secretRef:
+                name: rest-fights-config-creds
           image: rest-fights:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -1062,8 +1062,8 @@ spec:
               path: /q/health/live
               port: 8082
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           name: rest-fights
@@ -1077,8 +1077,8 @@ spec:
               path: /q/health/ready
               port: 8082
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           resources:
@@ -1104,7 +1104,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:35 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:36:03 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -1136,7 +1136,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:35 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:36:03 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -1357,15 +1357,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:51 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:36:20 +0000
   labels:
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: event-stats
   name: event-statistics
 spec:
   lookupPolicy:
@@ -1401,7 +1401,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:51 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:36:20 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -1418,8 +1418,8 @@ spec:
   replicas: 1
   selector:
     app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: event-stats
   template:
     metadata:
       annotations:
@@ -1427,7 +1427,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
         app.openshift.io/vcs-ref: main
-        app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:51 +0000
+        app.quarkus.io/build-timestamp: 2023-01-26 - 13:36:20 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -1437,8 +1437,8 @@ spec:
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/name: event-statistics
-        app.kubernetes.io/part-of: event-stats
         app.kubernetes.io/version: java17-latest
+        app.kubernetes.io/part-of: event-stats
     spec:
       containers:
         - env:
@@ -1447,10 +1447,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: event-statistics:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -1459,8 +1459,8 @@ spec:
               path: /q/health/live
               port: 8085
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           name: event-statistics
@@ -1474,8 +1474,8 @@ spec:
               path: /q/health/ready
               port: 8085
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           resources:
@@ -1501,7 +1501,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:51 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:36:20 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -1533,7 +1533,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:20:51 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:36:20 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats

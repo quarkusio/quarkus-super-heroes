@@ -138,7 +138,7 @@ metadata:
     app.openshift.io/connects-to: "villains-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:16:14 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:31:28 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -157,10 +157,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-villains-config
             - secretRef:
                 name: rest-villains-config-creds
+            - configMapRef:
+                name: rest-villains-config
           image: quay.io/quarkus-super-heroes/rest-villains:java11-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -169,8 +169,8 @@ spec:
               path: /q/health/live
               port: null
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           name: rest-villains
@@ -184,8 +184,8 @@ spec:
               path: /q/health/ready
               port: null
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           resources:
@@ -334,7 +334,7 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:16:32 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:31:48 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -344,9 +344,9 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: heroes-service
     system: quarkus-super-heroes
-    app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   template:
@@ -365,8 +365,8 @@ spec:
               path: /q/health/live
               port: null
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           name: rest-heroes
@@ -380,8 +380,8 @@ spec:
               path: /q/health/ready
               port: null
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           resources:
@@ -609,7 +609,7 @@ spec:
             failureThreshold: 3
             httpGet:
               path: /health/live
-              port: null
+              port: 8080
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 30
@@ -618,13 +618,13 @@ spec:
           name: apicurio
           ports:
             - containerPort: 8080
-              name: http1
+              name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
             httpGet:
               path: /health/ready
-              port: null
+              port: 8080
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 30
@@ -665,7 +665,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:16:53 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:32:10 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -684,17 +684,24 @@ spec:
     metadata:
       annotations:
         autoscaling.knative.dev/minScale: "1"
+        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+        app.openshift.io/vcs-ref: main
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
       labels:
+        app: rest-fights
+        app.openshift.io/runtime: quarkus
+        application: fights-service
+        system: quarkus-super-heroes
         app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: java11-latest
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:java11-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -703,8 +710,8 @@ spec:
               path: /q/health/live
               port: null
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           name: rest-fights
@@ -718,8 +725,8 @@ spec:
               path: /q/health/ready
               port: null
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           resources:
@@ -855,7 +862,7 @@ spec:
             failureThreshold: 3
             httpGet:
               path: /health/live
-              port: null
+              port: 8080
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 30
@@ -864,13 +871,13 @@ spec:
           name: apicurio
           ports:
             - containerPort: 8080
-              name: http1
+              name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
             httpGet:
               path: /health/ready
-              port: null
+              port: 8080
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 30
@@ -911,7 +918,7 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:17:10 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:32:27 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -921,9 +928,9 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: event-stats
     system: quarkus-super-heroes
-    app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/version: java11-latest
     app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/name: event-statistics
   name: event-statistics
 spec:
   template:
@@ -942,8 +949,8 @@ spec:
               path: /q/health/live
               port: null
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           name: event-statistics
@@ -957,8 +964,8 @@ spec:
               path: /q/health/ready
               port: null
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           resources:

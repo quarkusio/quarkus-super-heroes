@@ -182,7 +182,7 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:24:35 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:40:12 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -208,7 +208,7 @@ spec:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-        app.quarkus.io/build-timestamp: 2023-01-17 - 14:24:35 +0000
+        app.quarkus.io/build-timestamp: 2023-01-26 - 13:40:12 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -228,10 +228,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: event-statistics-config
             - secretRef:
                 name: event-statistics-config-creds
+            - configMapRef:
+                name: event-statistics-config
           image: quay.io/quarkus-super-heroes/event-statistics:native-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
@@ -240,8 +240,8 @@ spec:
               path: /q/health/live
               port: 8085
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           name: event-statistics
@@ -255,8 +255,8 @@ spec:
               path: /q/health/ready
               port: 8085
               scheme: HTTP
-            initialDelaySeconds: 0
-            periodSeconds: 30
+            initialDelaySeconds: 5
+            periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           resources:
@@ -272,7 +272,7 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.quarkus.io/build-timestamp: 2023-01-17 - 14:24:35 +0000
+    app.quarkus.io/build-timestamp: 2023-01-26 - 13:40:12 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
