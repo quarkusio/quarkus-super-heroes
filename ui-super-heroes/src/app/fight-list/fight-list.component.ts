@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import { Fight, FightService } from '../shared';
-import {MatTableDataSource} from "@angular/material/table";
+import {MatLegacyTableDataSource as MatTableDataSource} from "@angular/material/legacy-table";
 
 @Component({
   selector: 'hero-fight-list',
