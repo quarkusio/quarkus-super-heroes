@@ -94,7 +94,7 @@ jobs:
           install: true
 
       - name: Build JVM image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch}})
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ${{ matrix.project }}
           platforms: linux/${{ matrix.arch }}
@@ -224,7 +224,7 @@ jobs:
         run: echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}-${{ matrix.arch }}" >> $GITHUB_ENV
 
       - name: Build UI image (${{ matrix.arch }})
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ui-super-heroes
           platforms: linux/${{ matrix.arch }}
