@@ -3,6 +3,7 @@ package io.quarkus.sample.superheroes.villain.rest;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.*;
 import static javax.ws.rs.core.Response.Status.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -81,19 +82,25 @@ public class VillainResourceTests {
 		when(this.villainService.findRandomVillain())
 			.thenReturn(Optional.of(createDefaultVillian()));
 
-		get("/api/villains/random")
+		var villain = get("/api/villains/random")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body(
-					"$", notNullValue(),
-					"id", is((int) DEFAULT_ID),
-					"name", is(DEFAULT_NAME),
-					"otherName", is(DEFAULT_OTHER_NAME),
-					"level", is(DEFAULT_LEVEL),
-					"picture", is(DEFAULT_PICTURE),
-					"powers", is(DEFAULT_POWERS)
-				);
+        .extract().as(Villain.class);
+
+    var defaultVillain = new Villain();
+    defaultVillain.id = DEFAULT_ID;
+    defaultVillain.name = DEFAULT_NAME;
+    defaultVillain.otherName = DEFAULT_OTHER_NAME;
+    defaultVillain.picture = DEFAULT_PICTURE;
+    defaultVillain.powers = DEFAULT_POWERS;
+    defaultVillain.level = DEFAULT_LEVEL;
+
+    assertThat(villain)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .ignoringFieldsMatchingRegexes(".*_hibernate_.*")
+      .isEqualTo(defaultVillain);
 
 		verify(this.villainService).findRandomVillain();
 		verifyNoMoreInteractions(this.villainService);
@@ -218,19 +225,26 @@ public class VillainResourceTests {
 		when(this.villainService.findAllVillains())
 			.thenReturn(List.of(createDefaultVillian()));
 
-		get("/api/villains")
+    var defaultVillain = new Villain();
+    defaultVillain.id = DEFAULT_ID;
+    defaultVillain.name = DEFAULT_NAME;
+    defaultVillain.otherName = DEFAULT_OTHER_NAME;
+    defaultVillain.picture = DEFAULT_PICTURE;
+    defaultVillain.powers = DEFAULT_POWERS;
+    defaultVillain.level = DEFAULT_LEVEL;
+
+		var villains = get("/api/villains")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body(
-					"$.size()", is(1),
-					"[0].id", is((int) DEFAULT_ID),
-					"[0].name", is(DEFAULT_NAME),
-					"[0].otherName", is(DEFAULT_OTHER_NAME),
-					"[0].level", is(DEFAULT_LEVEL),
-					"[0].picture", is(DEFAULT_PICTURE),
-					"[0].powers", is(DEFAULT_POWERS)
-				);
+        .extract().body()
+        .jsonPath().getList(".", Villain.class);
+
+    assertThat(villains)
+      .singleElement()
+      .usingRecursiveComparison()
+      .ignoringFieldsMatchingRegexes(".*_hibernate_.*")
+      .isEqualTo(defaultVillain);
 
 		verify(this.villainService).findAllVillains();
 		verifyNoMoreInteractions(this.villainService);
@@ -255,22 +269,29 @@ public class VillainResourceTests {
     when(this.villainService.findAllVillainsHavingName(eq("name")))
       .thenReturn(List.of(createDefaultVillian()));
 
-    given()
+    var defaultVillain = new Villain();
+    defaultVillain.id = DEFAULT_ID;
+    defaultVillain.name = DEFAULT_NAME;
+    defaultVillain.otherName = DEFAULT_OTHER_NAME;
+    defaultVillain.picture = DEFAULT_PICTURE;
+    defaultVillain.powers = DEFAULT_POWERS;
+    defaultVillain.level = DEFAULT_LEVEL;
+
+    var villains = given()
       .when()
         .queryParam("name_filter", "name")
         .get("/api/villains")
       .then()
         .statusCode(OK.getStatusCode())
         .contentType(JSON)
-        .body(
-          "$.size()", is(1),
-          "[0].id", is((int) DEFAULT_ID),
-          "[0].name", is(DEFAULT_NAME),
-          "[0].otherName", is(DEFAULT_OTHER_NAME),
-          "[0].level", is(DEFAULT_LEVEL),
-          "[0].picture", is(DEFAULT_PICTURE),
-          "[0].powers", is(DEFAULT_POWERS)
-        );
+        .extract().body()
+        .jsonPath().getList(".", Villain.class);
+
+    assertThat(villains)
+      .singleElement()
+      .usingRecursiveComparison()
+      .ignoringFieldsMatchingRegexes(".*_hibernate_.*")
+      .isEqualTo(defaultVillain);
 
     verify(this.villainService).findAllVillainsHavingName(eq("name"));
     verifyNoMoreInteractions(this.villainService);
@@ -442,10 +463,18 @@ public class VillainResourceTests {
 		partialVillain.powers = UPDATED_POWERS;
 		partialVillain.picture = UPDATED_PICTURE;
 
+    var defaultVillain = new Villain();
+    defaultVillain.id = DEFAULT_ID;
+    defaultVillain.name = DEFAULT_NAME;
+    defaultVillain.otherName = DEFAULT_OTHER_NAME;
+    defaultVillain.picture = partialVillain.picture;
+    defaultVillain.powers = partialVillain.powers;
+    defaultVillain.level = DEFAULT_LEVEL;
+
 		when(this.villainService.partialUpdateVillain(argThat(villainMatcher)))
 			.thenReturn(Optional.of(createPartiallyUpdatedVillain()));
 
-		given()
+		var villain = given()
 			.when()
 				.body(partialVillain)
 				.contentType(JSON)
@@ -454,15 +483,13 @@ public class VillainResourceTests {
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body(
-					"$", notNullValue(),
-					"id", is((int) DEFAULT_ID),
-					"name", is(DEFAULT_NAME),
-					"otherName", is(DEFAULT_OTHER_NAME),
-					"level", is(DEFAULT_LEVEL),
-					"picture", is(UPDATED_PICTURE),
-					"powers", is(UPDATED_POWERS)
-				);
+        .extract().as(Villain.class);
+
+    assertThat(villain)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .ignoringFieldsMatchingRegexes(".*_hibernate_.*")
+      .isEqualTo(defaultVillain);
 
 		verify(this.villainService).partialUpdateVillain(argThat(villainMatcher));
 		verifyNoMoreInteractions(this.villainService);

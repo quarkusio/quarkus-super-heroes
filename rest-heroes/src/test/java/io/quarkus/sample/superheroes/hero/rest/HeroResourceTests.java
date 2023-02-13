@@ -3,6 +3,7 @@ package io.quarkus.sample.superheroes.hero.rest;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
 import static javax.ws.rs.core.Response.Status.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -83,19 +84,30 @@ public class HeroResourceTests {
 		when(this.heroService.findRandomHero())
 			.thenReturn(Uni.createFrom().item(createDefaultHero()));
 
-		get("/api/heroes/random")
+		var hero = get("/api/heroes/random")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body(
-					"$", notNullValue(),
-					"id", is((int) DEFAULT_ID),
-					"name", is(DEFAULT_NAME),
-					"otherName", is(DEFAULT_OTHER_NAME),
-					"level", is(DEFAULT_LEVEL),
-					"picture", is(DEFAULT_PICTURE),
-					"powers", is(DEFAULT_POWERS)
-				);
+        .extract().as(Hero.class);
+
+    assertThat(hero)
+      .isNotNull()
+      .extracting(
+        Hero::getId,
+        Hero::getLevel,
+        Hero::getName,
+        Hero::getOtherName,
+        Hero::getPicture,
+        Hero::getPowers
+      )
+      .containsExactly(
+        DEFAULT_ID,
+        DEFAULT_LEVEL,
+        DEFAULT_NAME,
+        DEFAULT_OTHER_NAME,
+        DEFAULT_PICTURE,
+        DEFAULT_POWERS
+      );
 
 		verify(this.heroService).findRandomHero();
 		verifyNoMoreInteractions(this.heroService);
@@ -220,19 +232,31 @@ public class HeroResourceTests {
 		when(this.heroService.findAllHeroes())
 			.thenReturn(Uni.createFrom().item(List.of(createDefaultHero())));
 
-		get("/api/heroes")
+		var heroes = get("/api/heroes")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body(
-					"$.size()", is(1),
-					"[0].id", is((int) DEFAULT_ID),
-					"[0].name", is(DEFAULT_NAME),
-					"[0].otherName", is(DEFAULT_OTHER_NAME),
-					"[0].level", is(DEFAULT_LEVEL),
-					"[0].picture", is(DEFAULT_PICTURE),
-					"[0].powers", is(DEFAULT_POWERS)
-				);
+        .extract().body()
+        .jsonPath().getList(".", Hero.class);
+
+    assertThat(heroes)
+      .singleElement()
+      .extracting(
+        Hero::getId,
+        Hero::getLevel,
+        Hero::getName,
+        Hero::getOtherName,
+        Hero::getPicture,
+        Hero::getPowers
+      )
+      .containsExactly(
+        DEFAULT_ID,
+        DEFAULT_LEVEL,
+        DEFAULT_NAME,
+        DEFAULT_OTHER_NAME,
+        DEFAULT_PICTURE,
+        DEFAULT_POWERS
+      );
 
 		verify(this.heroService).findAllHeroes();
 		verifyNoMoreInteractions(this.heroService);
@@ -257,22 +281,34 @@ public class HeroResourceTests {
     when(this.heroService.findAllHeroesHavingName(eq("name")))
       .thenReturn(Uni.createFrom().item(List.of(createDefaultHero())));
 
-    given()
+    var heroes = given()
       .when()
         .queryParam("name_filter", "name")
         .get("/api/heroes")
       .then()
         .statusCode(OK.getStatusCode())
         .contentType(JSON)
-        .body(
-          "$.size()", is(1),
-          "[0].id", is((int) DEFAULT_ID),
-          "[0].name", is(DEFAULT_NAME),
-          "[0].otherName", is(DEFAULT_OTHER_NAME),
-          "[0].level", is(DEFAULT_LEVEL),
-          "[0].picture", is(DEFAULT_PICTURE),
-          "[0].powers", is(DEFAULT_POWERS)
-        );
+        .extract().body()
+        .jsonPath().getList(".", Hero.class);
+
+    assertThat(heroes)
+      .singleElement()
+      .extracting(
+        Hero::getId,
+        Hero::getLevel,
+        Hero::getName,
+        Hero::getOtherName,
+        Hero::getPicture,
+        Hero::getPowers
+      )
+      .containsExactly(
+        DEFAULT_ID,
+        DEFAULT_LEVEL,
+        DEFAULT_NAME,
+        DEFAULT_OTHER_NAME,
+        DEFAULT_PICTURE,
+        DEFAULT_POWERS
+      );
 
     verify(this.heroService).findAllHeroesHavingName(eq("name"));
     verifyNoMoreInteractions(this.heroService);
@@ -447,7 +483,7 @@ public class HeroResourceTests {
 		when(this.heroService.partialUpdateHero(argThat(heroMatcher)))
 			.thenReturn(Uni.createFrom().item(createPartiallyUpdatedHero()));
 
-		given()
+		var hero = given()
 			.when()
 				.body(partialHero)
 				.contentType(JSON)
@@ -456,15 +492,26 @@ public class HeroResourceTests {
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body(
-					"$", notNullValue(),
-					"id", is((int) DEFAULT_ID),
-					"name", is(DEFAULT_NAME),
-					"otherName", is(DEFAULT_OTHER_NAME),
-					"level", is(DEFAULT_LEVEL),
-					"picture", is(UPDATED_PICTURE),
-					"powers", is(UPDATED_POWERS)
-				);
+        .extract().as(Hero.class);
+
+    assertThat(hero)
+      .isNotNull()
+      .extracting(
+        Hero::getId,
+        Hero::getLevel,
+        Hero::getName,
+        Hero::getOtherName,
+        Hero::getPicture,
+        Hero::getPowers
+      )
+      .containsExactly(
+        DEFAULT_ID,
+        DEFAULT_LEVEL,
+        DEFAULT_NAME,
+        DEFAULT_OTHER_NAME,
+        UPDATED_PICTURE,
+        UPDATED_POWERS
+      );
 
 		verify(this.heroService).partialUpdateHero(argThat(heroMatcher));
 		verifyNoMoreInteractions(this.heroService);

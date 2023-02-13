@@ -220,15 +220,19 @@ public class HeroResourceIT {
   @Test
   @Order(DEFAULT_ORDER)
   public void shouldGetHeroesThatMatchFilterCriteria() {
-    given()
+    var heroes = given()
       .when()
         .queryParam("name_filter", "spid")
         .get("/api/heroes")
       .then()
         .statusCode(OK.getStatusCode())
-        .body("size()", is(2))
-        .body("[0].name", is("Spider-Man"))
-        .body("[1].name", is("Spidey"));
+        .extract().body()
+        .jsonPath().getList(".", Hero.class);
+
+    assertThat(heroes)
+      .hasSize(2)
+      .extracting(Hero::getName)
+      .containsExactly("Spider-Man", "Spidey");
   }
 
 	@Test
@@ -273,18 +277,42 @@ public class HeroResourceIT {
 		assertThat(heroId)
 			.isNotNull();
 
-		get("/api/heroes/{id}", heroId)
+		var returnedHero = get("/api/heroes/{id}", heroId)
 			.then()
 				.contentType(JSON)
 				.statusCode(OK.getStatusCode())
-				.body("name", is(DEFAULT_NAME))
-				.body("otherName", is(DEFAULT_OTHER_NAME))
-				.body("level", is(DEFAULT_LEVEL))
-				.body("picture", is(DEFAULT_PICTURE))
-				.body("powers", is(DEFAULT_POWERS));
+        .extract().as(Hero.class);
+
+    assertThat(returnedHero)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .ignoringFields("id")
+      .isEqualTo(createDefaultHero());
 
     verifyNumberOfHeroes(NB_HEROES + 1);
 	}
+
+  private static Hero createDefaultHero() {
+    var hero = new Hero();
+    hero.setName(DEFAULT_NAME);
+    hero.setOtherName(DEFAULT_OTHER_NAME);
+    hero.setLevel(DEFAULT_LEVEL);
+    hero.setPicture(DEFAULT_PICTURE);
+    hero.setPowers(DEFAULT_POWERS);
+
+    return hero;
+  }
+
+  private static Hero createUpdatedHero() {
+    var hero = new Hero();
+    hero.setName(UPDATED_NAME);
+    hero.setOtherName(UPDATED_OTHER_NAME);
+    hero.setLevel(UPDATED_LEVEL);
+    hero.setPicture(UPDATED_PICTURE);
+    hero.setPowers(UPDATED_POWERS);
+
+    return hero;
+  }
 
   private static void verifyNumberOfHeroes(int expected) {
     get("/api/heroes")
@@ -329,7 +357,12 @@ public class HeroResourceIT {
 		hero.setPicture(DEFAULT_PICTURE);
 		hero.setPowers(DEFAULT_POWERS);
 
-		given()
+    var expectedHero = createUpdatedHero();
+    expectedHero.setId(Long.parseLong(heroId));
+    expectedHero.setPicture(hero.getPicture());
+    expectedHero.setPowers(hero.getPowers());
+
+		var patchedHero = given()
 			.when()
 				.body(hero)
 				.contentType(JSON)
@@ -338,15 +371,12 @@ public class HeroResourceIT {
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body(
-					"$", notNullValue(),
-					"id", is(Integer.parseInt(heroId)),
-					"name", is(UPDATED_NAME),
-					"otherName", is(UPDATED_OTHER_NAME),
-					"level", is(UPDATED_LEVEL),
-					"picture", is(DEFAULT_PICTURE),
-					"powers", is(DEFAULT_POWERS)
-				);
+        .extract().as(Hero.class);
+
+    assertThat(patchedHero)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(expectedHero);
 
 		get("/api/heroes")
 			.then()
@@ -430,22 +460,17 @@ public class HeroResourceIT {
 				.statusCode(CREATED.getStatusCode())
 				.header(HttpHeaders.LOCATION, endsWith("/api/heroes"));
 
-    get("/api/heroes")
+    var heroes = get("/api/heroes")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-			  .body("$.size()", is(2),
-          "[0].name", is(DEFAULT_NAME),
-          "[0].otherName", is(DEFAULT_OTHER_NAME),
-          "[0].picture", is(DEFAULT_PICTURE),
-          "[0].powers", is(DEFAULT_POWERS),
-          "[0].level", is(DEFAULT_LEVEL),
-          "[1].name", is(UPDATED_NAME),
-          "[1].otherName", is(UPDATED_OTHER_NAME),
-          "[1].picture", is(UPDATED_PICTURE),
-          "[1].powers", is(UPDATED_POWERS),
-          "[1].level", is(UPDATED_LEVEL)
-        );
+        .extract().body()
+        .jsonPath().getList(".", Hero.class);
+
+    assertThat(heroes)
+      .hasSize(2)
+      .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
+      .containsExactly(createDefaultHero(), createUpdatedHero());
   }
 
 	@Test

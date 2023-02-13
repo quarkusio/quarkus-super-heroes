@@ -1,13 +1,13 @@
 package io.quarkus.sample.superheroes.fight.client;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.*;
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
 import static javax.ws.rs.core.MediaType.*;
 import static javax.ws.rs.core.Response.Status.OK;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.ParameterizedTest.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource;
 import io.quarkus.sample.superheroes.fight.InjectWireMock;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -93,7 +94,7 @@ public class HeaderPropagationTests {
         .willReturn(okForContentType(APPLICATION_JSON, getDefaultVillainJson()))
     );
 
-    given()
+    var randomFighters = given()
       .header(PROPAGATE_HEADER_NAME, PROPAGATE_HEADER_VALUE)
       .header(NO_PROPAGATE_HEADER_NAME, NO_PROPAGATE_HEADER_VALUE)
       .when()
@@ -101,19 +102,12 @@ public class HeaderPropagationTests {
       .then()
         .statusCode(OK.getStatusCode())
         .contentType(JSON)
-        .body(
-          "$", notNullValue(),
-          "hero", notNullValue(),
-          "hero.name", is(DEFAULT_HERO.getName()),
-          "hero.level", is(DEFAULT_HERO.getLevel()),
-          "hero.picture", is(DEFAULT_HERO.getPicture()),
-          "hero.powers", is(DEFAULT_HERO.getPowers()),
-          "villain", notNullValue(),
-          "villain.name", is(DEFAULT_VILLAIN.getName()),
-          "villain.level", is(DEFAULT_VILLAIN.getLevel()),
-          "villain.picture", is(DEFAULT_VILLAIN.getPicture()),
-          "villain.powers", is(DEFAULT_VILLAIN.getPowers())
-        );
+        .extract().as(Fighters.class);
+
+    assertThat(randomFighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new Fighters(DEFAULT_HERO, DEFAULT_VILLAIN));
 
     this.wireMockServer.verify(1,
       getRequestedFor(urlEqualTo(HERO_API_URI))

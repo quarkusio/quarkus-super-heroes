@@ -1,6 +1,5 @@
 package io.quarkus.sample.superheroes.fight.rest;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.*;
@@ -9,7 +8,7 @@ import static javax.ws.rs.core.HttpHeaders.ACCEPT;
 import static javax.ws.rs.core.MediaType.*;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.ParameterizedTest.*;
 
 import java.time.Duration;
@@ -202,23 +201,16 @@ public class FightResourceIT {
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultVillainJson()))
 		);
 
-		get("/api/fights/randomfighters")
+		var fighters = get("/api/fights/randomfighters")
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"$", notNullValue(),
-				"hero", notNullValue(),
-				"hero.name", is(FALLBACK_HERO.getName()),
-				"hero.level", is(FALLBACK_HERO.getLevel()),
-				"hero.picture", is(FALLBACK_HERO.getPicture()),
-				"hero.powers", is(FALLBACK_HERO.getPowers()),
-				"villain", notNullValue(),
-				"villain.name", is(DEFAULT_VILLAIN.getName()),
-				"villain.level", is(DEFAULT_VILLAIN.getLevel()),
-				"villain.picture", is(DEFAULT_VILLAIN.getPicture()),
-				"villain.powers", is(DEFAULT_VILLAIN.getPowers())
-			);
+      .extract().as(Fighters.class);
+
+    assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new Fighters(FALLBACK_HERO, DEFAULT_VILLAIN));
 
 		this.wireMockServer.verify(4,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
@@ -246,23 +238,16 @@ public class FightResourceIT {
 				.willReturn(serverError())
 		);
 
-		get("/api/fights/randomfighters")
+		var fighters = get("/api/fights/randomfighters")
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"$", notNullValue(),
-				"hero", notNullValue(),
-				"hero.name", is(DEFAULT_HERO.getName()),
-				"hero.level", is(DEFAULT_HERO.getLevel()),
-				"hero.picture", is(DEFAULT_HERO.getPicture()),
-				"hero.powers", is(DEFAULT_HERO.getPowers()),
-				"villain", notNullValue(),
-				"villain.name", is(FALLBACK_VILLAIN.getName()),
-				"villain.level", is(FALLBACK_VILLAIN.getLevel()),
-				"villain.picture", is(FALLBACK_VILLAIN.getPicture()),
-				"villain.powers", is(FALLBACK_VILLAIN.getPowers())
-			);
+      .extract().as(Fighters.class);
+
+    assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new Fighters(DEFAULT_HERO, FALLBACK_VILLAIN));
 
 		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
@@ -288,23 +273,16 @@ public class FightResourceIT {
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultVillainJson()))
 		);
 
-		get("/api/fights/randomfighters")
+		var fighters = get("/api/fights/randomfighters")
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"$", notNullValue(),
-				"hero", notNullValue(),
-				"hero.name", is(FALLBACK_HERO.getName()),
-				"hero.level", is(FALLBACK_HERO.getLevel()),
-				"hero.picture", is(FALLBACK_HERO.getPicture()),
-				"hero.powers", is(FALLBACK_HERO.getPowers()),
-				"villain", notNullValue(),
-				"villain.name", is(DEFAULT_VILLAIN.getName()),
-				"villain.level", is(DEFAULT_VILLAIN.getLevel()),
-				"villain.picture", is(DEFAULT_VILLAIN.getPicture()),
-				"villain.powers", is(DEFAULT_VILLAIN.getPowers())
-			);
+      .extract().as(Fighters.class);
+
+    assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new Fighters(FALLBACK_HERO, DEFAULT_VILLAIN));
 
 		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
@@ -332,23 +310,16 @@ public class FightResourceIT {
 				.willReturn(notFound())
 		);
 
-		get("/api/fights/randomfighters")
+		var fighters = get("/api/fights/randomfighters")
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"$", notNullValue(),
-				"hero", notNullValue(),
-				"hero.name", is(DEFAULT_HERO.getName()),
-				"hero.level", is(DEFAULT_HERO.getLevel()),
-				"hero.picture", is(DEFAULT_HERO.getPicture()),
-				"hero.powers", is(DEFAULT_HERO.getPowers()),
-				"villain", notNullValue(),
-				"villain.name", is(FALLBACK_VILLAIN.getName()),
-				"villain.level", is(FALLBACK_VILLAIN.getLevel()),
-				"villain.picture", is(FALLBACK_VILLAIN.getPicture()),
-				"villain.powers", is(FALLBACK_VILLAIN.getPowers())
-			);
+      .extract().as(Fighters.class);
+
+    assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new Fighters(DEFAULT_HERO, FALLBACK_VILLAIN));
 
 		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
@@ -376,23 +347,16 @@ public class FightResourceIT {
 				.willReturn(notFound())
 		);
 
-		get("/api/fights/randomfighters")
+		var randomFighters = get("/api/fights/randomfighters")
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"$", notNullValue(),
-				"hero", notNullValue(),
-				"hero.name", is(FALLBACK_HERO.getName()),
-				"hero.level", is(FALLBACK_HERO.getLevel()),
-				"hero.picture", is(FALLBACK_HERO.getPicture()),
-				"hero.powers", is(FALLBACK_HERO.getPowers()),
-				"villain", notNullValue(),
-				"villain.name", is(FALLBACK_VILLAIN.getName()),
-				"villain.level", is(FALLBACK_VILLAIN.getLevel()),
-				"villain.picture", is(FALLBACK_VILLAIN.getPicture()),
-				"villain.powers", is(FALLBACK_VILLAIN.getPowers())
-			);
+      .extract().as(Fighters.class);
+
+    assertThat(randomFighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new Fighters(FALLBACK_HERO, FALLBACK_VILLAIN));
 
 		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
@@ -420,23 +384,16 @@ public class FightResourceIT {
 				.willReturn(serverError())
 		);
 
-		get("/api/fights/randomfighters")
+		var fighters = get("/api/fights/randomfighters")
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"$", notNullValue(),
-				"hero", notNullValue(),
-				"hero.name", is(FALLBACK_HERO.getName()),
-				"hero.level", is(FALLBACK_HERO.getLevel()),
-				"hero.picture", is(FALLBACK_HERO.getPicture()),
-				"hero.powers", is(FALLBACK_HERO.getPowers()),
-				"villain", notNullValue(),
-				"villain.name", is(FALLBACK_VILLAIN.getName()),
-				"villain.level", is(FALLBACK_VILLAIN.getLevel()),
-				"villain.picture", is(FALLBACK_VILLAIN.getPicture()),
-				"villain.powers", is(FALLBACK_VILLAIN.getPowers())
-			);
+      .extract().as(Fighters.class);
+
+    assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new Fighters(FALLBACK_HERO, FALLBACK_VILLAIN));
 
 		this.wireMockServer.verify(4,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
@@ -464,23 +421,16 @@ public class FightResourceIT {
 				.willReturn(okForContentType(APPLICATION_JSON, getDefaultVillainJson()))
 		);
 
-		get("/api/fights/randomfighters")
+		var fighters = get("/api/fights/randomfighters")
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"$", notNullValue(),
-				"hero", notNullValue(),
-				"hero.name", is(DEFAULT_HERO.getName()),
-				"hero.level", is(DEFAULT_HERO.getLevel()),
-				"hero.picture", is(DEFAULT_HERO.getPicture()),
-				"hero.powers", is(DEFAULT_HERO.getPowers()),
-				"villain", notNullValue(),
-				"villain.name", is(DEFAULT_VILLAIN.getName()),
-				"villain.level", is(DEFAULT_VILLAIN.getLevel()),
-				"villain.picture", is(DEFAULT_VILLAIN.getPicture()),
-				"villain.powers", is(DEFAULT_VILLAIN.getPowers())
-			);
+      .extract().as(Fighters.class);
+
+    assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new Fighters(DEFAULT_HERO, DEFAULT_VILLAIN));
 
 		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(HERO_API_URI))
@@ -635,20 +585,27 @@ public class FightResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void getFoundFight() {
-		get("/api/fights/{id}", getAndVerifyAllFights().get(0).id.toString())
+    var expectedFight = new Fight();
+    expectedFight.winnerName = "Chewbacca";
+    expectedFight.winnerLevel = 5;
+    expectedFight.winnerPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/chewbacca--684239239428094811.jpg";
+    expectedFight.winnerTeam = HEROES_TEAM_NAME;
+    expectedFight.loserName = "Wanderer";
+    expectedFight.loserLevel = 3;
+    expectedFight.loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/wanderer-300775911119209178.jpg";
+    expectedFight.loserTeam = VILLAINS_TEAM_NAME;
+
+		var fight = get("/api/fights/{id}", getAndVerifyAllFights().get(0).id.toString())
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"winnerName", is("Chewbacca"),
-				"winnerLevel", is(5),
-				"winnerPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/chewbacca--684239239428094811.jpg"),
-				"winnerTeam", is(HEROES_TEAM_NAME),
-				"loserName", is("Wanderer"),
-				"loserLevel", is(3),
-				"loserPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/wanderer-300775911119209178.jpg"),
-				"loserTeam", is(VILLAINS_TEAM_NAME)
-			);
+      .extract().as(Fight.class);
+
+    assertThat(fight)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .ignoringFields("id", "fightDate")
+      .isEqualTo(expectedFight);
 	}
 
 	@Test
@@ -685,7 +642,17 @@ public class FightResourceIT {
       .withAutoCommit()
       .fromTopics("fights", 1);
 
-		given()
+    var expectedFight = new Fight();
+    expectedFight.winnerName = DEFAULT_HERO.getName();
+    expectedFight.winnerLevel = DEFAULT_HERO.getLevel();
+    expectedFight.winnerPicture = DEFAULT_HERO.getPicture();
+    expectedFight.winnerTeam = HEROES_TEAM_NAME;
+    expectedFight.loserName = DEFAULT_VILLAIN.getName();
+    expectedFight.loserLevel = DEFAULT_VILLAIN.getLevel();
+    expectedFight.loserPicture = DEFAULT_VILLAIN.getPicture();
+    expectedFight.loserTeam = VILLAINS_TEAM_NAME;
+
+		var fightResult = given()
 			.when()
 				.contentType(JSON)
 				.accept(JSON)
@@ -694,16 +661,13 @@ public class FightResourceIT {
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body(
-					"winnerName", is(DEFAULT_HERO.getName()),
-					"winnerLevel", is(DEFAULT_HERO.getLevel()),
-					"winnerPicture", is(DEFAULT_HERO.getPicture()),
-					"winnerTeam", is(HEROES_TEAM_NAME),
-					"loserName", is(DEFAULT_VILLAIN.getName()),
-					"loserLevel", is(DEFAULT_VILLAIN.getLevel()),
-					"loserPicture", is(DEFAULT_VILLAIN.getPicture()),
-					"loserTeam", is(VILLAINS_TEAM_NAME)
-				);
+        .extract().as(Fight.class);
+
+    assertThat(fightResult)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .ignoringFields("id", "fightDate")
+      .isEqualTo(expectedFight);
 
 		get("/api/fights")
 			.then()
@@ -763,7 +727,17 @@ public class FightResourceIT {
 			)
 		);
 
-		given()
+    var expectedFight = new Fight();
+    expectedFight.loserName = DEFAULT_HERO.getName();
+    expectedFight.loserLevel = DEFAULT_VILLAIN.getLevel();
+    expectedFight.loserPicture = DEFAULT_HERO.getPicture();
+    expectedFight.loserTeam = HEROES_TEAM_NAME;
+    expectedFight.winnerName = DEFAULT_VILLAIN.getName();
+    expectedFight.winnerLevel = DEFAULT_HERO.getLevel();
+    expectedFight.winnerPicture = DEFAULT_VILLAIN.getPicture();
+    expectedFight.winnerTeam = VILLAINS_TEAM_NAME;
+
+		var fightResult = given()
 			.when()
 				.contentType(JSON)
 				.accept(JSON)
@@ -772,16 +746,13 @@ public class FightResourceIT {
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body(
-					"winnerName", is(DEFAULT_VILLAIN.getName()),
-					"winnerLevel", is(DEFAULT_HERO.getLevel()),
-					"winnerPicture", is(DEFAULT_VILLAIN.getPicture()),
-					"winnerTeam", is(VILLAINS_TEAM_NAME),
-					"loserName", is(DEFAULT_HERO.getName()),
-					"loserLevel", is(DEFAULT_VILLAIN.getLevel()),
-					"loserPicture", is(DEFAULT_HERO.getPicture()),
-					"loserTeam", is(HEROES_TEAM_NAME)
-				);
+        .extract().as(Fight.class);
+
+    assertThat(fightResult)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .ignoringFields("id", "fightDate")
+      .isEqualTo(expectedFight);
 
 		get("/api/fights")
 			.then()
@@ -818,39 +789,46 @@ public class FightResourceIT {
 	}
 
 	private List<Fight> getAndVerifyAllFights() {
-		return get("/api/fights")
+    var expectedFights = List.of(new Fight(), new Fight(), new Fight());
+    expectedFights.get(0).winnerName = "Chewbacca";
+    expectedFights.get(0).winnerLevel = 5;
+    expectedFights.get(0).winnerPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/chewbacca--684239239428094811.jpg";
+    expectedFights.get(0).winnerTeam = HEROES_TEAM_NAME;
+    expectedFights.get(0).loserName = "Wanderer";
+    expectedFights.get(0).loserLevel = 3;
+    expectedFights.get(0).loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/wanderer-300775911119209178.jpg";
+    expectedFights.get(0).loserTeam = VILLAINS_TEAM_NAME;
+    expectedFights.get(1).winnerName = "Galadriel";
+    expectedFights.get(1).winnerLevel = 10;
+    expectedFights.get(1).winnerPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/galadriel--1293733805363806029.jpg";
+    expectedFights.get(1).winnerTeam = HEROES_TEAM_NAME;
+    expectedFights.get(1).loserName = "Darth Vader";
+    expectedFights.get(1).loserLevel = 8;
+    expectedFights.get(1).loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg";
+    expectedFights.get(1).loserTeam = VILLAINS_TEAM_NAME;
+    expectedFights.get(2).winnerName = "Annihilus";
+    expectedFights.get(2).winnerLevel = 23;
+    expectedFights.get(2).winnerPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/annihilus--751928780106678215.jpg";
+    expectedFights.get(2).winnerTeam = VILLAINS_TEAM_NAME;
+    expectedFights.get(2).loserName = "Shikamaru";
+    expectedFights.get(2).loserLevel = 1;
+    expectedFights.get(2).loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/nara-shikamaru-1970614934047311432.jpg";
+    expectedFights.get(2).loserTeam = HEROES_TEAM_NAME;
+
+		var fights = get("/api/fights")
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"size()", is(NB_FIGHTS),
-				"[0].winnerName", is("Chewbacca"),
-				"[0].winnerLevel", is(5),
-				"[0].winnerPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/chewbacca--684239239428094811.jpg"),
-				"[0].winnerTeam", is(HEROES_TEAM_NAME),
-				"[0].loserName", is("Wanderer"),
-				"[0].loserLevel", is(3),
-				"[0].loserPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/wanderer-300775911119209178.jpg"),
-				"[0].loserTeam", is(VILLAINS_TEAM_NAME),
-				"[1].winnerName", is("Galadriel"),
-				"[1].winnerLevel", is(10),
-				"[1].winnerPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/galadriel--1293733805363806029.jpg"),
-				"[1].winnerTeam", is(HEROES_TEAM_NAME),
-				"[1].loserName", is("Darth Vader"),
-				"[1].loserLevel", is(8),
-				"[1].loserPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg"),
-				"[1].loserTeam", is(VILLAINS_TEAM_NAME),
-				"[2].winnerName", is("Annihilus"),
-				"[2].winnerLevel", is(23),
-				"[2].winnerPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/annihilus--751928780106678215.jpg"),
-				"[2].winnerTeam", is(VILLAINS_TEAM_NAME),
-				"[2].loserName", is("Shikamaru"),
-				"[2].loserLevel", is(1),
-				"[2].loserPicture", is("https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/nara-shikamaru-1970614934047311432.jpg"),
-				"[2].loserTeam", is(HEROES_TEAM_NAME)
-			)
-			.extract()
-			.body().jsonPath().getList(".", Fight.class);
+			.extract().body()
+      .jsonPath().getList(".", Fight.class);
+
+    assertThat(fights)
+      .isNotNull()
+      .hasSize(NB_FIGHTS)
+      .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id", "fightDate")
+      .containsExactlyElementsOf(expectedFights);
+
+    return fights;
 	}
 
 	/**
@@ -881,24 +859,17 @@ public class FightResourceIT {
 
 		// The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
 		IntStream.rangeClosed(0, 8)
-			.forEach(i ->
-				get("/api/fights/randomfighters")
-					.then()
+			.forEach(i -> {
+				var fighters = get("/api/fights/randomfighters").then()
 					.statusCode(OK.getStatusCode())
 					.contentType(JSON)
-					.body(
-						"$", notNullValue(),
-						"hero", notNullValue(),
-						"hero.name", is(DEFAULT_HERO.getName()),
-						"hero.level", is(DEFAULT_HERO.getLevel()),
-						"hero.picture", is(DEFAULT_HERO.getPicture()),
-						"hero.powers", is(DEFAULT_HERO.getPowers()),
-						"villain", notNullValue(),
-						"villain.name", is(DEFAULT_VILLAIN.getName()),
-						"villain.level", is(DEFAULT_VILLAIN.getLevel()),
-						"villain.picture", is(DEFAULT_VILLAIN.getPicture()),
-						"villain.powers", is(DEFAULT_VILLAIN.getPowers())
-					)
+          .extract().as(Fighters.class);
+
+        assertThat(fighters)
+          .isNotNull()
+          .usingRecursiveComparison()
+          .isEqualTo(new Fighters(DEFAULT_HERO, DEFAULT_VILLAIN));
+        }
 			);
 
 		// Verify successful requests

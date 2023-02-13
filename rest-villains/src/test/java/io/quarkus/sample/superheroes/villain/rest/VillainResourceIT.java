@@ -222,15 +222,19 @@ public class VillainResourceIT {
   @Test
   @Order(DEFAULT_ORDER)
   public void shouldGetVillainsThatMatchFilterCriteria() {
-    given()
+    var villains = given()
       .when()
         .queryParam("name_filter", "darth")
         .get("/api/villains")
       .then()
         .statusCode(OK.getStatusCode())
-        .body("size()", is(2))
-        .body("[0].name", is("Darth Sidious"))
-        .body("[1].name", is("Darth Vader"));
+        .extract().body()
+        .jsonPath().getList(".", Villain.class);
+
+    assertThat(villains)
+      .hasSize(2)
+      .extracting("name")
+      .containsExactly("Darth Sidious", "Darth Vader");
   }
 
 	@Test
@@ -275,15 +279,20 @@ public class VillainResourceIT {
 		assertThat(villainId)
 			.isNotNull();
 
-		get("/api/villains/{id}", villainId)
+    var expectedVillain = villain;
+    expectedVillain.level = (int) (DEFAULT_LEVEL * LEVEL_MULTIPLIER);
+
+		var returnedVillain = get("/api/villains/{id}", villainId)
 			.then()
 				.contentType(JSON)
 				.statusCode(OK.getStatusCode())
-				.body("name", is(DEFAULT_NAME))
-				.body("otherName", is(DEFAULT_OTHER_NAME))
-				.body("level", is((int) (DEFAULT_LEVEL * LEVEL_MULTIPLIER)))
-				.body("picture", is(DEFAULT_PICTURE))
-				.body("powers", is(DEFAULT_POWERS));
+        .extract().as(Villain.class);
+
+    assertThat(returnedVillain)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .ignoringFields("id")
+      .isEqualTo(expectedVillain);
 
 		verifyNumberOfVillains(NB_VILLAINS + 1);
 	}
@@ -331,7 +340,15 @@ public class VillainResourceIT {
 		villain.picture = DEFAULT_PICTURE;
 		villain.powers = DEFAULT_POWERS;
 
-		given()
+    var expectedVillain = new Villain();
+    expectedVillain.name = UPDATED_NAME;
+    expectedVillain.otherName = UPDATED_OTHER_NAME;
+    expectedVillain.picture = villain.picture;
+    expectedVillain.powers = villain.powers;
+    expectedVillain.level = UPDATED_LEVEL;
+    expectedVillain.id = (long) (NB_VILLAINS + 1);
+
+		var patchedVillain = given()
 			.when()
 				.body(villain)
 				.contentType(JSON)
@@ -340,15 +357,13 @@ public class VillainResourceIT {
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body(
-					"$", notNullValue(),
-					"id", is(Integer.parseInt(villainId)),
-					"name", is(UPDATED_NAME),
-					"otherName", is(UPDATED_OTHER_NAME),
-					"level", is(UPDATED_LEVEL),
-					"picture", is(DEFAULT_PICTURE),
-					"powers", is(DEFAULT_POWERS)
-				);
+        .extract().as(Villain.class);
+
+    assertThat(patchedVillain)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .ignoringFields("id")
+      .isEqualTo(expectedVillain);
 
 		get("/api/villains")
 			.then()
@@ -433,22 +448,31 @@ public class VillainResourceIT {
 				.statusCode(CREATED.getStatusCode())
 				.header(HttpHeaders.LOCATION, endsWith("/api/villains"));
 
-    get("/api/villains")
+    var villains = get("/api/villains")
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-			  .body("$.size()", is(2),
-          "[0].name", is(DEFAULT_NAME),
-          "[0].otherName", is(DEFAULT_OTHER_NAME),
-          "[0].picture", is(DEFAULT_PICTURE),
-          "[0].powers", is(DEFAULT_POWERS),
-          "[0].level", is(DEFAULT_LEVEL),
-          "[1].name", is(UPDATED_NAME),
-          "[1].otherName", is(UPDATED_OTHER_NAME),
-          "[1].picture", is(UPDATED_PICTURE),
-          "[1].powers", is(UPDATED_POWERS),
-          "[1].level", is(UPDATED_LEVEL)
-        );
+        .extract().body()
+        .jsonPath().getList(".", Villain.class);
+
+    var defaultVillain = new Villain();
+    defaultVillain.name = DEFAULT_NAME;
+    defaultVillain.otherName = DEFAULT_OTHER_NAME;
+    defaultVillain.picture = DEFAULT_PICTURE;
+    defaultVillain.powers = DEFAULT_POWERS;
+    defaultVillain.level = DEFAULT_LEVEL;
+
+    var updatedVillain = new Villain();
+    updatedVillain.name = UPDATED_NAME;
+    updatedVillain.otherName = UPDATED_OTHER_NAME;
+    updatedVillain.picture = UPDATED_PICTURE;
+    updatedVillain.powers = UPDATED_POWERS;
+    updatedVillain.level = UPDATED_LEVEL;
+
+    assertThat(villains)
+      .hasSize(2)
+      .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
+      .containsExactly(defaultVillain, updatedVillain);
   }
 
 	@Test

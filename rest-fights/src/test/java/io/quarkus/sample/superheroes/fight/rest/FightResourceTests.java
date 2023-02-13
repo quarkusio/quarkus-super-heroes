@@ -3,7 +3,8 @@ package io.quarkus.sample.superheroes.fight.rest;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.*;
 import static javax.ws.rs.core.Response.Status.*;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.ParameterizedTest.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
@@ -98,23 +99,16 @@ public class FightResourceTests {
 		when(this.fightService.findRandomFighters())
 			.thenReturn(Uni.createFrom().item(createDefaultFighters()));
 
-		get("/api/fights/randomfighters")
+		var randomFighters = get("/api/fights/randomfighters")
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"$", notNullValue(),
-				"hero", notNullValue(),
-				"hero.name", is(DEFAULT_HERO_NAME),
-				"hero.level", is(DEFAULT_HERO_LEVEL),
-				"hero.picture", is(DEFAULT_HERO_PICTURE),
-				"hero.powers", is(DEFAULT_HERO_POWERS),
-				"villain", notNullValue(),
-				"villain.name", is(DEFAULT_VILLAIN_NAME),
-				"villain.level", is(DEFAULT_VILLAIN_LEVEL),
-				"villain.picture", is(DEFAULT_VILLAIN_PICTURE),
-				"villain.powers", is(DEFAULT_VILLAIN_POWERS)
-			);
+      .extract().as(Fighters.class);
+
+    assertThat(randomFighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(createDefaultFighters());
 
 		verify(this.fightService).findRandomFighters();
 		verifyNoMoreInteractions(this.fightService);
@@ -138,23 +132,17 @@ public class FightResourceTests {
 		when(this.fightService.findAllFights())
 			.thenReturn(Uni.createFrom().item(List.of(createFightHeroWon())));
 
-		get("/api/fights")
+		var fights = get("/api/fights")
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"$.size()", is(1),
-				"[0].id", is(DEFAULT_FIGHT_ID),
-				"[0].fightDate", is(DEFAULT_FIGHT_DATE.toString()),
-				"[0].winnerName", is(DEFAULT_HERO_NAME),
-				"[0].winnerLevel", is(DEFAULT_HERO_LEVEL),
-				"[0].winnerPicture", is(DEFAULT_HERO_PICTURE),
-				"[0].winnerTeam", is(HEROES_TEAM_NAME),
-				"[0].loserName", is(DEFAULT_VILLAIN_NAME),
-				"[0].loserLevel", is(DEFAULT_VILLAIN_LEVEL),
-				"[0].loserPicture", is(DEFAULT_VILLAIN_PICTURE),
-				"[0].loserTeam", is(VILLAINS_TEAM_NAME)
-			);
+      .extract().body()
+      .jsonPath().getList(".", Fight.class);
+
+      assertThat(fights)
+        .singleElement()
+        .usingRecursiveComparison()
+        .isEqualTo(createFightHeroWon());
 
 		verify(this.fightService).findAllFights();
 		verifyNoMoreInteractions(this.fightService);
@@ -177,22 +165,16 @@ public class FightResourceTests {
 		when(this.fightService.findFightById(eq(DEFAULT_FIGHT_ID)))
 			.thenReturn(Uni.createFrom().item(createFightHeroWon()));
 
-		get("/api/fights/{id}", DEFAULT_FIGHT_ID)
+		var fight = get("/api/fights/{id}", DEFAULT_FIGHT_ID)
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(JSON)
-			.body(
-				"id", is(DEFAULT_FIGHT_ID),
-				"fightDate", is(DEFAULT_FIGHT_DATE.toString()),
-				"winnerName", is(DEFAULT_HERO_NAME),
-				"winnerLevel", is(DEFAULT_HERO_LEVEL),
-				"winnerPicture", is(DEFAULT_HERO_PICTURE),
-				"winnerTeam", is(HEROES_TEAM_NAME),
-				"loserName", is(DEFAULT_VILLAIN_NAME),
-				"loserLevel", is(DEFAULT_VILLAIN_LEVEL),
-				"loserPicture", is(DEFAULT_VILLAIN_PICTURE),
-				"loserTeam", is(VILLAINS_TEAM_NAME)
-			);
+      .extract().as(Fight.class);
+
+    assertThat(fight)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(createFightHeroWon());
 
 		verify(this.fightService).findFightById(eq(DEFAULT_FIGHT_ID));
 		verifyNoMoreInteractions(this.fightService);
@@ -233,7 +215,7 @@ public class FightResourceTests {
 		when(this.fightService.performFight(argThat(fightersMatcher)))
 			.thenReturn(Uni.createFrom().item(createFightHeroWon()));
 
-		given()
+		var fight = given()
 			.when()
 				.contentType(JSON)
 				.accept(JSON)
@@ -242,18 +224,12 @@ public class FightResourceTests {
 			.then()
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
-				.body(
-					"id", is(DEFAULT_FIGHT_ID),
-					"fightDate", is(DEFAULT_FIGHT_DATE.toString()),
-					"winnerName", is(DEFAULT_HERO_NAME),
-					"winnerLevel", is(DEFAULT_HERO_LEVEL),
-					"winnerPicture", is(DEFAULT_HERO_PICTURE),
-					"winnerTeam", is(HEROES_TEAM_NAME),
-					"loserName", is(DEFAULT_VILLAIN_NAME),
-					"loserLevel", is(DEFAULT_VILLAIN_LEVEL),
-					"loserPicture", is(DEFAULT_VILLAIN_PICTURE),
-					"loserTeam", is(VILLAINS_TEAM_NAME)
-				);
+        .extract().as(Fight.class);
+
+    assertThat(fight)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(createFightHeroWon());
 
 		verify(this.fightService).performFight(argThat(fightersMatcher));
 		verifyNoMoreInteractions(this.fightService);
