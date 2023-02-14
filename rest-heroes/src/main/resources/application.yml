@@ -114,7 +114,7 @@ quarkus:
   quarkus:
     config:
       profile:
-        parent: prod
+        parent: kubernetes
     docker:
       dockerfile-jvm-path: "${paths.dockerfile.jvm-17}"
 
@@ -132,13 +132,9 @@ quarkus:
   quarkus:
     config:
       profile:
-        parent: prod
-    container-image:
-      builder: openshift
+        parent: openshift
     docker:
       dockerfile-jvm-path: "${paths.dockerfile.jvm-17}"
-    kubernetes:
-      deployment-target: openshift
     openshift:
       jvm-dockerfile: "${paths.dockerfile.jvm-17}"
       base-jvm-image: "${paths.base-image.jvm-17}"
@@ -155,33 +151,25 @@ quarkus:
   quarkus:
     config:
       profile:
-        parent: prod
+        parent: knative
     docker:
       dockerfile-jvm-path: "${paths.dockerfile.jvm-17}"
-    kubernetes:
-      deployment-target: knative
 
 "%knative-openshift":
   quarkus:
     config:
       profile:
-        parent: prod
+        parent: knative
     container-image:
       builder: openshift
-    kubernetes:
-      deployment-target: knative
 
 "%knative-openshift-17":
   quarkus:
     config:
       profile:
-        parent: prod
-    container-image:
-      builder: openshift
+        parent: knative-openshift
     docker:
       dockerfile-jvm-path: "${paths.dockerfile.jvm-17}"
-    kubernetes:
-      deployment-target: knative
     openshift:
       jvm-dockerfile: "${paths.dockerfile.jvm-17}"
       base-jvm-image: "${paths.base-image.jvm-17}"
@@ -198,8 +186,6 @@ quarkus:
   quarkus:
     config:
       profile:
-        parent: prod
+        parent: minikube
     docker:
       dockerfile-jvm-path: "${paths.dockerfile.jvm-17}"
-    kubernetes:
-      deployment-target: minikube
