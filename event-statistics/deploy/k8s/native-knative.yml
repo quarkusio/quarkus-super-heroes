@@ -1,4 +1,67 @@
 ---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/build-timestamp: 2023-02-14 - 17:40:49 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8085"
+    prometheus.io/scheme: http
+  labels:
+    app: event-statistics
+    app.openshift.io/runtime: quarkus
+    application: event-stats
+    system: quarkus-super-heroes
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: native-latest
+  name: event-statistics
+spec:
+  template:
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
+          image: quay.io/quarkus-super-heroes/event-statistics:native-latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: null
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: event-statistics
+          ports:
+            - containerPort: 8085
+              name: http1
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: null
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -174,66 +237,3 @@ spec:
   selector:
     name: apicurio
   type: ClusterIP
----
-apiVersion: serving.knative.dev/v1
-kind: Service
-metadata:
-  annotations:
-    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-02-14 - 14:33:09 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
-    prometheus.io/port: "8085"
-    prometheus.io/scheme: http
-  labels:
-    app: event-statistics
-    app.openshift.io/runtime: quarkus
-    application: event-stats
-    system: quarkus-super-heroes
-    app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/version: native-latest
-  name: event-statistics
-spec:
-  template:
-    spec:
-      containers:
-        - envFrom:
-            - configMapRef:
-                name: event-statistics-config
-            - secretRef:
-                name: event-statistics-config-creds
-          image: quay.io/quarkus-super-heroes/event-statistics:native-latest
-          imagePullPolicy: Always
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/live
-              port: null
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-          name: event-statistics
-          ports:
-            - containerPort: 8085
-              name: http1
-              protocol: TCP
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/ready
-              port: null
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-          resources:
-            limits:
-              memory: 128Mi
-            requests:
-              memory: 32Mi
