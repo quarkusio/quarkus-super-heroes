@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: heroes-db
+    application: heroes-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.openshift.io/runtime: postgresql
+  name: heroes-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: heroes-db
+  template:
+    metadata:
+      labels:
+        name: heroes-db
+        application: heroes-service
+        system: quarkus-super-heroes
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: heroes-db-config
+          image: bitnami/postgresql:14
+          name: heroes-db
+          ports:
+            - containerPort: 5432
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
+          volumeMounts:
+            - mountPath: /bitnami/postgresql
+              name: heroes-db-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: heroes-db-init-data
+      initContainers:
+        - command:
+            - sh
+            - get-data.sh
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          name: get-data
+          volumeMounts:
+            - mountPath: /docker-entrypoint-preinitdb.d
+              name: heroes-db-init
+            - mountPath: /docker-entrypoint-initdb.d
+              name: heroes-db-init-data
+          workingDir: /docker-entrypoint-preinitdb.d
+      volumes:
+        - emptyDir: {}
+          name: heroes-db-data
+        - emptyDir: {}
+          name: heroes-db-init-data
+        - configMap:
+            name: heroes-db-init
+          name: heroes-db-init

@@ -1,0 +1,81 @@
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    app.openshift.io/connects-to: "heroes-db,otel-collector"
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: e6b908a2aad15d5f15e203fc2a7e40dd28e85bab
+    app.quarkus.io/build-timestamp: 2023-02-20 - 20:50:59 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8083"
+    prometheus.io/scheme: http
+  labels:
+    app: rest-heroes
+    app.openshift.io/runtime: quarkus
+    application: heroes-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+  name: rest-heroes
+spec:
+  template:
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: rest-heroes-config
+            - secretRef:
+                name: rest-heroes-config-creds
+          image: {{ .Values.app.image }}
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: {{ .Values.app.livenessProbe.failureThreshold }}
+            httpGet:
+              path: {{ .Values.app.livenessProbe.httpGet.path }}
+              port: {{ .Values.app.livenessProbe.httpGet.port }}
+              scheme: {{ .Values.app.livenessProbe.httpGet.scheme }}
+            initialDelaySeconds: {{ .Values.app.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.app.livenessProbe.periodSeconds }}
+            successThreshold: {{ .Values.app.livenessProbe.successThreshold }}
+            timeoutSeconds: {{ .Values.app.livenessProbe.timeoutSeconds }}
+          name: rest-heroes
+          ports:
+            - containerPort: 8083
+              name: http1
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: {{ .Values.app.readinessProbe.failureThreshold }}
+            httpGet:
+              path: {{ .Values.app.readinessProbe.httpGet.path }}
+              port: {{ .Values.app.readinessProbe.httpGet.port }}
+              scheme: {{ .Values.app.readinessProbe.httpGet.scheme }}
+            initialDelaySeconds: {{ .Values.app.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.app.readinessProbe.periodSeconds }}
+            successThreshold: {{ .Values.app.readinessProbe.successThreshold }}
+            timeoutSeconds: {{ .Values.app.readinessProbe.timeoutSeconds }}
+          resources:
+            limits:
+              memory: 768Mi
+            requests:
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: heroes-db
+    application: heroes-service
+    system: quarkus-super-heroes
+  name: heroes-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: heroes-db
+  type: ClusterIP

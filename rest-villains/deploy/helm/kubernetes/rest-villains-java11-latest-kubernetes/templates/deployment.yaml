@@ -1,0 +1,152 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.openshift.io/connects-to: "villains-db,otel-collector"
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: e6b908a2aad15d5f15e203fc2a7e40dd28e85bab
+    app.quarkus.io/build-timestamp: 2023-02-20 - 20:43:10 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8084"
+    prometheus.io/scheme: http
+  labels:
+    app: rest-villains
+    application: villains-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/name: rest-villains
+  name: rest-villains
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/version: java11-latest
+      app.kubernetes.io/part-of: villains-service
+      app.kubernetes.io/name: rest-villains
+  template:
+    metadata:
+      annotations:
+        app.openshift.io/connects-to: "villains-db,otel-collector"
+        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/commit-id: e6b908a2aad15d5f15e203fc2a7e40dd28e85bab
+        app.quarkus.io/build-timestamp: 2023-02-20 - 20:43:10 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
+        prometheus.io/port: "8084"
+        prometheus.io/scheme: http
+      labels:
+        app: rest-villains
+        application: villains-service
+        system: quarkus-super-heroes
+        app.kubernetes.io/version: java11-latest
+        app.kubernetes.io/part-of: villains-service
+        app.kubernetes.io/name: rest-villains
+    spec:
+      containers:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
+          image: {{ .Values.app.image }}
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: {{ .Values.app.livenessProbe.failureThreshold }}
+            httpGet:
+              path: {{ .Values.app.livenessProbe.httpGet.path }}
+              port: {{ .Values.app.livenessProbe.httpGet.port }}
+              scheme: {{ .Values.app.livenessProbe.httpGet.scheme }}
+            initialDelaySeconds: {{ .Values.app.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.app.livenessProbe.periodSeconds }}
+            successThreshold: {{ .Values.app.livenessProbe.successThreshold }}
+            timeoutSeconds: {{ .Values.app.livenessProbe.timeoutSeconds }}
+          name: rest-villains
+          ports:
+            - containerPort: 8084
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: {{ .Values.app.readinessProbe.failureThreshold }}
+            httpGet:
+              path: {{ .Values.app.readinessProbe.httpGet.path }}
+              port: {{ .Values.app.readinessProbe.httpGet.port }}
+              scheme: {{ .Values.app.readinessProbe.httpGet.scheme }}
+            initialDelaySeconds: {{ .Values.app.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.app.readinessProbe.periodSeconds }}
+            successThreshold: {{ .Values.app.readinessProbe.successThreshold }}
+            timeoutSeconds: {{ .Values.app.readinessProbe.timeoutSeconds }}
+          resources:
+            limits:
+              memory: 768Mi
+            requests:
+              memory: 256Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: villains-db
+    application: villains-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/part-of: villains-service
+    app.openshift.io/runtime: postgresql
+  name: villains-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: villains-db
+  template:
+    metadata:
+      labels:
+        application: villains-service
+        name: villains-db
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: villains-db-config
+          image: bitnami/postgresql:14
+          name: villains-db
+          ports:
+            - containerPort: 5432
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
+          volumeMounts:
+            - mountPath: /bitnami/postgresql
+              name: villains-db-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: villains-db-init-data
+      initContainers:
+        - command:
+            - sh
+            - get-data.sh
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          name: get-data
+          volumeMounts:
+            - mountPath: /docker-entrypoint-preinitdb.d
+              name: villains-db-init
+            - mountPath: /docker-entrypoint-initdb.d
+              name: villains-db-init-data
+          workingDir: /docker-entrypoint-preinitdb.d
+      volumes:
+        - emptyDir: {}
+          name: villains-db-data
+        - emptyDir: {}
+          name: villains-db-init-data
+        - configMap:
+            name: villains-db-init
+          name: villains-db-init

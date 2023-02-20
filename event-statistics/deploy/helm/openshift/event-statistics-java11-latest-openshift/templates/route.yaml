@@ -1,0 +1,46 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8080"
+    prometheus.io/scheme: http
+  labels:
+    app: apicurio
+    application: fights-service
+    system: quarkus-super-heroes
+    app.openshift.io/runtime: apicurio
+  name: apicurio
+spec:
+  port:
+    targetPort: 8080
+  to:
+    kind: Service
+    name: apicurio
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
+    app.openshift.io/vcs-ref: main
+    app.quarkus.io/commit-id: e6b908a2aad15d5f15e203fc2a7e40dd28e85bab
+    app.quarkus.io/build-timestamp: 2023-02-20 - 20:49:48 +0000
+  labels:
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: java11-latest
+    app: event-statistics
+    application: event-stats
+    system: quarkus-super-heroes
+    app.openshift.io/runtime: quarkus
+  name: event-statistics
+spec:
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: event-statistics
