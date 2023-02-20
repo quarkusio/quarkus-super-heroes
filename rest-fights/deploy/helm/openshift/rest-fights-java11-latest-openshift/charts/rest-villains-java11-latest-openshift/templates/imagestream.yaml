@@ -1,0 +1,44 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.openshift.io/connects-to: "villains-db,otel-collector"
+    app.openshift.io/vcs-ref: main
+    app.quarkus.io/commit-id: e6b908a2aad15d5f15e203fc2a7e40dd28e85bab
+    app.quarkus.io/build-timestamp: 2023-02-20 - 20:48:10 +0000
+  labels:
+    app: rest-villains
+    application: villains-service
+    system: quarkus-super-heroes
+    app.openshift.io/runtime: quarkus
+    app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/name: rest-villains
+  name: rest-villains
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - from:
+        kind: DockerImage
+        name: quay.io/quarkus-super-heroes/rest-villains:java11-latest
+      importPolicy: {}
+      name: java11-latest
+      referencePolicy:
+        type: Source
+    - from:
+        kind: DockerImage
+        name: quay.io/quarkus-super-heroes/rest-villains:java17-latest
+      importPolicy: {}
+      name: java17-latest
+      referencePolicy:
+        type: Source
+    - from:
+        kind: DockerImage
+        name: quay.io/quarkus-super-heroes/rest-villains:native-latest
+      importPolicy: {}
+      name: native-latest
+      referencePolicy:
+        type: Source

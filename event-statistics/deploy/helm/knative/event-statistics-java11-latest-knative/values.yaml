@@ -1,0 +1,24 @@
+---
+app:
+  serviceType: ClusterIP
+  livenessProbe:
+    failureThreshold: 3
+    periodSeconds: 10
+    timeoutSeconds: 10
+    successThreshold: 1
+    initialDelaySeconds: 5
+    httpGet:
+      path: /q/health/live
+      scheme: HTTP
+      port: ":START:{{ .Values.app.livenessProbe.httpGet.port }}:END:"
+  image: event-statistics:java11-latest
+  readinessProbe:
+    failureThreshold: 3
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
+    initialDelaySeconds: 5
+    httpGet:
+      path: /q/health/ready
+      scheme: HTTP
+      port: ":START:{{ .Values.app.readinessProbe.httpGet.port }}:END:"

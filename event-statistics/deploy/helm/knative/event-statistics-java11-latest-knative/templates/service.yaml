@@ -1,0 +1,103 @@
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/commit-id: e6b908a2aad15d5f15e203fc2a7e40dd28e85bab
+    app.quarkus.io/build-timestamp: 2023-02-20 - 20:52:21 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8085"
+    prometheus.io/scheme: http
+  labels:
+    app: event-statistics
+    app.openshift.io/runtime: quarkus
+    application: event-stats
+    system: quarkus-super-heroes
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: java11-latest
+  name: event-statistics
+spec:
+  template:
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
+          image: {{ .Values.app.image }}
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: {{ .Values.app.livenessProbe.failureThreshold }}
+            httpGet:
+              path: {{ .Values.app.livenessProbe.httpGet.path }}
+              port: {{ .Values.app.livenessProbe.httpGet.port }}
+              scheme: {{ .Values.app.livenessProbe.httpGet.scheme }}
+            initialDelaySeconds: {{ .Values.app.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.app.livenessProbe.periodSeconds }}
+            successThreshold: {{ .Values.app.livenessProbe.successThreshold }}
+            timeoutSeconds: {{ .Values.app.livenessProbe.timeoutSeconds }}
+          name: event-statistics
+          ports:
+            - containerPort: 8085
+              name: http1
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: {{ .Values.app.readinessProbe.failureThreshold }}
+            httpGet:
+              path: {{ .Values.app.readinessProbe.httpGet.path }}
+              port: {{ .Values.app.readinessProbe.httpGet.port }}
+              scheme: {{ .Values.app.readinessProbe.httpGet.scheme }}
+            initialDelaySeconds: {{ .Values.app.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.app.readinessProbe.periodSeconds }}
+            successThreshold: {{ .Values.app.readinessProbe.successThreshold }}
+            timeoutSeconds: {{ .Values.app.readinessProbe.timeoutSeconds }}
+          resources:
+            limits:
+              memory: 768Mi
+            requests:
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-kafka
+    application: fights-service
+    system: quarkus-super-heroes
+  name: fights-kafka
+spec:
+  ports:
+    - port: 9092
+      protocol: TCP
+      targetPort: 9092
+  selector:
+    name: fights-kafka
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8080"
+    prometheus.io/scheme: http
+  labels:
+    name: apicurio
+    application: fights-service
+    system: quarkus-super-heroes
+  name: apicurio
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    name: apicurio
+  type: ClusterIP
