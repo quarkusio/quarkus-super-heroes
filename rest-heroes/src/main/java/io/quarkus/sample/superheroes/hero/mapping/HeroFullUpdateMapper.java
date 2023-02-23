@@ -2,6 +2,7 @@ package io.quarkus.sample.superheroes.hero.mapping;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.MappingTarget;
 
 import io.quarkus.sample.superheroes.hero.Hero;
@@ -9,7 +10,7 @@ import io.quarkus.sample.superheroes.hero.Hero;
 /**
  * Mapper to map all fields on an input {@link Hero} onto a target {@link Hero}.
  */
-@Mapper(componentModel = "cdi")
+@Mapper(componentModel = ComponentModel.JAKARTA_CDI)
 public interface HeroFullUpdateMapper {
 	/**
 	 * Maps all fields except <code>id</code> from {@code input} onto {@code target}.

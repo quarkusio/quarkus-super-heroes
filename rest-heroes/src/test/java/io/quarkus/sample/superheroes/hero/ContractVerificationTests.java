@@ -1,6 +1,6 @@
 package io.quarkus.sample.superheroes.hero;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.quarkus.sample.superheroes.hero.repository.HeroRepository;
@@ -60,8 +59,9 @@ public class ContractVerificationTests {
       .count() > 0;
 
     if (isNoRandomHeroFoundState) {
-      when(this.heroRepository.findRandom())
-        .thenReturn(Uni.createFrom().nullItem());
+      doReturn(Uni.createFrom().nullItem())
+        .when(this.heroRepository)
+        .findRandom();
     }
   }
 

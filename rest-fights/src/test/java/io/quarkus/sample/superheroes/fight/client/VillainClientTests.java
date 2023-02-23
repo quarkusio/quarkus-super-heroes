@@ -1,15 +1,15 @@
 package io.quarkus.sample.superheroes.fight.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static javax.ws.rs.core.HttpHeaders.ACCEPT;
-import static javax.ws.rs.core.MediaType.*;
+import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
+import static jakarta.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
 
 import org.eclipse.microprofile.faulttolerance.exceptions.CircuitBreakerOpenException;
 import org.junit.jupiter.api.AfterEach;
@@ -34,13 +34,26 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
  */
 @QuarkusTest
 @QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
-class VillainClientTests extends VillainClientTestRunner {
+class VillainClientTests {
+  private static final String VILLAIN_API_BASE_URI = "/api/villains";
+  private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
+  private static final String VILLAIN_HELLO_URI = VILLAIN_API_BASE_URI + "/hello";
+
+  private static final String DEFAULT_VILLAIN_NAME = "Super Chocolatine";
+  private static final String DEFAULT_VILLAIN_PICTURE = "super_chocolatine.png";
+  private static final String DEFAULT_VILLAIN_POWERS = "does not eat pain au chocolat";
+  private static final int DEFAULT_VILLAIN_LEVEL = 42;
+  private static final String DEFAULT_HELLO_RESPONSE = "Hello villains!";
+
   private static final Villain DEFAULT_VILLAIN = new Villain(
     DEFAULT_VILLAIN_NAME,
     DEFAULT_VILLAIN_LEVEL,
     DEFAULT_VILLAIN_PICTURE,
     DEFAULT_VILLAIN_POWERS
   );
+
+  @Inject
+  VillainClient villainClient;
 
   @InjectWireMock
   WireMockServer wireMockServer;
@@ -70,7 +83,28 @@ class VillainClientTests extends VillainClientTestRunner {
     );
 
     IntStream.range(0, 5)
-      .forEach(i -> runRandomVillainFound(true));
+      .forEach(i -> {
+        var villain = this.villainClient.findRandomVillain()
+          .subscribe().withSubscriber(UniAssertSubscriber.create())
+          .assertSubscribed()
+          .awaitItem(Duration.ofSeconds(10))
+          .getItem();
+
+        assertThat(villain)
+          .isNotNull()
+          .extracting(
+            Villain::getName,
+            Villain::getLevel,
+            Villain::getPicture,
+            Villain::getPowers
+          )
+          .containsExactly(
+            DEFAULT_VILLAIN_NAME,
+            DEFAULT_VILLAIN_LEVEL,
+            DEFAULT_VILLAIN_PICTURE,
+            DEFAULT_VILLAIN_POWERS
+          );
+      });
 
     this.wireMockServer.verify(5,
       getRequestedFor(urlEqualTo(VILLAIN_RANDOM_URI))
@@ -86,7 +120,12 @@ class VillainClientTests extends VillainClientTestRunner {
     );
 
     IntStream.range(0, 5)
-      .forEach(i -> runRandomVillainNotFound());
+      .forEach(i -> this.villainClient.findRandomVillain()
+        .subscribe().withSubscriber(UniAssertSubscriber.create())
+        .assertSubscribed()
+        .awaitItem(Duration.ofSeconds(5))
+        .assertItem(null)
+      );
 
     this.wireMockServer.verify(5,
       getRequestedFor(urlEqualTo(VILLAIN_RANDOM_URI))
@@ -153,7 +192,11 @@ class VillainClientTests extends VillainClientTestRunner {
         .willReturn(okForContentType(TEXT_PLAIN, DEFAULT_HELLO_RESPONSE))
     );
 
-    runHelloVillains();
+    this.villainClient.helloVillains()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .assertItem(DEFAULT_HELLO_RESPONSE);
 
     this.wireMockServer.verify(1,
       getRequestedFor(urlEqualTo(VILLAIN_HELLO_URI))

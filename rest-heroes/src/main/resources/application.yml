@@ -1,8 +1,8 @@
 paths:
   base-image:
     native: quay.io/quarkus/ubi-quarkus-native-binary-s2i:2.0
-    jvm-11: registry.access.redhat.com/ubi8/openjdk-11:1:14
-    jvm-17: registry.access.redhat.com/ubi8/openjdk-17:1.14
+    jvm-11: registry.access.redhat.com/ubi9/openjdk-11:1:14
+    jvm-17: registry.access.redhat.com/ubi9/openjdk-17:1.14
   dockerfile:
     jvm-17: src/main/docker/Dockerfile.jvm17
 
@@ -28,7 +28,9 @@ quarkus:
     database:
       generation: drop-and-create
   http:
-    cors: true
+    cors:
+      ~: true
+      origins: "*"
     port: 8083
     test-port: 0
   jackson:

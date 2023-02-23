@@ -2,7 +2,7 @@ package io.quarkus.sample.superheroes.fight.rest;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.*;
-import static javax.ws.rs.core.Response.Status.*;
+import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.ParameterizedTest.*;

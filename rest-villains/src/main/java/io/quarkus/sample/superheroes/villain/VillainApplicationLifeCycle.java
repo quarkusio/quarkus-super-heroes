@@ -1,7 +1,7 @@
 package io.quarkus.sample.superheroes.villain;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 
 import org.jboss.logging.Logger;
 

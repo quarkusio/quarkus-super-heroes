@@ -2,15 +2,15 @@ package io.quarkus.sample.superheroes.hero.rest;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static javax.ws.rs.core.Response.Status.*;
+import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
+import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import java.util.List;
 import java.util.Random;
 
-import javax.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.HttpHeaders;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -112,7 +112,7 @@ public class HeroResourceIT {
 	@Order(DEFAULT_ORDER)
 	public void shouldNotPartiallyUpdateInvalidItem() {
 		var hero = new Hero();
-		hero.setId(1L);
+		hero.setId(50L);
 		hero.setName(null);
 		hero.setOtherName(UPDATED_OTHER_NAME);
 		hero.setPicture(UPDATED_PICTURE);
@@ -348,6 +348,16 @@ public class HeroResourceIT {
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
 				.body("size()", is(NB_HEROES + 1));
+
+    var updatedHero = get("/api/heroes/{id}", hero.getId()).then()
+      .statusCode(OK.getStatusCode())
+      .contentType(JSON)
+      .extract().as(Hero.class);
+
+    assertThat(updatedHero)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(hero);
 	}
 
 	@Test
@@ -357,10 +367,13 @@ public class HeroResourceIT {
 		hero.setPicture(DEFAULT_PICTURE);
 		hero.setPowers(DEFAULT_POWERS);
 
-    var expectedHero = createUpdatedHero();
-    expectedHero.setId(Long.parseLong(heroId));
+    var expectedHero = new Hero();
+    expectedHero.setName(UPDATED_NAME);
+    expectedHero.setOtherName(UPDATED_OTHER_NAME);
     expectedHero.setPicture(hero.getPicture());
     expectedHero.setPowers(hero.getPowers());
+    expectedHero.setLevel(UPDATED_LEVEL);
+    expectedHero.setId(Long.parseLong(heroId));
 
 		var patchedHero = given()
 			.when()

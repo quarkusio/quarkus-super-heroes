@@ -1,6 +1,6 @@
 package io.quarkus.sample.superheroes.villain.health;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;

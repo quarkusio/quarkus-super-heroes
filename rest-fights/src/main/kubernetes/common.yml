@@ -12,27 +12,6 @@ subjects:
     name: default
 ---
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: rest-fights-config
-  labels:
-    app: rest-fights
-    application: fights-service
-    system: quarkus-super-heroes
-data:
-  quarkus.liquibase-mongodb.migrate-at-start: false
-  quarkus.mongodb.hosts: fights-db:27017
-  quarkus.stork.hero-service.service-discovery.type: kubernetes
-  quarkus.stork.hero-service.service-discovery.application: rest-heroes
-  quarkus.stork.hero-service.service-discovery.refresh-period: 1M
-  quarkus.stork.villain-service.service-discovery.type: kubernetes
-  quarkus.stork.villain-service.service-discovery.application: rest-villains
-  quarkus.stork.villain-service.service-discovery.refresh-period: 1M
-  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
-  kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
-  mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
----
-apiVersion: v1
 kind: Secret
 type: Opaque
 metadata:
@@ -137,7 +116,7 @@ spec:
         system: quarkus-super-heroes
     spec:
       containers:
-        - image: quay.io/strimzi/kafka:0.28.0-kafka-3.1.0
+        - image: quay.io/strimzi/kafka:0.34.0-kafka-3.4.0
           name: fights-kafka
           ports:
             - containerPort: 9092

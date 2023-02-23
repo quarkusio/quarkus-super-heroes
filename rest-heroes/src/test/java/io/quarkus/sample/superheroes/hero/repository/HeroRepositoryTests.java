@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +15,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.vertx.UniAsserter;
 
 @QuarkusTest
-@TestReactiveTransaction
 class HeroRepositoryTests {
 	private static final String DEFAULT_NAME = "Super Chocolatine";
 	private static final String DEFAULT_OTHER_NAME = "Super Chocolatine chocolate in";
@@ -27,6 +26,7 @@ class HeroRepositoryTests {
 	HeroRepository heroRepository;
 
 	@Test
+	@TestReactiveTransaction
 	public void findRandomNotFound(UniAsserter asserter) {
 		asserter.execute(this.heroRepository::deleteAll)
 			.assertEquals(this.heroRepository::count, 0L)
@@ -37,6 +37,7 @@ class HeroRepositoryTests {
 	}
 	
 	@Test
+	@TestReactiveTransaction
 	public void findRandomFound(UniAsserter asserter) {
 		Hero hero = new Hero();
 		hero.setName(DEFAULT_NAME);
@@ -65,6 +66,7 @@ class HeroRepositoryTests {
 	}
 
   @Test
+  @TestReactiveTransaction
   public void findAllWhereNameLikeFound(UniAsserter asserter) {
     // Doing it this way because UniAsserter doesn't work well with ParameterizedTest
     var names = Stream.of(DEFAULT_NAME, "choco", "Choco", "CHOCO", "Chocolatine", "super", "l", "");
@@ -97,6 +99,7 @@ class HeroRepositoryTests {
   }
 
   @Test
+  @TestReactiveTransaction
   public void findAllWhereNameLikeNotFound(UniAsserter asserter) {
     // Doing it this way because UniAsserter doesn't work well with ParameterizedTest
     var names = Stream.of("v", "support", "chocolate", null);

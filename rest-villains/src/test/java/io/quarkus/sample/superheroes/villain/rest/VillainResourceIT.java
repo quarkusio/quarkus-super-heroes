@@ -2,8 +2,8 @@ package io.quarkus.sample.superheroes.villain.rest;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-import static javax.ws.rs.core.Response.Status.*;
+import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
+import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.*;
@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.*;
 import java.util.List;
 import java.util.Random;
 
-import javax.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.HttpHeaders;
 
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -114,7 +114,7 @@ public class VillainResourceIT {
 	@Order(DEFAULT_ORDER)
 	public void shouldNotPartiallyUpdateInvalidItem() {
 		var villain = new Villain();
-		villain.id = 1L;
+		villain.id = 50L;
 		villain.name = null;
 		villain.otherName = UPDATED_OTHER_NAME;
 		villain.picture = UPDATED_PICTURE;
@@ -331,6 +331,16 @@ public class VillainResourceIT {
 				.statusCode(OK.getStatusCode())
 				.contentType(JSON)
 				.body("size()", is(NB_VILLAINS + 1));
+
+    var updatedVillain = get("/api/villains/{id}", villain.id).then()
+      .statusCode(OK.getStatusCode())
+      .contentType(JSON)
+      .extract().as(Villain.class);
+
+    assertThat(updatedVillain)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(villain);
 	}
 
 	@Test
@@ -346,7 +356,7 @@ public class VillainResourceIT {
     expectedVillain.picture = villain.picture;
     expectedVillain.powers = villain.powers;
     expectedVillain.level = UPDATED_LEVEL;
-    expectedVillain.id = (long) (NB_VILLAINS + 1);
+    expectedVillain.id = Long.parseLong(villainId);
 
 		var patchedVillain = given()
 			.when()

@@ -6,9 +6,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import org.bson.types.ObjectId;
 import org.eclipse.microprofile.faulttolerance.Fallback;

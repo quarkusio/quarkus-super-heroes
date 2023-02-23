@@ -8,11 +8,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.InternalServerErrorException;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.InternalServerErrorException;
 
 import org.bson.types.ObjectId;
 import org.eclipse.microprofile.reactive.messaging.Message;
@@ -27,59 +27,39 @@ import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
-import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
-import io.quarkus.test.junit.mockito.InjectSpy;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import io.smallrye.reactive.messaging.providers.connectors.InMemoryConnector;
+import io.smallrye.reactive.messaging.memory.InMemoryConnector;
 
 /**
  * Tests for the service layer ({@link FightService}).
  * <p>
- *   Uses an {@link InMemoryConnector} to represent the Kafka instance.
+ *   Uses an {@link io.smallrye.reactive.messaging.memory.InMemoryConnector} to represent the Kafka instance.
  * </p>
  */
 @QuarkusTest
-class FightServiceTests {
+class FightServiceTests extends FightServiceTestsBase {
 	private static final String FIGHTS_CHANNEL_NAME = "fights";
 
 	private static final ObjectId DEFAULT_FIGHT_ID = new ObjectId();
 	private static final Instant DEFAULT_FIGHT_DATE = Instant.now();
-
-	private static final String DEFAULT_HERO_NAME = "Super Baguette";
-	private static final String DEFAULT_HERO_PICTURE = "super_baguette.png";
-	private static final String DEFAULT_HERO_POWERS = "eats baguette really quickly";
-	private static final int DEFAULT_HERO_LEVEL = 42;
-	private static final String HEROES_TEAM_NAME = "heroes";
-
-	private static final String DEFAULT_VILLAIN_NAME = "Super Chocolatine";
-	private static final String DEFAULT_VILLAIN_PICTURE = "super_chocolatine.png";
-	private static final String DEFAULT_VILLAIN_POWERS = "does not eat pain au chocolat";
-	private static final int DEFAULT_VILLAIN_LEVEL = 42;
-	private static final String VILLAINS_TEAM_NAME = "villains";
-
-	@InjectSpy
-	FightService fightService;
-
-	@Inject
-	FightConfig fightConfig;
 
   @Inject
   FightMapper fightMapper;
 
 	@Inject
 	@Any
-  InMemoryConnector emitterConnector;
+	InMemoryConnector emitterConnector;
 
 	@InjectMock
-	HeroClient heroClient;
+  HeroClient heroClient;
 
 	@InjectMock
-	VillainClient villainClient;
+  VillainClient villainClient;
 
 	@BeforeEach
 	public void beforeEach() {
@@ -90,7 +70,8 @@ class FightServiceTests {
 	@Test
 	public void findAllFightsNoneFound() {
 		PanacheMock.mock(Fight.class);
-		when(Fight.listAll()).thenReturn(Uni.createFrom().item(List.of()));
+		when(Fight.listAll())
+			.thenReturn(Uni.createFrom().item(List.of()));
 
 		var allFights = this.fightService.findAllFights()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -109,7 +90,8 @@ class FightServiceTests {
 	@Test
 	public void findAllFights() {
 		PanacheMock.mock(Fight.class);
-		when(Fight.listAll()).thenReturn(Uni.createFrom().item(List.of(createFightHeroWon())));
+		when(Fight.listAll())
+			.thenReturn(Uni.createFrom().item(List.of(createFightHeroWon())));
 
 		var allFights = this.fightService.findAllFights()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -155,7 +137,8 @@ class FightServiceTests {
 	@Test
 	public void findFightByIdFound() {
 		PanacheMock.mock(Fight.class);
-		when(Fight.findById(eq(DEFAULT_FIGHT_ID))).thenReturn(Uni.createFrom().item(createFightHeroWon()));
+		when(Fight.findById(eq(DEFAULT_FIGHT_ID)))
+			.thenReturn(Uni.createFrom().item(createFightHeroWon()));
 
 		var fight = this.fightService.findFightById(DEFAULT_FIGHT_ID.toString())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -197,7 +180,8 @@ class FightServiceTests {
 	@Test
 	public void findFightByIdNotFound() {
 		PanacheMock.mock(Fight.class);
-		when(Fight.findById(eq(DEFAULT_FIGHT_ID))).thenReturn(Uni.createFrom().nullItem());
+		when(Fight.findById(eq(DEFAULT_FIGHT_ID)))
+			.thenReturn(Uni.createFrom().nullItem());
 
 		var fight = this.fightService.findFightById(DEFAULT_FIGHT_ID.toString())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -213,91 +197,13 @@ class FightServiceTests {
 	}
 
 	@Test
-	public void findRandomFightersNoneFound() {
-		PanacheMock.mock(Fight.class);
-		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().nullItem());
-		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().nullItem());
-
-		var fighters = this.fightService.findRandomFighters()
-			.subscribe().withSubscriber(UniAssertSubscriber.create())
-			.assertSubscribed()
-			.awaitItem(Duration.ofSeconds(5))
-			.getItem();
-
-		assertThat(fighters)
-			.isNotNull()
-			.usingRecursiveComparison()
-			.isEqualTo(new Fighters(createFallbackHero(), createFallbackVillain()));
-
-		verify(this.heroClient).findRandomHero();
-		verify(this.villainClient).findRandomVillain();
-		verify(this.fightService).findRandomHero();
-		verify(this.fightService).findRandomVillain();
-		verify(this.fightService).addDelay(any(Uni.class));
-		verify(this.fightService, never()).fallbackRandomHero();
-		verify(this.fightService, never()).fallbackRandomVillain();
-		PanacheMock.verifyNoInteractions(Fight.class);
-	}
-
-	@Test
-	public void findRandomFightersHeroNotFound() {
-		PanacheMock.mock(Fight.class);
-		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().nullItem());
-		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().item(createDefaultVillain()));
-
-		var fighters = this.fightService.findRandomFighters()
-			.subscribe().withSubscriber(UniAssertSubscriber.create())
-			.assertSubscribed()
-			.awaitItem(Duration.ofSeconds(5))
-			.getItem();
-
-		assertThat(fighters)
-			.isNotNull()
-			.usingRecursiveComparison()
-			.isEqualTo(new Fighters(createFallbackHero(), createDefaultVillain()));
-
-		verify(this.heroClient).findRandomHero();
-		verify(this.villainClient).findRandomVillain();
-		verify(this.fightService).findRandomHero();
-		verify(this.fightService).findRandomVillain();
-		verify(this.fightService).addDelay(any(Uni.class));
-		verify(this.fightService, never()).fallbackRandomHero();
-		verify(this.fightService, never()).fallbackRandomVillain();
-		PanacheMock.verifyNoInteractions(Fight.class);
-	}
-
-	@Test
-	public void findRandomFightersVillainNotFound() {
-		PanacheMock.mock(Fight.class);
-		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().item(createDefaultHero()));
-		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().nullItem());
-
-		var fighters = this.fightService.findRandomFighters()
-			.subscribe().withSubscriber(UniAssertSubscriber.create())
-			.assertSubscribed()
-			.awaitItem(Duration.ofSeconds(5))
-			.getItem();
-
-		assertThat(fighters)
-			.isNotNull()
-			.usingRecursiveComparison()
-			.isEqualTo(new Fighters(createDefaultHero(), createFallbackVillain()));
-
-		verify(this.heroClient).findRandomHero();
-		verify(this.villainClient).findRandomVillain();
-		verify(this.fightService).findRandomHero();
-		verify(this.fightService).findRandomVillain();
-		verify(this.fightService).addDelay(any(Uni.class));
-		verify(this.fightService, never()).fallbackRandomHero();
-		verify(this.fightService, never()).fallbackRandomVillain();
-		PanacheMock.verifyNoInteractions(Fight.class);
-	}
-
-	@Test
 	public void findRandomFightersHeroError() {
 		PanacheMock.mock(Fight.class);
-		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
-		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().item(createDefaultVillain()));
+		when(this.heroClient.findRandomHero())
+			.thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+
+		when(this.villainClient.findRandomVillain())
+			.thenReturn(Uni.createFrom().item(createDefaultVillain()));
 
 		var fighters = this.fightService.findRandomFighters()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -323,8 +229,11 @@ class FightServiceTests {
 	@Test
 	public void findRandomFightersVillainError() {
 		PanacheMock.mock(Fight.class);
-		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().item(createDefaultHero()));
-		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+		when(this.heroClient.findRandomHero())
+			.thenReturn(Uni.createFrom().item(createDefaultHero()));
+
+		when(this.villainClient.findRandomVillain())
+			.thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
 		var fighters = this.fightService.findRandomFighters()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -350,8 +259,11 @@ class FightServiceTests {
 	@Test
 	public void findRandomFightersHeroVillainError() {
 		PanacheMock.mock(Fight.class);
-		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
-		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+		when(this.heroClient.findRandomHero())
+			.thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+
+		when(this.villainClient.findRandomVillain())
+			.thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
 		var fighters = this.fightService.findRandomFighters()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -375,37 +287,14 @@ class FightServiceTests {
 	}
 
 	@Test
-	public void findRandomFighters() {
-		PanacheMock.mock(Fight.class);
-		when(this.heroClient.findRandomHero()).thenReturn(Uni.createFrom().item(createDefaultHero()));
-		when(this.villainClient.findRandomVillain()).thenReturn(Uni.createFrom().item(createDefaultVillain()));
-
-		var fighters = this.fightService.findRandomFighters()
-			.subscribe().withSubscriber(UniAssertSubscriber.create())
-			.assertSubscribed()
-			.awaitItem(Duration.ofSeconds(5))
-			.getItem();
-
-		assertThat(fighters)
-			.isNotNull()
-			.usingRecursiveComparison()
-			.isEqualTo(new Fighters(createDefaultHero(), createDefaultVillain()));
-
-		verify(this.heroClient).findRandomHero();
-		verify(this.villainClient).findRandomVillain();
-		verify(this.fightService).findRandomHero();
-		verify(this.fightService).findRandomVillain();
-		verify(this.fightService).addDelay(any(Uni.class));
-		verify(this.fightService, never()).fallbackRandomHero();
-		verify(this.fightService, never()).fallbackRandomVillain();
-		PanacheMock.verifyNoInteractions(Fight.class);
-	}
-
-	@Test
 	public void findRandomHeroDelayTriggersFallback() {
 		PanacheMock.mock(Fight.class);
 		when(this.heroClient.findRandomHero())
-			.thenReturn(Uni.createFrom().item(createDefaultHero()).onItem().delayIt().by(Duration.ofSeconds(3)));
+			.thenReturn(
+				Uni.createFrom().item(createDefaultHero())
+					.onItem()
+					.delayIt().by(Duration.ofSeconds(3))
+			);
 
 		var hero = this.fightService.findRandomHero()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -427,7 +316,11 @@ class FightServiceTests {
 	public void findRandomVillainDelayTriggersFallback() {
 		PanacheMock.mock(Fight.class);
 		when(this.villainClient.findRandomVillain())
-			.thenReturn(Uni.createFrom().item(createDefaultVillain()).onItem().delayIt().by(Duration.ofSeconds(3)));
+			.thenReturn(
+				Uni.createFrom().item(createDefaultVillain())
+					.onItem()
+					.delayIt().by(Duration.ofSeconds(3))
+			);
 
 		var villain = this.fightService.findRandomVillain()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -597,7 +490,10 @@ class FightServiceTests {
 		var fightersMatcher = fightersMatcher(createDefaultFighters());
 
 		PanacheMock.mock(Fight.class);
-		PanacheMock.doReturn(Uni.createFrom().voidItem()).when(Fight.class).persist(argThat(fightMatcher), any());
+		PanacheMock.doReturn(Uni.createFrom().voidItem())
+			.when(Fight.class)
+			.persist(argThat(fightMatcher), any());
+
 		doReturn(true).when(this.fightService).shouldHeroWin(argThat(fightersMatcher));
 		doReturn(fightOutcome).when(this.fightService).heroWonFight(argThat(fightersMatcher));
 
@@ -639,7 +535,10 @@ class FightServiceTests {
 		var fightersMatcher = fightersMatcher(createDefaultFighters());
 
 		PanacheMock.mock(Fight.class);
-		PanacheMock.doReturn(Uni.createFrom().voidItem()).when(Fight.class).persist(argThat(fightMatcher), any());
+		PanacheMock.doReturn(Uni.createFrom().voidItem())
+			.when(Fight.class)
+			.persist(argThat(fightMatcher), any());
+
 		doReturn(false).when(this.fightService).shouldHeroWin(argThat(fightersMatcher));
 		doReturn(true).when(this.fightService).shouldVillainWin(argThat(fightersMatcher));
 		doReturn(fightOutcome).when(this.fightService).villainWonFight(argThat(fightersMatcher));
@@ -682,7 +581,10 @@ class FightServiceTests {
 		var fightersMatcher = fightersMatcher(createDefaultFighters());
 
 		PanacheMock.mock(Fight.class);
-		PanacheMock.doReturn(Uni.createFrom().voidItem()).when(Fight.class).persist(argThat(fightMatcher), any());
+		PanacheMock.doReturn(Uni.createFrom().voidItem())
+			.when(Fight.class)
+			.persist(argThat(fightMatcher), any());
+
 		doReturn(false).when(this.fightService).shouldHeroWin(argThat(fightersMatcher));
 		doReturn(false).when(this.fightService).shouldVillainWin(argThat(fightersMatcher));
 		doReturn(fightOutcome).when(this.fightService).getRandomWinner(argThat(fightersMatcher));
@@ -759,29 +661,16 @@ class FightServiceTests {
 	}
 
   @Test
-  public void helloHeroesSuccess() {
-    when(this.heroClient.helloHeroes()).thenReturn(Uni.createFrom().item("hello"));
-
-    var message = this.fightService.helloHeroes()
-      .subscribe().withSubscriber(UniAssertSubscriber.create())
-      .assertSubscribed()
-      .awaitItem(Duration.ofSeconds(5))
-      .getItem();
-
-    assertThat(message)
-      .isNotNull()
-      .isEqualTo("hello");
-
-    verify(this.heroClient).helloHeroes();
-    verify(this.fightService).helloHeroes();
-    verifyNoMoreInteractions(this.heroClient);
-    verifyNoInteractions(this.villainClient);
-  }
-
-  @Test
   public void helloHeroesFallback() {
-    when(this.fightService.fallbackHelloHeroes()).thenReturn(Uni.createFrom().item("fallback"));
-    when(this.heroClient.helloHeroes()).thenReturn(Uni.createFrom().item("hello").onItem().delayIt().by(Duration.ofSeconds(6)));
+    when(this.fightService.fallbackHelloHeroes())
+	    .thenReturn(Uni.createFrom().item("fallback"));
+
+    when(this.heroClient.helloHeroes())
+	    .thenReturn(
+				Uni.createFrom().item("hello")
+					.onItem()
+					.delayIt().by(Duration.ofSeconds(6))
+	    );
 
     var message = this.fightService.helloHeroes()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -802,8 +691,11 @@ class FightServiceTests {
 
   @Test
   public void helloHeroesFailure() {
-    when(this.fightService.fallbackHelloHeroes()).thenReturn(Uni.createFrom().item("fallback"));
-    when(this.heroClient.helloHeroes()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+    when(this.fightService.fallbackHelloHeroes())
+	    .thenReturn(Uni.createFrom().item("fallback"));
+
+    when(this.heroClient.helloHeroes())
+	    .thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
     var message = this.fightService.helloHeroes()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -823,29 +715,16 @@ class FightServiceTests {
   }
 
   @Test
-  public void helloVillainsSuccess() {
-    when(this.villainClient.helloVillains()).thenReturn(Uni.createFrom().item("hello"));
-
-    var message = this.fightService.helloVillains()
-      .subscribe().withSubscriber(UniAssertSubscriber.create())
-      .assertSubscribed()
-      .awaitItem(Duration.ofSeconds(5))
-      .getItem();
-
-    assertThat(message)
-      .isNotNull()
-      .isEqualTo("hello");
-
-    verify(this.villainClient).helloVillains();
-    verify(this.fightService).helloVillains();
-    verifyNoMoreInteractions(this.villainClient);
-    verifyNoInteractions(this.heroClient);
-  }
-
-  @Test
   public void helloVillainsFallback() {
-    when(this.fightService.fallbackHelloVillains()).thenReturn(Uni.createFrom().item("fallback"));
-    when(this.villainClient.helloVillains()).thenReturn(Uni.createFrom().item("hello").onItem().delayIt().by(Duration.ofSeconds(6)));
+    when(this.fightService.fallbackHelloVillains())
+	    .thenReturn(Uni.createFrom().item("fallback"));
+
+    when(this.villainClient.helloVillains())
+	    .thenReturn(
+				Uni.createFrom().item("hello")
+					.onItem()
+					.delayIt().by(Duration.ofSeconds(6))
+	    );
 
     var message = this.fightService.helloVillains()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -866,8 +745,11 @@ class FightServiceTests {
 
   @Test
   public void helloVillainsFailure() {
-    when(this.fightService.fallbackHelloVillains()).thenReturn(Uni.createFrom().item("fallback"));
-    when(this.villainClient.helloVillains()).thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+    when(this.fightService.fallbackHelloVillains())
+	    .thenReturn(Uni.createFrom().item("fallback"));
+
+    when(this.villainClient.helloVillains())
+	    .thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
     var message = this.fightService.helloVillains()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -889,42 +771,6 @@ class FightServiceTests {
   private Fighters createFallbackFighters() {
     return new Fighters(createFallbackHero(), createFallbackVillain());
   }
-
-	private static Hero createDefaultHero() {
-		return new Hero(
-			DEFAULT_HERO_NAME,
-			DEFAULT_HERO_LEVEL,
-			DEFAULT_HERO_PICTURE,
-			DEFAULT_HERO_POWERS
-		);
-	}
-
-	private Hero createFallbackHero() {
-		return new Hero(
-			this.fightConfig.hero().fallback().name(),
-			this.fightConfig.hero().fallback().level(),
-			this.fightConfig.hero().fallback().picture(),
-			this.fightConfig.hero().fallback().powers()
-		);
-	}
-
-	private Villain createFallbackVillain() {
-		return new Villain(
-			this.fightConfig.villain().fallback().name(),
-			this.fightConfig.villain().fallback().level(),
-			this.fightConfig.villain().fallback().picture(),
-			this.fightConfig.villain().fallback().powers()
-		);
-	}
-
-	private static Villain createDefaultVillain() {
-		return new Villain(
-			DEFAULT_VILLAIN_NAME,
-			DEFAULT_VILLAIN_LEVEL,
-			DEFAULT_VILLAIN_PICTURE,
-			DEFAULT_VILLAIN_POWERS
-		);
-	}
 
 	private static Fighters createDefaultFighters() {
 		return new Fighters(createDefaultHero(), createDefaultVillain());
