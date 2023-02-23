@@ -14,6 +14,7 @@ on:
       - 'scripts/deploy-to-azure-containerapps.sh'
     branches:
       - main
+      - quarkus3
   pull_request:
     types:
       - opened
@@ -22,6 +23,7 @@ on:
       - ready_for_review
     branches:
       - main
+      - quarkus3
     paths-ignore:
       - 'deploy/**'
       - '**/*.md'
@@ -38,7 +40,6 @@ concurrency:
 jobs:
   jvm-build-test:
     runs-on: ubuntu-latest
-    if: github.repository == 'quarkusio/quarkus-super-heroes'
     strategy:
       fail-fast: false
       matrix:
@@ -70,7 +71,6 @@ jobs:
 
   native-build-test:
     runs-on: ubuntu-latest
-    if: github.repository == 'quarkusio/quarkus-super-heroes'
     strategy:
       fail-fast: false
       matrix:
