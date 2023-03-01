@@ -34,13 +34,25 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
  */
 @QuarkusTest
 @QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
-class HeroClientTests extends HeroClientTestRunner {
+class HeroClientTests {
+  private static final String HERO_API_BASE_URI = "/api/heroes";
+  private static final String HERO_RANDOM_URI = HERO_API_BASE_URI + "/random";
+  private static final String HERO_HELLO_URI = HERO_API_BASE_URI + "/hello";
+  private static final String DEFAULT_HERO_NAME = "Super Baguette";
+  private static final String DEFAULT_HERO_PICTURE = "super_baguette.png";
+  private static final String DEFAULT_HERO_POWERS = "eats baguette really quickly";
+  private static final int DEFAULT_HERO_LEVEL = 42;
+  private static final String DEFAULT_HELLO_RESPONSE = "Hello heroes!";
+  
   private static final Hero DEFAULT_HERO = new Hero(
     DEFAULT_HERO_NAME,
     DEFAULT_HERO_LEVEL,
     DEFAULT_HERO_PICTURE,
     DEFAULT_HERO_POWERS
   );
+  
+  @Inject
+  HeroClient heroClient;
 
   @InjectWireMock
   WireMockServer wireMockServer;
@@ -70,7 +82,28 @@ class HeroClientTests extends HeroClientTestRunner {
     );
 
     IntStream.range(0, 5)
-      .forEach(i -> runRandomHeroFound(true));
+      .forEach(i -> {
+        var hero = this.heroClient.findRandomHero()
+          .subscribe().withSubscriber(UniAssertSubscriber.create())
+          .assertSubscribed()
+          .awaitItem(Duration.ofSeconds(5))
+          .getItem();
+
+        assertThat(hero)
+          .isNotNull()
+          .extracting(
+            Hero::getName,
+            Hero::getLevel,
+            Hero::getPicture,
+            Hero::getPowers
+          )
+          .containsExactly(
+            DEFAULT_HERO_NAME,
+            DEFAULT_HERO_LEVEL,
+            DEFAULT_HERO_PICTURE,
+            DEFAULT_HERO_POWERS
+          );
+      });
 
     this.wireMockServer.verify(5,
       getRequestedFor(urlEqualTo(HERO_RANDOM_URI))
@@ -86,7 +119,12 @@ class HeroClientTests extends HeroClientTestRunner {
     );
 
     IntStream.range(0, 5)
-      .forEach(i -> runRandomHeroNotFound());
+      .forEach(i -> this.heroClient.findRandomHero()
+        .subscribe().withSubscriber(UniAssertSubscriber.create())
+        .assertSubscribed()
+        .awaitItem(Duration.ofSeconds(5))
+        .assertItem(null)
+      );
 
     this.wireMockServer.verify(5,
       getRequestedFor(urlEqualTo(HERO_RANDOM_URI))
@@ -153,7 +191,11 @@ class HeroClientTests extends HeroClientTestRunner {
         .willReturn(okForContentType(TEXT_PLAIN, DEFAULT_HELLO_RESPONSE))
     );
 
-    runHelloHeroes();
+    this.heroClient.helloHeroes()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .assertItem(DEFAULT_HELLO_RESPONSE);
 
     this.wireMockServer.verify(1,
       getRequestedFor(urlEqualTo(HERO_HELLO_URI))

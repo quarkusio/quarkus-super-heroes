@@ -18,20 +18,13 @@ import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
  * </p>
  */
 public class PactConsumerContractTestResource implements QuarkusTestResourceLifecycleManager {
-  // Make an assumption and hard-code the Pact MockServer to be running on port 8081
-  // I don't like it but couldn't figure out any other way
-  private static final String URL = "http://localhost:8081";
-
   @Override
   public Map<String, String> start() {
-//    return Map.of(
-//      "quarkus.stork.hero-service.service-discovery.address-list", URL,
-//      "quarkus.stork.villain-service.service-discovery.address-list", URL
-//    );
-
+    // Make an assumption and hard-code the Pact MockServer to be running on ports 8081 & 8082
+    // I don't like it but couldn't figure out any other way
     return Map.of(
-      "quarkus.rest-client.hero-client.url", URL,
-      "fight.villain.client-base-url", URL
+      "quarkus.rest-client.hero-client.url", "http://localhost:8082",
+      "fight.villain.client-base-url", "http://localhost:8081"
     );
   }
 
