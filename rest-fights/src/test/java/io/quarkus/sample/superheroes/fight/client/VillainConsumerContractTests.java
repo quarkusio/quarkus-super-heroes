@@ -9,12 +9,11 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 
 import au.com.dius.pact.consumer.dsl.PactDslRootValue;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
@@ -27,8 +26,7 @@ import au.com.dius.pact.core.model.annotations.Pact;
  * Pact consumer contract tests for the {@link io.quarkus.sample.superheroes.fight.client.VillainClient}.
  */
 @QuarkusTest
-@Tag("NotSafeForContinuousTesting") // See https://github.com/quarkiverse/quarkus-pact/issues/58
-@TestProfile(PactConsumerContractTestProfile.class)
+@QuarkusTestResource(value = PactConsumerContractTestResource.class, restrictToAnnotatedClass = true)
 @ExtendWith(PactConsumerTestExt.class)
 @PactTestFor(
   providerName = "rest-villains",
