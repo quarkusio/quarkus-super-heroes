@@ -1,4 +1,4 @@
-package io.quarkus.sample.superheroes.fight.client;
+package io.quarkus.sample.superheroes.fight.service;
 
 import java.util.Map;
 
@@ -20,11 +20,11 @@ import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 public class PactConsumerContractTestResource implements QuarkusTestResourceLifecycleManager {
   @Override
   public Map<String, String> start() {
-    // Make an assumption and hard-code the Pact MockServer to be running on ports 8081 & 8082
+    // Make an assumption and hard-code the Pact MockServer to be running on ports 8083 & 8084
     // I don't like it but couldn't figure out any other way
     return Map.of(
-      "quarkus.rest-client.hero-client.url", "http://localhost:8082",
-      "fight.villain.client-base-url", "http://localhost:8081"
+      "quarkus.rest-client.hero-client.url", "http://localhost:8084",
+      "fight.villain.client-base-url", "http://localhost:8083"
     );
   }
 
