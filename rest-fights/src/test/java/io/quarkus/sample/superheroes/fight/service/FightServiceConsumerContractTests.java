@@ -28,7 +28,6 @@ import au.com.dius.pact.consumer.dsl.PactDslRootValue;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
-import au.com.dius.pact.core.model.PactSpecVersion;
 import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import io.smallrye.mutiny.Uni;
@@ -52,15 +51,16 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 @QuarkusTest
 @QuarkusTestResource(value = PactConsumerContractTestResource.class, restrictToAnnotatedClass = true)
 @ExtendWith(PactConsumerTestExt.class)
-@PactTestFor(pactVersion = PactSpecVersion.V4)
 public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
   private static final String VILLAIN_HELLO_URI = VILLAIN_API_BASE_URI + "/hello";
+  private static final String VILLAINS_MOCK_PORT = "8083";
 
-  static final String HERO_API_BASE_URI = "/api/heroes";
-  static final String HERO_RANDOM_URI = HERO_API_BASE_URI + "/random";
-  static final String HERO_HELLO_URI = HERO_API_BASE_URI + "/hello";
+  private static final String HERO_API_BASE_URI = "/api/heroes";
+  private static final String HERO_RANDOM_URI = HERO_API_BASE_URI + "/random";
+  private static final String HERO_HELLO_URI = HERO_API_BASE_URI + "/hello";
+  private static final String HEROES_MOCK_PORT = "8084";
 
   @InjectSpy
   HeroClient heroClient;
@@ -163,7 +163,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   }
 
   @Test
-  @PactTestFor(pactMethod = "helloVillainsPact", port = "8083")
+  @PactTestFor(pactMethod = "helloVillainsPact", port = VILLAINS_MOCK_PORT)
 //  @MockServerConfig(port = "8083")
   public void helloVillainsSuccess() {
     var message = this.fightService.helloVillains()
@@ -182,7 +182,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   }
 
   @Test
-  @PactTestFor(pactMethod = "helloHeroesPact", port = "8084")
+  @PactTestFor(pactMethod = "helloHeroesPact", port = HEROES_MOCK_PORT)
 //  @MockServerConfig(port = "8084")
   public void helloHeroesSuccess() {
     var message = this.fightService.helloHeroes()
@@ -201,7 +201,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   }
 
   @Test
-  @PactTestFor(pactMethod = "randomHeroFoundPact", port = "8084")
+  @PactTestFor(pactMethod = "randomHeroFoundPact", port = HEROES_MOCK_PORT)
 //  @MockServerConfig(port = "8084")
   public void findRandomFightersHeroConsumerContract() {
     PanacheMock.mock(Fight.class);
@@ -233,7 +233,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   }
 
   @Test
-  @PactTestFor(pactMethod = "randomVillainFoundPact", port = "8083")
+  @PactTestFor(pactMethod = "randomVillainFoundPact", port = VILLAINS_MOCK_PORT)
 //  @MockServerConfig(port = "8083")
   public void findRandomFightersVillainConsumerContract() {
     PanacheMock.mock(Fight.class);
@@ -265,7 +265,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   }
 
   @Test
-  @PactTestFor(pactMethod = "randomHeroNotFoundPact", port = "8084")
+  @PactTestFor(pactMethod = "randomHeroNotFoundPact", port = HEROES_MOCK_PORT)
 //  @MockServerConfig(port = "8084")
   public void findRandomFightersHeroNotFoundHeroConsumerContract() {
     PanacheMock.mock(Fight.class);
@@ -296,7 +296,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   }
 
   @Test
-  @PactTestFor(pactMethod = "randomVillainFoundPact", port = "8083")
+  @PactTestFor(pactMethod = "randomVillainFoundPact", port = VILLAINS_MOCK_PORT)
 //  @MockServerConfig(port = "8083")
   public void findRandomFightersHeroNotFoundVillainConsumerContract() {
     PanacheMock.mock(Fight.class);
@@ -328,7 +328,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   }
 
   @Test
-  @PactTestFor(pactMethod = "randomHeroFoundPact", port = "8084")
+  @PactTestFor(pactMethod = "randomHeroFoundPact", port = HEROES_MOCK_PORT)
 //  @MockServerConfig(port = "8084")
   public void findRandomFightersVillainNotFoundHeroConsumerContract() {
     PanacheMock.mock(Fight.class);
@@ -360,7 +360,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   }
 
   @Test
-  @PactTestFor(pactMethod = "randomVillainNotFoundPact", port = "8083")
+  @PactTestFor(pactMethod = "randomVillainNotFoundPact", port = VILLAINS_MOCK_PORT)
 //  @MockServerConfig(port = "8083")
   public void findRandomFightersVillainNotFoundVillainConsumerContract() {
     PanacheMock.mock(Fight.class);
@@ -391,7 +391,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   }
 
   @Test
-  @PactTestFor(pactMethod = "randomHeroNotFoundPact", port = "8084")
+  @PactTestFor(pactMethod = "randomHeroNotFoundPact", port = HEROES_MOCK_PORT)
 //  @MockServerConfig(port = "8084")
   public void findRandomFightersNoneFoundHeroConsumerContract() {
     PanacheMock.mock(Fight.class);
@@ -422,7 +422,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   }
 
   @Test
-  @PactTestFor(pactMethod = "randomVillainNotFoundPact", port = "8083")
+  @PactTestFor(pactMethod = "randomVillainNotFoundPact", port = VILLAINS_MOCK_PORT)
 //  @MockServerConfig(port = "8083")
   public void findRandomFightersNoneFoundVillainConsumerContract() {
     PanacheMock.mock(Fight.class);
