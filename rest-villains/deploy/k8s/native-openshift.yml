@@ -31,9 +31,9 @@ kind: Service
 metadata:
   annotations:
     app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.openshift.io/vcs-ref: rhbq-2.13
+    app.openshift.io/vcs-ref: 2.13.Final
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-03-02 - 15:21:35 +0000
+    app.quarkus.io/build-timestamp: 2023-03-06 - 21:24:59 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -41,7 +41,7 @@ metadata:
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: native-latest-rhbq-2.13
+    app.kubernetes.io/version: native-latest-2.13.Final
     app: rest-villains
     application: villains-service
     system: quarkus-super-heroes
@@ -55,7 +55,7 @@ spec:
   selector:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: native-latest-rhbq-2.13
+    app.kubernetes.io/version: native-latest-2.13.Final
   type: ClusterIP
 ---
 apiVersion: v1
@@ -80,17 +80,17 @@ kind: ImageStream
 metadata:
   annotations:
     app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.openshift.io/vcs-ref: rhbq-2.13
+    app.openshift.io/vcs-ref: 2.13.Final
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-03-02 - 15:21:35 +0000
+    app.quarkus.io/build-timestamp: 2023-03-06 - 21:24:59 +0000
   labels:
     app: rest-villains
     application: villains-service
     system: quarkus-super-heroes
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/version: native-latest-2.13.Final
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: native-latest-rhbq-2.13
   name: rest-villains
 spec:
   lookupPolicy:
@@ -98,23 +98,23 @@ spec:
   tags:
     - from:
         kind: DockerImage
-        name: quay.io/quarkus-super-heroes/rest-villains:java11-latest-rhbq-2.13
+        name: quay.io/quarkus-super-heroes/rest-villains:java11-latest-2.13.Final
       importPolicy: {}
-      name: java11-latest-rhbq-2.13
+      name: java11-latest-2.13.Final
       referencePolicy:
         type: Source
     - from:
         kind: DockerImage
-        name: quay.io/quarkus-super-heroes/rest-villains:java17-latest-rhbq-2.13
+        name: quay.io/quarkus-super-heroes/rest-villains:java17-latest-2.13.Final
       importPolicy: {}
-      name: java17-latest-rhbq-2.13
+      name: java17-latest-2.13.Final
       referencePolicy:
         type: Source
     - from:
         kind: DockerImage
-        name: quay.io/quarkus-super-heroes/rest-villains:native-latest-rhbq-2.13
+        name: quay.io/quarkus-super-heroes/rest-villains:native-latest-2.13.Final
       importPolicy: {}
-      name: native-latest-rhbq-2.13
+      name: native-latest-2.13.Final
       referencePolicy:
         type: Source
 ---
@@ -144,7 +144,7 @@ data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/rhbq-2.13/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/2.13.Final/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -211,9 +211,9 @@ kind: DeploymentConfig
 metadata:
   annotations:
     app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.openshift.io/vcs-ref: rhbq-2.13
+    app.openshift.io/vcs-ref: 2.13.Final
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-03-02 - 15:21:35 +0000
+    app.quarkus.io/build-timestamp: 2023-03-06 - 21:24:59 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -221,7 +221,7 @@ metadata:
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: native-latest-rhbq-2.13
+    app.kubernetes.io/version: native-latest-2.13.Final
     app: rest-villains
     application: villains-service
     system: quarkus-super-heroes
@@ -231,15 +231,15 @@ spec:
   replicas: 1
   selector:
     app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/version: native-latest-2.13.Final
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: native-latest-rhbq-2.13
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: "villains-db,otel-collector"
-        app.openshift.io/vcs-ref: rhbq-2.13
+        app.openshift.io/vcs-ref: 2.13.Final
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-03-02 - 15:21:35 +0000
+        app.quarkus.io/build-timestamp: 2023-03-06 - 21:24:59 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -250,8 +250,8 @@ spec:
         system: quarkus-super-heroes
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/name: rest-villains
+        app.kubernetes.io/version: native-latest-2.13.Final
         app.kubernetes.io/part-of: villains-service
-        app.kubernetes.io/version: native-latest-rhbq-2.13
     spec:
       containers:
         - env:
@@ -260,11 +260,11 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
-          image: rest-villains:native-latest-rhbq-2.13
+            - secretRef:
+                name: rest-villains-config-creds
+          image: rest-villains:native-latest-2.13.Final
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -303,7 +303,7 @@ spec:
           - rest-villains
         from:
           kind: ImageStreamTag
-          name: rest-villains:native-latest-rhbq-2.13
+          name: rest-villains:native-latest-2.13.Final
       type: ImageChange
 ---
 apiVersion: route.openshift.io/v1
@@ -311,13 +311,13 @@ kind: Route
 metadata:
   annotations:
     app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.openshift.io/vcs-ref: rhbq-2.13
+    app.openshift.io/vcs-ref: 2.13.Final
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-03-02 - 15:21:35 +0000
+    app.quarkus.io/build-timestamp: 2023-03-06 - 21:24:59 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: native-latest-rhbq-2.13
+    app.kubernetes.io/version: native-latest-2.13.Final
     app: rest-villains
     application: villains-service
     system: quarkus-super-heroes

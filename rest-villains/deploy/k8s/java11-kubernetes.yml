@@ -31,9 +31,9 @@ kind: Service
 metadata:
   annotations:
     app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.quarkus.io/vcs-ref: rhbq-2.13
+    app.quarkus.io/vcs-ref: 2.13.Final
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-03-02 - 15:09:36 +0000
+    app.quarkus.io/build-timestamp: 2023-03-06 - 21:12:22 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -41,7 +41,7 @@ metadata:
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java11-latest-rhbq-2.13
+    app.kubernetes.io/version: java11-latest-2.13.Final
     app: rest-villains
     application: villains-service
     system: quarkus-super-heroes
@@ -54,7 +54,7 @@ spec:
   selector:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java11-latest-rhbq-2.13
+    app.kubernetes.io/version: java11-latest-2.13.Final
   type: ClusterIP
 ---
 apiVersion: v1
@@ -100,16 +100,16 @@ data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/rhbq-2.13/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/2.13.Final/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
     app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.quarkus.io/vcs-ref: rhbq-2.13
+    app.quarkus.io/vcs-ref: 2.13.Final
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-03-02 - 15:09:36 +0000
+    app.quarkus.io/build-timestamp: 2023-03-06 - 21:12:22 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -118,24 +118,24 @@ metadata:
     app: rest-villains
     application: villains-service
     system: quarkus-super-heroes
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/version: java11-latest-rhbq-2.13
+    app.kubernetes.io/version: java11-latest-2.13.Final
+    app.kubernetes.io/part-of: villains-service
   name: rest-villains
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/part-of: villains-service
       app.kubernetes.io/name: rest-villains
-      app.kubernetes.io/version: java11-latest-rhbq-2.13
+      app.kubernetes.io/version: java11-latest-2.13.Final
+      app.kubernetes.io/part-of: villains-service
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: "villains-db,otel-collector"
-        app.quarkus.io/vcs-ref: rhbq-2.13
+        app.quarkus.io/vcs-ref: 2.13.Final
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-03-02 - 15:09:36 +0000
+        app.quarkus.io/build-timestamp: 2023-03-06 - 21:12:22 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -144,9 +144,9 @@ spec:
         app: rest-villains
         application: villains-service
         system: quarkus-super-heroes
-        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/name: rest-villains
-        app.kubernetes.io/version: java11-latest-rhbq-2.13
+        app.kubernetes.io/version: java11-latest-2.13.Final
+        app.kubernetes.io/part-of: villains-service
     spec:
       containers:
         - env:
@@ -159,7 +159,7 @@ spec:
                 name: rest-villains-config
             - secretRef:
                 name: rest-villains-config-creds
-          image: quay.io/quarkus-super-heroes/rest-villains:java11-latest-rhbq-2.13
+          image: quay.io/quarkus-super-heroes/rest-villains:java11-latest-2.13.Final
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3

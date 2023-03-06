@@ -48,9 +48,9 @@ kind: Service
 metadata:
   annotations:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
-    app.quarkus.io/vcs-ref: rhbq-2.13
+    app.quarkus.io/vcs-ref: 2.13.Final
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-03-02 - 15:19:31 +0000
+    app.quarkus.io/build-timestamp: 2023-03-06 - 21:22:49 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -58,7 +58,7 @@ metadata:
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: native-latest-rhbq-2.13
+    app.kubernetes.io/version: native-latest-2.13.Final
     app: rest-heroes
     application: heroes-service
     system: quarkus-super-heroes
@@ -71,7 +71,7 @@ spec:
   selector:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: native-latest-rhbq-2.13
+    app.kubernetes.io/version: native-latest-2.13.Final
   type: ClusterIP
 ---
 apiVersion: v1
@@ -86,7 +86,7 @@ data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/rhbq-2.13/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/2.13.Final/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -168,9 +168,9 @@ kind: Deployment
 metadata:
   annotations:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
-    app.quarkus.io/vcs-ref: rhbq-2.13
+    app.quarkus.io/vcs-ref: 2.13.Final
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-03-02 - 15:19:31 +0000
+    app.quarkus.io/build-timestamp: 2023-03-06 - 21:22:49 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -179,24 +179,24 @@ metadata:
     app: rest-heroes
     application: heroes-service
     system: quarkus-super-heroes
-    app.kubernetes.io/version: native-latest-rhbq-2.13
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/version: native-latest-2.13.Final
+    app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/version: native-latest-rhbq-2.13
-      app.kubernetes.io/part-of: heroes-service
       app.kubernetes.io/name: rest-heroes
+      app.kubernetes.io/version: native-latest-2.13.Final
+      app.kubernetes.io/part-of: heroes-service
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: "heroes-db,otel-collector"
-        app.quarkus.io/vcs-ref: rhbq-2.13
+        app.quarkus.io/vcs-ref: 2.13.Final
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-03-02 - 15:19:31 +0000
+        app.quarkus.io/build-timestamp: 2023-03-06 - 21:22:49 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -205,9 +205,9 @@ spec:
         app: rest-heroes
         application: heroes-service
         system: quarkus-super-heroes
-        app.kubernetes.io/version: native-latest-rhbq-2.13
-        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/name: rest-heroes
+        app.kubernetes.io/version: native-latest-2.13.Final
+        app.kubernetes.io/part-of: heroes-service
     spec:
       containers:
         - env:
@@ -220,7 +220,7 @@ spec:
                 name: rest-heroes-config-creds
             - configMapRef:
                 name: rest-heroes-config
-          image: quay.io/quarkus-super-heroes/rest-heroes:native-latest-rhbq-2.13
+          image: quay.io/quarkus-super-heroes/rest-heroes:native-latest-2.13.Final
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
