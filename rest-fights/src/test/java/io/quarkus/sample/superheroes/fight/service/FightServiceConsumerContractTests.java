@@ -28,6 +28,7 @@ import au.com.dius.pact.consumer.dsl.PactDslRootValue;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
+import au.com.dius.pact.core.model.PactSpecVersion;
 import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
 import io.smallrye.mutiny.Uni;
@@ -51,6 +52,7 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 @QuarkusTest
 @QuarkusTestResource(value = PactConsumerContractTestResource.class, restrictToAnnotatedClass = true)
 @ExtendWith(PactConsumerTestExt.class)
+@PactTestFor(pactVersion = PactSpecVersion.V4)
 public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
@@ -164,7 +166,8 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "helloVillainsPact", port = VILLAINS_MOCK_PORT)
-//  @MockServerConfig(port = "8083")
+//  @PactTestFor(pactMethod = "helloVillainsPact")
+//  @MockServerConfig(port = VILLAINS_MOCK_PORT)
   public void helloVillainsSuccess() {
     var message = this.fightService.helloVillains()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -183,7 +186,8 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "helloHeroesPact", port = HEROES_MOCK_PORT)
-//  @MockServerConfig(port = "8084")
+//  @PactTestFor(pactMethod = "helloHeroesPact")
+//  @MockServerConfig(port = HEROES_MOCK_PORT)
   public void helloHeroesSuccess() {
     var message = this.fightService.helloHeroes()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -200,47 +204,57 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
     verifyNoInteractions(this.villainClient);
   }
 
+  private void findRandomFighters() {
+    PanacheMock.mock(Fight.class);
+
+    var fighters = this.fightService.findRandomFighters()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .getItem();
+
+    assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .ignoringFields("hero.powers", "villain.powers")
+      .isEqualTo(new Fighters(createDefaultHero(), createDefaultVillain()));
+
+    verify(this.heroClient).findRandomHero();
+    verify(this.villainClient).findRandomVillain();
+    verify(this.fightService).findRandomHero();
+    verify(this.fightService).findRandomVillain();
+    verify(this.fightService).addDelay(any(Uni.class));
+    verify(this.fightService, never()).fallbackRandomHero();
+    verify(this.fightService, never()).fallbackRandomVillain();
+    PanacheMock.verifyNoInteractions(Fight.class);
+  }
+
   @Test
   @PactTestFor(pactMethod = "randomHeroFoundPact", port = HEROES_MOCK_PORT)
-//  @MockServerConfig(port = "8084")
+//  @PactTestFor(pactMethod = "randomHeroFoundPact")
+//  @MockServerConfig(port = HEROES_MOCK_PORT)
   public void findRandomFightersHeroConsumerContract() {
-    PanacheMock.mock(Fight.class);
-
     doReturn(Uni.createFrom().item(createDefaultVillain()))
       .when(this.villainClient)
       .findRandomVillain();
 
-    var fighters = this.fightService.findRandomFighters()
-      .subscribe().withSubscriber(UniAssertSubscriber.create())
-      .assertSubscribed()
-      .awaitItem(Duration.ofSeconds(5))
-      .getItem();
-
-    assertThat(fighters)
-      .isNotNull()
-      .usingRecursiveComparison()
-      .ignoringFields("hero.powers", "villain.powers")
-      .isEqualTo(new Fighters(createDefaultHero(), createDefaultVillain()));
-
-    verify(this.heroClient).findRandomHero();
-    verify(this.villainClient).findRandomVillain();
-    verify(this.fightService).findRandomHero();
-    verify(this.fightService).findRandomVillain();
-    verify(this.fightService).addDelay(any(Uni.class));
-    verify(this.fightService, never()).fallbackRandomHero();
-    verify(this.fightService, never()).fallbackRandomVillain();
-    PanacheMock.verifyNoInteractions(Fight.class);
+    findRandomFighters();
   }
 
   @Test
   @PactTestFor(pactMethod = "randomVillainFoundPact", port = VILLAINS_MOCK_PORT)
-//  @MockServerConfig(port = "8083")
+//  @PactTestFor(pactMethod = "randomVillainFoundPact")
+//  @MockServerConfig(port = VILLAINS_MOCK_PORT)
   public void findRandomFightersVillainConsumerContract() {
-    PanacheMock.mock(Fight.class);
-
     doReturn(Uni.createFrom().item(createDefaultHero()))
       .when(this.heroClient)
       .findRandomHero();
+
+    findRandomFighters();
+  }
+
+  private void findRandomFightersHeroNotFound() {
+    PanacheMock.mock(Fight.class);
 
     var fighters = this.fightService.findRandomFighters()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -252,7 +266,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
       .isNotNull()
       .usingRecursiveComparison()
       .ignoringFields("hero.powers", "villain.powers")
-      .isEqualTo(new Fighters(createDefaultHero(), createDefaultVillain()));
+      .isEqualTo(new Fighters(createFallbackHero(), createDefaultVillain()));
 
     verify(this.heroClient).findRandomHero();
     verify(this.villainClient).findRandomVillain();
@@ -266,44 +280,30 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "randomHeroNotFoundPact", port = HEROES_MOCK_PORT)
-//  @MockServerConfig(port = "8084")
+//  @PactTestFor(pactMethod = "randomHeroNotFoundPact")
+//  @MockServerConfig(port = HEROES_MOCK_PORT)
   public void findRandomFightersHeroNotFoundHeroConsumerContract() {
-    PanacheMock.mock(Fight.class);
-
     doReturn(Uni.createFrom().item(createDefaultVillain()))
       .when(this.villainClient)
       .findRandomVillain();
 
-    var fighters = this.fightService.findRandomFighters()
-      .subscribe().withSubscriber(UniAssertSubscriber.create())
-      .assertSubscribed()
-      .awaitItem(Duration.ofSeconds(5))
-      .getItem();
-
-    assertThat(fighters)
-      .isNotNull()
-      .usingRecursiveComparison()
-      .isEqualTo(new Fighters(createFallbackHero(), createDefaultVillain()));
-
-    verify(this.heroClient).findRandomHero();
-    verify(this.villainClient).findRandomVillain();
-    verify(this.fightService).findRandomHero();
-    verify(this.fightService).findRandomVillain();
-    verify(this.fightService).addDelay(any(Uni.class));
-    verify(this.fightService, never()).fallbackRandomHero();
-    verify(this.fightService, never()).fallbackRandomVillain();
-    PanacheMock.verifyNoInteractions(Fight.class);
+    findRandomFightersHeroNotFound();
   }
 
   @Test
   @PactTestFor(pactMethod = "randomVillainFoundPact", port = VILLAINS_MOCK_PORT)
-//  @MockServerConfig(port = "8083")
+//  @PactTestFor(pactMethod = "randomVillainFoundPact")
+//  @MockServerConfig(port = VILLAINS_MOCK_PORT)
   public void findRandomFightersHeroNotFoundVillainConsumerContract() {
-    PanacheMock.mock(Fight.class);
-
     doReturn(Uni.createFrom().nullItem())
       .when(this.heroClient)
       .findRandomHero();
+
+    findRandomFightersHeroNotFound();
+  }
+
+  private void findRandomFightersVillainNotFound() {
+    PanacheMock.mock(Fight.class);
 
     var fighters = this.fightService.findRandomFighters()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -315,7 +315,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
       .isNotNull()
       .usingRecursiveComparison()
       .ignoringFields("hero.powers", "villain.powers")
-      .isEqualTo(new Fighters(createFallbackHero(), createDefaultVillain()));
+      .isEqualTo(new Fighters(createDefaultHero(), createFallbackVillain()));
 
     verify(this.heroClient).findRandomHero();
     verify(this.villainClient).findRandomVillain();
@@ -329,13 +329,30 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "randomHeroFoundPact", port = HEROES_MOCK_PORT)
-//  @MockServerConfig(port = "8084")
+//  @PactTestFor(pactMethod = "randomHeroFoundPact")
+//  @MockServerConfig(port = HEROES_MOCK_PORT)
   public void findRandomFightersVillainNotFoundHeroConsumerContract() {
-    PanacheMock.mock(Fight.class);
-
     doReturn(Uni.createFrom().nullItem())
       .when(this.villainClient)
       .findRandomVillain();
+
+    findRandomFightersVillainNotFound();
+  }
+
+  @Test
+  @PactTestFor(pactMethod = "randomVillainNotFoundPact", port = VILLAINS_MOCK_PORT)
+//  @PactTestFor(pactMethod = "randomVillainNotFoundPact")
+//  @MockServerConfig(port = VILLAINS_MOCK_PORT)
+  public void findRandomFightersVillainNotFoundVillainConsumerContract() {
+    doReturn(Uni.createFrom().item(createDefaultHero()))
+      .when(this.heroClient)
+      .findRandomHero();
+
+    findRandomFightersVillainNotFound();
+  }
+
+  private void findRandomFightersNoneFound() {
+    PanacheMock.mock(Fight.class);
 
     var fighters = this.fightService.findRandomFighters()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -347,38 +364,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
       .isNotNull()
       .usingRecursiveComparison()
       .ignoringFields("hero.powers", "villain.powers")
-      .isEqualTo(new Fighters(createDefaultHero(), createFallbackVillain()));
-
-    verify(this.heroClient).findRandomHero();
-    verify(this.villainClient).findRandomVillain();
-    verify(this.fightService).findRandomHero();
-    verify(this.fightService).findRandomVillain();
-    verify(this.fightService).addDelay(any(Uni.class));
-    verify(this.fightService, never()).fallbackRandomHero();
-    verify(this.fightService, never()).fallbackRandomVillain();
-    PanacheMock.verifyNoInteractions(Fight.class);
-  }
-
-  @Test
-  @PactTestFor(pactMethod = "randomVillainNotFoundPact", port = VILLAINS_MOCK_PORT)
-//  @MockServerConfig(port = "8083")
-  public void findRandomFightersVillainNotFoundVillainConsumerContract() {
-    PanacheMock.mock(Fight.class);
-
-    doReturn(Uni.createFrom().item(createDefaultHero()))
-      .when(this.heroClient)
-      .findRandomHero();
-
-    var fighters = this.fightService.findRandomFighters()
-      .subscribe().withSubscriber(UniAssertSubscriber.create())
-      .assertSubscribed()
-      .awaitItem(Duration.ofSeconds(5))
-      .getItem();
-
-    assertThat(fighters)
-      .isNotNull()
-      .usingRecursiveComparison()
-      .isEqualTo(new Fighters(createDefaultHero(), createFallbackVillain()));
+      .isEqualTo(new Fighters(createFallbackHero(), createFallbackVillain()));
 
     verify(this.heroClient).findRandomHero();
     verify(this.villainClient).findRandomVillain();
@@ -392,63 +378,25 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "randomHeroNotFoundPact", port = HEROES_MOCK_PORT)
-//  @MockServerConfig(port = "8084")
+//  @PactTestFor(pactMethod = "randomHeroNotFoundPact")
+//  @MockServerConfig(port = HEROES_MOCK_PORT)
   public void findRandomFightersNoneFoundHeroConsumerContract() {
-    PanacheMock.mock(Fight.class);
-
     doReturn(Uni.createFrom().nullItem())
       .when(this.villainClient)
       .findRandomVillain();
 
-    var fighters = this.fightService.findRandomFighters()
-      .subscribe().withSubscriber(UniAssertSubscriber.create())
-      .assertSubscribed()
-      .awaitItem(Duration.ofSeconds(5))
-      .getItem();
-
-    assertThat(fighters)
-      .isNotNull()
-      .usingRecursiveComparison()
-      .isEqualTo(new Fighters(createFallbackHero(), createFallbackVillain()));
-
-    verify(this.heroClient).findRandomHero();
-    verify(this.villainClient).findRandomVillain();
-    verify(this.fightService).findRandomHero();
-    verify(this.fightService).findRandomVillain();
-    verify(this.fightService).addDelay(any(Uni.class));
-    verify(this.fightService, never()).fallbackRandomHero();
-    verify(this.fightService, never()).fallbackRandomVillain();
-    PanacheMock.verifyNoInteractions(Fight.class);
+    findRandomFightersNoneFound();
   }
 
   @Test
   @PactTestFor(pactMethod = "randomVillainNotFoundPact", port = VILLAINS_MOCK_PORT)
-//  @MockServerConfig(port = "8083")
+//  @PactTestFor(pactMethod = "randomVillainNotFoundPact")
+//  @MockServerConfig(port = VILLAINS_MOCK_PORT)
   public void findRandomFightersNoneFoundVillainConsumerContract() {
-    PanacheMock.mock(Fight.class);
-
     doReturn(Uni.createFrom().nullItem())
       .when(this.heroClient)
       .findRandomHero();
 
-    var fighters = this.fightService.findRandomFighters()
-      .subscribe().withSubscriber(UniAssertSubscriber.create())
-      .assertSubscribed()
-      .awaitItem(Duration.ofSeconds(5))
-      .getItem();
-
-    assertThat(fighters)
-      .isNotNull()
-      .usingRecursiveComparison()
-      .isEqualTo(new Fighters(createFallbackHero(), createFallbackVillain()));
-
-    verify(this.heroClient).findRandomHero();
-    verify(this.villainClient).findRandomVillain();
-    verify(this.fightService).findRandomHero();
-    verify(this.fightService).findRandomVillain();
-    verify(this.fightService).addDelay(any(Uni.class));
-    verify(this.fightService, never()).fallbackRandomHero();
-    verify(this.fightService, never()).fallbackRandomVillain();
-    PanacheMock.verifyNoInteractions(Fight.class);
+    findRandomFightersNoneFound();
   }
 }
