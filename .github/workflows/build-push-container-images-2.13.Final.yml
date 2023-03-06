@@ -290,7 +290,7 @@ jobs:
         working-directory: ${{ matrix.project }}
         run: echo "CONTAINER_TAG=native-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
 
-      - name: Get saved images (${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }})
+      - name: Get saved images (${{ matrix.project }}:${{ env.CONTAINER_TAG }})
         uses: ishworkh/docker-image-artifact-download@v1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
