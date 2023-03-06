@@ -61,6 +61,8 @@ Pick one of the 4 versions of the application from the table below and execute t
    > **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
    >
    > There is a [`watch-services.sh`](scripts/watch-services.sh) script that can be run in a separate terminal that will watch the startup of all the services and report when they are all up and ready to serve requests. 
+   >
+   > Run `scripts/watch-services.sh -h` for details about it's usage.
 
 | Description | Image Tag                 | Docker Compose Run Command                                               | Docker Compose Run Command with Monitoring                                                                       |
 |-------------|---------------------------|--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|

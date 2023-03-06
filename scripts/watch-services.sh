@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # 0 - event-statistics
 # 1 - villains
@@ -10,6 +10,24 @@ statuses=("0", "0", "0", "0", "0", "0")
 
 max_tries=100
 tries=1
+interval=2
+
+# Display help
+help() {
+  echo "This script watches the services started by Docker Compose and reports when all services are up."
+  echo
+  echo "Syntax: watch-services.sh [options]"
+  echo "options:"
+  echo "  -h                           Prints this help message"
+  echo "  -i <interval_between_tries>  The interval in seconds between tries. Default is 2."
+  echo "  -m <max_tries>               The number of times to retry to see if the services are up. Default is 100."
+}
+
+exit_abnormal() {
+  echo
+  help
+  exit 1
+}
 
 get_status() {
   local port=$1
@@ -68,6 +86,24 @@ print_statuses() {
   echo "apicurio=${statuses[5]}"
 }
 
+# Process the input options
+while getopts "hi::m::" option; do
+  case $option in
+    m) max_tries=$OPTARG
+       ;;
+
+    h) help
+       exit 1
+       ;;
+
+    i) interval=$OPTARG
+       ;;
+
+    *) exit_abnormal
+       ;;
+  esac
+done
+
 while [[ "${statuses[0]}" != "\"200\"" ]] || [[ "${statuses[1]}" != "\"200\"" ]] || [[ "${statuses[2]}" != "\"200\"" ]] || [[ "${statuses[3]}" != "\"200\"" ]] || [[ "${statuses[4]}" != "\"200\"" ]] || [[ "${statuses[5]}" != "\"200\"" ]]
 do
   if [[ "$tries" -gt $max_tries ]]; then
@@ -76,12 +112,12 @@ do
 
   echo ""
   echo "-----------------------------------"
-  echo "Try #$tries"
+  echo "[$(date +"%m/%d/%Y %T")]: Try #$tries"
   echo "-----------------------------------"
   get_statuses
 #  print_statuses
   ((tries++))
-  sleep 2
+  sleep $interval
 done
 
 echo ""
@@ -89,6 +125,8 @@ echo ""
 if [[ "$tries" -gt $max_tries ]]; then
   echo "Not all services started within $max_tries tries!!!!!!!"
   print_statuses
+
+  exit 1
 else
   echo "All services are now up :)"
   echo "Super Heroes UI: http://localhost:8080"
@@ -99,3 +137,5 @@ else
   echo "Prometheus: http://localhost:9090"
   echo "Jaeger: http://localhost:16686"
 fi
+
+exit 0
