@@ -66,9 +66,9 @@ Pick one of the 4 versions of the application from the table below and execute t
 
 | Description | Image Tag                 | Docker Compose Run Command                                               | Docker Compose Run Command with Monitoring                                                                       |
 |-------------|---------------------------|--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| JVM Java 11 | `java11-latest-rhbq-2.13` | `docker compose -f deploy/docker-compose/java11.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/java11.yml -f deploy/docker-compose/monitoring.yml up --remove-orphans` |
-| JVM Java 17 | `java17-latest-rhbq-2.13` | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/java17.yml -f deploy/docker-compose/monitoring.yml up --remove-orphans` |
-| Native      | `native-latest-rhbq-2.13` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/native.yml -f deploy/docker-compose/monitoring.yml up --remove-orphans` |
+| JVM Java 11 | `java11-latest-2.13.Final` | `docker compose -f deploy/docker-compose/java11.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/java11.yml -f deploy/docker-compose/monitoring.yml up --remove-orphans` |
+| JVM Java 17 | `java17-latest-2.13.Final` | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/java17.yml -f deploy/docker-compose/monitoring.yml up --remove-orphans` |
+| Native      | `native-latest-2.13.Final` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` | `docker compose -f deploy/docker-compose/native.yml -f deploy/docker-compose/monitoring.yml up --remove-orphans` |
 
 > **NOTE:** If your system does not have the `compose` sub-command, you can try the above commands with the `docker-compose` command instead of `docker compose`.
 
@@ -105,9 +105,9 @@ Pick one of the 4 versions of the system from the table below and deploy the app
 
 | Description | Image Tag                 | OpenShift Descriptor                                      | Minikube Descriptor                                     | Kubernetes Descriptor                                       | KNative Descriptor                                    |
 |-------------|---------------------------|-----------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------------------|
-| JVM Java 11 | `java11-latest-rhbq-2.13` | [`java11-openshift.yml`](deploy/k8s/java11-openshift.yml) | [`java11-minikube.yml`](deploy/k8s/java11-minikube.yml) | [`java11-kubernetes.yml`](deploy/k8s/java11-kubernetes.yml) | [`java11-knative.yml`](deploy/k8s/java11-knative.yml) |
-| JVM Java 17 | `java17-latest-rhbq-2.13` | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml) | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml) | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml) | [`java17-knative.yml`](deploy/k8s/java17-knative.yml) |
-| Native      | `native-latest-rhbq-2.13` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
+| JVM Java 11 | `java11-latest-2.13.Final` | [`java11-openshift.yml`](deploy/k8s/java11-openshift.yml) | [`java11-minikube.yml`](deploy/k8s/java11-minikube.yml) | [`java11-kubernetes.yml`](deploy/k8s/java11-kubernetes.yml) | [`java11-knative.yml`](deploy/k8s/java11-knative.yml) |
+| JVM Java 17 | `java17-latest-2.13.Final` | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml) | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml) | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml) | [`java17-knative.yml`](deploy/k8s/java17-knative.yml) |
+| Native      | `native-latest-2.13.Final` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
 
 ### Monitoring
 There are also Kubernetes deployment descriptors for monitoring with [OpenTelemetry](https://opentelemetry.io), [Prometheus](https://prometheus.io), and [Jaeger](https://www.jaegertracing.io) in the [`deploy/k8s` directory](deploy/k8s) ([`monitoring-openshift.yml`](deploy/k8s/monitoring-openshift.yml), [`monitoring-minikube.yml`](deploy/k8s/monitoring-minikube.yml), [`monitoring-kubernetes.yml`](deploy/k8s/monitoring-kubernetes.yml)). Each descriptor contains the resources necessary to monitor and gather metrics and traces from all of the applications in the system. Deploy the appropriate descriptor to your cluster if you want it.

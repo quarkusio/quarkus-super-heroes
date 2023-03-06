@@ -1,4 +1,4 @@
-name: Build and Push Container images - rhbq-2.13
+name: Build and Push Container images - 2.13.Final
 
 env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
@@ -12,7 +12,7 @@ on:
     workflows:
       - "Basic build and test"
     branches:
-      - rhbq-2.13
+      - 2.13.Final
     types:
       - completed
   workflow_dispatch:
@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   build-jvm-images:
-    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == 'rhbq-2.13')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
+    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == '2.13.Final')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '2.13.Final'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -67,8 +67,6 @@ jobs:
       - name: Create env vars
         working-directory: ${{ matrix.project }}
         run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV &&
           if [[ ${{ matrix.java }} == '11' ]]; then
             echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV"
           else
@@ -77,7 +75,7 @@ jobs:
 
       - name: Create container tags
         working-directory: ${{ matrix.project }}
-        run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}-${{ matrix.arch }}" >> $GITHUB_ENV
 
       - name: Set up QEMU
         if: matrix.arch == 'arm64'
@@ -98,17 +96,17 @@ jobs:
             -Dquarkus.http.host=0.0.0.0 \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=false \
-            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}-${{ matrix.arch }} \
+            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
             -Dquarkus.docker.dockerfile-jvm-path=src/main/docker/${{ env.JVM_DOCKERFILE }} \
             -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
 
       - name: Save JVM Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
+          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   build-native-images:
-    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == 'rhbq-2.13')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
+    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == '2.13.Final')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '2.13.Final'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -146,15 +144,9 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Create env vars
-        working-directory: ${{ matrix.project }}
-        run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV && \
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-
       - name: Create container tags
         working-directory: ${{ matrix.project }}
-        run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=native-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
 
       - name: Build native image (${{ matrix.project }}-${{ matrix.arch }})
         working-directory: ${{ matrix.project }}
@@ -166,15 +158,15 @@ jobs:
             -Dquarkus.native.builder-image=${{ env.MANDREL_IMAGE }}:${{ env.MANDREL_VERSION }}-java${{ env.NATIVE_JAVA_VERSION }} \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=false \
-            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}-${{ matrix.arch }}
+            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}
 
       - name: Save native Image (${{ matrix.project }}-${{ matrix.arch }})
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
+          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   build-ui-images:
-    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == 'rhbq-2.13')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
+    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == '2.13.Final')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '2.13.Final'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -233,7 +225,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.CONTAINER_TAG }}"
 
   push-app-images:
-    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == 'rhbq-2.13')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
+    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == '2.13.Final')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '2.13.Final'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
     needs:
       - build-jvm-images
       - build-native-images
@@ -288,36 +280,20 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Create env vars
-        working-directory: ${{ matrix.project }}
-        run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-
       - name: Create CONTAINER_TAG (JVM)
         if: matrix.kind == ''
         working-directory: ${{ matrix.project }}
-        run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-${{ matrix.kind }}java${{ matrix.java }}" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}-${{ matrix.arch }}" >> $GITHUB_ENV
 
       - name: Create CONTAINER_TAG (native)
         if: matrix.kind == 'native-'
         working-directory: ${{ matrix.project }}
-        run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native" >> $GITHUB_ENV
-
-      - name: Create ADDITIONAL_TAG (JVM)
-        if: matrix.kind == ''
-        working-directory: ${{ matrix.project }}
-        run: echo "ADDITIONAL_TAG=${{ matrix.kind }}java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
-
-      - name: Create ADDITIONAL_TAG (Native)
-        if: matrix.kind == 'native-'
-        working-directory: ${{ matrix.project }}
-        run: echo "ADDITIONAL_TAG=${{ matrix.kind }}${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=native-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
 
       - name: Get saved images (${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }})
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
+          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
       - name: Login to quay
         uses: docker/login-action@v2
@@ -326,24 +302,12 @@ jobs:
           username: ${{ secrets.QUAY_REPO_USERNAME }}
           password: ${{ secrets.QUAY_REPO_TOKEN }}
 
-      - name: Tag image (JVM)
-        if: matrix.kind != 'native-'
-        working-directory: ${{ matrix.project }}
-        run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-${{ matrix.arch }}"
-
-      - name: Tag image (Native)
-        if: matrix.kind == 'native-'
-        working-directory: ${{ matrix.project }}
-        run: |
-          docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}
-          docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}
-
       - name: Push images
         working-directory: ${{ matrix.project }}
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}"
 
   push-ui-images:
-    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == 'rhbq-2.13')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
+    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == '2.13.Final')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '2.13.Final'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
     needs:
       - build-jvm-images
       - build-native-images
@@ -382,16 +346,12 @@ jobs:
       - name: Create env vars (main branch)
         if: env.BRANCH == 'main'
         working-directory: ui-super-heroes
-        run: |
-          echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }}" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ matrix.arch }}" >> $GITHUB_ENV
 
       - name: Create env vars (other branch)
         if: env.BRANCH != 'main'
         working-directory: ui-super-heroes
-        run: |
-          echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}-${{ matrix.arch }}" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)-${{ env.BRANCH }}" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}-${{ matrix.arch }}" >> $GITHUB_ENV
 
       - name: Get Saved UI Image (${{ matrix.arch }})
         uses: ishworkh/docker-image-artifact-download@v1
@@ -405,16 +365,12 @@ jobs:
           username: ${{ secrets.QUAY_REPO_USERNAME }}
           password: ${{ secrets.QUAY_REPO_TOKEN }}
 
-      - name: Tag UI image (${{ matrix.arch }})
-        working-directory: ui-super-heroes
-        run: docker tag ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.CONTAINER_TAG }} ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-${{ matrix.arch }}
-
       - name: Push UI image (${{ matrix.arch }})
         working-directory: ui-super-heroes
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes"
 
   create-app-multiarch-manifests:
-    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == 'rhbq-2.13')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
+    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == '2.13.Final')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '2.13.Final'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
     needs: push-app-images
     runs-on: ubuntu-latest
     strategy:
@@ -455,17 +411,9 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Create env vars
-        working-directory: ${{ matrix.project }}
-        run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-
       - name: Create Create container tags
         working-directory: ${{ matrix.project }}
-        run: |
-          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-${{ matrix.kind }}java${{ matrix.java }}" >> $GITHUB_ENV &&
-          echo "ADDITIONAL_TAG=${{ matrix.kind }}java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
 
       - name: Login to quay
         uses: docker/login-action@v2
@@ -481,13 +429,9 @@ jobs:
             -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-amd64 \
             -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-arm64
           docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}
-          docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }} \
-            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-amd64 \
-            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-arm64
-          docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}
 
   create-ui-multiarch-manifests:
-    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == 'rhbq-2.13')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
+    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == '2.13.Final')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '2.13.Final'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
     needs: push-ui-images
     runs-on: ubuntu-latest
     steps:
@@ -518,16 +462,12 @@ jobs:
       - name: Create env vars (main branch)
         if: env.BRANCH == 'main'
         working-directory: ui-super-heroes
-        run: |
-          echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}" >> $GITHUB_ENV
 
       - name: Create env vars (other branch)
         if: env.BRANCH != 'main'
         working-directory: ui-super-heroes
-        run: |
-          echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)-${{ env.BRANCH }}" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
 
       - name: Login to quay
         uses: docker/login-action@v2
@@ -543,13 +483,9 @@ jobs:
             -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.CONTAINER_TAG }}-amd64 \
             -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.CONTAINER_TAG }}-arm64
           docker manifest push ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.CONTAINER_TAG }}
-          docker manifest create ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }} \
-            -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-amd64 \
-            -a ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}-arm64
-          docker manifest push ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.APP_VERSION }}
 
   deploy-resources-workflow-run:
-    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == 'rhbq-2.13')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'rhbq-2.13'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
+    if: (((github.event_name == 'workflow_dispatch') && (github.ref_name == '2.13.Final')) || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '2.13.Final'))) && (github.repository == 'quarkusio/quarkus-super-heroes')
     needs:
       - create-app-multiarch-manifests
       - create-ui-multiarch-manifests
@@ -560,7 +496,7 @@ jobs:
       branch: ${{ github.event.workflow_run.head_branch }}
 
   deploy-resources-workflow-dispatch:
-    if: ((github.event_name == 'workflow_dispatch') && (github.repository == 'quarkusio/quarkus-super-heroes')) && (github.ref_name == 'rhbq-2.13')
+    if: ((github.event_name == 'workflow_dispatch') && (github.repository == 'quarkusio/quarkus-super-heroes')) && (github.ref_name == '2.13.Final')
     needs:
       - create-app-multiarch-manifests
       - create-ui-multiarch-manifests

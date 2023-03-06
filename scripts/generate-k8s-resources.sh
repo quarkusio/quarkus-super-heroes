@@ -21,10 +21,10 @@ do_build() {
   local version_tag=$3
   local javaVersion=$4
   local kind=$5
-  local container_tag="${version_tag}-latest-rhbq-2.13"
+  local container_tag="${version_tag}-latest-2.13.Final"
   local git_server_url="${GITHUB_SERVER_URL:=https://github.com}"
   local git_repo="${GITHUB_REPOSITORY:=quarkusio/quarkus-super-heroes}"
-  local github_ref_name="${BRANCH:=${GITHUB_REF_NAME:=rhbq-2.13}}"
+  local github_ref_name="${BRANCH:=${GITHUB_REF_NAME:=2.13.Final}}"
 
   if [[ "$kind" == "native-" ]]; then
     local mem_limit="128Mi"

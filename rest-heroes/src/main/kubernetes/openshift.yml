@@ -52,7 +52,7 @@ data:
   get-data.sh: |-
     #!/bin/bash
     
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/rhbq-2.13/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/2.13.Final/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -140,27 +140,27 @@ spec:
   lookupPolicy:
     local: false
   tags:
-    - name: java11-latest-rhbq-2.13
+    - name: java11-latest-2.13.Final
       annotations: null
       from:
         kind: DockerImage
-        name: 'quay.io/quarkus-super-heroes/rest-heroes:java11-latest-rhbq-2.13'
+        name: 'quay.io/quarkus-super-heroes/rest-heroes:java11-latest-2.13.Final'
       importPolicy: {}
       referencePolicy:
         type: Source
-    - name: java17-latest-rhbq-2.13
+    - name: java17-latest-2.13.Final
       annotations: null
       from:
         kind: DockerImage
-        name: 'quay.io/quarkus-super-heroes/rest-heroes:java17-latest-rhbq-2.13'
+        name: 'quay.io/quarkus-super-heroes/rest-heroes:java17-latest-2.13.Final'
       importPolicy: { }
       referencePolicy:
         type: Source
-    - name: native-latest-rhbq-2.13
+    - name: native-latest-2.13.Final
       annotations: null
       from:
         kind: DockerImage
-        name: 'quay.io/quarkus-super-heroes/rest-heroes:native-latest-rhbq-2.13'
+        name: 'quay.io/quarkus-super-heroes/rest-heroes:native-latest-2.13.Final'
       importPolicy: { }
       referencePolicy:
         type: Source
