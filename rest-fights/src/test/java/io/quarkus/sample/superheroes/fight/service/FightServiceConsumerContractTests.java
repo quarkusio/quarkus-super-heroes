@@ -6,12 +6,14 @@ import static org.mockito.Mockito.*;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -78,6 +80,11 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @InjectSpy
   VillainClient villainClient;
+
+  @BeforeEach
+  public void beforeEach() throws InterruptedException {
+    TimeUnit.SECONDS.sleep(5L);
+  }
 
   @Pact(consumer = "rest-fights", provider = "rest-villains")
   public V4Pact helloVillainsPact(PactDslWithProvider builder) {
