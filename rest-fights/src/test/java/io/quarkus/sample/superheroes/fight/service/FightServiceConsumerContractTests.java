@@ -6,15 +6,16 @@ import static org.mockito.Mockito.*;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.quarkus.panache.mock.PanacheMock;
@@ -64,7 +65,6 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 @QuarkusTestResource(value = PactConsumerContractTestResource.class, restrictToAnnotatedClass = true)
 @ExtendWith(PactConsumerTestExt.class)
 @PactTestFor(pactVersion = PactSpecVersion.V4, hostInterface = "localhost", mockServerImplementation = MockServerImplementation.KTorServer)
-@TestInstance(Lifecycle.PER_CLASS)
 public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
@@ -82,10 +82,15 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   @InjectSpy
   VillainClient villainClient;
 
-//  @BeforeEach
-//  public void beforeEach() throws InterruptedException {
-//    TimeUnit.SECONDS.sleep(30L);
-//  }
+  @BeforeEach
+  public void beforeEach() throws InterruptedException {
+    TimeUnit.MINUTES.sleep(1L);
+  }
+
+  @AfterEach
+  public void afterEach() throws InterruptedException {
+    TimeUnit.MINUTES.sleep(1L);
+  }
 
   @Pact(consumer = "rest-fights", provider = "rest-villains")
   public V4Pact helloVillainsPact(PactDslWithProvider builder) {
