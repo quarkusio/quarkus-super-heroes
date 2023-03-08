@@ -5,16 +5,16 @@ import java.util.Map;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 
 /**
- * Quarkus {@link io.quarkus.test.common.QuarkusTestResourceLifecycleManager for handling Pact consumer
+ * Quarkus {@link io.quarkus.test.common.QuarkusTestResourceLifecycleManager} for handling Pact consumer
  * contract tests. Mostly here so that the Hero and Villain rest client URLs are
  * set to point to the Pact {@link au.com.dius.pact.consumer.MockServer MockServer} and
  * not the WireMock mocks.
  * <p>
  *   Also makes an assumption and hard-codes the Pact {@link au.com.dius.pact.consumer.MockServer MockServer}
- *   to be running on {@code localhost:8081}.
+ *   to be running on {@code localhost:8083} for the {@code rest-villains} service and on {@code localhost:8084} for the {@code rest-heroes} service.
  * </p>
  * <p>
- *   Quarkus itself is set to run its tests on a random port, so port {@code 8081} should be available.
+ *   This application runs on port {@code 8082} and its tests run on a random port, so ports {@code 8083} and {@code 8084} should be available.
  * </p>
  */
 public class PactConsumerContractTestResource implements QuarkusTestResourceLifecycleManager {
