@@ -184,7 +184,7 @@ public class HeroResource {
     return this.heroService.replaceAllHeroes(heroes)
       .map(h -> {
 				var uri = uriInfo.getAbsolutePathBuilder().build();
-				this.logger.debugf("New Hero created with URI %s", uri.toString());
+				this.logger.debugf("New Heroes created with URI %s", uri.toString());
 				return Response.created(uri).build();
 			});
   }
