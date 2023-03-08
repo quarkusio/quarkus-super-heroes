@@ -28,6 +28,7 @@ import au.com.dius.pact.consumer.dsl.PactDslRootValue;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
+import au.com.dius.pact.consumer.model.MockServerImplementation;
 import au.com.dius.pact.core.model.PactSpecVersion;
 import au.com.dius.pact.core.model.V4Pact;
 import au.com.dius.pact.core.model.annotations.Pact;
@@ -60,7 +61,7 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 @QuarkusTest
 @QuarkusTestResource(value = PactConsumerContractTestResource.class, restrictToAnnotatedClass = true)
 @ExtendWith(PactConsumerTestExt.class)
-@PactTestFor(pactVersion = PactSpecVersion.V4, hostInterface = "localhost")
+@PactTestFor(pactVersion = PactSpecVersion.V4, hostInterface = "localhost", mockServerImplementation = MockServerImplementation.KTorServer)
 public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
