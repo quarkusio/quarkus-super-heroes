@@ -6,15 +6,12 @@ import static org.mockito.Mockito.*;
 
 import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -78,7 +75,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String HERO_API_BASE_URI = "/api/heroes";
   private static final String HERO_RANDOM_URI = HERO_API_BASE_URI + "/random";
   private static final String HERO_HELLO_URI = HERO_API_BASE_URI + "/hello";
-  private static final String HEROES_MOCK_PORT = "8084";
+  private static final String HEROES_MOCK_PORT = "8080";
 
   @InjectSpy
   HeroClient heroClient;
@@ -86,15 +83,15 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   @InjectSpy
   VillainClient villainClient;
 
-  @BeforeEach
-  public void beforeEach() throws InterruptedException {
-    TimeUnit.SECONDS.sleep(30);
-  }
-
-  @AfterEach
-  public void afterEach() throws InterruptedException {
-    TimeUnit.SECONDS.sleep(30);
-  }
+//  @BeforeEach
+//  public void beforeEach() throws InterruptedException {
+//    TimeUnit.SECONDS.sleep(30);
+//  }
+//
+//  @AfterEach
+//  public void afterEach() throws InterruptedException {
+//    TimeUnit.SECONDS.sleep(30);
+//  }
 
   @Pact(consumer = "rest-fights", provider = "rest-villains")
   public V4Pact helloVillainsPact(PactDslWithProvider builder) {
