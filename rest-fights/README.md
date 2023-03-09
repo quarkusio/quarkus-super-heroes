@@ -110,8 +110,6 @@ The contracts are committed into the provider's version control simply for easy 
 
 Additionally, the [Pact contract](src/test/resources/pacts/ui-super-heroes-rest-fights.json) is committed into this application's source tree inside the [`src/test/resources/pacts` directory](src/test/resources/pacts).
 
-Provider tests do work, with the workaround that the scope of the extension to be more generous than the natural `test` scope.
-
 The consumer contract tests and provider verification tests **ARE** executed during this project's CI/CD processes. They run against any pull requests and any commits back to the `main` branch.
 
 The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility.
