@@ -104,22 +104,17 @@ As [this README states](src/test/resources/pacts/README.md), contracts generally
 
 One of the main goals of the Superheroes application is to be super simple and just "work" by anyone who may clone this repo. That being said, we can't make any assumptions about where a Pact broker may be or any of the credentials required to access it.
 
-This consumer generates the following contracts:
-- [`HeroConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/HeroConsumerContractTests.java) generates the [`rest-fights-rest-heroes.json`](../rest-heroes/src/test/resources/pacts/rest-fights-rest-heroes.json) contract.
-- [`VillainConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/VillainConsumerContractTests.java) generates the [`rest-fights-rest-villains.json`](../rest-villains/src/test/resources/pacts/rest-fights-rest-villains.json) contract.
+The [`FightServiceConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/service/FightServiceConsumerContractTests.java) test class generates the [`rest-fights-rest-heroes.json`](../rest-heroes/src/test/resources/pacts/rest-fights-rest-heroes.json) and [`rest-fights-rest-villains.json`](../rest-villains/src/test/resources/pacts/rest-fights-rest-villains.json) contracts while also providing mock instances of the `rest-heroes` and `rest-villains` providers.
 
 The contracts are committed into the provider's version control simply for easy of use and reproducibility.
 
 Additionally, the [Pact contract](src/test/resources/pacts/ui-super-heroes-rest-fights.json) is committed into this application's source tree inside the [`src/test/resources/pacts` directory](src/test/resources/pacts).
 
-The Pact consumer contract tests don't currently work with Quarkus dev mode and continuous testing for this project, because of the [test profiles](https://github.com/quarkiverse/quarkus-pact/issues/58).
-The consumer contract tests ([`HeroConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/HeroConsumerContractTests.java) & [`VillainConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/client/VillainConsumerContractTests.java)) are only executed in 'normal' testing, not continuous testing.
-
 Provider tests do work, with the workaround that the scope of the extension to be more generous than the natural `test` scope.
 
 The consumer contract tests and provider verification tests **ARE** executed during this project's CI/CD processes. They run against any pull requests and any commits back to the `main` branch.
 
-The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility
+The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility.
 
 ## Running the Application
 First you need to start up all of the downstream services ([Heroes Service](../rest-heroes) and [Villains Service](../rest-villains) - the [Event Statistics Service](../event-statistics) is optional).
