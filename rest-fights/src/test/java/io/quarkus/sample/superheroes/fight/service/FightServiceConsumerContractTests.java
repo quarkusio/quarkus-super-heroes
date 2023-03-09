@@ -12,10 +12,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.quarkus.panache.mock.PanacheMock;
@@ -65,7 +62,6 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 @QuarkusTestResource(value = PactConsumerContractTestResource.class, restrictToAnnotatedClass = true)
 @ExtendWith(PactConsumerTestExt.class)
 @PactTestFor(pactVersion = PactSpecVersion.V4, mockServerImplementation = MockServerImplementation.KTorServer)
-@TestMethodOrder(OrderAnnotation.class)
 public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
@@ -82,16 +78,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @InjectSpy
   VillainClient villainClient;
-
-//  @BeforeEach
-//  public void beforeEach() throws InterruptedException {
-//    TimeUnit.SECONDS.sleep(30);
-//  }
-//
-//  @AfterEach
-//  public void afterEach() throws InterruptedException {
-//    TimeUnit.SECONDS.sleep(30);
-//  }
 
   @Pact(consumer = "rest-fights", provider = "rest-villains")
   public V4Pact helloVillainsPact(PactDslWithProvider builder) {
@@ -189,7 +175,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "helloHeroesPact", port = HEROES_MOCK_PORT)
-  @Order(0)
   public void helloHeroesSuccess() {
     var message = this.fightService.helloHeroes()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -208,7 +193,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "helloVillainsPact", port = VILLAINS_MOCK_PORT)
-  @Order(0)
   public void helloVillainsSuccess() {
     var message = this.fightService.helloVillains()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -252,7 +236,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "randomHeroFoundPact", port = HEROES_MOCK_PORT)
-  @Order(1)
   public void findRandomFightersHeroConsumerContract() {
     doReturn(Uni.createFrom().item(createDefaultVillain()))
       .when(this.villainClient)
@@ -263,7 +246,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "randomVillainFoundPact", port = VILLAINS_MOCK_PORT)
-  @Order(1)
   public void findRandomFightersVillainConsumerContract() {
     doReturn(Uni.createFrom().item(createDefaultHero()))
       .when(this.heroClient)
@@ -299,7 +281,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "randomHeroNotFoundPact", port = HEROES_MOCK_PORT)
-  @Order(2)
   public void findRandomFightersHeroNotFoundHeroConsumerContract() {
     doReturn(Uni.createFrom().item(createDefaultVillain()))
       .when(this.villainClient)
@@ -310,7 +291,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "randomVillainFoundPact", port = VILLAINS_MOCK_PORT)
-  @Order(2)
   public void findRandomFightersHeroNotFoundVillainConsumerContract() {
     doReturn(Uni.createFrom().nullItem())
       .when(this.heroClient)
@@ -346,7 +326,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "randomHeroFoundPact", port = HEROES_MOCK_PORT)
-  @Order(3)
   public void findRandomFightersVillainNotFoundHeroConsumerContract() {
     doReturn(Uni.createFrom().nullItem())
       .when(this.villainClient)
@@ -357,7 +336,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "randomVillainNotFoundPact", port = VILLAINS_MOCK_PORT)
-  @Order(3)
   public void findRandomFightersVillainNotFoundVillainConsumerContract() {
     doReturn(Uni.createFrom().item(createDefaultHero()))
       .when(this.heroClient)
@@ -393,7 +371,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "randomHeroNotFoundPact", port = HEROES_MOCK_PORT)
-  @Order(4)
   public void findRandomFightersNoneFoundHeroConsumerContract() {
     doReturn(Uni.createFrom().nullItem())
       .when(this.villainClient)
@@ -404,7 +381,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
   @Test
   @PactTestFor(pactMethod = "randomVillainNotFoundPact", port = VILLAINS_MOCK_PORT)
-  @Order(4)
   public void findRandomFightersNoneFoundVillainConsumerContract() {
     doReturn(Uni.createFrom().nullItem())
       .when(this.heroClient)
