@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: heroes-db
+    application: heroes-service
+    system: quarkus-super-heroes
+  name: heroes-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: heroes-db
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.openshift.io/connects-to: "heroes-db,otel-collector"
+    app.quarkus.io/commit-id: dc5044e4635b639b7165a38a9a97fece36f9427c
+    app.quarkus.io/build-timestamp: 2023-03-17 - 16:04:47 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8083"
+    prometheus.io/scheme: http
+  labels:
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-latest
+    app: rest-heroes
+    application: heroes-service
+    system: quarkus-super-heroes
+  name: rest-heroes
+spec:
+  ports:
+    - name: http
+      nodePort: 30471
+      port: 80
+      protocol: TCP
+      targetPort: 8083
+  selector:
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-latest
+  type: {{ .Values.app.serviceType }}
