@@ -1,17 +1,21 @@
-#!/bin/bash -ex
+#!/bin/bash
+#-ex
 
 # Create the deploy/k8s files for each java version of each of the Quarkus services
 # Then add on the ui-super-heroes
 
 INPUT_DIR=src/main/kubernetes
+OUTPUT_DIR_K8S=deploy/k8s
+OUTPUT_DIR_HELM=deploy/helm
 OUTPUT_DIR=deploy/k8s
 DEPLOYMENT_TYPES=("kubernetes" "minikube" "openshift" "knative")
+PROJECTS_ALL=("rest-villains" "rest-heroes" "rest-fights" "event-statistics")
 
 create_output_file() {
   local output_file=$1
 
   if [[ ! -f "$output_file" ]]; then
-    echo "Creating output file: $output_file"
+    # echo "Creating output file: $output_file"
     touch $output_file
   fi
 }
@@ -21,12 +25,13 @@ do_build() {
   local version_tag=$2
   local javaVersion=$3
   local kind=$4
+
   local container_tag="${version_tag}-latest"
   local git_server_url="${GITHUB_SERVER_URL:=https://github.com}"
   local git_repo="${GITHUB_REPOSITORY:=quarkusio/quarkus-super-heroes}"
   local github_ref_name="${BRANCH:=${GITHUB_REF_NAME:=main}}"
 
-  if [[ "$kind" == "native-" ]]; then
+  if [[ "$kind" == "native" ]]; then
     local mem_limit="128Mi"
     local mem_request="32Mi"
   else
@@ -39,7 +44,7 @@ do_build() {
 
   printf -v deployment_types_str '%s,' "${DEPLOYMENT_TYPES[@]}"
 
-  $project/mvnw -f $project/pom.xml versions:set clean package \
+  $project/mvnw -q -f $project/pom.xml versions:set clean package \
     -DskipTests \
     -DnewVersion=$container_tag \
     -Dmaven.compiler.release=$javaVersion \
@@ -63,47 +68,138 @@ do_build() {
     -Dquarkus.knative.resources.limits.memory=$mem_limit \
     -Dquarkus.knative.resources.requests.memory=$mem_request \
     -Dquarkus.knative.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
-    -Dquarkus.knative.annotations.\"app.openshift.io/vcs-ref\"=$github_ref_name
+    -Dquarkus.knative.annotations.\"app.openshift.io/vcs-ref\"=$github_ref_name \
+    -Dquarkus.helm.version=1.0.0 \
+    -Dquarkus.helm.name=$project
+
+}
+
+process_kubernetes_resources(){
+  local project=$1
+  local version_tag=$2
+
+  for deployment_type in "${DEPLOYMENT_TYPES[@]}"
+  do
+
+    local output_filename="${version_tag}-${deployment_type}"
+    local project_k8s_file="$project/$OUTPUT_DIR_K8S/${output_filename}.yml"
+    local all_apps_k8s_file="$OUTPUT_DIR_K8S/${output_filename}.yml"
+    local mvn_k8s_file="$project/target/kubernetes/${deployment_type}.yml"
+
+    mkdir -p $OUTPUT_DIR_K8S
+    mkdir -p $project/$OUTPUT_DIR_K8S
+    rm -rf $project_k8s_file
+
+    create_output_file $project_k8s_file
+    create_output_file $all_apps_k8s_file
+
+    # Now merge the generated resources to the top level (deploy/k8s)
+    if [[ -f "$mvn_k8s_file" ]]; then
+      echo "Adding ${deployment_type} resources from ($mvn_k8s_file) to $project_k8s_file and $all_apps_k8s_file"
+
+      cat $mvn_k8s_file >> $project_k8s_file
+      cat $mvn_k8s_file >> $all_apps_k8s_file
+    fi
+
+    if [[ "$project" == "rest-fights" ]]; then
+      # Create a descriptor for all of the downstream services (rest-heroes and rest-villains)
+      local all_downstream_output_file="$project/$OUTPUT_DIR_K8S/${output_filename}-all-downstream.yml"
+      local villains_output_file="rest-villains/$OUTPUT_DIR_K8S/${output_filename}.yml"
+      local heroes_output_file="rest-heroes/$OUTPUT_DIR_K8S/${output_filename}.yml"
+
+      rm -rf $all_downstream_output_file
+
+      create_output_file $all_downstream_output_file
+
+      echo "Adding ${deployment_type} rest-fights resources ${mvn_k8s_file}, ${villains_output_file}, and $heroes_output_file to $all_downstream_output_file"
+      cat $villains_output_file >> $all_downstream_output_file
+      cat $heroes_output_file >> $all_downstream_output_file
+      cat $mvn_k8s_file >> $all_downstream_output_file
+    fi
+
+    # Order the resources for testing purposes
+    echo "Sorting kubernetes resources at $project_k8s_file"
+    jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "${project_k8s_file}" > "${project_k8s_file}.sort";
+
+  done
+}
+
+process_helm_resources(){
+    local project=$1
+    local deployment_type=$2
+
+    local mvn_helm_dir="$project/target/helm/${deployment_type}/$project"
+    local project_helm_dir="$project/${OUTPUT_DIR_HELM}/${deployment_type}"
+    local all_apps_helm_dir="${OUTPUT_DIR_HELM}/${deployment_type}"
+
+    # Now copy the helm files into the deploy directory (deploy/helm) out of the transient target.
+    if [[ -d "$mvn_helm_dir" ]]; then
+      rm -rf $project_helm_dir
+      mkdir -p $project_helm_dir
+      echo "Copying generated helm chart $mvn_helm_dir to $project_helm_dir"
+      cp -R $mvn_helm_dir/* $project_helm_dir
+    else
+      echo "ERROR: The expected location of the maven generated helm chart is not found: $mvn_helm_dir"
+      exit
+    fi
+
+    if [[ "$project" == "rest-fights" ]]; then
+      echo "Copying rest villain and heroes ${deployment_type} helm charts to the rest fights one "
+      mkdir -p "${project_helm_dir}/charts/rest-villains"
+      cp -R rest-villains/${OUTPUT_DIR_HELM}/${deployment_type}/* "${project_helm_dir}/charts/rest-villains"
+      mkdir -p "${project_helm_dir}/charts/rest-heroes"
+      cp -R rest-heroes/${OUTPUT_DIR_HELM}/${deployment_type}/* "${project_helm_dir}/charts/rest-heroes"
+    fi
+
+    echo "Copying generated helm chart $project_helm_dir to $all_apps_helm_dir"
+    rm -rf $all_apps_helm_dir
+    mkdir -p $all_apps_helm_dir
+    cp -R $project_helm_dir/* $all_apps_helm_dir
+
+    # Execute templates into a k8s-like resources file.
+    # This is optional, and only enabled for testing purposes
+
+    local project_helm_generated_dir=$project/deploy/helm/generated
+    mkdir -p $project_helm_generated_dir
+    for kind in "java11" "java17" "native"
+    do
+      local project_helm_generated_file=$project_helm_generated_dir/${kind}-$deployment_type.yml
+      echo "Applying and sorting helm resources for $project_helm_dir to $project_helm_generated_file"
+      helm template $project $project_helm_dir -f scripts/values-${kind}.yml > $project_helm_generated_file || exit
+      jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "$project_helm_generated_file" > "${project_helm_generated_file}.sort";
+    done
 }
 
 process_quarkus_project() {
   local project=$1
-  local deployment_type=$2
-  local version_tag=$3
-  local javaVersion=$4
-  local kind=$5
-  local output_filename="${version_tag}-${deployment_type}"
-  local app_generated_input_file="$project/target/kubernetes/${deployment_type}.yml"
-  local project_output_file="$project/$OUTPUT_DIR/${output_filename}.yml"
-  local all_apps_output_file="$OUTPUT_DIR/${output_filename}.yml"
+  local version_tag=$2
+  local javaVersion=$3
+  local kind=$4
 
-  rm -rf $project_output_file
+  # 1st do the build
+  # The build will generate all the resources for the project
+  do_build $project $version_tag $javaVersion $kind
 
-  create_output_file $project_output_file
-  create_output_file $all_apps_output_file
+  # 2nd copy the generated k8s resources
+  process_kubernetes_resources $project $version_tag
+}
 
-  # Now merge the generated resources to the top level (deploy/k8s)
-  if [[ -f "$app_generated_input_file" ]]; then
-    echo "Copying app generated input ($app_generated_input_file) to $project_output_file and $all_apps_output_file"
+process_ui_project() {
+  local deployment_type=$1
+  local version_tag=$2
+  local project="ui-super-heroes"
+  local project_input_directory="$project/$INPUT_DIR"
+  local input_file="$project_input_directory/${deployment_type}.yml"
+  local project_k8s_file="$project/$OUTPUT_DIR_K8S/app-${deployment_type}.yml"
+  local all_apps_k8s_file="$OUTPUT_DIR_K8S/${version_tag}-${deployment_type}.yml"
 
-    cat $app_generated_input_file >> $project_output_file
-    cat $app_generated_input_file >> $all_apps_output_file
-  fi
+  rm -rf $project_k8s_file
 
-  if [[ "$project" == "rest-fights" ]]; then
-    # Create a descriptor for all of the downstream services (rest-heroes and rest-villains)
-    local all_downstream_output_file="$project/$OUTPUT_DIR/${output_filename}-all-downstream.yml"
-    local villains_output_file="rest-villains/$OUTPUT_DIR/${output_filename}.yml"
-    local heroes_output_file="rest-heroes/$OUTPUT_DIR/${output_filename}.yml"
-
-    rm -rf $all_downstream_output_file
-
-    create_output_file $all_downstream_output_file
-
-    echo "Copying ${app_generated_input_file}, ${villains_output_file}, and $heroes_output_file to $all_downstream_output_file"
-    cat $villains_output_file >> $all_downstream_output_file
-    cat $heroes_output_file >> $all_downstream_output_file
-    cat $app_generated_input_file >> $all_downstream_output_file
+  if [[ -f "$input_file" ]]; then
+    create_output_file $project_k8s_file
+    echo "Adding UI resources at $input_file to $project_k8s_file and $all_apps_k8s_file"
+    cat $input_file >> $project_k8s_file
+    cat $input_file >> $all_apps_k8s_file
   fi
 }
 
@@ -117,7 +213,7 @@ create_monitoring() {
   for deployment_type in "kubernetes" "minikube" "openshift"
   do
     local output_file_name="${monitoring_name}-${deployment_type}.yml"
-    local output_file="$OUTPUT_DIR/$output_file_name"
+    local output_file="$OUTPUT_DIR_K8S/$output_file_name"
     local input_dir="$monitoring_name/k8s"
     create_output_file $output_file
 
@@ -133,12 +229,13 @@ create_monitoring() {
   done
 }
 
-rm -rf $OUTPUT_DIR/*.yml
 
-for kind in "" "native-"
+rm -rf $OUTPUT_DIR_K8S/*.yml
+
+for kind in "jvm" "native"
 do
   # Keeping this if/else here for the future when we might want to build multiple java versions
-  if [[ "$kind" == "native-" ]]; then
+  if [[ "$kind" == "native" ]]; then
     javaVersions=(17)
   else
     javaVersions=(17)
@@ -147,23 +244,25 @@ do
 
   for javaVersion in ${javaVersions[@]}
   do
-    if [[ "$kind" == "native-" ]]; then
+    if [[ "$kind" == "native" ]]; then
       version_tag="native"
     else
-      version_tag="${kind}java${javaVersion}"
+      version_tag="java${javaVersion}"
     fi
 
-    for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
+    for project in "${PROJECTS_ALL[@]}" "ui-super-heroes"
     do
-      # Generate all the k8s resources for all deployment types in one shot
-      do_build $project $version_tag $javaVersion $kind
-
-      for deployment_type in ${DEPLOYMENT_TYPES[@]}
-      do
-        # For each deployment type, process the quarkus project
-        process_quarkus_project $project $deployment_type $version_tag $javaVersion $kind
-      done
+      process_quarkus_project $project $version_tag $javaVersion $kind
     done
+  done
+
+  for deployment_type in "${DEPLOYMENTS_ALL[@]}"
+  do
+    for project in "${PROJECTS_ALL[@]}"
+    do
+      process_helm_resources $project $deployment_type
+    done
+    process_ui_project $deployment_type $version_tag
   done
 done
 
