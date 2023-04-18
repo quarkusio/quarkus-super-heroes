@@ -539,9 +539,17 @@ class FightServiceTests extends FightServiceTestsBase {
 			.when(Fight.class)
 			.persist(argThat(fightMatcher), any());
 
-		doReturn(false).when(this.fightService).shouldHeroWin(argThat(fightersMatcher));
-		doReturn(true).when(this.fightService).shouldVillainWin(argThat(fightersMatcher));
-		doReturn(fightOutcome).when(this.fightService).villainWonFight(argThat(fightersMatcher));
+		doReturn(false)
+      .when(this.fightService)
+      .shouldHeroWin(argThat(fightersMatcher));
+
+		doReturn(true)
+      .when(this.fightService)
+      .shouldVillainWin(argThat(fightersMatcher));
+
+		doReturn(fightOutcome)
+      .when(this.fightService)
+      .villainWonFight(argThat(fightersMatcher));
 
 		var fight = this.fightService.performFight(createDefaultFighters())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -585,9 +593,17 @@ class FightServiceTests extends FightServiceTestsBase {
 			.when(Fight.class)
 			.persist(argThat(fightMatcher), any());
 
-		doReturn(false).when(this.fightService).shouldHeroWin(argThat(fightersMatcher));
-		doReturn(false).when(this.fightService).shouldVillainWin(argThat(fightersMatcher));
-		doReturn(fightOutcome).when(this.fightService).getRandomWinner(argThat(fightersMatcher));
+		doReturn(false)
+      .when(this.fightService)
+      .shouldHeroWin(argThat(fightersMatcher));
+
+		doReturn(false)
+      .when(this.fightService)
+      .shouldVillainWin(argThat(fightersMatcher));
+
+		doReturn(fightOutcome)
+      .when(this.fightService)
+      .getRandomWinner(argThat(fightersMatcher));
 
 		var fight = this.fightService.performFight(createDefaultFighters())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
