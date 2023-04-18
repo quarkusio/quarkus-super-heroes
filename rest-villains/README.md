@@ -50,10 +50,10 @@ The `rest-villains` application is a [Pact _Provider_](https://docs.pact.io/prov
 
 As [this README states](src/test/resources/pacts/README.md), contracts generally should be hosted in a [Pact Broker](https://docs.pact.io/pact_broker) and then automatically discovered in the provider verification tests.
 
-Therefore, the [Pact contract](src/test/resources/pacts/rest-fights-rest-heroes.json) is committed into this application's source tree inside the [`src/test/resources/pacts` directory](src/test/resources/pacts). In a realistic
+Therefore, the [Pact contract](src/test/resources/pacts/rest-fights-rest-villains.json) is committed into this application's source tree inside the [`src/test/resources/pacts` directory](src/test/resources/pacts). In a realistic
 scenario, if a broker wasn't used, the consumer's CI/CD would commit the contracts into this repository's source control.
 
-The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility
+The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility.
 
 ## Running the Application
 The application runs on port `8084` (defined by `quarkus.http.port` in [`application.properties`](src/main/resources/application.properties)).

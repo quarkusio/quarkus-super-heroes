@@ -183,7 +183,7 @@ public class VillainResource {
   public Response replaceAllVillains(@NotNull List<Villain> villains, @Context UriInfo uriInfo) {
     this.service.replaceAllVillains(villains);
 		var uri = uriInfo.getAbsolutePathBuilder().build();
-		this.logger.debugf("New villain created with URI %s", uri.toString());
+		this.logger.debugf("New Villains created with URI %s", uri.toString());
 		return Response.created(uri).build();
   }
 

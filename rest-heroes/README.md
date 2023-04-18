@@ -55,7 +55,7 @@ One of the main goals of the Superheroes application is to be super simple and j
 Therefore, the [Pact contract](src/test/resources/pacts/rest-fights-rest-heroes.json) is committed into this application's source tree inside the [`src/test/resources/pacts` directory](src/test/resources/pacts). In a realistic
 scenario, if a broker wasn't used, the consumer's CI/CD would commit the contracts into this repository's source control.
 
-The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility
+The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility.
 
 ## Running the Application
 The application runs on port `8083` (defined by `quarkus.http.port` in [`application.yml`](src/main/resources/application.yml)).
