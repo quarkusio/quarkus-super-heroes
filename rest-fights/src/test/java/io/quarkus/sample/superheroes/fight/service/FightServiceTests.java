@@ -494,8 +494,13 @@ class FightServiceTests extends FightServiceTestsBase {
 			.when(Fight.class)
 			.persist(argThat(fightMatcher), any());
 
-		doReturn(true).when(this.fightService).shouldHeroWin(argThat(fightersMatcher));
-		doReturn(fightOutcome).when(this.fightService).heroWonFight(argThat(fightersMatcher));
+		doReturn(true)
+      .when(this.fightService)
+      .shouldHeroWin(argThat(fightersMatcher));
+
+		doReturn(fightOutcome)
+      .when(this.fightService)
+      .heroWonFight(argThat(fightersMatcher));
 
 		var fight = this.fightService.performFight(createDefaultFighters())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
