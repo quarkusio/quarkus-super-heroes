@@ -1,17 +1,17 @@
 package io.quarkus.sample.superheroes.villain.service;
 
-import static javax.transaction.Transactional.TxType.*;
+import static jakarta.transaction.Transactional.TxType.*;
 
 import java.util.List;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Valid;
-import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotNull;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.villain.Villain;

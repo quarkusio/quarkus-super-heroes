@@ -2,7 +2,7 @@ package io.quarkus.sample.superheroes.fight.client;
 
 import java.time.temporal.ChronoUnit;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Retry;

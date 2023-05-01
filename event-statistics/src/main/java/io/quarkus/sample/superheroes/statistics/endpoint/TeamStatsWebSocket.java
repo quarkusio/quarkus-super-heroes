@@ -1,8 +1,8 @@
 package io.quarkus.sample.superheroes.statistics.endpoint;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.websocket.server.ServerEndpoint;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.websocket.server.ServerEndpoint;
 
 import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 

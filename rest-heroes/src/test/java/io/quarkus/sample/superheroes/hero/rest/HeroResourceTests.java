@@ -2,7 +2,7 @@ package io.quarkus.sample.superheroes.hero.rest;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
-import static javax.ws.rs.core.Response.Status.*;
+import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -12,8 +12,8 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.Set;
 
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.core.HttpHeaders;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.core.HttpHeaders;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;

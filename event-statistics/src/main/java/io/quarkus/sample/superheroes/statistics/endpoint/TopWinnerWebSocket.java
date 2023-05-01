@@ -1,7 +1,7 @@
 package io.quarkus.sample.superheroes.statistics.endpoint;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.websocket.server.ServerEndpoint;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.websocket.server.ServerEndpoint;
 
 import io.quarkus.sample.superheroes.statistics.domain.Score;
 

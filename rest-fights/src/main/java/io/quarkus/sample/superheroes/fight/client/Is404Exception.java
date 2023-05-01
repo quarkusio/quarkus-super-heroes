@@ -3,8 +3,8 @@ package io.quarkus.sample.superheroes.fight.client;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response.Status;
 
 /**
  * {@link Predicate} for determining if a {@link Throwable} received from a rest client represents an HTTP {@code 404}.

@@ -1,15 +1,15 @@
 package io.quarkus.sample.superheroes.fight.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static javax.ws.rs.core.HttpHeaders.ACCEPT;
-import static javax.ws.rs.core.MediaType.*;
+import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
+import static jakarta.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
 
 import org.eclipse.microprofile.faulttolerance.exceptions.CircuitBreakerOpenException;
 import org.junit.jupiter.api.AfterEach;
@@ -44,14 +44,14 @@ class VillainClientTests {
   private static final String DEFAULT_VILLAIN_POWERS = "does not eat pain au chocolat";
   private static final int DEFAULT_VILLAIN_LEVEL = 42;
   private static final String DEFAULT_HELLO_RESPONSE = "Hello villains!";
-  
+
   private static final Villain DEFAULT_VILLAIN = new Villain(
     DEFAULT_VILLAIN_NAME,
     DEFAULT_VILLAIN_LEVEL,
     DEFAULT_VILLAIN_PICTURE,
     DEFAULT_VILLAIN_POWERS
   );
-  
+
   @Inject
   VillainClient villainClient;
 

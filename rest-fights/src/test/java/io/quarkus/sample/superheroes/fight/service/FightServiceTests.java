@@ -8,11 +8,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.InternalServerErrorException;
+import jakarta.enterprise.inject.Any;
+import jakarta.inject.Inject;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.InternalServerErrorException;
 
 import org.bson.types.ObjectId;
 import org.eclipse.microprofile.reactive.messaging.Message;
@@ -33,12 +33,12 @@ import io.quarkus.test.junit.mockito.InjectMock;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import io.smallrye.reactive.messaging.providers.connectors.InMemoryConnector;
+import io.smallrye.reactive.messaging.memory.InMemoryConnector;
 
 /**
  * Tests for the service layer ({@link FightService}).
  * <p>
- *   Uses an {@link InMemoryConnector} to represent the Kafka instance.
+ *   Uses an {@link io.smallrye.reactive.messaging.memory.InMemoryConnector} to represent the Kafka instance.
  * </p>
  */
 @QuarkusTest
@@ -53,13 +53,13 @@ class FightServiceTests extends FightServiceTestsBase {
 
 	@Inject
 	@Any
-  InMemoryConnector emitterConnector;
+	InMemoryConnector emitterConnector;
 
 	@InjectMock
-	HeroClient heroClient;
+  HeroClient heroClient;
 
 	@InjectMock
-	VillainClient villainClient;
+  VillainClient villainClient;
 
 	@BeforeEach
 	public void beforeEach() {
@@ -71,7 +71,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	public void findAllFightsNoneFound() {
 		PanacheMock.mock(Fight.class);
 		when(Fight.listAll())
-      .thenReturn(Uni.createFrom().item(List.of()));
+			.thenReturn(Uni.createFrom().item(List.of()));
 
 		var allFights = this.fightService.findAllFights()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -91,7 +91,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	public void findAllFights() {
 		PanacheMock.mock(Fight.class);
 		when(Fight.listAll())
-      .thenReturn(Uni.createFrom().item(List.of(createFightHeroWon())));
+			.thenReturn(Uni.createFrom().item(List.of(createFightHeroWon())));
 
 		var allFights = this.fightService.findAllFights()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -138,7 +138,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	public void findFightByIdFound() {
 		PanacheMock.mock(Fight.class);
 		when(Fight.findById(eq(DEFAULT_FIGHT_ID)))
-      .thenReturn(Uni.createFrom().item(createFightHeroWon()));
+			.thenReturn(Uni.createFrom().item(createFightHeroWon()));
 
 		var fight = this.fightService.findFightById(DEFAULT_FIGHT_ID.toString())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -181,7 +181,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	public void findFightByIdNotFound() {
 		PanacheMock.mock(Fight.class);
 		when(Fight.findById(eq(DEFAULT_FIGHT_ID)))
-      .thenReturn(Uni.createFrom().nullItem());
+			.thenReturn(Uni.createFrom().nullItem());
 
 		var fight = this.fightService.findFightById(DEFAULT_FIGHT_ID.toString())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -199,12 +199,11 @@ class FightServiceTests extends FightServiceTestsBase {
 	@Test
 	public void findRandomFightersHeroError() {
 		PanacheMock.mock(Fight.class);
+		when(this.heroClient.findRandomHero())
+			.thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
-    when(this.heroClient.findRandomHero())
-      .thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
-
-    when(this.villainClient.findRandomVillain())
-      .thenReturn(Uni.createFrom().item(createDefaultVillain()));
+		when(this.villainClient.findRandomVillain())
+			.thenReturn(Uni.createFrom().item(createDefaultVillain()));
 
 		var fighters = this.fightService.findRandomFighters()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -230,12 +229,11 @@ class FightServiceTests extends FightServiceTestsBase {
 	@Test
 	public void findRandomFightersVillainError() {
 		PanacheMock.mock(Fight.class);
+		when(this.heroClient.findRandomHero())
+			.thenReturn(Uni.createFrom().item(createDefaultHero()));
 
-    when(this.heroClient.findRandomHero())
-      .thenReturn(Uni.createFrom().item(createDefaultHero()));
-
-    when(this.villainClient.findRandomVillain())
-      .thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+		when(this.villainClient.findRandomVillain())
+			.thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
 		var fighters = this.fightService.findRandomFighters()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -261,12 +259,11 @@ class FightServiceTests extends FightServiceTestsBase {
 	@Test
 	public void findRandomFightersHeroVillainError() {
 		PanacheMock.mock(Fight.class);
+		when(this.heroClient.findRandomHero())
+			.thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
-    when(this.heroClient.findRandomHero())
-      .thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
-
-    when(this.villainClient.findRandomVillain())
-      .thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+		when(this.villainClient.findRandomVillain())
+			.thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
 		var fighters = this.fightService.findRandomFighters()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -292,16 +289,12 @@ class FightServiceTests extends FightServiceTestsBase {
 	@Test
 	public void findRandomHeroDelayTriggersFallback() {
 		PanacheMock.mock(Fight.class);
-
-    when(this.heroClient.findRandomHero())
-      .thenReturn(
-        Uni.createFrom().item(createDefaultHero())
-          .onItem()
-          .delayIt().by(Duration.ofSeconds(3))
-      );
-
-    when(this.villainClient.findRandomVillain())
-      .thenReturn(Uni.createFrom().nullItem());
+		when(this.heroClient.findRandomHero())
+			.thenReturn(
+				Uni.createFrom().item(createDefaultHero())
+					.onItem()
+					.delayIt().by(Duration.ofSeconds(3))
+			);
 
 		var hero = this.fightService.findRandomHero()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -322,16 +315,12 @@ class FightServiceTests extends FightServiceTestsBase {
 	@Test
 	public void findRandomVillainDelayTriggersFallback() {
 		PanacheMock.mock(Fight.class);
-
-    when(this.heroClient.findRandomHero())
-      .thenReturn(Uni.createFrom().nullItem());
-
-    when(this.villainClient.findRandomVillain())
-      .thenReturn(
-        Uni.createFrom().item(createDefaultVillain())
-          .onItem()
-          .delayIt().by(Duration.ofSeconds(3))
-      );
+		when(this.villainClient.findRandomVillain())
+			.thenReturn(
+				Uni.createFrom().item(createDefaultVillain())
+					.onItem()
+					.delayIt().by(Duration.ofSeconds(3))
+			);
 
 		var villain = this.fightService.findRandomVillain()
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -352,12 +341,6 @@ class FightServiceTests extends FightServiceTestsBase {
 	@Test
 	public void findRandomFightersAddDelayTriggersTimeout() {
 		PanacheMock.mock(Fight.class);
-
-    when(this.heroClient.findRandomHero())
-      .thenReturn(Uni.createFrom().nullItem());
-
-    when(this.villainClient.findRandomVillain())
-      .thenReturn(Uni.createFrom().nullItem());
 
 		// Mock the addDelay method so it returns a 5 second delay on whatever argument (a Uni<Fighters>) was passed into it
 		// This should trigger the timeout on findRandomFighters
@@ -388,9 +371,6 @@ class FightServiceTests extends FightServiceTestsBase {
 	@Test
 	public void findRandomFightersDelayedFindHeroAndVillainTriggersTimeout() {
 		PanacheMock.mock(Fight.class);
-
-    when(this.heroClient.findRandomHero())
-      .thenReturn(Uni.createFrom().nullItem());
 
 		// Add a delay to the call to findRandomHero()
 		doReturn(Uni.createFrom().item(createDefaultHero()).onItem().delayIt().by(Duration.ofSeconds(5)))
@@ -511,8 +491,8 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		PanacheMock.mock(Fight.class);
 		PanacheMock.doReturn(Uni.createFrom().voidItem())
-      .when(Fight.class)
-      .persist(argThat(fightMatcher), any());
+			.when(Fight.class)
+			.persist(argThat(fightMatcher), any());
 
 		doReturn(true)
       .when(this.fightService)
@@ -561,8 +541,8 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		PanacheMock.mock(Fight.class);
 		PanacheMock.doReturn(Uni.createFrom().voidItem())
-      .when(Fight.class)
-      .persist(argThat(fightMatcher), any());
+			.when(Fight.class)
+			.persist(argThat(fightMatcher), any());
 
 		doReturn(false)
       .when(this.fightService)
@@ -615,8 +595,8 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		PanacheMock.mock(Fight.class);
 		PanacheMock.doReturn(Uni.createFrom().voidItem())
-      .when(Fight.class)
-      .persist(argThat(fightMatcher), any());
+			.when(Fight.class)
+			.persist(argThat(fightMatcher), any());
 
 		doReturn(false)
       .when(this.fightService)
@@ -704,14 +684,14 @@ class FightServiceTests extends FightServiceTestsBase {
   @Test
   public void helloHeroesFallback() {
     when(this.fightService.fallbackHelloHeroes())
-      .thenReturn(Uni.createFrom().item("fallback"));
+	    .thenReturn(Uni.createFrom().item("fallback"));
 
     when(this.heroClient.helloHeroes())
-      .thenReturn(
-        Uni.createFrom().item(DEFAULT_HELLO_HERO_RESPONSE)
-          .onItem()
-          .delayIt().by(Duration.ofSeconds(6))
-      );
+	    .thenReturn(
+				Uni.createFrom().item("hello")
+					.onItem()
+					.delayIt().by(Duration.ofSeconds(6))
+	    );
 
     var message = this.fightService.helloHeroes()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -733,10 +713,10 @@ class FightServiceTests extends FightServiceTestsBase {
   @Test
   public void helloHeroesFailure() {
     when(this.fightService.fallbackHelloHeroes())
-      .thenReturn(Uni.createFrom().item("fallback"));
+	    .thenReturn(Uni.createFrom().item("fallback"));
 
     when(this.heroClient.helloHeroes())
-      .thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+	    .thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
     var message = this.fightService.helloHeroes()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -758,14 +738,14 @@ class FightServiceTests extends FightServiceTestsBase {
   @Test
   public void helloVillainsFallback() {
     when(this.fightService.fallbackHelloVillains())
-      .thenReturn(Uni.createFrom().item("fallback"));
+	    .thenReturn(Uni.createFrom().item("fallback"));
 
     when(this.villainClient.helloVillains())
-      .thenReturn(
-        Uni.createFrom().item(DEFAULT_HELLO_VILLAIN_RESPONSE)
-          .onItem()
-          .delayIt().by(Duration.ofSeconds(6))
-      );
+	    .thenReturn(
+				Uni.createFrom().item("hello")
+					.onItem()
+					.delayIt().by(Duration.ofSeconds(6))
+	    );
 
     var message = this.fightService.helloVillains()
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -787,10 +767,10 @@ class FightServiceTests extends FightServiceTestsBase {
   @Test
   public void helloVillainsFailure() {
     when(this.fightService.fallbackHelloVillains())
-      .thenReturn(Uni.createFrom().item("fallback"));
+	    .thenReturn(Uni.createFrom().item("fallback"));
 
     when(this.villainClient.helloVillains())
-      .thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+	    .thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
 
     var message = this.fightService.helloVillains()
       .subscribe().withSubscriber(UniAssertSubscriber.create())

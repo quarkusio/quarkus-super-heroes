@@ -374,7 +374,7 @@ KAFKA_BOOTSTRAP_SERVERS="$KAFKA_NAMESPACE.servicebus.windows.net:9093"
 
 # Apicurio
 APICURIO_APP="apicurio"
-APICURIO_IMAGE="apicurio/apicurio-registry-mem:2.2.3.Final"
+APICURIO_IMAGE="apicurio/apicurio-registry-mem:2.4.2.Final"
 
 # Heroes
 HEROES_APP="rest-heroes"

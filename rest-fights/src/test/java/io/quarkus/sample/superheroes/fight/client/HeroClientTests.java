@@ -1,15 +1,15 @@
 package io.quarkus.sample.superheroes.fight.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static javax.ws.rs.core.HttpHeaders.ACCEPT;
-import static javax.ws.rs.core.MediaType.*;
+import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
+import static jakarta.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
 
 import org.eclipse.microprofile.faulttolerance.exceptions.CircuitBreakerOpenException;
 import org.junit.jupiter.api.AfterEach;
@@ -43,14 +43,14 @@ class HeroClientTests {
   private static final String DEFAULT_HERO_POWERS = "eats baguette really quickly";
   private static final int DEFAULT_HERO_LEVEL = 42;
   private static final String DEFAULT_HELLO_RESPONSE = "Hello heroes!";
-  
+
   private static final Hero DEFAULT_HERO = new Hero(
     DEFAULT_HERO_NAME,
     DEFAULT_HERO_LEVEL,
     DEFAULT_HERO_PICTURE,
     DEFAULT_HERO_POWERS
   );
-  
+
   @Inject
   HeroClient heroClient;
 
