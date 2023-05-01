@@ -1,24 +1,79 @@
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: rest-villains
+    application: villains-service
+    system: quarkus-super-heroes
+  name: rest-villains-config-creds
+data:
+  quarkus.datasource.username: c3VwZXJiYWQ=
+  quarkus.datasource.password: c3VwZXJiYWQ=
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app: villains-db
+    application: villains-service
+    system: quarkus-super-heroes
+  name: villains-db-config
+data:
+  POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
+  POSTGRESQL_USERNAME: c3VwZXJiYWQ=
+  POSTGRESQL_PASSWORD: c3VwZXJiYWQ=
+type: Opaque
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: rest-villains
+    application: villains-service
+    system: quarkus-super-heroes
+  name: rest-villains-config
+data:
+  quarkus.hibernate-orm.database.generation: validate
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.jdbc.url: jdbc:postgresql://villains-db:5432/villains_database
+  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: villains-db
+    application: villains-service
+    system: quarkus-super-heroes
+  name: villains-db-init
+data:
+  get-data.sh: |-
+    #!/bin/bash
+
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+---
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-04-24 - 17:11:52 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
-    prometheus.io/port: "8084"
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/connects-to: "villains-db,otel-collector"
     prometheus.io/scheme: http
+    prometheus.io/port: "8084"
+    prometheus.io/path: /q/metrics
+    prometheus.io/scrape: "true"
+    app.quarkus.io/build-timestamp: 2023-05-01 - 17:32:55 +0000
   labels:
-    app: rest-villains
-    app.openshift.io/runtime: quarkus
-    application: villains-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: native-latest
     app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/name: rest-villains
+    system: quarkus-super-heroes
+    application: villains-service
+    app.openshift.io/runtime: quarkus
+    app: rest-villains
   name: rest-villains
 spec:
   template:
@@ -61,61 +116,33 @@ spec:
               memory: 128Mi
             requests:
               memory: 32Mi
+          startupProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/started
+              port: null
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
 ---
 apiVersion: v1
-kind: ConfigMap
+kind: Service
 metadata:
   labels:
-    app: rest-villains
+    name: villains-db
     application: villains-service
     system: quarkus-super-heroes
-  name: rest-villains-config
-data:
-  quarkus.hibernate-orm.database.generation: validate
-  quarkus.hibernate-orm.sql-load-script: no-file
-  quarkus.datasource.jdbc.url: jdbc:otel:postgresql://villains-db:5432/villains_database
-  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
----
-apiVersion: v1
-kind: Secret
-metadata:
-  labels:
-    app: rest-villains
-    application: villains-service
-    system: quarkus-super-heroes
-  name: rest-villains-config-creds
-data:
-  quarkus.datasource.username: c3VwZXJiYWQ=
-  quarkus.datasource.password: c3VwZXJiYWQ=
-type: Opaque
----
-apiVersion: v1
-kind: Secret
-metadata:
-  labels:
-    app: villains-db
-    application: villains-service
-    system: quarkus-super-heroes
-  name: villains-db-config
-data:
-  POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
-  POSTGRESQL_USERNAME: c3VwZXJiYWQ=
-  POSTGRESQL_PASSWORD: c3VwZXJiYWQ=
-type: Opaque
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    app: villains-db
-    application: villains-service
-    system: quarkus-super-heroes
-  name: villains-db-init
-data:
-  get-data.sh: |-
-    #!/bin/bash
-
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+  name: villains-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: villains-db
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -176,20 +203,3 @@ spec:
         - configMap:
             name: villains-db-init
           name: villains-db-init
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: villains-db
-    application: villains-service
-    system: quarkus-super-heroes
-  name: villains-db
-spec:
-  ports:
-    - port: 5432
-      protocol: TCP
-      targetPort: 5432
-  selector:
-    name: villains-db
-  type: ClusterIP

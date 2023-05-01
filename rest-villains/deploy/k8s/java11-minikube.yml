@@ -1,108 +1,4 @@
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  annotations:
-    app.quarkus.io/vcs-ref: main
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.quarkus.io/build-timestamp: 2023-04-24 - 16:58:47 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
-    prometheus.io/port: "8084"
-    prometheus.io/scheme: http
-  labels:
-    app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java11-latest
-    app: rest-villains
-    application: villains-service
-    system: quarkus-super-heroes
-  name: rest-villains
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: rest-villains
-      app.kubernetes.io/part-of: villains-service
-      app.kubernetes.io/version: java11-latest
-  template:
-    metadata:
-      annotations:
-        app.quarkus.io/vcs-ref: main
-        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.openshift.io/connects-to: "villains-db,otel-collector"
-        app.quarkus.io/build-timestamp: 2023-04-24 - 16:58:47 +0000
-        prometheus.io/scrape: "true"
-        prometheus.io/path: /q/metrics
-        prometheus.io/port: "8084"
-        prometheus.io/scheme: http
-      labels:
-        app.kubernetes.io/name: rest-villains
-        app.kubernetes.io/part-of: villains-service
-        app.kubernetes.io/version: java11-latest
-        app: rest-villains
-        application: villains-service
-        system: quarkus-super-heroes
-    spec:
-      containers:
-        - env:
-            - name: KUBERNETES_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-          envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
-            - configMapRef:
-                name: rest-villains-config
-          image: quay.io/quarkus-super-heroes/rest-villains:java11-latest
-          imagePullPolicy: IfNotPresent
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/live
-              port: 8084
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-          name: rest-villains
-          ports:
-            - containerPort: 8084
-              name: http
-              protocol: TCP
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/ready
-              port: 8084
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-          resources:
-            limits:
-              memory: 768Mi
-            requests:
-              memory: 256Mi
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    app: rest-villains
-    application: villains-service
-    system: quarkus-super-heroes
-  name: rest-villains-config
-data:
-  quarkus.hibernate-orm.database.generation: validate
-  quarkus.hibernate-orm.sql-load-script: no-file
-  quarkus.datasource.jdbc.url: jdbc:otel:postgresql://villains-db:5432/villains_database
-  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
----
 apiVersion: v1
 kind: Secret
 metadata:
@@ -134,6 +30,20 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
+    app: rest-villains
+    application: villains-service
+    system: quarkus-super-heroes
+  name: rest-villains-config
+data:
+  quarkus.hibernate-orm.database.generation: validate
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.jdbc.url: jdbc:postgresql://villains-db:5432/villains_database
+  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
     app: villains-db
     application: villains-service
     system: quarkus-super-heroes
@@ -143,6 +53,163 @@ data:
     #!/bin/bash
 
     curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: villains-db
+    application: villains-service
+    system: quarkus-super-heroes
+  name: villains-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: villains-db
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/scheme: http
+    prometheus.io/port: "8084"
+    prometheus.io/path: /q/metrics
+    prometheus.io/scrape: "true"
+    app.quarkus.io/build-timestamp: 2023-05-01 - 17:20:14 +0000
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/vcs-ref: main
+    app.openshift.io/connects-to: "villains-db,otel-collector"
+  labels:
+    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: java11-latest
+    system: quarkus-super-heroes
+    application: villains-service
+    app: rest-villains
+  name: rest-villains
+spec:
+  ports:
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 8443
+    - name: http
+      nodePort: 30526
+      port: 80
+      protocol: TCP
+      targetPort: 8084
+  selector:
+    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: java11-latest
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/scheme: http
+    prometheus.io/port: "8084"
+    prometheus.io/path: /q/metrics
+    prometheus.io/scrape: "true"
+    app.quarkus.io/build-timestamp: 2023-05-01 - 17:20:14 +0000
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/vcs-ref: main
+    app.openshift.io/connects-to: "villains-db,otel-collector"
+  labels:
+    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: java11-latest
+    system: quarkus-super-heroes
+    application: villains-service
+    app: rest-villains
+  name: rest-villains
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rest-villains
+      app.kubernetes.io/part-of: villains-service
+      app.kubernetes.io/version: java11-latest
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scheme: http
+        prometheus.io/port: "8084"
+        prometheus.io/path: /q/metrics
+        prometheus.io/scrape: "true"
+        app.quarkus.io/build-timestamp: 2023-05-01 - 17:20:14 +0000
+        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/vcs-ref: main
+        app.openshift.io/connects-to: "villains-db,otel-collector"
+      labels:
+        app.kubernetes.io/name: rest-villains
+        app.kubernetes.io/part-of: villains-service
+        app.kubernetes.io/version: java11-latest
+        system: quarkus-super-heroes
+        application: villains-service
+        app: rest-villains
+    spec:
+      containers:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
+          image: quay.io/quarkus-super-heroes/rest-villains:java11-latest
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8084
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: rest-villains
+          ports:
+            - containerPort: 8084
+              name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: 8084
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              memory: 768Mi
+            requests:
+              memory: 256Mi
+          startupProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/started
+              port: 8084
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -203,53 +270,3 @@ spec:
         - configMap:
             name: villains-db-init
           name: villains-db-init
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: villains-db
-    application: villains-service
-    system: quarkus-super-heroes
-  name: villains-db
-spec:
-  ports:
-    - port: 5432
-      protocol: TCP
-      targetPort: 5432
-  selector:
-    name: villains-db
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    app.quarkus.io/vcs-ref: main
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.quarkus.io/build-timestamp: 2023-04-24 - 16:58:47 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
-    prometheus.io/port: "8084"
-    prometheus.io/scheme: http
-  labels:
-    app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java11-latest
-    app: rest-villains
-    application: villains-service
-    system: quarkus-super-heroes
-  name: rest-villains
-spec:
-  ports:
-    - name: http
-      nodePort: 30526
-      port: 80
-      protocol: TCP
-      targetPort: 8084
-  selector:
-    app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java11-latest
-  type: NodePort
