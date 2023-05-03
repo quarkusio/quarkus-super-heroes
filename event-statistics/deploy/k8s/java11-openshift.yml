@@ -20,7 +20,7 @@ metadata:
 data:
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
-  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
 ---
 apiVersion: v1
 kind: Service
@@ -70,7 +70,7 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-01 - 19:11:28 +0000
+    app.quarkus.io/build-timestamp: 2023-05-03 - 22:49:49 +0000
     app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
   labels:
@@ -104,13 +104,13 @@ kind: ImageStream
 metadata:
   annotations:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-05-01 - 19:11:28 +0000
+    app.quarkus.io/build-timestamp: 2023-05-03 - 22:49:49 +0000
     app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
   labels:
-    app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/name: event-statistics
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
@@ -169,9 +169,7 @@ spec:
         - command:
             - sh
             - -c
-            - "export CLUSTER_ID=$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh\
-              \ format -t ${CLUSTER_ID} -c config/kraft/server.properties && bin/kafka-server-start.sh\
-              \ config/kraft/server.properties --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS}"
+            - "export CLUSTER_ID=$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh format -t ${CLUSTER_ID} -c config/kraft/server.properties && bin/kafka-server-start.sh config/kraft/server.properties --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS}"
           env:
             - name: LOG_DIR
               value: /tmp/logs
@@ -225,7 +223,7 @@ spec:
         - env:
             - name: REGISTRY_AUTH_ANONYMOUS_READ_ACCESS_ENABLED
               value: "true"
-          image: quay.io/apicurio/apicurio-registry-mem:2.4.4.Final
+          image: quay.io/apicurio/apicurio-registry-mem:2.4.2.Final
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -266,7 +264,7 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-01 - 19:11:28 +0000
+    app.quarkus.io/build-timestamp: 2023-05-03 - 22:49:49 +0000
     app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
   labels:
@@ -282,9 +280,9 @@ metadata:
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/version: java11-latest
+    app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/name: event-statistics
   template:
     metadata:
       annotations:
@@ -293,13 +291,13 @@ spec:
         prometheus.io/port: "8085"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-01 - 19:11:28 +0000
+        app.quarkus.io/build-timestamp: 2023-05-03 - 22:49:49 +0000
         app.openshift.io/vcs-ref: main
         app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
       labels:
-        app.kubernetes.io/name: event-statistics
-        app.kubernetes.io/part-of: event-stats
         app.kubernetes.io/version: java11-latest
+        app.kubernetes.io/part-of: event-stats
+        app.kubernetes.io/name: event-statistics
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
@@ -398,7 +396,7 @@ kind: Route
 metadata:
   annotations:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-05-01 - 19:11:28 +0000
+    app.quarkus.io/build-timestamp: 2023-05-03 - 22:49:49 +0000
     app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
   labels:

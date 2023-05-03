@@ -38,7 +38,7 @@ data:
   quarkus.hibernate-orm.database.generation: validate
   quarkus.hibernate-orm.sql-load-script: no-file
   quarkus.datasource.jdbc.url: jdbc:postgresql://villains-db:5432/villains_database
-  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -65,7 +65,7 @@ metadata:
     prometheus.io/port: "8084"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-01 - 19:22:31 +0000
+    app.quarkus.io/build-timestamp: 2023-05-03 - 23:00:43 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: native-latest
@@ -80,10 +80,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-villains-config
             - secretRef:
                 name: rest-villains-config-creds
+            - configMapRef:
+                name: rest-villains-config
           image: quay.io/quarkus-super-heroes/rest-villains:native-latest
           imagePullPolicy: Always
           livenessProbe:

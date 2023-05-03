@@ -20,7 +20,7 @@ metadata:
 data:
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
-  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
 ---
 apiVersion: v1
 kind: Service
@@ -72,7 +72,7 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-01 - 19:14:11 +0000
+    app.quarkus.io/build-timestamp: 2023-05-03 - 22:52:27 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -84,14 +84,14 @@ metadata:
   name: event-statistics
 spec:
   ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: 8085
     - name: https
       port: 443
       protocol: TCP
       targetPort: 8443
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8085
   selector:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -109,11 +109,11 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-01 - 19:14:11 +0000
+    app.quarkus.io/build-timestamp: 2023-05-03 - 22:52:27 +0000
   labels:
-    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
     application: event-stats
@@ -123,9 +123,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/version: java17-latest
       app.kubernetes.io/part-of: event-stats
       app.kubernetes.io/name: event-statistics
+      app.kubernetes.io/version: java17-latest
   template:
     metadata:
       annotations:
@@ -136,11 +136,11 @@ spec:
         prometheus.io/port: "8085"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-01 - 19:14:11 +0000
+        app.quarkus.io/build-timestamp: 2023-05-03 - 22:52:27 +0000
       labels:
-        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/part-of: event-stats
         app.kubernetes.io/name: event-statistics
+        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
         application: event-stats
@@ -153,10 +153,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -171,11 +171,11 @@ spec:
             timeoutSeconds: 10
           name: event-statistics
           ports:
-            - containerPort: 8443
-              name: https
-              protocol: TCP
             - containerPort: 8085
               name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
@@ -229,9 +229,7 @@ spec:
         - command:
             - sh
             - -c
-            - "export CLUSTER_ID=$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh\
-              \ format -t ${CLUSTER_ID} -c config/kraft/server.properties && bin/kafka-server-start.sh\
-              \ config/kraft/server.properties --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS}"
+            - "export CLUSTER_ID=$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh format -t ${CLUSTER_ID} -c config/kraft/server.properties && bin/kafka-server-start.sh config/kraft/server.properties --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS}"
           env:
             - name: LOG_DIR
               value: /tmp/logs
@@ -285,7 +283,7 @@ spec:
         - env:
             - name: REGISTRY_AUTH_ANONYMOUS_READ_ACCESS_ENABLED
               value: "true"
-          image: quay.io/apicurio/apicurio-registry-mem:2.4.4.Final
+          image: quay.io/apicurio/apicurio-registry-mem:2.4.2.Final
           livenessProbe:
             failureThreshold: 3
             httpGet:

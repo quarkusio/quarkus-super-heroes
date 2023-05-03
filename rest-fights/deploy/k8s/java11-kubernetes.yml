@@ -45,7 +45,7 @@ data:
   quarkus.stork.villain-service.service-discovery.type: kubernetes
   quarkus.stork.villain-service.service-discovery.application: rest-villains
   quarkus.stork.villain-service.service-discovery.refresh-period: 1M
-  quarkus.opentelemetry.tracer.exporter.otlp.endpoint: http://otel-collector:4317
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
 ---
@@ -153,7 +153,7 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-01 - 19:08:30 +0000
+    app.quarkus.io/build-timestamp: 2023-05-03 - 22:46:55 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -190,11 +190,11 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-01 - 19:08:30 +0000
+    app.quarkus.io/build-timestamp: 2023-05-03 - 22:46:55 +0000
   labels:
     app.kubernetes.io/version: java11-latest
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
     application: fights-service
@@ -205,8 +205,8 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/version: java11-latest
-      app.kubernetes.io/name: rest-fights
       app.kubernetes.io/part-of: fights-service
+      app.kubernetes.io/name: rest-fights
   template:
     metadata:
       annotations:
@@ -217,11 +217,11 @@ spec:
         prometheus.io/port: "8082"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-01 - 19:08:30 +0000
+        app.quarkus.io/build-timestamp: 2023-05-03 - 22:46:55 +0000
       labels:
         app.kubernetes.io/version: java11-latest
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
         application: fights-service
@@ -236,10 +236,10 @@ spec:
             - name: QUARKUS_LIQUIBASE_MONGODB_ENABLED
               value: "false"
           envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:java11-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -355,9 +355,7 @@ spec:
         - command:
             - sh
             - -c
-            - "export CLUSTER_ID=$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh\
-              \ format -t ${CLUSTER_ID} -c config/kraft/server.properties && bin/kafka-server-start.sh\
-              \ config/kraft/server.properties --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS}"
+            - "export CLUSTER_ID=$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh format -t ${CLUSTER_ID} -c config/kraft/server.properties && bin/kafka-server-start.sh config/kraft/server.properties --override advertised.listeners=${KAFKA_ADVERTISED_LISTENERS}"
           env:
             - name: LOG_DIR
               value: /tmp/logs
@@ -442,27 +440,3 @@ spec:
               memory: 768Mi
             requests:
               memory: 128Mi
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: liquibase-mongodb-init
-spec:
-  completionMode: OnFailure
-  template:
-    metadata: {}
-    spec:
-      containers:
-        - env:
-            - name: QUARKUS_LIQUIBASE_MONGODB_ENABLED
-              value: "true"
-            - name: QUARKUS_INIT_AND_EXIT
-              value: "true"
-          envFrom:
-            - configMapRef:
-                name: rest-fights-config
-            - secretRef:
-                name: rest-fights-config-creds
-          image: quay.io/quarkus-super-heroes/rest-fights:java11-latest
-          name: liquibase-mongodb-init
-      restartPolicy: OnFailure
