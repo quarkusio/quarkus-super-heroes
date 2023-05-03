@@ -1,4 +1,29 @@
 ---
+# This will be removed once https://github.com/quarkusio/quarkus/issues/33085 is resolved
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: liquibase-mongodb-init
+spec:
+  completionMode: NonIndexed
+  template:
+    metadata: {}
+    spec:
+      containers:
+        - env:
+            - name: QUARKUS_INIT_AND_EXIT
+              value: "true"
+            - name: QUARKUS_LIQUIBASE_MONGODB_ENABLED
+              value: "true"
+          envFrom:
+            - configMapRef:
+                name: rest-fights-config
+            - secretRef:
+                name: rest-fights-config-creds
+          image: quay.io/quarkus-super-heroes/rest-fights:jaa17-latest
+          name: liquibase-mongodb-init
+      restartPolicy: OnFailure
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:

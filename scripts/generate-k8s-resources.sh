@@ -47,6 +47,7 @@ do_build() {
     -DskipTests \
     -DnewVersion=$container_tag \
     -Dmaven.compiler.release=$javaVersion \
+    -Dquarkus.liquibase-mongodb.migrate-at-start=false \
     -Dquarkus.container-image.tag=$container_tag \
     -Dquarkus.kubernetes.deployment-target=$deployment_type \
     -Dquarkus.kubernetes.version=$container_tag \

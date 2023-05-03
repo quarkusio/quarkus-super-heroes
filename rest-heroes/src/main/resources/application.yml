@@ -18,11 +18,12 @@ quarkus:
       format: "%d{HH:mm:ss} %-5p traceId=%X{traceId}, parentId=%X{parentId}, spanId=%X{spanId}, sampled=%X{sampled} [%c{2.}] (%t) %s%e%n"
       level: INFO
       darken: 1
-  opentelemetry:
-    tracer:
-      resource-attributes: "app=${quarkus.application.name},application=heroes-service,system=quarkus-super-heroes"
-      exporter:
-        otlp:
+  otel:
+    resource:
+      attributes: "app=${quarkus.application.name},application=heroes-service,system=quarkus-super-heroes"
+    exporter:
+      otlp:
+        traces:
           endpoint: http://localhost:4317
   hibernate-orm:
     database:
