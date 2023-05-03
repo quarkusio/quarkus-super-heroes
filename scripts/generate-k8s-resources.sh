@@ -93,6 +93,11 @@ process_quarkus_project() {
   # Now merge the generated resources to the top level (deploy/k8s)
   if [[ -f "$app_generated_input_file" ]]; then
     echo "Copying app generated input ($app_generated_input_file) to $project_output_file and $all_apps_output_file"
+
+    # This is a temporary fix until https://github.com/quarkusio/quarkus/issues/33097 is resolved
+    yq -i 'del(select(.kind == "DeploymentConfig" and .metadata.name == "rest-fights") | .spec.template.spec.initContainers)' $app_generated_input_file &&
+    yq -i 'del(select(.kind == "Job" and .metadata.name == "liquibase-mongodb-init"))' $app_generated_input_file
+
     cat $app_generated_input_file >> $project_output_file
     cat $app_generated_input_file >> $all_apps_output_file
   fi
