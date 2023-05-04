@@ -58,14 +58,14 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/vcs-ref: main
-    app.openshift.io/connects-to: "villains-db,otel-collector"
     prometheus.io/scheme: http
     prometheus.io/port: "8084"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-04 - 17:53:21 +0000
+    app.quarkus.io/build-timestamp: 2023-05-04 - 21:48:51 +0000
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/connects-to: "villains-db,otel-collector"
   labels:
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-villains
@@ -270,7 +270,7 @@ metadata:
     prometheus.io/port: "8083"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-04 - 17:53:41 +0000
+    app.quarkus.io/build-timestamp: 2023-05-04 - 21:49:14 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/version: java17-latest
@@ -285,10 +285,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-heroes-config-creds
             - configMapRef:
                 name: rest-heroes-config
+            - secretRef:
+                name: rest-heroes-config-creds
           image: quay.io/quarkus-super-heroes/rest-heroes:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -483,11 +483,11 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-04 - 17:54:04 +0000
+    app.quarkus.io/build-timestamp: 2023-05-04 - 21:49:41 +0000
   labels:
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/name: rest-fights
     system: quarkus-super-heroes
     application: fights-service
     app.openshift.io/runtime: quarkus
@@ -505,11 +505,11 @@ spec:
         prometheus.io/port: "8082"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-04 - 17:54:04 +0000
+        app.quarkus.io/build-timestamp: 2023-05-04 - 21:49:41 +0000
       labels:
         app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: java17-latest
+        app.kubernetes.io/name: rest-fights
         system: quarkus-super-heroes
         application: fights-service
         app.openshift.io/runtime: quarkus
@@ -517,10 +517,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
+            - secretRef:
+                name: rest-fights-config-creds
           image: quay.io/quarkus-super-heroes/rest-fights:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -803,11 +803,11 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-04 - 17:54:23 +0000
+    app.quarkus.io/build-timestamp: 2023-05-04 - 21:50:04 +0000
   labels:
-    app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/part-of: event-stats
     system: quarkus-super-heroes
     application: event-stats
     app.openshift.io/runtime: quarkus
@@ -818,10 +818,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:java17-latest
           imagePullPolicy: Always
           livenessProbe:

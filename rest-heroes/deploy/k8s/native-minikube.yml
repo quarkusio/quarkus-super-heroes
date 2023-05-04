@@ -82,7 +82,7 @@ metadata:
     prometheus.io/port: "8083"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-04 - 17:56:25 +0000
+    app.quarkus.io/build-timestamp: 2023-05-04 - 21:52:30 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -93,15 +93,15 @@ metadata:
   name: rest-heroes
 spec:
   ports:
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: 8443
     - name: http
       nodePort: 30471
       port: 80
       protocol: TCP
       targetPort: 8083
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 8443
   selector:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -119,7 +119,7 @@ metadata:
     prometheus.io/port: "8083"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-04 - 17:56:25 +0000
+    app.quarkus.io/build-timestamp: 2023-05-04 - 21:52:30 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -145,7 +145,7 @@ spec:
         prometheus.io/port: "8083"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-04 - 17:56:25 +0000
+        app.quarkus.io/build-timestamp: 2023-05-04 - 21:52:30 +0000
       labels:
         app.kubernetes.io/name: rest-heroes
         app.kubernetes.io/part-of: heroes-service
@@ -161,10 +161,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: rest-heroes-config
             - secretRef:
                 name: rest-heroes-config-creds
+            - configMapRef:
+                name: rest-heroes-config
           image: quay.io/quarkus-super-heroes/rest-heroes:native-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
@@ -179,11 +179,11 @@ spec:
             timeoutSeconds: 10
           name: rest-heroes
           ports:
-            - containerPort: 8083
-              name: http
-              protocol: TCP
             - containerPort: 8443
               name: https
+              protocol: TCP
+            - containerPort: 8083
+              name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3

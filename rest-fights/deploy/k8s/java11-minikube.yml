@@ -128,7 +128,7 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-04 - 17:45:59 +0000
+    app.quarkus.io/build-timestamp: 2023-05-04 - 21:40:08 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -139,15 +139,15 @@ metadata:
   name: rest-fights
 spec:
   ports:
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 8443
     - name: http
       nodePort: 30489
       port: 80
       protocol: TCP
       targetPort: 8082
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: 8443
   selector:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -165,7 +165,7 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-04 - 17:45:59 +0000
+    app.quarkus.io/build-timestamp: 2023-05-04 - 21:40:08 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -191,7 +191,7 @@ spec:
         prometheus.io/port: "8082"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-04 - 17:45:59 +0000
+        app.quarkus.io/build-timestamp: 2023-05-04 - 21:40:08 +0000
       labels:
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
@@ -207,10 +207,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
+            - secretRef:
+                name: rest-fights-config-creds
           image: quay.io/quarkus-super-heroes/rest-fights:java11-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
@@ -225,11 +225,11 @@ spec:
             timeoutSeconds: 10
           name: rest-fights
           ports:
-            - containerPort: 8443
-              name: https
-              protocol: TCP
             - containerPort: 8082
               name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
