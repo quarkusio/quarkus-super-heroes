@@ -72,10 +72,10 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-04 - 21:56:12 +0000
+    app.quarkus.io/build-timestamp: 2023-05-08 - 17:56:37 +0000
   labels:
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: native-latest
     system: quarkus-super-heroes
     application: fights-service
@@ -94,10 +94,10 @@ spec:
         prometheus.io/port: "8082"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-04 - 21:56:12 +0000
+        app.quarkus.io/build-timestamp: 2023-05-08 - 17:56:37 +0000
       labels:
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: native-latest
         system: quarkus-super-heroes
         application: fights-service
@@ -106,10 +106,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:native-latest
           imagePullPolicy: Always
           livenessProbe:
