@@ -82,7 +82,7 @@ metadata:
     prometheus.io/port: "8084"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-08 - 17:45:22 +0000
+    app.quarkus.io/build-timestamp: 2023-05-11 - 11:00:47 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -119,11 +119,11 @@ metadata:
     prometheus.io/port: "8084"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-08 - 17:45:22 +0000
+    app.quarkus.io/build-timestamp: 2023-05-11 - 11:00:47 +0000
   labels:
     app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
     application: villains-service
@@ -134,8 +134,8 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: rest-villains
-      app.kubernetes.io/version: java17-latest
       app.kubernetes.io/part-of: villains-service
+      app.kubernetes.io/version: java17-latest
   template:
     metadata:
       annotations:
@@ -146,11 +146,11 @@ spec:
         prometheus.io/port: "8084"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-08 - 17:45:22 +0000
+        app.quarkus.io/build-timestamp: 2023-05-11 - 11:00:47 +0000
       labels:
         app.kubernetes.io/name: rest-villains
-        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/part-of: villains-service
+        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
         application: villains-service
@@ -163,10 +163,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:java17-latest
           imagePullPolicy: Always
           livenessProbe:

@@ -41,10 +41,12 @@ data:
   quarkus.mongodb.hosts: fights-db:27017
   quarkus.stork.hero-service.service-discovery.type: kubernetes
   quarkus.stork.hero-service.service-discovery.application: rest-heroes
-  quarkus.stork.hero-service.service-discovery.refresh-period: 1M
+  quarkus.stork.hero-service.service-discovery.port-name: http
+  quarkus.stork.hero-service.service-discovery.refresh-period: 1H
   quarkus.stork.villain-service.service-discovery.type: kubernetes
   quarkus.stork.villain-service.service-discovery.application: rest-villains
-  quarkus.stork.villain-service.service-discovery.refresh-period: 1M
+  quarkus.stork.villain-service.service-discovery.refresh-period: 1H
+  quarkus.stork.villain-service.service-discovery.port-name: http
   quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
@@ -146,14 +148,14 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/vcs-ref: main
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     prometheus.io/scheme: http
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-08 - 17:52:08 +0000
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/vcs-ref: main
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+    app.quarkus.io/build-timestamp: 2023-05-11 - 11:07:18 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -183,17 +185,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/vcs-ref: main
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     prometheus.io/scheme: http
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-08 - 17:52:08 +0000
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/vcs-ref: main
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+    app.quarkus.io/build-timestamp: 2023-05-11 - 11:07:18 +0000
   labels:
-    app.kubernetes.io/version: native-latest
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
@@ -204,23 +206,23 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/version: native-latest
       app.kubernetes.io/part-of: fights-service
+      app.kubernetes.io/version: native-latest
       app.kubernetes.io/name: rest-fights
   template:
     metadata:
       annotations:
+        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/vcs-ref: main
+        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
         prometheus.io/scheme: http
         prometheus.io/port: "8082"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-08 - 17:52:08 +0000
-        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/vcs-ref: main
-        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+        app.quarkus.io/build-timestamp: 2023-05-11 - 11:07:18 +0000
       labels:
-        app.kubernetes.io/version: native-latest
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/version: native-latest
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
