@@ -46,8 +46,8 @@ class TeamStatsTests {
 		assertThat(this.teamStats.add(HERO_WINNER))
       .isNotNull()
       .extracting(
-        TeamScore::getHeroWins,
-        TeamScore::getVillainWins,
+        TeamScore::heroWins,
+        TeamScore::villainWins,
         TeamScore::getNumberOfFights,
         TeamScore::getHeroWinRatio
       )
@@ -56,8 +56,8 @@ class TeamStatsTests {
 		assertThat(this.teamStats.add(VILLAIN_WINNER))
       .isNotNull()
       .extracting(
-        TeamScore::getHeroWins,
-        TeamScore::getVillainWins,
+        TeamScore::heroWins,
+        TeamScore::villainWins,
         TeamScore::getNumberOfFights,
         TeamScore::getHeroWinRatio
       )
@@ -66,8 +66,8 @@ class TeamStatsTests {
 		assertThat(this.teamStats.add(HERO_WINNER))
       .isNotNull()
       .extracting(
-        TeamScore::getHeroWins,
-        TeamScore::getVillainWins,
+        TeamScore::heroWins,
+        TeamScore::villainWins,
         TeamScore::getNumberOfFights,
         TeamScore::getHeroWinRatio
       )
@@ -76,8 +76,8 @@ class TeamStatsTests {
 		assertThat(this.teamStats.add(VILLAIN_WINNER))
       .isNotNull()
       .extracting(
-        TeamScore::getHeroWins,
-        TeamScore::getVillainWins,
+        TeamScore::heroWins,
+        TeamScore::villainWins,
         TeamScore::getNumberOfFights,
         TeamScore::getHeroWinRatio
       )
@@ -86,8 +86,8 @@ class TeamStatsTests {
 		assertThat(this.teamStats.add(HERO_WINNER))
       .isNotNull()
       .extracting(
-        TeamScore::getHeroWins,
-        TeamScore::getVillainWins,
+        TeamScore::heroWins,
+        TeamScore::villainWins,
         TeamScore::getNumberOfFights,
         TeamScore::getHeroWinRatio
       )
@@ -96,8 +96,8 @@ class TeamStatsTests {
 		assertThat(this.teamStats.add(VILLAIN_WINNER))
       .isNotNull()
       .extracting(
-        TeamScore::getHeroWins,
-        TeamScore::getVillainWins,
+        TeamScore::heroWins,
+        TeamScore::villainWins,
         TeamScore::getNumberOfFights,
         TeamScore::getHeroWinRatio
       )
@@ -106,8 +106,8 @@ class TeamStatsTests {
 		assertThat(this.teamStats.add(HERO_WINNER))
       .isNotNull()
       .extracting(
-        TeamScore::getHeroWins,
-        TeamScore::getVillainWins,
+        TeamScore::heroWins,
+        TeamScore::villainWins,
         TeamScore::getNumberOfFights,
         TeamScore::getHeroWinRatio
       )
@@ -116,8 +116,8 @@ class TeamStatsTests {
 		assertThat(this.teamStats.add(VILLAIN_WINNER))
       .isNotNull()
       .extracting(
-        TeamScore::getHeroWins,
-        TeamScore::getVillainWins,
+        TeamScore::heroWins,
+        TeamScore::villainWins,
         TeamScore::getNumberOfFights,
         TeamScore::getHeroWinRatio
       )
@@ -126,8 +126,8 @@ class TeamStatsTests {
 		assertThat(this.teamStats.add(HERO_WINNER))
       .isNotNull()
       .extracting(
-        TeamScore::getHeroWins,
-        TeamScore::getVillainWins,
+        TeamScore::heroWins,
+        TeamScore::villainWins,
         TeamScore::getNumberOfFights,
         TeamScore::getHeroWinRatio
       )
@@ -136,8 +136,8 @@ class TeamStatsTests {
 		assertThat(this.teamStats.add(VILLAIN_WINNER))
       .isNotNull()
       .extracting(
-        TeamScore::getHeroWins,
-        TeamScore::getVillainWins,
+        TeamScore::heroWins,
+        TeamScore::villainWins,
         TeamScore::getNumberOfFights,
         TeamScore::getHeroWinRatio
       )

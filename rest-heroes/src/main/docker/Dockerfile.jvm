@@ -1,5 +1,5 @@
 ####
-# This Dockerfile is used in order to build a container that runs the Quarkus application in JVM mode
+# This Dockerfile is used in order to build a container that runs the Quarkus application in JVM mode with Java 17
 #
 # Before building the container image run:
 #
@@ -7,18 +7,18 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.jvm -t quarkus/rest-heroes-jvm .
+# docker build -f src/main/docker/Dockerfile.jvm -t quarkus/rest-heroes-jvm17 .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8083:8083 quarkus/rest-heroes-jvm
+# docker run -i --rm -p 8083:8083 quarkus/rest-heroes-jvm17
 #
 # If you want to include the debug port into your docker image
 # you will have to expose the debug port (default 5005) like this :  EXPOSE 8083 5005
 #
 # Then run the container using :
 #
-# docker run -i --rm -p 8083:8083 -p 5005:5005 -e JAVA_ENABLE_DEBUG="true" quarkus/rest-heroes-jvm
+# docker run -i --rm -p 8083:8083 -p 5005:5005 -e JAVA_ENABLE_DEBUG="true" quarkus/rest-heroes-jvm17
 #
 # This image uses the `run-java.sh` script to run the application.
 # This scripts computes the command line to execute your Java application, and
@@ -75,7 +75,7 @@
 #   accessed directly. (example: "foo.example.com,bar.example.com")
 #
 ###
-FROM registry.access.redhat.com/ubi9/openjdk-11:1.14
+FROM registry.access.redhat.com/ubi9/openjdk-17:1.14
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en'
 
@@ -88,6 +88,5 @@ COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
 
 EXPOSE 8083
 USER 185
-ENV AB_JOLOKIA_OFF=""
 ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"

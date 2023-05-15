@@ -89,8 +89,8 @@ class SuperStatsTests {
       .isNotNull()
       .hasSize(10)
       .extracting(
-        TeamScore::getHeroWins,
-        TeamScore::getVillainWins,
+        TeamScore::heroWins,
+        TeamScore::villainWins,
         TeamScore::getNumberOfFights,
         TeamScore::getHeroWinRatio
       )
@@ -118,13 +118,13 @@ class SuperStatsTests {
     assertThat(scores.get(0))
       .isNotNull()
       .hasSize(1)
-      .extracting(Score::getName, Score::getScore)
+      .extracting(Score::name, Score::score)
       .containsExactly(tuple(HERO_NAME, 1));
 
     assertThat(scores.get(1))
       .isNotNull()
       .hasSize(2)
-      .extracting(Score::getName, Score::getScore)
+      .extracting(Score::name, Score::score)
       .containsExactly(
         tuple(HERO_NAME, 1),
         tuple(VILLAIN_NAME, 1)
@@ -133,7 +133,7 @@ class SuperStatsTests {
     assertThat(scores.get(2))
       .isNotNull()
       .hasSize(2)
-      .extracting(Score::getName, Score::getScore)
+      .extracting(Score::name, Score::score)
       .containsExactly(
         tuple(HERO_NAME, 2),
         tuple(VILLAIN_NAME, 1)
@@ -142,7 +142,7 @@ class SuperStatsTests {
     assertThat(scores.get(3))
       .isNotNull()
       .hasSize(2)
-      .extracting(Score::getName, Score::getScore)
+      .extracting(Score::name, Score::score)
       .containsExactly(
         tuple(HERO_NAME, 2),
         tuple(VILLAIN_NAME, 2)
@@ -151,7 +151,7 @@ class SuperStatsTests {
     assertThat(scores.get(4))
       .isNotNull()
       .hasSize(2)
-      .extracting(Score::getName, Score::getScore)
+      .extracting(Score::name, Score::score)
       .containsExactly(
         tuple(HERO_NAME, 3),
         tuple(VILLAIN_NAME, 2)
@@ -160,7 +160,7 @@ class SuperStatsTests {
     assertThat(scores.get(5))
       .isNotNull()
       .hasSize(2)
-      .extracting(Score::getName, Score::getScore)
+      .extracting(Score::name, Score::score)
       .containsExactly(
         tuple(HERO_NAME, 3),
         tuple(VILLAIN_NAME, 3)
@@ -169,7 +169,7 @@ class SuperStatsTests {
     assertThat(scores.get(6))
       .isNotNull()
       .hasSize(2)
-      .extracting(Score::getName, Score::getScore)
+      .extracting(Score::name, Score::score)
       .containsExactly(
         tuple(HERO_NAME, 4),
         tuple(VILLAIN_NAME, 3)
@@ -178,7 +178,7 @@ class SuperStatsTests {
     assertThat(scores.get(7))
       .isNotNull()
       .hasSize(2)
-      .extracting(Score::getName, Score::getScore)
+      .extracting(Score::name, Score::score)
       .containsExactly(
         tuple(HERO_NAME, 4),
         tuple(VILLAIN_NAME, 4)
@@ -187,7 +187,7 @@ class SuperStatsTests {
     assertThat(scores.get(8))
       .isNotNull()
       .hasSize(2)
-      .extracting(Score::getName, Score::getScore)
+      .extracting(Score::name, Score::score)
       .containsExactly(
         tuple(HERO_NAME, 5),
         tuple(VILLAIN_NAME, 4)
@@ -196,7 +196,7 @@ class SuperStatsTests {
     assertThat(scores.get(9))
       .isNotNull()
       .hasSize(2)
-      .extracting(Score::getName, Score::getScore)
+      .extracting(Score::name, Score::score)
       .containsExactly(
         tuple(HERO_NAME, 5),
         tuple(VILLAIN_NAME, 5)

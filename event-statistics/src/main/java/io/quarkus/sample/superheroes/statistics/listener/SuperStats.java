@@ -105,7 +105,7 @@ public class SuperStats {
             .group().by(Fight::getWinnerName)
             .flatMap(group ->
               group.onItem().scan(Score::new, this::incrementScore)
-                .filter(score -> score.getName() != null)
+                .filter(score -> score.name() != null)
             )
             .map(this.topWinners::onNewScore)
             .invoke(winners -> LOGGER.debugf("[computeTopWinners] - Computed the top winners: %s", winners))
@@ -131,7 +131,7 @@ public class SuperStats {
   }
 
   private Score incrementScore(Score score, Fight fight) {
-    return new Score(fight.getWinnerName(), score.getScore() + 1);
+    return new Score(fight.getWinnerName(), score.score() + 1);
   }
 
   TeamStats getTeamStats() {
