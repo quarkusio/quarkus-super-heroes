@@ -5,6 +5,7 @@
 
 INPUT_DIR=src/main/kubernetes
 OUTPUT_DIR=deploy/k8s
+DEPLOYMENT_TYPES=("kubernetes" "minikube" "openshift" "knative")
 
 create_output_file() {
   local output_file=$1
@@ -17,10 +18,9 @@ create_output_file() {
 
 do_build() {
   local project=$1
-  local deployment_type=$2
-  local version_tag=$3
-  local javaVersion=$4
-  local kind=$5
+  local version_tag=$2
+  local javaVersion=$3
+  local kind=$4
   local container_tag="${version_tag}-latest"
   local git_server_url="${GITHUB_SERVER_URL:=https://github.com}"
   local git_repo="${GITHUB_REPOSITORY:=quarkusio/quarkus-super-heroes}"
@@ -34,14 +34,10 @@ do_build() {
     local mem_request="256Mi"
   fi
 
-  if [[ "$deployment_type" == "openshift" ]]; then
-    local expose=true
-  else
-    local expose=false
-  fi
-
-  echo "Generating app resources for $project/$container_tag/$deployment_type"
+  echo "Generating app resources for $project/$container_tag"
   rm -rf $project/target
+
+  printf -v deployment_types_str '%s,' "${DEPLOYMENT_TYPES[@]}"
 
   $project/mvnw -f $project/pom.xml versions:set clean package \
     -DskipTests \
@@ -49,15 +45,15 @@ do_build() {
     -Dmaven.compiler.release=$javaVersion \
     -Dquarkus.liquibase-mongodb.migrate-at-start=false \
     -Dquarkus.container-image.tag=$container_tag \
-    -Dquarkus.kubernetes.deployment-target=$deployment_type \
+    -Dquarkus.kubernetes.deployment-target=$deployment_types_str \
     -Dquarkus.kubernetes.version=$container_tag \
-    -Dquarkus.kubernetes.ingress.expose=$expose \
+    -Dquarkus.kubernetes.ingress.expose=false \
     -Dquarkus.kubernetes.resources.limits.memory=$mem_limit \
     -Dquarkus.kubernetes.resources.requests.memory=$mem_request \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-ref\"=$github_ref_name \
     -Dquarkus.openshift.version=$container_tag \
-    -Dquarkus.openshift.route.expose=$expose \
+    -Dquarkus.openshift.route.expose=true \
     -Dquarkus.openshift.resources.limits.memory=$mem_limit \
     -Dquarkus.openshift.resources.requests.memory=$mem_request \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
@@ -80,10 +76,6 @@ process_quarkus_project() {
   local app_generated_input_file="$project/target/kubernetes/${deployment_type}.yml"
   local project_output_file="$project/$OUTPUT_DIR/${output_filename}.yml"
   local all_apps_output_file="$OUTPUT_DIR/${output_filename}.yml"
-
-  # 1st do the build
-  # The build will generate all the resources for the project
-  do_build $project $deployment_type $version_tag $javaVersion $kind
 
   rm -rf $project_output_file
 
@@ -174,19 +166,27 @@ do
 
   for javaVersion in ${javaVersions[@]}
   do
-    for deployment_type in "kubernetes" "minikube" "openshift" "knative"
-    do
-      if [[ "$kind" == "native-" ]]; then
-        version_tag="native"
-      else
-        version_tag="${kind}java${javaVersion}"
-      fi
+    if [[ "$kind" == "native-" ]]; then
+      version_tag="native"
+    else
+      version_tag="${kind}java${javaVersion}"
+    fi
 
-      for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
+    for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
+    do
+      # Generate all the k8s resources for all deployment types in one shot
+      do_build $project $version_tag $javaVersion $kind
+
+      for deployment_type in ${DEPLOYMENT_TYPES[@]}
       do
+        # For each deployment type, process the quarkus project
         process_quarkus_project $project $deployment_type $version_tag $javaVersion $kind
       done
+    done
 
+    for deployment_type in ${DEPLOYMENT_TYPES[@]}
+    do
+      # Handle the UI project for each deployment type
       process_ui_project $deployment_type $version_tag
     done
   done
