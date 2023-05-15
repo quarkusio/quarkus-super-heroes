@@ -65,7 +65,7 @@ metadata:
     prometheus.io/port: "8084"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-11 - 11:10:46 +0000
+    app.quarkus.io/build-timestamp: 2023-05-15 - 23:53:41 +0000
   labels:
     app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
@@ -80,10 +80,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:native-latest
           imagePullPolicy: Always
           livenessProbe:
