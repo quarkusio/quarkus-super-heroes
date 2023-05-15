@@ -4,7 +4,6 @@ import java.util.StringJoiner;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -14,26 +13,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * </p>
  */
 @RegisterForReflection
-public class TeamScore {
-  private final int heroWins;
-  private final int villainWins;
-
-  @JsonCreator
-  public TeamScore(@JsonProperty("heroWins") int heroWins, @JsonProperty("villainWins") int villainWins) {
-    this.heroWins = heroWins;
-    this.villainWins = villainWins;
-  }
-
-  public int getHeroWins() {
-    return heroWins;
-  }
-
-  public int getVillainWins() {
-    return villainWins;
-  }
-
+public record TeamScore(@JsonProperty("heroWins") int heroWins, @JsonProperty("villainWins") int villainWins) {
   public int getNumberOfFights() {
-    return getHeroWins() + getVillainWins();
+    return heroWins() + villainWins();
   }
 
   public double getHeroWinRatio() {

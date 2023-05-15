@@ -15,7 +15,7 @@ import io.quarkus.sample.superheroes.statistics.domain.Score;
  */
 class Ranking {
 	private static final Logger LOGGER = Logger.getLogger(Ranking.class);
-	private static final Comparator<Score> SCORE_COMPARATOR = Comparator.comparingInt(s -> -1 * s.getScore());
+	private static final Comparator<Score> SCORE_COMPARATOR = Comparator.comparingInt(s -> -1 * s.score());
 
 	private final List<Score> topScores;
 	private final int max;
@@ -34,7 +34,7 @@ class Ranking {
 		LOGGER.debugf("Adding score: %s", score);
 
 		// Remove one if the name already exists
-		this.topScores.removeIf(s -> Objects.equals(s.getName(), score.getName()));
+		this.topScores.removeIf(s -> Objects.equals(s.name(), score.name()));
 
 		// Add the score
 		this.topScores.add(score);
