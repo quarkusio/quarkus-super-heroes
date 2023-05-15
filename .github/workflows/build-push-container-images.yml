@@ -27,7 +27,6 @@ jobs:
     strategy:
       matrix:
         java:
-          - '11'
           - '17'
         project:
           - event-statistics
@@ -68,7 +67,7 @@ jobs:
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          if [[ ${{ matrix.java }} == '11' ]]; then
+          if [[ ${{ matrix.java }} == '17' ]]; then
             echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV"
           else
             echo "JVM_DOCKERFILE=Dockerfile.jvm${{ matrix.java }}" >> "$GITHUB_ENV"
@@ -257,7 +256,6 @@ jobs:
     strategy:
       matrix:
         java:
-          - '11'
           - '17'
         kind:
           - ""
@@ -270,9 +268,6 @@ jobs:
         arch:
           - amd64
           - arm64
-        exclude:
-          - kind: 'native-'
-            java: '11'
     name: "Push app images (${{ matrix.arch }}-${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})"
     steps:
       - name: Calculate Branch (workflow_run event)
@@ -433,7 +428,6 @@ jobs:
     strategy:
       matrix:
         java:
-          - '11'
           - '17'
         kind:
           - ""
@@ -443,9 +437,6 @@ jobs:
           - rest-fights
           - rest-heroes
           - rest-villains
-        exclude:
-          - kind: 'native-'
-            java: '11'
     name: Create app multiarch manifests (${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})
     steps:
       - name: Calculate Branch (workflow_run event)

@@ -17,13 +17,13 @@ class RankingTests {
 		assertThat(this.ranking.onNewScore(new Score("Score 1", 1)))
 			.isNotNull()
 			.hasSize(1)
-			.extracting(Score::getName, Score::getScore)
+			.extracting(Score::name, Score::score)
 			.containsExactly(tuple("Score 1", 1));
 
 		assertThat(this.ranking.onNewScore(new Score("Score 2", 2)))
 			.isNotNull()
 			.hasSize(2)
-			.extracting(Score::getName, Score::getScore)
+			.extracting(Score::name, Score::score)
 			.containsExactly(
 				tuple("Score 2", 2),
 				tuple("Score 1", 1)
@@ -32,7 +32,7 @@ class RankingTests {
 		assertThat(this.ranking.onNewScore(new Score("Score 1", 3)))
 			.isNotNull()
 			.hasSize(2)
-			.extracting(Score::getName, Score::getScore)
+			.extracting(Score::name, Score::score)
 			.containsExactly(
 				tuple("Score 1", 3),
 				tuple("Score 2", 2)
@@ -41,7 +41,7 @@ class RankingTests {
 		assertThat(this.ranking.onNewScore(new Score("Score 3", 5)))
 			.isNotNull()
 			.hasSize(3)
-			.extracting(Score::getName, Score::getScore)
+			.extracting(Score::name, Score::score)
 			.containsExactly(
 				tuple("Score 3", 5),
 				tuple("Score 1", 3),
@@ -51,7 +51,7 @@ class RankingTests {
 		assertThat(this.ranking.onNewScore(new Score("Score 4", 4)))
 			.isNotNull()
 			.hasSize(3)
-			.extracting(Score::getName, Score::getScore)
+			.extracting(Score::name, Score::score)
 			.containsExactly(
 				tuple("Score 3", 5),
 				tuple("Score 4", 4),
@@ -61,7 +61,7 @@ class RankingTests {
 		assertThat(this.ranking.onNewScore(new Score("Score 4", 10)))
 			.isNotNull()
 			.hasSize(3)
-			.extracting(Score::getName, Score::getScore)
+			.extracting(Score::name, Score::score)
 			.containsExactly(
 				tuple("Score 4", 10),
 				tuple("Score 3", 5),
@@ -71,7 +71,7 @@ class RankingTests {
 		assertThat(this.ranking.onNewScore(new Score("Score 1", 4)))
 			.isNotNull()
 			.hasSize(3)
-			.extracting(Score::getName, Score::getScore)
+			.extracting(Score::name, Score::score)
 			.containsExactly(
 				tuple("Score 4", 10),
 				tuple("Score 3", 5),
@@ -81,7 +81,7 @@ class RankingTests {
 		assertThat(this.ranking.onNewScore(new Score("Score 3", 3)))
 			.isNotNull()
 			.hasSize(3)
-			.extracting(Score::getName, Score::getScore)
+			.extracting(Score::name, Score::score)
 			.containsExactly(
 				tuple("Score 4", 10),
 				tuple("Score 1", 4),

@@ -164,10 +164,12 @@ rm -rf $OUTPUT_DIR/*.yml
 
 for kind in "" "native-"
 do
+  # Keeping this if/else here for the future when we might want to build multiple java versions
   if [[ "$kind" == "native-" ]]; then
     javaVersions=(17)
   else
-    javaVersions=(11 17)
+    javaVersions=(17)
+#    javaVersions=(11 17)
   fi
 
   for javaVersion in ${javaVersions[@]}
