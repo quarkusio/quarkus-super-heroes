@@ -79,6 +79,27 @@ quarkus:
       app: "${quarkus.kubernetes.labels.app}"
       application: "${quarkus.openshift.part-of}"
       system: "${quarkus.kubernetes.labels.system}"
+  helm:
+    values:
+      "version":
+         paths: "(metadata.labels.app == ${quarkus.application.name}).*.labels.'app.kubernetes.io/version',(metadata.labels.app == ${quarkus.application.name}).*.selector.'app.kubernetes.io/version',(metadata.labels.app == ${quarkus.application.name}).*.matchLabels.'app.kubernetes.io/version',(kind == Role).metadata.'app.kubernetes.io/version',(kind == RoleBinding).metadata.'app.kubernetes.io/version'"
+      "resources.requests.memory":
+         paths: "(metadata.labels.app == ${quarkus.application.name}).*.resources.requests.memory"
+      "resources.limits.memory":
+         paths: "(metadata.labels.app == ${quarkus.application.name}).*.resources.limits.memory"
+    expressions:
+      '0':
+        path: "(kind == DeploymentConfig && metadata.labels.app == ${quarkus.application.name}).spec.template.spec.containers.(name == ${quarkus.application.name}).image"
+        expression: "${quarkus.application.name}:{{ .Values.app.version }}"
+      '1':
+        path: "(kind == DeploymentConfig && metadata.labels.app == ${quarkus.application.name}).spec.triggers.imageChangeParams.from.name"
+        expression: "${quarkus.application.name}:{{ .Values.app.version }}"
+      '2':
+        path: "(kind == Deployment && metadata.labels.app == ${quarkus.application.name}).spec.template.spec.containers.(name == ${quarkus.application.name}).image"
+        expression: "${quarkus.container-image.registry}/${quarkus.container-image.group}/${quarkus.container-image.name}:{{ .Values.app.version }}"
+      '3':
+        path: "(kind == Service && metadata.labels.app == ${quarkus.application.name}).spec.template.spec.containers.(name == ${quarkus.application.name}).image"
+        expression: "${quarkus.container-image.registry}/${quarkus.container-image.group}/${quarkus.container-image.name}:{{ .Values.app.version }}"
 
 "%dev":
   quarkus:
