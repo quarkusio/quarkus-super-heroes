@@ -7,9 +7,9 @@
 INPUT_DIR=src/main/kubernetes
 OUTPUT_DIR_K8S=deploy/k8s
 OUTPUT_DIR_HELM=deploy/helm
-OUTPUT_DIR=deploy/k8s
+
 DEPLOYMENT_TYPES=("kubernetes" "minikube" "openshift" "knative")
-PROJECTS_ALL=("rest-villains" "rest-heroes" "rest-fights" "event-statistics")
+PROJECTS=("rest-villains" "rest-heroes" "rest-fights" "event-statistics")
 
 create_output_file() {
   local output_file=$1
@@ -161,7 +161,7 @@ process_helm_resources(){
 
     local project_helm_generated_dir=$project/deploy/helm/generated
     mkdir -p $project_helm_generated_dir
-    for kind in "java11" "java17" "native"
+    for kind in "java17" "native"
     do
       local project_helm_generated_file=$project_helm_generated_dir/${kind}-$deployment_type.yml
       echo "Applying and sorting helm resources for $project_helm_dir to $project_helm_generated_file"
@@ -242,7 +242,7 @@ do
 #    javaVersions=(11 17)
   fi
 
-  for javaVersion in ${javaVersions[@]}
+  for javaVersion in "${javaVersions[@]}"
   do
     if [[ "$kind" == "native" ]]; then
       version_tag="native"
@@ -250,15 +250,15 @@ do
       version_tag="java${javaVersion}"
     fi
 
-    for project in "${PROJECTS_ALL[@]}" "ui-super-heroes"
+    for project in "${PROJECTS[@]}"
     do
-      process_quarkus_project $project $version_tag $javaVersion $kind
+      do_build $project $version_tag $javaVersion $kind
     done
   done
 
-  for deployment_type in "${DEPLOYMENTS_ALL[@]}"
+  for deployment_type in "${DEPLOYMENT_TYPES[@]}"
   do
-    for project in "${PROJECTS_ALL[@]}"
+    for project in "${PROJECTS[@]}"
     do
       process_helm_resources $project $deployment_type
     done
