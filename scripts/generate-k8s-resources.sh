@@ -4,7 +4,6 @@
 # Create the deploy/k8s files for each java version of each of the Quarkus services
 # Then add on the ui-super-heroes
 
-INPUT_DIR=src/main/kubernetes
 OUTPUT_DIR_K8S=deploy/k8s
 OUTPUT_DIR_HELM=deploy/helm
 
@@ -80,6 +79,7 @@ process_kubernetes_resources(){
 
   for deployment_type in "${DEPLOYMENT_TYPES[@]}"
   do
+    echo "Processing k8s resources for ${project}:${deployment_type}"
 
     local output_filename="${version_tag}-${deployment_type}"
     local project_k8s_file="$project/$OUTPUT_DIR_K8S/${output_filename}.yml"
@@ -117,10 +117,12 @@ process_kubernetes_resources(){
       cat $mvn_k8s_file >> $all_downstream_output_file
     fi
 
-    # Order the resources for testing purposes
-    echo "Sorting kubernetes resources at $project_k8s_file"
-    jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "${project_k8s_file}" > "${project_k8s_file}.sort";
-
+    if [ "${DEBUG}" = true ]; then
+       # Order the resources for testing purposes
+      echo "DEBUG: Sorting kubernetes resources at $project_k8s_file"
+      jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "${project_k8s_file}" > "${project_k8s_file}.sort";
+      mv -f "${project_k8s_file}.sort" "${project_k8s_file}"
+    fi
   done
 }
 
@@ -143,13 +145,14 @@ process_helm_resources(){
       exit
     fi
 
-    if [[ "$project" == "rest-fights" ]]; then
-      echo "Copying rest villain and heroes ${deployment_type} helm charts to the rest fights one "
-      mkdir -p "${project_helm_dir}/charts/rest-villains"
-      cp -R rest-villains/${OUTPUT_DIR_HELM}/${deployment_type}/* "${project_helm_dir}/charts/rest-villains"
-      mkdir -p "${project_helm_dir}/charts/rest-heroes"
-      cp -R rest-heroes/${OUTPUT_DIR_HELM}/${deployment_type}/* "${project_helm_dir}/charts/rest-heroes"
-    fi
+#    TODO: For rest-fights We should generate two different helm charts, one with "all-downstream" resources, and another without.
+#    if [[ "$project" == "rest-fights" ]]; then
+#      echo "Copying rest villain and heroes ${deployment_type} helm charts to the rest fights one "
+#      mkdir -p "${project_helm_dir}/charts/rest-villains"
+#      cp -R rest-villains/${OUTPUT_DIR_HELM}/${deployment_type}/* "${project_helm_dir}/charts/rest-villains"
+#      mkdir -p "${project_helm_dir}/charts/rest-heroes"
+#      cp -R rest-heroes/${OUTPUT_DIR_HELM}/${deployment_type}/* "${project_helm_dir}/charts/rest-heroes"
+#    fi
 
     echo "Copying generated helm chart $project_helm_dir to $all_apps_helm_dir"
     rm -rf $all_apps_helm_dir
@@ -158,16 +161,18 @@ process_helm_resources(){
 
     # Execute templates into a k8s-like resources file.
     # This is optional, and only enabled for testing purposes
-
-    local project_helm_generated_dir=$project/deploy/helm/generated
-    mkdir -p $project_helm_generated_dir
-    for kind in "java17" "native"
-    do
-      local project_helm_generated_file=$project_helm_generated_dir/${kind}-$deployment_type.yml
-      echo "Applying and sorting helm resources for $project_helm_dir to $project_helm_generated_file"
-      helm template $project $project_helm_dir -f scripts/values-${kind}.yml > $project_helm_generated_file || exit
-      jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "$project_helm_generated_file" > "${project_helm_generated_file}.sort";
-    done
+    if [ "${DEBUG}" = true ]; then
+      local project_helm_generated_dir=$project/deploy/helm/generated
+      mkdir -p $project_helm_generated_dir
+      for kind in "java17" "native"
+      do
+        local project_helm_generated_file=$project_helm_generated_dir/${kind}-$deployment_type.yml
+        echo "DEBUG: Applying and sorting helm resources for $project_helm_dir to $project_helm_generated_file"
+        helm template $project $project_helm_dir -f scripts/values-${kind}.yml > $project_helm_generated_file || exit
+        jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "$project_helm_generated_file" > "${project_helm_generated_file}.sort";
+        mv -f "${project_helm_generated_file}.sort" "$project_helm_generated_file"
+      done
+    fi
 }
 
 process_quarkus_project() {
@@ -188,12 +193,14 @@ process_ui_project() {
   local deployment_type=$1
   local version_tag=$2
   local project="ui-super-heroes"
+  local INPUT_DIR="src/main/kubernetes"
   local project_input_directory="$project/$INPUT_DIR"
   local input_file="$project_input_directory/${deployment_type}.yml"
   local project_k8s_file="$project/$OUTPUT_DIR_K8S/app-${deployment_type}.yml"
   local all_apps_k8s_file="$OUTPUT_DIR_K8S/${version_tag}-${deployment_type}.yml"
 
   rm -rf $project_k8s_file
+  mkdir -p $project/$OUTPUT_DIR_K8S
 
   if [[ -f "$input_file" ]]; then
     create_output_file $project_k8s_file
@@ -252,7 +259,7 @@ do
 
     for project in "${PROJECTS[@]}"
     do
-      do_build $project $version_tag $javaVersion $kind
+      process_quarkus_project $project $version_tag $javaVersion $kind
     done
   done
 
