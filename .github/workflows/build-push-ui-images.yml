@@ -12,6 +12,13 @@ on:
         required: true
         type: string
         default: main
+  workflow_call:
+    inputs:
+      branch:
+        description: The branch to build/push
+        required: true
+        type: string
+        default: main
 
 jobs:
   build-push-ui-images:
@@ -50,7 +57,7 @@ jobs:
         if: inputs.branch != 'main'
         working-directory: ui-super-heroes
         run: |
-          echo "CONTAINER_TAG=${{ inputs.branch }}-${{ env.LATEST_IMAGE_TAG }}" >> $GITHUB_ENV &&
+          echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ inputs.branch }}" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)-${{ inputs.branch }}" >> $GITHUB_ENV
 
       - name: Login to quay
