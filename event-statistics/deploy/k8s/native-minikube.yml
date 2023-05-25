@@ -72,7 +72,7 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-15 - 23:54:37 +0000
+    app.quarkus.io/build-timestamp: 2023-05-25 - 13:43:47 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -83,15 +83,15 @@ metadata:
   name: event-statistics
 spec:
   ports:
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: 8443
     - name: http
       nodePort: 30938
       port: 80
       protocol: TCP
       targetPort: 8085
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 8443
   selector:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -109,7 +109,7 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-15 - 23:54:37 +0000
+    app.quarkus.io/build-timestamp: 2023-05-25 - 13:43:47 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -135,7 +135,7 @@ spec:
         prometheus.io/port: "8085"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-15 - 23:54:37 +0000
+        app.quarkus.io/build-timestamp: 2023-05-25 - 13:43:47 +0000
       labels:
         app.kubernetes.io/name: event-statistics
         app.kubernetes.io/part-of: event-stats
@@ -169,11 +169,11 @@ spec:
             timeoutSeconds: 10
           name: event-statistics
           ports:
-            - containerPort: 8085
-              name: http
-              protocol: TCP
             - containerPort: 8443
               name: https
+              protocol: TCP
+            - containerPort: 8085
+              name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3

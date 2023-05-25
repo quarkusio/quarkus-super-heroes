@@ -75,14 +75,14 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/vcs-ref: main
+    app.openshift.io/connects-to: "villains-db,otel-collector"
     prometheus.io/scheme: http
     prometheus.io/port: "8084"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-15 - 23:53:41 +0000
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/vcs-ref: main
-    app.openshift.io/connects-to: "villains-db,otel-collector"
+    app.quarkus.io/build-timestamp: 2023-05-25 - 13:42:36 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -94,14 +94,14 @@ metadata:
   name: rest-villains
 spec:
   ports:
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: 8443
     - name: http
       port: 80
       protocol: TCP
       targetPort: 8084
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 8443
   selector:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -112,18 +112,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/vcs-ref: main
+    app.openshift.io/connects-to: "villains-db,otel-collector"
     prometheus.io/scheme: http
     prometheus.io/port: "8084"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-15 - 23:53:41 +0000
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/vcs-ref: main
-    app.openshift.io/connects-to: "villains-db,otel-collector"
+    app.quarkus.io/build-timestamp: 2023-05-25 - 13:42:36 +0000
   labels:
-    app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: native-latest
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
     application: villains-service
@@ -133,24 +133,24 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/version: native-latest
       app.kubernetes.io/name: rest-villains
       app.kubernetes.io/part-of: villains-service
+      app.kubernetes.io/version: native-latest
   template:
     metadata:
       annotations:
+        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/vcs-ref: main
+        app.openshift.io/connects-to: "villains-db,otel-collector"
         prometheus.io/scheme: http
         prometheus.io/port: "8084"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-15 - 23:53:41 +0000
-        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/vcs-ref: main
-        app.openshift.io/connects-to: "villains-db,otel-collector"
+        app.quarkus.io/build-timestamp: 2023-05-25 - 13:42:36 +0000
       labels:
-        app.kubernetes.io/version: native-latest
         app.kubernetes.io/name: rest-villains
         app.kubernetes.io/part-of: villains-service
+        app.kubernetes.io/version: native-latest
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
         application: villains-service
@@ -163,10 +163,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: rest-villains-config
             - secretRef:
                 name: rest-villains-config-creds
+            - configMapRef:
+                name: rest-villains-config
           image: quay.io/quarkus-super-heroes/rest-villains:native-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -181,11 +181,11 @@ spec:
             timeoutSeconds: 10
           name: rest-villains
           ports:
-            - containerPort: 8084
-              name: http
-              protocol: TCP
             - containerPort: 8443
               name: https
+              protocol: TCP
+            - containerPort: 8084
+              name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
@@ -349,14 +349,14 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/vcs-ref: main
+    app.openshift.io/connects-to: "heroes-db,otel-collector"
     prometheus.io/scheme: http
     prometheus.io/port: "8083"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-15 - 23:53:59 +0000
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/vcs-ref: main
-    app.openshift.io/connects-to: "heroes-db,otel-collector"
+    app.quarkus.io/build-timestamp: 2023-05-25 - 13:42:58 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -386,18 +386,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/vcs-ref: main
+    app.openshift.io/connects-to: "heroes-db,otel-collector"
     prometheus.io/scheme: http
     prometheus.io/port: "8083"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-15 - 23:53:59 +0000
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/vcs-ref: main
-    app.openshift.io/connects-to: "heroes-db,otel-collector"
+    app.quarkus.io/build-timestamp: 2023-05-25 - 13:42:58 +0000
   labels:
+    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
     application: heroes-service
@@ -407,24 +407,24 @@ spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/part-of: heroes-service
       app.kubernetes.io/version: native-latest
       app.kubernetes.io/name: rest-heroes
-      app.kubernetes.io/part-of: heroes-service
   template:
     metadata:
       annotations:
+        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/vcs-ref: main
+        app.openshift.io/connects-to: "heroes-db,otel-collector"
         prometheus.io/scheme: http
         prometheus.io/port: "8083"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-15 - 23:53:59 +0000
-        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/vcs-ref: main
-        app.openshift.io/connects-to: "heroes-db,otel-collector"
+        app.quarkus.io/build-timestamp: 2023-05-25 - 13:42:58 +0000
       labels:
+        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/version: native-latest
         app.kubernetes.io/name: rest-heroes
-        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
         application: heroes-service
@@ -679,7 +679,7 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-15 - 23:54:19 +0000
+    app.quarkus.io/build-timestamp: 2023-05-25 - 13:43:25 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -691,14 +691,14 @@ metadata:
   name: rest-fights
 spec:
   ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: 8082
     - name: https
       port: 443
       protocol: TCP
       targetPort: 8443
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8082
   selector:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -716,11 +716,11 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-15 - 23:54:19 +0000
+    app.quarkus.io/build-timestamp: 2023-05-25 - 13:43:25 +0000
   labels:
+    app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: native-latest
-    app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
     application: fights-service
@@ -730,9 +730,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/part-of: fights-service
       app.kubernetes.io/name: rest-fights
       app.kubernetes.io/version: native-latest
-      app.kubernetes.io/part-of: fights-service
   template:
     metadata:
       annotations:
@@ -743,11 +743,11 @@ spec:
         prometheus.io/port: "8082"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-15 - 23:54:19 +0000
+        app.quarkus.io/build-timestamp: 2023-05-25 - 13:43:25 +0000
       labels:
+        app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: native-latest
-        app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
         application: fights-service
@@ -778,11 +778,11 @@ spec:
             timeoutSeconds: 10
           name: rest-fights
           ports:
-            - containerPort: 8443
-              name: https
-              protocol: TCP
             - containerPort: 8082
               name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
