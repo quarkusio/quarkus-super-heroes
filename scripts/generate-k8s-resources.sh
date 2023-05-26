@@ -1,5 +1,4 @@
-#!/bin/bash
-#-ex
+#!/bin/bash -ex
 
 # Create the deploy/k8s files for each java version of each of the Quarkus services
 # Then add on the ui-super-heroes
@@ -9,6 +8,30 @@ OUTPUT_DIR_HELM=deploy/helm
 
 DEPLOYMENT_TYPES=("kubernetes" "minikube" "openshift" "knative")
 PROJECTS=("rest-villains" "rest-heroes" "rest-fights" "event-statistics")
+KINDS=("java" "native")
+
+
+JAVA_VERSIONS=(17)
+NATIVE_JAVA_VERSION=17
+# Static initialization of version tuples
+# Each tuple contains, the kind (java or native), the java version and the version tag.
+# Native builds do not use all java versions, but a single one defined in NATIVE_JAVA_VERSION
+VERSION_TUPLES=( )
+# We use the chance to create an array with just version tags, so we can reuse it later if needed.
+VERSION_TAGS=()
+for kind in "${KINDS[@]}"
+do
+  if [[ "$kind" == "native" ]]; then
+    VERSION_TUPLES+=( "$kind,$NATIVE_JAVA_VERSION,$kind" )
+    VERSION_TAGS+=( "$kind" )
+  else
+    for javaVersion in "${JAVA_VERSIONS[@]}"
+    do
+      VERSION_TUPLES+=( "$kind,$javaVersion,$kind$javaVersion" )
+      VERSION_TAGS+=( "$kind$javaVersion" )
+    done
+  fi
+done
 
 create_output_file() {
   local output_file=$1
@@ -38,7 +61,7 @@ do_build() {
     local mem_request="256Mi"
   fi
 
-  echo "Generating app resources for $project/$container_tag"
+  echo "Building app resources for $project/$container_tag"
   rm -rf $project/target
 
   printf -v deployment_types_str '%s,' "${DEPLOYMENT_TYPES[@]}"
@@ -77,8 +100,6 @@ process_kubernetes_resources(){
   local project=$1
   local version_tag=$2
 
-  for deployment_type in "${DEPLOYMENT_TYPES[@]}"
-  do
     echo "Processing k8s resources for ${project}:${deployment_type}"
 
     local output_filename="${version_tag}-${deployment_type}"
@@ -123,7 +144,6 @@ process_kubernetes_resources(){
       jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "${project_k8s_file}" > "${project_k8s_file}.sort";
       mv -f "${project_k8s_file}.sort" "${project_k8s_file}"
     fi
-  done
 }
 
 process_helm_resources(){
@@ -154,39 +174,25 @@ process_helm_resources(){
 #      cp -R rest-heroes/${OUTPUT_DIR_HELM}/${deployment_type}/* "${project_helm_dir}/charts/rest-heroes"
 #    fi
 
-    echo "Copying generated helm chart $project_helm_dir to $all_apps_helm_dir"
-    rm -rf $all_apps_helm_dir
-    mkdir -p $all_apps_helm_dir
-    cp -R $project_helm_dir/* $all_apps_helm_dir
+#    echo "Copying generated helm chart $project_helm_dir to $all_apps_helm_dir"
+#    rm -rf $all_apps_helm_dir
+#    mkdir -p $all_apps_helm_dir
+#    cp -R $project_helm_dir/* $all_apps_helm_dir
 
     # Execute templates into a k8s-like resources file.
     # This is optional, and only enabled for testing purposes
     if [ "${DEBUG}" = true ]; then
       local project_helm_generated_dir=$project/deploy/helm/generated
       mkdir -p $project_helm_generated_dir
-      for kind in "java17" "native"
+      for version_tag in "${VERSION_TAGS[@]}"
       do
-        local project_helm_generated_file=$project_helm_generated_dir/${kind}-$deployment_type.yml
+        local project_helm_generated_file=$project_helm_generated_dir/${version_tag}-$deployment_type.yml
         echo "DEBUG: Applying and sorting helm resources for $project_helm_dir to $project_helm_generated_file"
-        helm template $project $project_helm_dir -f scripts/values-${kind}.yml > $project_helm_generated_file || exit
+        helm template $project $project_helm_dir -f scripts/values-${version_tag}.yml > $project_helm_generated_file || exit
         jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "$project_helm_generated_file" > "${project_helm_generated_file}.sort";
         mv -f "${project_helm_generated_file}.sort" "$project_helm_generated_file"
       done
     fi
-}
-
-process_quarkus_project() {
-  local project=$1
-  local version_tag=$2
-  local javaVersion=$3
-  local kind=$4
-
-  # 1st do the build
-  # The build will generate all the resources for the project
-  do_build $project $version_tag $javaVersion $kind
-
-  # 2nd copy the generated k8s resources
-  process_kubernetes_resources $project $version_tag
 }
 
 process_ui_project() {
@@ -238,37 +244,35 @@ create_monitoring() {
 
 
 rm -rf $OUTPUT_DIR_K8S/*.yml
+rm -rf OUTPUT_DIR_HELM/*.yml
 
-for kind in "jvm" "native"
+for tag in "${VERSION_TUPLES[@]}"
 do
-  # Keeping this if/else here for the future when we might want to build multiple java versions
-  if [[ "$kind" == "native" ]]; then
-    javaVersions=(17)
-  else
-    javaVersions=(17)
-#    javaVersions=(11 17)
-  fi
+  OLDIFS="$IFS"; IFS=','; set -- $tag;
+    kind=$1
+    javaVersion=$2
+    version_tag=$3
+  IFS="$OLDIFS"
 
-  for javaVersion in "${javaVersions[@]}"
+ for project in "${PROJECTS[@]}"
+ do
+  do_build $project $version_tag $javaVersion $kind
+
+ done
+
+ for deployment_type in "${DEPLOYMENT_TYPES[@]}"
+ do
+   for project in "${PROJECTS[@]}"
+   do
+     process_kubernetes_resources $project $version_tag
+
+     process_helm_resources $project $deployment_type
+
+   done
+ done
+
+ for deployment_type in "${DEPLOYMENT_TYPES[@]}"
   do
-    if [[ "$kind" == "native" ]]; then
-      version_tag="native"
-    else
-      version_tag="java${javaVersion}"
-    fi
-
-    for project in "${PROJECTS[@]}"
-    do
-      process_quarkus_project $project $version_tag $javaVersion $kind
-    done
-  done
-
-  for deployment_type in "${DEPLOYMENT_TYPES[@]}"
-  do
-    for project in "${PROJECTS[@]}"
-    do
-      process_helm_resources $project $deployment_type
-    done
     process_ui_project $deployment_type $version_tag
   done
 done
