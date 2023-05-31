@@ -82,7 +82,7 @@ metadata:
     prometheus.io/port: "8083"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-25 - 17:57:21 +0000
+    app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:44 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -94,14 +94,14 @@ metadata:
   name: rest-heroes
 spec:
   ports:
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: 8443
     - name: http
       port: 80
       protocol: TCP
       targetPort: 8083
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 8443
   selector:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -119,11 +119,11 @@ metadata:
     prometheus.io/port: "8083"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-25 - 17:57:21 +0000
+    app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:44 +0000
   labels:
+    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
     application: heroes-service
@@ -133,9 +133,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/part-of: heroes-service
       app.kubernetes.io/version: java17-latest
       app.kubernetes.io/name: rest-heroes
-      app.kubernetes.io/part-of: heroes-service
   template:
     metadata:
       annotations:
@@ -146,11 +146,11 @@ spec:
         prometheus.io/port: "8083"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-25 - 17:57:21 +0000
+        app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:44 +0000
       labels:
+        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: rest-heroes
-        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
         application: heroes-service
@@ -163,10 +163,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: rest-heroes-config
             - secretRef:
                 name: rest-heroes-config-creds
+            - configMapRef:
+                name: rest-heroes-config
           image: quay.io/quarkus-super-heroes/rest-heroes:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -181,11 +181,11 @@ spec:
             timeoutSeconds: 10
           name: rest-heroes
           ports:
-            - containerPort: 8083
-              name: http
-              protocol: TCP
             - containerPort: 8443
               name: https
+              protocol: TCP
+            - containerPort: 8083
+              name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3

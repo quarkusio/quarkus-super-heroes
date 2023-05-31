@@ -72,7 +72,7 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-25 - 18:00:21 +0000
+    app.quarkus.io/build-timestamp: 2023-05-31 - 13:32:49 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -109,11 +109,11 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-25 - 18:00:21 +0000
+    app.quarkus.io/build-timestamp: 2023-05-31 - 13:32:49 +0000
   labels:
-    app.kubernetes.io/version: native-latest
-    app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: native-latest
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
     application: event-stats
@@ -123,9 +123,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/version: native-latest
-      app.kubernetes.io/name: event-statistics
       app.kubernetes.io/part-of: event-stats
+      app.kubernetes.io/name: event-statistics
+      app.kubernetes.io/version: native-latest
   template:
     metadata:
       annotations:
@@ -136,11 +136,11 @@ spec:
         prometheus.io/port: "8085"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-25 - 18:00:21 +0000
+        app.quarkus.io/build-timestamp: 2023-05-31 - 13:32:49 +0000
       labels:
-        app.kubernetes.io/version: native-latest
-        app.kubernetes.io/name: event-statistics
         app.kubernetes.io/part-of: event-stats
+        app.kubernetes.io/name: event-statistics
+        app.kubernetes.io/version: native-latest
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
         application: event-stats
@@ -153,10 +153,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:native-latest
           imagePullPolicy: Always
           livenessProbe:
