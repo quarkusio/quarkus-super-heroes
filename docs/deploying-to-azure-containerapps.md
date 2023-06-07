@@ -699,7 +699,7 @@ Then, to execute the app locally, set `API_BASE_URL` with the same value of the 
 
 ```shell
 export API_BASE_URL=https://${FIGHT_URL}/api
-ui-super-heroes$ npm install && npm run build && npm start
+ui-super-heroes$ java -jar target/quarkus-app/quarkus-run.jar
 ```
 
 You can check the URL is correctly set with:

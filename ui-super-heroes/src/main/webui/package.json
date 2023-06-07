@@ -3,10 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "dev": "concurrently \"npm start\" \"ng serve --proxy-config ng.proxy.config.json --prod\"",
-    "start": "node serving/server.js",
-    "build": "./package.sh",
-    "test": "ng test",
+    "start": "ng serve --host 0.0.0.0 --disable-host-check",
+    "build": "ng build",
+    "test": "ng test -- --no-watch --no-progress --browsers=ChromeHeadlessCI",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
@@ -14,8 +13,6 @@
   "dependencies": {
     "barelog": "^0.2.0",
     "env-var": "^7.1.1",
-    "express": "^4.17.1",
-    "express-prom-bundle": "^6.4.1",
     "prom-client": "^14.0.1"
   },
   "devDependencies": {

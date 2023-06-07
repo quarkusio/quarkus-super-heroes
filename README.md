@@ -21,6 +21,7 @@ The base JVM version for all the applications is Java 17.
 
 - [Super Hero Battle UI](ui-super-heroes)
     - An Angular application to pick up a random superhero, a random supervillain, and makes them fight.
+    - Served with [Quarkus Quinoa](https://quarkiverse.github.io/quarkiverse-docs/quarkus-quinoa/dev/index.html)
 - [Villain REST API](rest-villains)
     - A classical HTTP microservice exposing CRUD operations on Villains, stored in a PostgreSQL database.
     - Implemented with blocking endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) and [Quarkus Hibernate ORM with Panache's active record pattern](https://quarkus.io/guides/hibernate-orm-panache).
