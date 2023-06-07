@@ -130,7 +130,7 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:31:13 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:30:03 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -167,10 +167,10 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:31:13 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:30:03 +0000
   labels:
-    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
@@ -181,8 +181,8 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/version: java17-latest
       app.kubernetes.io/part-of: fights-service
+      app.kubernetes.io/version: java17-latest
       app.kubernetes.io/name: rest-fights
   template:
     metadata:
@@ -194,10 +194,10 @@ spec:
         prometheus.io/port: "8082"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-31 - 13:31:13 +0000
+        app.quarkus.io/build-timestamp: 2023-06-07 - 13:30:03 +0000
       labels:
-        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
@@ -211,10 +211,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:java17-latest
           imagePullPolicy: Always
           livenessProbe:

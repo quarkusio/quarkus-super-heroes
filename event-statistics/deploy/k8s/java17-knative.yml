@@ -33,7 +33,7 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:31:32 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:30:25 +0000
   labels:
     app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/name: event-statistics
@@ -48,10 +48,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:java17-latest
           imagePullPolicy: Always
           livenessProbe:

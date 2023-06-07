@@ -82,7 +82,7 @@ metadata:
     prometheus.io/port: "8084"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:25 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:29:07 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -94,14 +94,14 @@ metadata:
   name: rest-villains
 spec:
   ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: 8084
     - name: https
       port: 443
       protocol: TCP
       targetPort: 8443
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8084
   selector:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -119,11 +119,11 @@ metadata:
     prometheus.io/port: "8084"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:25 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:29:07 +0000
   labels:
+    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
     application: villains-service
@@ -133,9 +133,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/part-of: villains-service
       app.kubernetes.io/version: java17-latest
       app.kubernetes.io/name: rest-villains
-      app.kubernetes.io/part-of: villains-service
   template:
     metadata:
       annotations:
@@ -146,11 +146,11 @@ spec:
         prometheus.io/port: "8084"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:25 +0000
+        app.quarkus.io/build-timestamp: 2023-06-07 - 13:29:07 +0000
       labels:
+        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: rest-villains
-        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
         application: villains-service
@@ -181,11 +181,11 @@ spec:
             timeoutSeconds: 10
           name: rest-villains
           ports:
-            - containerPort: 8443
-              name: https
-              protocol: TCP
             - containerPort: 8084
               name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
@@ -356,7 +356,7 @@ metadata:
     prometheus.io/port: "8083"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:44 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:29:31 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -368,14 +368,14 @@ metadata:
   name: rest-heroes
 spec:
   ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: 8083
     - name: https
       port: 443
       protocol: TCP
       targetPort: 8443
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8083
   selector:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -393,7 +393,7 @@ metadata:
     prometheus.io/port: "8083"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:44 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:29:31 +0000
   labels:
     app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: java17-latest
@@ -420,7 +420,7 @@ spec:
         prometheus.io/port: "8083"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:44 +0000
+        app.quarkus.io/build-timestamp: 2023-06-07 - 13:29:31 +0000
       labels:
         app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/version: java17-latest
@@ -437,10 +437,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-heroes-config-creds
             - configMapRef:
                 name: rest-heroes-config
+            - secretRef:
+                name: rest-heroes-config-creds
           image: quay.io/quarkus-super-heroes/rest-heroes:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -455,11 +455,11 @@ spec:
             timeoutSeconds: 10
           name: rest-heroes
           ports:
-            - containerPort: 8443
-              name: https
-              protocol: TCP
             - containerPort: 8083
               name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
@@ -679,7 +679,7 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:31:13 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:30:03 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -716,10 +716,10 @@ metadata:
     prometheus.io/port: "8082"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:31:13 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:30:03 +0000
   labels:
-    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
@@ -730,8 +730,8 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/version: java17-latest
       app.kubernetes.io/part-of: fights-service
+      app.kubernetes.io/version: java17-latest
       app.kubernetes.io/name: rest-fights
   template:
     metadata:
@@ -743,10 +743,10 @@ spec:
         prometheus.io/port: "8082"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-31 - 13:31:13 +0000
+        app.quarkus.io/build-timestamp: 2023-06-07 - 13:30:03 +0000
       labels:
-        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
@@ -760,10 +760,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -1033,7 +1033,7 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:31:32 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:30:25 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -1045,14 +1045,14 @@ metadata:
   name: event-statistics
 spec:
   ports:
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: 8443
     - name: http
       port: 80
       protocol: TCP
       targetPort: 8085
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 8443
   selector:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -1070,11 +1070,11 @@ metadata:
     prometheus.io/port: "8085"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:31:32 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:30:25 +0000
   labels:
-    app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/name: event-statistics
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
     application: event-stats
@@ -1084,9 +1084,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: event-statistics
       app.kubernetes.io/part-of: event-stats
       app.kubernetes.io/version: java17-latest
+      app.kubernetes.io/name: event-statistics
   template:
     metadata:
       annotations:
@@ -1097,11 +1097,11 @@ spec:
         prometheus.io/port: "8085"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-31 - 13:31:32 +0000
+        app.quarkus.io/build-timestamp: 2023-06-07 - 13:30:25 +0000
       labels:
-        app.kubernetes.io/name: event-statistics
         app.kubernetes.io/part-of: event-stats
         app.kubernetes.io/version: java17-latest
+        app.kubernetes.io/name: event-statistics
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
         application: event-stats
@@ -1114,10 +1114,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -1132,11 +1132,11 @@ spec:
             timeoutSeconds: 10
           name: event-statistics
           ports:
-            - containerPort: 8085
-              name: http
-              protocol: TCP
             - containerPort: 8443
               name: https
+              protocol: TCP
+            - containerPort: 8085
+              name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3

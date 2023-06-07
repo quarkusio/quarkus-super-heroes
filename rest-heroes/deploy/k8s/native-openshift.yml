@@ -80,7 +80,7 @@ metadata:
     prometheus.io/port: "8083"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:32:10 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:31:12 +0000
     app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "heroes-db,otel-collector"
   labels:
@@ -95,14 +95,14 @@ metadata:
   name: rest-heroes
 spec:
   ports:
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: 8443
     - name: http
       port: 80
       protocol: TCP
       targetPort: 8083
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 8443
   selector:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -114,13 +114,13 @@ kind: ImageStream
 metadata:
   annotations:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:32:10 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:31:12 +0000
     app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "heroes-db,otel-collector"
   labels:
     app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/version: native-latest
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
@@ -223,7 +223,7 @@ metadata:
     prometheus.io/port: "8083"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:32:10 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:31:12 +0000
     app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "heroes-db,otel-collector"
   labels:
@@ -240,8 +240,8 @@ spec:
   replicas: 1
   selector:
     app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/version: native-latest
   template:
     metadata:
       annotations:
@@ -250,13 +250,13 @@ spec:
         prometheus.io/port: "8083"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-31 - 13:32:10 +0000
+        app.quarkus.io/build-timestamp: 2023-06-07 - 13:31:12 +0000
         app.openshift.io/vcs-ref: main
         app.openshift.io/connects-to: "heroes-db,otel-collector"
       labels:
         app.kubernetes.io/part-of: heroes-service
-        app.kubernetes.io/version: native-latest
         app.kubernetes.io/name: rest-heroes
+        app.kubernetes.io/version: native-latest
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
@@ -270,10 +270,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: rest-heroes-config
             - secretRef:
                 name: rest-heroes-config-creds
+            - configMapRef:
+                name: rest-heroes-config
           image: rest-heroes:native-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -288,11 +288,11 @@ spec:
             timeoutSeconds: 10
           name: rest-heroes
           ports:
-            - containerPort: 8083
-              name: http
-              protocol: TCP
             - containerPort: 8443
               name: https
+              protocol: TCP
+            - containerPort: 8083
+              name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
@@ -334,7 +334,7 @@ kind: Route
 metadata:
   annotations:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:32:10 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:31:12 +0000
     app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "heroes-db,otel-collector"
   labels:

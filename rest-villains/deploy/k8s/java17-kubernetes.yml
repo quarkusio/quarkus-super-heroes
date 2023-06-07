@@ -82,7 +82,7 @@ metadata:
     prometheus.io/port: "8084"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:25 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:29:07 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -94,14 +94,14 @@ metadata:
   name: rest-villains
 spec:
   ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: 8084
     - name: https
       port: 443
       protocol: TCP
       targetPort: 8443
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8084
   selector:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -119,11 +119,11 @@ metadata:
     prometheus.io/port: "8084"
     prometheus.io/path: /q/metrics
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:25 +0000
+    app.quarkus.io/build-timestamp: 2023-06-07 - 13:29:07 +0000
   labels:
+    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/managed-by: quarkus
     system: quarkus-super-heroes
     application: villains-service
@@ -133,9 +133,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/part-of: villains-service
       app.kubernetes.io/version: java17-latest
       app.kubernetes.io/name: rest-villains
-      app.kubernetes.io/part-of: villains-service
   template:
     metadata:
       annotations:
@@ -146,11 +146,11 @@ spec:
         prometheus.io/port: "8084"
         prometheus.io/path: /q/metrics
         prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-05-31 - 13:30:25 +0000
+        app.quarkus.io/build-timestamp: 2023-06-07 - 13:29:07 +0000
       labels:
+        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: rest-villains
-        app.kubernetes.io/part-of: villains-service
         app.kubernetes.io/managed-by: quarkus
         system: quarkus-super-heroes
         application: villains-service
@@ -181,11 +181,11 @@ spec:
             timeoutSeconds: 10
           name: rest-villains
           ports:
-            - containerPort: 8443
-              name: https
-              protocol: TCP
             - containerPort: 8084
               name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
