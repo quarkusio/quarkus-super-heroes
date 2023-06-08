@@ -26,6 +26,7 @@ Variables must start with the `NG_APP` prefix, e.g `NG_APP_MY_URL=http://localho
 Production builds are served using a Quarkus server. This server serves the compiled Angular application and an `env.js` file. This `env.js` file is generated at startup, and adds a `window.NG_CONFIG` property that the Angular application can read from.
 
 Currently, the `env.js` will expose just the `API_BASE_URL` that's set at runtime. This will control the base URL to connect to the [fights](../rest-fights) service. The default if unset is http://localhost:8082.
+You can control the base URL using normal Quarkus configuration, such as setting `api.base.url` in `application.properties` or an `API_BASE_URL` environment variable.
 
 
 ```bash
