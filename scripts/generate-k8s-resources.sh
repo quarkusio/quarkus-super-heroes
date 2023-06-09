@@ -1,4 +1,5 @@
-#!/bin/bash -ex
+#!/bin/bash -u
+# -ex
 
 # Create the deploy/k8s files for each java version of each of the Quarkus services
 # Then add on the ui-super-heroes
@@ -10,25 +11,20 @@ DEPLOYMENT_TYPES=("kubernetes" "minikube" "openshift" "knative")
 PROJECTS=("rest-villains" "rest-heroes" "rest-fights" "event-statistics")
 KINDS=("java" "native")
 
-
 JAVA_VERSIONS=(17)
 NATIVE_JAVA_VERSION=17
 # Static initialization of version tuples
 # Each tuple contains, the kind (java or native), the java version and the version tag.
 # Native builds do not use all java versions, but a single one defined in NATIVE_JAVA_VERSION
 VERSION_TUPLES=( )
-# We use the chance to create an array with just version tags, so we can reuse it later if needed.
-VERSION_TAGS=()
 for kind in "${KINDS[@]}"
 do
   if [[ "$kind" == "native" ]]; then
     VERSION_TUPLES+=( "$kind,$NATIVE_JAVA_VERSION,$kind" )
-    VERSION_TAGS+=( "$kind" )
   else
     for javaVersion in "${JAVA_VERSIONS[@]}"
     do
       VERSION_TUPLES+=( "$kind,$javaVersion,$kind$javaVersion" )
-      VERSION_TAGS+=( "$kind$javaVersion" )
     done
   fi
 done
@@ -61,7 +57,7 @@ do_build() {
     local mem_request="256Mi"
   fi
 
-  echo "Building app resources for $project/$container_tag"
+  echo "Building app resources for $project/$version_tag"
   rm -rf $project/target
 
   printf -v deployment_types_str '%s,' "${DEPLOYMENT_TYPES[@]}"
@@ -99,56 +95,62 @@ do_build() {
 process_kubernetes_resources(){
   local project=$1
   local version_tag=$2
+  local deployment_type=$3
 
-    echo "Processing k8s resources for ${project}:${deployment_type}"
+  echo "Processing k8s resources for ${project}:${deployment_type}"
 
-    local output_filename="${version_tag}-${deployment_type}"
-    local project_k8s_file="$project/$OUTPUT_DIR_K8S/${output_filename}.yml"
-    local all_apps_k8s_file="$OUTPUT_DIR_K8S/${output_filename}.yml"
-    local mvn_k8s_file="$project/target/kubernetes/${deployment_type}.yml"
+  local output_filename="${version_tag}-${deployment_type}"
+  local project_k8s_file="$project/$OUTPUT_DIR_K8S/${output_filename}.yml"
+  local all_apps_k8s_file="$OUTPUT_DIR_K8S/${output_filename}.yml"
+  local mvn_k8s_file="$project/target/kubernetes/${deployment_type}.yml"
 
-    mkdir -p $OUTPUT_DIR_K8S
-    mkdir -p $project/$OUTPUT_DIR_K8S
-    rm -rf $project_k8s_file
+  mkdir -p $OUTPUT_DIR_K8S
+  mkdir -p $project/$OUTPUT_DIR_K8S
+  rm -rf $project_k8s_file
 
-    create_output_file $project_k8s_file
-    create_output_file $all_apps_k8s_file
+  create_output_file $project_k8s_file
+  create_output_file $all_apps_k8s_file
 
-    # Now merge the generated resources to the top level (deploy/k8s)
-    if [[ -f "$mvn_k8s_file" ]]; then
-      echo "Adding ${deployment_type} resources from ($mvn_k8s_file) to $project_k8s_file and $all_apps_k8s_file"
+  # Now merge the generated resources to the top level (deploy/k8s)
+  if [[ -f "$mvn_k8s_file" ]]; then
+    echo "Adding ${deployment_type} resources from ($mvn_k8s_file) to $project_k8s_file and $all_apps_k8s_file"
 
-      cat $mvn_k8s_file >> $project_k8s_file
-      cat $mvn_k8s_file >> $all_apps_k8s_file
-    fi
+    cat $mvn_k8s_file >> $project_k8s_file
+    cat $mvn_k8s_file >> $all_apps_k8s_file
 
-    if [[ "$project" == "rest-fights" ]]; then
-      # Create a descriptor for all of the downstream services (rest-heroes and rest-villains)
-      local all_downstream_output_file="$project/$OUTPUT_DIR_K8S/${output_filename}-all-downstream.yml"
-      local villains_output_file="rest-villains/$OUTPUT_DIR_K8S/${output_filename}.yml"
-      local heroes_output_file="rest-heroes/$OUTPUT_DIR_K8S/${output_filename}.yml"
+  else
+    echo "****** The mvn_k8s_file file does not exit! $mvn_k8s_file  ************"
+    exit 255
+  fi
 
-      rm -rf $all_downstream_output_file
+  if [[ "$project" == "rest-fights" ]]; then
+    # Create a descriptor for all of the downstream services (rest-heroes and rest-villains)
+    local all_downstream_output_file="$project/$OUTPUT_DIR_K8S/${output_filename}-all-downstream.yml"
+    local villains_output_file="rest-villains/$OUTPUT_DIR_K8S/${output_filename}.yml"
+    local heroes_output_file="rest-heroes/$OUTPUT_DIR_K8S/${output_filename}.yml"
 
-      create_output_file $all_downstream_output_file
+    rm -rf $all_downstream_output_file
 
-      echo "Adding ${deployment_type} rest-fights resources ${mvn_k8s_file}, ${villains_output_file}, and $heroes_output_file to $all_downstream_output_file"
-      cat $villains_output_file >> $all_downstream_output_file
-      cat $heroes_output_file >> $all_downstream_output_file
-      cat $mvn_k8s_file >> $all_downstream_output_file
-    fi
+    create_output_file $all_downstream_output_file
 
-    if [ "${DEBUG}" = true ]; then
-       # Order the resources for testing purposes
-      echo "DEBUG: Sorting kubernetes resources at $project_k8s_file"
-      jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "${project_k8s_file}" > "${project_k8s_file}.sort";
-      mv -f "${project_k8s_file}.sort" "${project_k8s_file}"
-    fi
+    echo "Adding ${deployment_type} rest-fights resources ${mvn_k8s_file}, ${villains_output_file}, and $heroes_output_file to $all_downstream_output_file"
+    cat $villains_output_file >> $all_downstream_output_file
+    cat $heroes_output_file >> $all_downstream_output_file
+    cat $mvn_k8s_file >> $all_downstream_output_file
+  fi
+
+  if [ "${DEBUG}" = true ]; then
+     # Order the resources for testing purposes
+    echo "DEBUG: Sorting kubernetes resources at $project_k8s_file"
+    jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "${project_k8s_file}" > "${project_k8s_file}.sort";
+    mv -f "${project_k8s_file}.sort" "${project_k8s_file}"
+  fi
 }
 
 process_helm_resources(){
     local project=$1
     local deployment_type=$2
+    local version_tag=$3
 
     local mvn_helm_dir="$project/target/helm/${deployment_type}/$project"
     local project_helm_dir="$project/${OUTPUT_DIR_HELM}/${deployment_type}"
@@ -184,14 +186,11 @@ process_helm_resources(){
     if [ "${DEBUG}" = true ]; then
       local project_helm_generated_dir=$project/deploy/helm/generated
       mkdir -p $project_helm_generated_dir
-      for version_tag in "${VERSION_TAGS[@]}"
-      do
-        local project_helm_generated_file=$project_helm_generated_dir/${version_tag}-$deployment_type.yml
-        echo "DEBUG: Applying and sorting helm resources for $project_helm_dir to $project_helm_generated_file"
-        helm template $project $project_helm_dir -f scripts/values-${version_tag}.yml > $project_helm_generated_file || exit
-        jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "$project_helm_generated_file" > "${project_helm_generated_file}.sort";
-        mv -f "${project_helm_generated_file}.sort" "$project_helm_generated_file"
-      done
+      local project_helm_generated_file=$project_helm_generated_dir/${version_tag}-$deployment_type.yml
+      echo "DEBUG: Applying and sorting helm resources for $project_helm_dir to $project_helm_generated_file"
+      helm template $project $project_helm_dir -f scripts/values-${version_tag}.yml > $project_helm_generated_file || exit
+      jbang yamlsort@someth2say -yamlpath "kind" -yamlpath "metadata.name" -i "$project_helm_generated_file" > "${project_helm_generated_file}.sort";
+      mv -f "${project_helm_generated_file}.sort" "$project_helm_generated_file"
     fi
 }
 
@@ -242,40 +241,53 @@ create_monitoring() {
   done
 }
 
+main(){
+  rm -rf $OUTPUT_DIR_K8S/*.yml
+  rm -rf OUTPUT_DIR_HELM/*.yml
 
-rm -rf $OUTPUT_DIR_K8S/*.yml
-rm -rf OUTPUT_DIR_HELM/*.yml
+  local tag
+  local deployment_type
+  local project
+  local kind
+  local javaVersion
+  local version_tag
 
-for tag in "${VERSION_TUPLES[@]}"
-do
-  OLDIFS="$IFS"; IFS=','; set -- $tag;
-    kind=$1
-    javaVersion=$2
-    version_tag=$3
-  IFS="$OLDIFS"
+  echo "${VERSION_TUPLES[@]}"
 
- for project in "${PROJECTS[@]}"
- do
-  do_build $project $version_tag $javaVersion $kind
-
- done
-
- for deployment_type in "${DEPLOYMENT_TYPES[@]}"
- do
-   for project in "${PROJECTS[@]}"
-   do
-     process_kubernetes_resources $project $version_tag
-
-     process_helm_resources $project $deployment_type
-
-   done
- done
-
- for deployment_type in "${DEPLOYMENT_TYPES[@]}"
+  for tag in "${VERSION_TUPLES[@]}"
   do
-    process_ui_project $deployment_type $version_tag
-  done
-done
+    OLDIFS="$IFS"; IFS=','; set -- $tag;
+      kind=$1
+      javaVersion=$2
+      version_tag=$3
+    IFS="$OLDIFS"
 
-## Handle the monitoring
-create_monitoring
+    for project in "${PROJECTS[@]}"
+    do
+      do_build $project $version_tag $javaVersion $kind
+
+    done
+
+    for deployment_type in "${DEPLOYMENT_TYPES[@]}"
+    do
+      for project in "${PROJECTS[@]}"
+      do
+        process_kubernetes_resources $project $version_tag $deployment_type
+
+        process_helm_resources $project $deployment_type $version_tag
+
+      done
+    done
+
+    for deployment_type in "${DEPLOYMENT_TYPES[@]}"
+    do
+      process_ui_project $deployment_type $version_tag
+    done
+
+  done
+
+  ## Handle the monitoring
+  create_monitoring
+}
+
+main
