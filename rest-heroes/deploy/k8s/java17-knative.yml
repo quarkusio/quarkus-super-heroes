@@ -58,22 +58,22 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "heroes-db,otel-collector"
-    prometheus.io/scheme: http
-    prometheus.io/port: "8083"
-    prometheus.io/path: /q/metrics
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/build-timestamp: 2023-06-09 - 19:48:30 +0000
     prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-06-07 - 13:29:31 +0000
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8083"
+    prometheus.io/scheme: http
   labels:
-    app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: java17-latest
-    app.kubernetes.io/name: rest-heroes
-    system: quarkus-super-heroes
-    application: heroes-service
-    app.openshift.io/runtime: quarkus
     app: rest-heroes
+    app.openshift.io/runtime: quarkus
+    application: heroes-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   template:

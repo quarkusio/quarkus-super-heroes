@@ -124,22 +124,22 @@ kind: Service
 metadata:
   annotations:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    prometheus.io/scheme: http
-    prometheus.io/port: "8082"
-    prometheus.io/path: /q/metrics
-    prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-06-07 - 13:31:38 +0000
-    app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+    app.openshift.io/vcs-ref: main
+    app.quarkus.io/build-timestamp: 2023-06-09 - 19:50:12 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8082"
+    prometheus.io/scheme: http
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/version: native-latest
-    app.openshift.io/runtime: quarkus
-    app.kubernetes.io/managed-by: quarkus
-    system: quarkus-super-heroes
-    application: fights-service
     app: rest-fights
+    application: fights-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/managed-by: quarkus
+    app.openshift.io/runtime: quarkus
   name: rest-fights
 spec:
   ports:
@@ -162,18 +162,18 @@ kind: ImageStream
 metadata:
   annotations:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-06-07 - 13:31:38 +0000
-    app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+    app.openshift.io/vcs-ref: main
+    app.quarkus.io/build-timestamp: 2023-06-09 - 19:50:12 +0000
   labels:
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-latest
-    app.kubernetes.io/name: rest-fights
-    app.openshift.io/runtime: quarkus
-    app.kubernetes.io/managed-by: quarkus
-    system: quarkus-super-heroes
-    application: fights-service
     app: rest-fights
+    application: fights-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/managed-by: quarkus
+    app.openshift.io/runtime: quarkus
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/version: native-latest
+    app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
   lookupPolicy:
@@ -356,49 +356,49 @@ kind: DeploymentConfig
 metadata:
   annotations:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    prometheus.io/scheme: http
-    prometheus.io/port: "8082"
-    prometheus.io/path: /q/metrics
-    prometheus.io/scrape: "true"
-    app.quarkus.io/build-timestamp: 2023-06-07 - 13:31:38 +0000
-    app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+    app.openshift.io/vcs-ref: main
+    app.quarkus.io/build-timestamp: 2023-06-09 - 19:50:12 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8082"
+    prometheus.io/scheme: http
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/version: native-latest
-    app.openshift.io/runtime: quarkus
-    app.kubernetes.io/managed-by: quarkus
-    system: quarkus-super-heroes
-    application: fights-service
     app: rest-fights
+    application: fights-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/managed-by: quarkus
+    app.openshift.io/runtime: quarkus
   name: rest-fights
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/version: native-latest
+    app.kubernetes.io/part-of: fights-service
   template:
     metadata:
       annotations:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        prometheus.io/scheme: http
-        prometheus.io/port: "8082"
-        prometheus.io/path: /q/metrics
-        prometheus.io/scrape: "true"
-        app.quarkus.io/build-timestamp: 2023-06-07 - 13:31:38 +0000
-        app.openshift.io/vcs-ref: main
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+        app.openshift.io/vcs-ref: main
+        app.quarkus.io/build-timestamp: 2023-06-09 - 19:50:12 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
+        prometheus.io/port: "8082"
+        prometheus.io/scheme: http
       labels:
-        app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/version: native-latest
-        app.kubernetes.io/name: rest-fights
-        app.openshift.io/runtime: quarkus
-        app.kubernetes.io/managed-by: quarkus
-        system: quarkus-super-heroes
-        application: fights-service
         app: rest-fights
+        application: fights-service
+        system: quarkus-super-heroes
+        app.kubernetes.io/managed-by: quarkus
+        app.openshift.io/runtime: quarkus
+        app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/version: native-latest
+        app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - env:
@@ -425,11 +425,11 @@ spec:
             timeoutSeconds: 10
           name: rest-fights
           ports:
-            - containerPort: 8443
-              name: https
-              protocol: TCP
             - containerPort: 8082
               name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
@@ -492,18 +492,18 @@ kind: Route
 metadata:
   annotations:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-06-07 - 13:31:38 +0000
-    app.openshift.io/vcs-ref: main
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+    app.openshift.io/vcs-ref: main
+    app.quarkus.io/build-timestamp: 2023-06-09 - 19:50:12 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/version: native-latest
-    app.openshift.io/runtime: quarkus
-    app.kubernetes.io/managed-by: quarkus
-    system: quarkus-super-heroes
-    application: fights-service
     app: rest-fights
+    application: fights-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/managed-by: quarkus
+    app.openshift.io/runtime: quarkus
   name: rest-fights
 spec:
   port:
