@@ -73,7 +73,13 @@ The application can be started outside of docker compose simply with `docker run
 If you want to use docker compose, from the `quarkus-super-heroes/ui-super-heroes` directory run:
 
 ```bash
-docker-compose -f deploy/docker-compose/app.yml up
+docker-compose -f deploy/docker-compose/java17.yml up
+```
+
+or 
+
+```bash
+docker-compose -f deploy/docker-compose/native.yml up
 ```
 
 If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
