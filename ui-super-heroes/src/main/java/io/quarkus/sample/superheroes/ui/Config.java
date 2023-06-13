@@ -1,4 +1,4 @@
-package io.quarkus.workshop.superheroes.ui;
+package io.quarkus.sample.superheroes.ui;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
