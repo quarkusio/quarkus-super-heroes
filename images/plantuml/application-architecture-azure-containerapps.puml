@@ -4,15 +4,17 @@ skinparam NodePadding 40
 !include <azure/Databases/AzureCosmosDb>
 !include <azure/Databases/AzureDatabaseForPostgreSQL>
 !include <azure/Analytics/AzureEventHub>
-!include <logos/nodejs>
+!include <logos/angular>
 !include <logos/prometheus>
 !include style.puml
 
 left to right direction
 
 together {
-    node "Super Hero UI" <<AzureContainerApp>> as ui {
-        agent "<$nodejs>" as uiQuarkus
+    node "Super Hero UI" as ui {
+      agent "<$angular>" <<frontend>> as angularUi
+      agent "Quarkus" <<application>> as uiQuarkus
+      angularUi .up> uiQuarkus
     }
 
     node "<$prometheus>" as prometheus {
@@ -56,7 +58,7 @@ package "stats" <<AzureContainerApp>> {
     }
 }
 
-uiQuarkus --> fightQuarkus : HTTP
+angularUi --> fightQuarkus : HTTP
 fightQuarkus --> villainQuarkus : HTTP
 fightQuarkus --> heroQuarkus : HTTP
 

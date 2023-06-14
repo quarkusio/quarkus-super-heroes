@@ -107,25 +107,6 @@ process_quarkus_project() {
   fi
 }
 
-process_ui_project() {
-  local deployment_type=$1
-  local version_tag=$2
-  local project="ui-super-heroes"
-  local project_input_directory="$project/$INPUT_DIR"
-  local input_file="$project_input_directory/${deployment_type}.yml"
-  local project_output_file="$project/$OUTPUT_DIR/app-${deployment_type}.yml"
-  local all_apps_output_file="$OUTPUT_DIR/${version_tag}-${deployment_type}.yml"
-
-  rm -rf $project_output_file
-
-  if [[ -f "$input_file" ]]; then
-    create_output_file $project_output_file
-    echo "Copying app input ($input_file) to $project_output_file and $all_apps_output_file"
-    cat $input_file >> $project_output_file
-    cat $input_file >> $all_apps_output_file
-  fi
-}
-
 create_monitoring() {
   local monitoring_name="monitoring"
 
@@ -172,7 +153,7 @@ do
       version_tag="${kind}java${javaVersion}"
     fi
 
-    for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics"
+    for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
     do
       # Generate all the k8s resources for all deployment types in one shot
       do_build $project $version_tag $javaVersion $kind
@@ -182,12 +163,6 @@ do
         # For each deployment type, process the quarkus project
         process_quarkus_project $project $deployment_type $version_tag $javaVersion $kind
       done
-    done
-
-    for deployment_type in ${DEPLOYMENT_TYPES[@]}
-    do
-      # Handle the UI project for each deployment type
-      process_ui_project $deployment_type $version_tag
     done
   done
 done

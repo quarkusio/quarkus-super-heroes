@@ -10,7 +10,7 @@
     - [Routing](#routing)
 
 ## Introduction
-This is the main user interface for the application. The application is an Angular application served via Node.js.
+This is the main user interface for the application. The application is an Angular application served via [Quinoa](https://quarkus.io/extensions/io.quarkiverse.quinoa/quarkus-quinoa).
 
 ![ui-super-heroes](images/ui-super-heroes.png)
 
@@ -23,26 +23,32 @@ Environment variables can be injected into the build using the [ngx-env](https:/
 
 Variables must start with the `NG_APP` prefix, e.g `NG_APP_MY_URL=http://localhost:1234`.
 
-Production builds are served using a Node.js server. This server serves the compiled Angular application and an `env.js` file. This `env.js` file is generated at startup, and adds a `window.NG_CONFIG` property that the Angular application can read from.
+Production builds are served using a Quarkus server. This server serves the compiled Angular application and an `env.js` file. This `env.js` file is generated at startup, and adds a `window.NG_CONFIG` property that the Angular application can read from.
 
 Currently, the `env.js` will expose just the `API_BASE_URL` that's set at runtime. This will control the base URL to connect to the [fights](../rest-fights) service. The default if unset is http://localhost:8082.
+You can control the base URL using normal Quarkus configuration, such as setting `api.base.url` in `application.properties` or an `API_BASE_URL` environment variable.
 
-You also need to make sure the angular CLI is installed (`npm install @angular/cli@12.2.8`).
 
 ```bash
-npm run build
+quarkus package
+```
+
+It is also possible to build a native binary, using 
+
+```bash
+./mvnw -B clean package -DskipTests -Pnative
 ```
 
 ## Local Development
 Use the following command:
 
 ```shell
-npm run dev
+quarkus dev
 ```
 
-This starts the Angular hot reloading server at http://localhost:4200, and the Node.js server to supply the `env.js` file. The Angular server on port 4200 will proxy the request for `env.js` to the Node.js server on port 8080.
+This starts both Quarkus and the Angular hot reloading server at http://localhost:4200. The Quarkus server to supplies the `env.js` file to the Javascript front-end. 
 
-The Node.js server port can be changed by setting the `HTTP_PORT` variable. The `ng.proxy.config.json` file will need to be updated with the new Node.js server port number if you deviate from 8080.
+The Quarkus server port can be changed in the usual way, with `application.properties`. 
 
 ## Running the Application
 1. First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Fights Service](../rest-fights)). 
@@ -50,7 +56,7 @@ The Node.js server port can be changed by setting the `HTTP_PORT` variable. The 
 2. Follow the steps above section, *Building the Application*.
 3. Set the `API_BASE_URL` environment variable with the appropriate [Fights Service](../rest-fights) hostname and port.
    > By default, the [`rest-fights`](../rest-fights) service runs on port `8082`, so setting `API_BASE_URL=http://localhost:8082` will do.
-4. Start the service using the command `npm start`.
+4. Start the service using the command `quarkus dev`.
     - You can also set the environment variable `CALCULATE_API_BASE_URL=true` to have it compute the base URL. Only use this option if the UI url is in the form of `ui-super-heroes.somewhere.com`. In this instance, setting `CALCULATE_API_BASE_URL=true` will replace `ui-super-heroes` in the URL with `rest-fights`.
 
 There is also a container image available that you can use instead:
@@ -67,7 +73,13 @@ The application can be started outside of docker compose simply with `docker run
 If you want to use docker compose, from the `quarkus-super-heroes/ui-super-heroes` directory run:
 
 ```bash
-docker-compose -f deploy/docker-compose/app.yml up
+docker-compose -f deploy/docker-compose/java17.yml up
+```
+
+or 
+
+```bash
+docker-compose -f deploy/docker-compose/native.yml up
 ```
 
 If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).

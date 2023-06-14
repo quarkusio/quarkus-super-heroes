@@ -136,11 +136,7 @@ do
         versionFilename="${kind}java${javaVersion}"
       fi
 
-      if [[ "$project" == "ui-super-heroes" ]]; then
-        filename="app"
-      else
-        filename=$versionFilename
-      fi
+      filename=$versionFilename
 
       create_project_output $project $filename $versionFilename
     done

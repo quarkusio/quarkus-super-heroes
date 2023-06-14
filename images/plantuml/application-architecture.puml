@@ -3,8 +3,8 @@ skinparam NodePadding 40
 !include <logos/kafka>
 !include <logos/postgresql>
 !include <logos/mongodb>
-!include <logos/nodejs>
 !include <logos/prometheus>
+!include <logos/angular>
 !include <logos/jaeger>
 !include style.puml
 
@@ -21,7 +21,9 @@ together {
     }
 
     node "Super Hero UI" as ui {
-        agent "<$nodejs>" as uiQuarkus
+      agent "<$angular>" <<frontend>> as angularUi
+      agent "Quarkus" <<application>> as uiQuarkus
+      angularUi .up> uiQuarkus
     }
 }
 
@@ -63,7 +65,7 @@ package "stats" {
     }
 }
 
-uiQuarkus --> fightQuarkus : HTTP
+angularUi --> fightQuarkus : HTTP
 fightQuarkus --> villainQuarkus : HTTP
 fightQuarkus --> heroQuarkus : HTTP
 
