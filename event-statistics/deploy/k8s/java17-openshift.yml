@@ -68,7 +68,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-06-09 - 19:49:13 +0000
+    app.quarkus.io/build-timestamp: 2023-06-14 - 15:01:49 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -85,14 +85,14 @@ metadata:
   name: event-statistics
 spec:
   ports:
-    - name: https
-      port: 443
-      protocol: TCP
-      targetPort: 8443
     - name: http
       port: 80
       protocol: TCP
       targetPort: 8085
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 8443
   selector:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -106,16 +106,16 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-06-09 - 19:49:13 +0000
+    app.quarkus.io/build-timestamp: 2023-06-14 - 15:01:49 +0000
   labels:
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: event-stats
   name: event-statistics
 spec:
   lookupPolicy:
@@ -264,7 +264,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-06-09 - 19:49:13 +0000
+    app.quarkus.io/build-timestamp: 2023-06-14 - 15:01:49 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -282,16 +282,16 @@ metadata:
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: event-stats
   template:
     metadata:
       annotations:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
         app.openshift.io/vcs-ref: main
-        app.quarkus.io/build-timestamp: 2023-06-09 - 19:49:13 +0000
+        app.quarkus.io/build-timestamp: 2023-06-14 - 15:01:49 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -302,9 +302,9 @@ spec:
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/part-of: event-stats
-        app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: event-statistics
+        app.kubernetes.io/version: java17-latest
+        app.kubernetes.io/part-of: event-stats
     spec:
       containers:
         - env:
@@ -313,10 +313,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: event-statistics-config
             - secretRef:
                 name: event-statistics-config-creds
+            - configMapRef:
+                name: event-statistics-config
           image: event-statistics:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -331,11 +331,11 @@ spec:
             timeoutSeconds: 10
           name: event-statistics
           ports:
-            - containerPort: 8443
-              name: https
-              protocol: TCP
             - containerPort: 8085
               name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
@@ -400,7 +400,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-06-09 - 19:49:13 +0000
+    app.quarkus.io/build-timestamp: 2023-06-14 - 15:01:49 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
