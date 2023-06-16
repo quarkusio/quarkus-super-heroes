@@ -1,5 +1,11 @@
-#!/bin/bash -u
+#!/bin/bash
+# -u
 # -ex
+if [ "${DEBUG}" = true ]; then
+  set -u
+else
+  set -ex
+fi
 
 # Create the deploy/k8s files for each java version of each of the Quarkus services
 # Then add on the ui-super-heroes
@@ -88,7 +94,15 @@ do_build() {
     -Dquarkus.knative.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.knative.annotations.\"app.openshift.io/vcs-ref\"=$github_ref_name \
     -Dquarkus.helm.version=1.0.0 \
-    -Dquarkus.helm.name=$project
+    -Dquarkus.helm.name=$project \
+    -Dquarkus.http.insecure-requests=disabled #Until https://github.com/quarkusio/quarkus/pull/33979 goes live (Quarkus 3.2 and backport)
+
+
+    # Bug in Dekorate: https://github.com/dekorateio/dekorate/pull/1217
+    # The spec.type in `service.yml` gets wrongly assigned to `ClusterIP`, but for `minikube` it must be `NodePort`.
+    # K8s generates the right value, but helm gets it wrong.
+    # Solution is to change the default value programmatically, but only for the `minikube` deployment type.
+    yq '.app.serviceType="NodePort"' -i $project/target/helm/minikube/$project/values.yaml
 
 }
 
@@ -252,7 +266,9 @@ main(){
   local javaVersion
   local version_tag
 
-  echo "${VERSION_TUPLES[@]}"
+  if [ "${DEBUG}" = true ]; then
+    echo "Kind,Java Version,Tag:" "${VERSION_TUPLES[@]}"
+  fi
 
   for tag in "${VERSION_TUPLES[@]}"
   do
