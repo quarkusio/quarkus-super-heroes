@@ -22,8 +22,8 @@ import org.mockito.ArgumentMatcher;
 
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.service.VillainService;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 
 @QuarkusTest
 public class VillainResourceTests {

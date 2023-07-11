@@ -21,8 +21,8 @@ import org.mockito.ArgumentMatcher;
 
 import io.quarkus.sample.superheroes.hero.Hero;
 import io.quarkus.sample.superheroes.hero.service.HeroService;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 
 import io.smallrye.mutiny.Uni;
 
