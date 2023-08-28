@@ -15,6 +15,7 @@
     - [Client-side Load Balancing](#client-side-load-balancing)
 - [Testing](#testing)
     - [Contract testing with Pact](#contract-testing-with-pact) 
+- [Benchmarking with Hyperfoil](#benchmarking-with-hyperfoil)
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
     - [Only Fights Service](#only-fights-service)
@@ -113,6 +114,9 @@ Additionally, the [Pact contract](src/test/resources/pacts/ui-super-heroes-rest-
 The consumer contract tests and provider verification tests **ARE** executed during this project's CI/CD processes. They run against any pull requests and any commits back to the `main` branch.
 
 The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility.
+
+## Benchmarking with Hyperfoil
+There are some [Hyperfoil benchmarks](https://hyperfoil.io) in [this directory](hyperfoil). See [the README](hyperfoil/README.md) for more details.
 
 ## Running the Application
 First you need to start up all of the downstream services ([Heroes Service](../rest-heroes) and [Villains Service](../rest-villains) - the [Event Statistics Service](../event-statistics) is optional).
