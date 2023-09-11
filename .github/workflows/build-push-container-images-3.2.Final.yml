@@ -63,8 +63,6 @@ jobs:
       - name: Create env vars
         working-directory: ${{ matrix.project }}
         run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV &&
           if [[ ${{ matrix.java }} == '17' ]]; then
             echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV"
           else
@@ -73,7 +71,7 @@ jobs:
 
       - name: Create container tags
         working-directory: ${{ matrix.project }}
-        run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-java${{ matrix.java }}" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}-${{ matrix.arch }}" >> $GITHUB_ENV
 
       - name: Set up QEMU
         if: matrix.arch == 'arm64'
@@ -94,14 +92,14 @@ jobs:
             -Dquarkus.http.host=0.0.0.0 \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=false \
-            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}-${{ matrix.arch }} \
+            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
             -Dquarkus.docker.dockerfile-jvm-path=src/main/docker/${{ env.JVM_DOCKERFILE }} \
             -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
 
       - name: Save JVM Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
+          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   build-native-images:
     if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == '3.2.Final')))
@@ -142,15 +140,9 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Create env vars
+      - name: Create container tag
         working-directory: ${{ matrix.project }}
-        run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV && \
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-
-      - name: Create container tags
-        working-directory: ${{ matrix.project }}
-        run: echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=native-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}-${{ matrix.arch }}" >> $GITHUB_ENV
 
       - name: Set up QEMU
         if: matrix.arch == 'arm64'
@@ -174,13 +166,13 @@ jobs:
             -Dquarkus.native.container-runtime-options=--platform=linux/${{ matrix.arch }} \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=false \
-            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}-${{ matrix.arch }} \
+            -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }} \
             -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
 
       - name: Save native Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
+          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
   push-app-images:
     if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == '3.2.Final')))
@@ -226,30 +218,20 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Create env vars
-        working-directory: ${{ matrix.project }}
-        run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-
-      - name: Create container tags (JVM)
+      - name: Create container tag (JVM)
         if: matrix.kind == ''
         working-directory: ${{ matrix.project }}
-        run: |
-          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-${{ matrix.kind }}java${{ matrix.java }}" >> $GITHUB_ENV &&
-          echo "ADDITIONAL_TAG=${{ matrix.kind }}java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}-${{ matrix.arch }}" >> $GITHUB_ENV
 
-      - name: Create container tags (native)
+      - name: Create container tag (native)
         if: matrix.kind == 'native-'
         working-directory: ${{ matrix.project }}
-        run: |
-          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native" >> $GITHUB_ENV &&
-          echo "ADDITIONAL_TAG=${{ matrix.kind }}${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=native-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}-${{ matrix.arch }}" >> $GITHUB_ENV
 
-      - name: Get saved images (${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }})
+      - name: Get saved images (${{ matrix.project }}:${{ env.CONTAINER_TAG }})
         uses: ishworkh/docker-image-artifact-download@v1
         with:
-          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
+          image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
       - name: Login to quay
         uses: docker/login-action@v2
@@ -257,10 +239,6 @@ jobs:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
           password: ${{ secrets.QUAY_REPO_TOKEN }}
-
-      - name: Tag image
-        working-directory: ${{ matrix.project }}
-        run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.ADDITIONAL_TAG }}-${{ matrix.arch }}"
 
       - name: Push images
         working-directory: ${{ matrix.project }}
@@ -305,25 +283,15 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Create env vars
-        working-directory: ${{ matrix.project }}
-        run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-
-      - name: Create container tags (JVM)
+      - name: Create container tag (JVM)
         if: matrix.kind == ''
         working-directory: ${{ matrix.project }}
-        run: |
-          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-${{ matrix.kind }}java${{ matrix.java }}" >> $GITHUB_ENV &&
-          echo "ADDITIONAL_TAG=${{ matrix.kind }}java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
 
-      - name: Create container tags (native)
+      - name: Create container tag (native)
         if: matrix.kind == 'native-'
         working-directory: ${{ matrix.project }}
-        run: |
-          echo "CONTAINER_TAG=${{ env.APP_VERSION }}-quarkus-${{ env.QUARKUS_VERSION }}-native" >> $GITHUB_ENV &&
-          echo "ADDITIONAL_TAG=${{ matrix.kind }}${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=native-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
 
       - name: Login to quay
         uses: docker/login-action@v2
