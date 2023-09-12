@@ -48,14 +48,10 @@ This image is a visual of what the workflow consists of:
 ### Build JVM container images job
 This job [Builds JVM container images](https://quarkus.io/guides/container-image#building) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), and  [`ui-super-heroes`](../ui-super-heroes) applications on Java 17 (both amd64 & arm64 platforms) using the [Docker Build action](https://github.com/docker/build-push-action).
 
-Each container image created has 4 tags:
-- `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}-amd64`
-- `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}-arm64`
-- `java{{java-version}}-latest-amd64`
-- `java{{java-version}}-latest-arm64`
+Each container image created has 2 tags:
+- `java{{java-version}}-latest-3.2.Final-amd64`
+- `java{{java-version}}-latest-3.2.Final-arm64`
 
-> - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `3.0.3.Final`).
 > - Replace `{{java-version}}` with the Java version the application was built with (i.e. `17`).
 
 There are a total of 8 images built (4 applications x 1 JVM version x 2 platforms).
@@ -65,14 +61,9 @@ This job runs in parallel with the [_Build JVM container images_](#build-jvm-con
 
 The job [Builds native executable container images](https://quarkus.io/guides/building-native-image#using-the-container-image-extensions) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), and  [`ui-super-heroes`](../ui-super-heroes) applications using [Mandrel](https://github.com/graalvm/mandrel).
 
-Each container image created has 4 tags:
-- `{{app-version}}-quarkus-{{quarkus-version}}-native-amd64`
-- `{{app-version}}-quarkus-{{quarkus-version}}-native-arm64`
-- `native-latest-amd64`
-- `native-latest-arm64`
-
-> - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `3.0.3.Final`).
+Each container image created has 2 tags:
+- `native-latest-3.2.Final-amd64`
+- `native-latest-3.2.Final-arm64`
 
 There are a total of 10 images built (5 applications x 2 platforms).
 
@@ -84,7 +75,7 @@ All the container images created in the [_Build JVM container image_](#build-jvm
 ### Create application multi-arch manifests
 Runs after successful completion of the [_Push application container images_](#push-application-container-images-job) job and in parallel with the [_Create UI multi-arch manifests_](#create-ui-multi-arch-manifests) job.
 
-All the application container images for each platform (amd64 & arm64) are combined into manifest lists using the [`docker manifest`](https://docs.docker.com/engine/reference/commandline/manifest) command. For example, the `java{{java-version}}-latest-amd64` and `java{{java-version}}-latest-arm64` tags are combined into a single manifest list with the tag `java{{java-version}}-latest`.
+All the application container images for each platform (amd64 & arm64) are combined into manifest lists using the [`docker manifest`](https://docs.docker.com/engine/reference/commandline/manifest) command. For example, the `java{{java-version}}-latest-3.2.Final-amd64` and `java{{java-version}}-latest-3.2.Final-arm64` tags are combined into a single manifest list with the tag `java{{java-version}}-latest-3.2.Final`.
 
 ## Create deploy resources workflow
 The [Create deploy resources](../.github/workflows/create-deploy-resources.yml) workflow is responsible for [generating all of the application resources](#application-resource-generation), described in a later section of this document.
