@@ -317,7 +317,7 @@ jobs:
 
       - name: Login to quay
         if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
@@ -397,7 +397,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.CONTAINER_TAG }}"
 
       - name: Login to quay
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
@@ -475,7 +475,7 @@ jobs:
           echo "ADDITIONAL_TAG=${{ matrix.kind }}java${{ matrix.java }}-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV
 
       - name: Login to quay
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
@@ -549,7 +549,7 @@ jobs:
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)-${{ env.BRANCH }}" >> $GITHUB_ENV
 
       - name: Login to quay
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
