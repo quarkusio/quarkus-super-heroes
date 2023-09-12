@@ -62,7 +62,7 @@ jobs:
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)-${{ inputs.branch }}" >> $GITHUB_ENV
 
       - name: Login to quay
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
