@@ -71,9 +71,9 @@ kind: Service
 metadata:
   annotations:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-ref: 3.2.Final
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-09-07 - 16:32:02 +0000
+    app.quarkus.io/build-timestamp: 2023-09-12 - 20:09:21 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -104,9 +104,9 @@ kind: Deployment
 metadata:
   annotations:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-ref: 3.2.Final
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-09-07 - 16:32:02 +0000
+    app.quarkus.io/build-timestamp: 2023-09-12 - 20:09:21 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -130,9 +130,9 @@ spec:
     metadata:
       annotations:
         app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-ref: 3.2.Final
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-09-07 - 16:32:02 +0000
+        app.quarkus.io/build-timestamp: 2023-09-12 - 20:09:21 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -152,10 +152,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:native-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
