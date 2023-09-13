@@ -69,7 +69,7 @@ get_statuses() {
   fi
 
   if [[ "${statuses[4]}" != "\"200\"" ]]; then
-    get_status 8080 4 "/"
+    get_status 8080 4 "/q/health/ready"
   fi
 
   if [[ "${statuses[5]}" != "\"200\"" ]]; then
