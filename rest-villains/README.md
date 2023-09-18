@@ -4,6 +4,7 @@
 - [Introduction](#introduction)
     - [Exposed Endpoints](#exposed-endpoints) 
 - [Contract testing with Pact](#contract-testing-with-pact)
+- [Benchmarking with Hyperfoil](#benchmarking-with-hyperfoil)
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
 - [Deploying to Kubernetes](#deploying-to-kubernetes)
@@ -54,6 +55,9 @@ Therefore, the [Pact contract](src/test/resources/pacts/rest-fights-rest-villain
 scenario, if a broker wasn't used, the consumer's CI/CD would commit the contracts into this repository's source control.
 
 The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility.
+
+## Benchmarking with Hyperfoil
+There are some [Hyperfoil benchmarks](https://hyperfoil.io) in [this directory](hyperfoil). See [the README](hyperfoil/README.md) for more details.
 
 ## Running the Application
 The application runs on port `8084` (defined by `quarkus.http.port` in [`application.properties`](src/main/resources/application.properties)).

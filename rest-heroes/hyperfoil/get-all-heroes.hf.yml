@@ -1,0 +1,39 @@
+# This Hyperfoil benchmark runs a GET to the /api/heroes endpoint
+# Here is a list of all the parameters and their default values that can be adjusted when running:
+#
+# HERO_PROTOCOL=http (The protocol used by the benchmark)
+# HERO_HOST=localhost (The host the rest-fights application is running on)
+# HERO_PORT=8083 (The port the rest-fights application is running on)
+# SHARED_CONNECTIONS=400 (The number of connections to share across the requests)
+# USERS_PER_SEC=20 (The number of users per second)
+# MAX_SESSIONS=200 (The maximum number of hyperfoil sessions to make available)
+# DURATION=3m (The duration to run the benchmark)
+
+name: get-all-heroes
+http:
+  - protocol: !param HERO_PROTOCOL http
+    host: !param HERO_HOST localhost
+    port: !param HERO_PORT 8083
+    name: heroes-host
+    sharedConnections: !param SHARED_CONNECTIONS 400
+
+phases:
+  - getAllHeroes:
+      constantRate:
+        startAfter: warmUp
+        usersPerSec: !param USERS_PER_SEC 20
+        maxSessions: !param MAX_SESSIONS 200
+        duration: !param DURATION 3m
+        scenario:
+          - getAllHeroes: &getAllHeroes
+              - httpRequest:
+                  GET: /api/heroes
+                  headers:
+                    accept: application/json
+
+  - warmUp:
+      always:
+        users: 10
+        duration: 10s
+        scenario:
+          - getAllHeroes: *getAllHeroes
