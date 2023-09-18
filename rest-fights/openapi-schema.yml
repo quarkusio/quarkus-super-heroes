@@ -7,8 +7,6 @@ info:
     name: Quarkus
     url: https://github.com/quarkusio
   version: "1.0"
-servers:
-- url: http://localhost:8082
 tags:
 - name: fights
 - name: hello
@@ -69,6 +67,18 @@ paths:
             text/plain:
               schema:
                 type: string
+  /api/fights/hello/narration:
+    get:
+      tags:
+      - hello
+      summary: Ping Narration hello
+      responses:
+        "200":
+          description: Ping Narration hello
+          content:
+            text/plain:
+              schema:
+                type: string
   /api/fights/hello/villains:
     get:
       tags:
@@ -81,6 +91,25 @@ paths:
             text/plain:
               schema:
                 type: string
+  /api/fights/narrate:
+    post:
+      tags:
+      - fights
+      summary: Narrates a fight
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FightToNarrate'
+      responses:
+        "200":
+          description: The fight narration
+          content:
+            text/plain:
+              schema:
+                type: string
+        "400":
+          description: Invalid fight passed in (or no request body found)
   /api/fights/randomfighters:
     get:
       tags:
@@ -115,15 +144,21 @@ paths:
           description: The fight is not found for a given identifier
 components:
   schemas:
+    Date:
+      format: date
+      type: string
+      example: 2022-03-10
     Fight:
       description: Each fight has a winner and a loser
       required:
       - fightDate
       - winnerName
       - winnerLevel
+      - winnerPowers
       - winnerPicture
       - loserName
       - loserLevel
+      - loserPowers
       - loserPicture
       - winnerTeam
       - loserTeam
@@ -132,41 +167,74 @@ components:
         id:
           $ref: '#/components/schemas/ObjectId'
         fightDate:
-          format: date-time
-          type: string
-          nullable: false
+          $ref: '#/components/schemas/Instant'
         winnerName:
           minLength: 1
           type: string
-          nullable: false
         winnerLevel:
           format: int32
           type: integer
-          nullable: false
+        winnerPowers:
+          minLength: 1
+          type: string
         winnerPicture:
           minLength: 1
           type: string
-          nullable: false
         loserName:
           minLength: 1
           type: string
-          nullable: false
         loserLevel:
           format: int32
           type: integer
-          nullable: false
+        loserPowers:
+          minLength: 1
+          type: string
         loserPicture:
           minLength: 1
           type: string
-          nullable: false
         winnerTeam:
           minLength: 1
           type: string
-          nullable: false
         loserTeam:
           minLength: 1
           type: string
-          nullable: false
+        narration:
+          type: string
+    FightToNarrate:
+      description: Each fight has a winner and a loser
+      required:
+      - winnerTeam
+      - winnerName
+      - winnerPowers
+      - loserTeam
+      - loserName
+      - loserPowers
+      type: object
+      properties:
+        winnerTeam:
+          minLength: 1
+          type: string
+        winnerName:
+          minLength: 1
+          type: string
+        winnerPowers:
+          minLength: 1
+          type: string
+        winnerLevel:
+          format: int32
+          type: integer
+        loserTeam:
+          minLength: 1
+          type: string
+        loserName:
+          minLength: 1
+          type: string
+        loserPowers:
+          minLength: 1
+          type: string
+        loserLevel:
+          format: int32
+          type: integer
     Fighters:
       description: A fight between one hero and one villain
       required:
@@ -175,13 +243,9 @@ components:
       type: object
       properties:
         hero:
-          allOf:
-          - $ref: '#/components/schemas/Hero'
-          - nullable: false
+          $ref: '#/components/schemas/Hero'
         villain:
-          allOf:
-          - $ref: '#/components/schemas/Villain'
-          - nullable: false
+          $ref: '#/components/schemas/Villain'
     Hero:
       description: The hero fighting against the villain
       required:
@@ -193,17 +257,18 @@ components:
         name:
           minLength: 1
           type: string
-          nullable: false
         level:
           format: int32
           type: integer
-          nullable: false
         picture:
           minLength: 1
           type: string
-          nullable: false
         powers:
           type: string
+    Instant:
+      format: date-time
+      type: string
+      example: 2022-03-10T16:15:50Z
     ObjectId:
       type: object
       properties:
@@ -219,8 +284,7 @@ components:
         randomValue2:
           type: integer
         date:
-          format: date
-          type: string
+          $ref: '#/components/schemas/Date'
     Villain:
       description: The villain fighting against the hero
       required:
@@ -232,14 +296,11 @@ components:
         name:
           minLength: 1
           type: string
-          nullable: false
         level:
           format: int32
           type: integer
-          nullable: false
         picture:
           minLength: 1
           type: string
-          nullable: false
         powers:
           type: string

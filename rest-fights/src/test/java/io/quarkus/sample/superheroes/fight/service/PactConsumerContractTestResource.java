@@ -24,7 +24,8 @@ public class PactConsumerContractTestResource implements QuarkusTestResourceLife
     // I don't like it but couldn't figure out any other way
     return Map.of(
       "quarkus.rest-client.hero-client.url", String.format("http://localhost:%s", FightServiceConsumerContractTests.HEROES_MOCK_PORT),
-      "fight.villain.client-base-url", String.format("http://localhost:%s", FightServiceConsumerContractTests.VILLAINS_MOCK_PORT)
+      "fight.villain.client-base-url", String.format("http://localhost:%s", FightServiceConsumerContractTests.VILLAINS_MOCK_PORT),
+      "quarkus.rest-client.narration-client.url", String.format("http://localhost:%s", FightServiceConsumerContractTests.NARRATION_MOCK_PORT)
     );
   }
 

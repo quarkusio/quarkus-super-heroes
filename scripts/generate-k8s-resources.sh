@@ -103,6 +103,7 @@ process_quarkus_project() {
     local all_downstream_output_file="$project/$OUTPUT_DIR/${output_filename}-all-downstream.yml"
     local villains_output_file="rest-villains/$OUTPUT_DIR/${output_filename}.yml"
     local heroes_output_file="rest-heroes/$OUTPUT_DIR/${output_filename}.yml"
+    local narration_output_file="rest-narration/$OUTPUT_DIR/${output_filename}.yml"
 
     rm -rf $all_downstream_output_file
 
@@ -111,6 +112,7 @@ process_quarkus_project() {
     echo "Copying ${app_generated_input_file}, ${villains_output_file}, and $heroes_output_file to $all_downstream_output_file"
     cat $villains_output_file >> $all_downstream_output_file
     cat $heroes_output_file >> $all_downstream_output_file
+    cat $narration_output_file >> $all_downstream_output_file
     cat $app_generated_input_file >> $all_downstream_output_file
   fi
 }
@@ -161,7 +163,7 @@ do
       version_tag="${kind}java${javaVersion}"
     fi
 
-    for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
+    for project in "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
     do
       # Generate all the k8s resources for all deployment types in one shot
       do_build $project $version_tag $javaVersion $kind

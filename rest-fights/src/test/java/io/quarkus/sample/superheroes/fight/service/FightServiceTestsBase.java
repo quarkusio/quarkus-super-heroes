@@ -1,13 +1,24 @@
 package io.quarkus.sample.superheroes.fight.service;
 
+import java.time.Instant;
+import java.util.Objects;
+
 import jakarta.inject.Inject;
 
+import org.bson.types.ObjectId;
+import org.mockito.ArgumentMatcher;
+
+import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.quarkus.test.junit.mockito.InjectSpy;
 
 public abstract class FightServiceTestsBase {
+  static final ObjectId DEFAULT_FIGHT_ID = new ObjectId();
+  static final Instant DEFAULT_FIGHT_DATE = Instant.now();
   static final String DEFAULT_HERO_NAME = "Super Baguette";
   static final String DEFAULT_HERO_PICTURE = "super_baguette.png";
   static final String DEFAULT_HERO_POWERS = "eats baguette really quickly";
@@ -21,6 +32,16 @@ public abstract class FightServiceTestsBase {
   static final int DEFAULT_VILLAIN_LEVEL = 42;
   static final String VILLAINS_TEAM_NAME = "villains";
   static final String DEFAULT_HELLO_VILLAIN_RESPONSE = "Hello villains!";
+  static final String DEFAULT_HELLO_NARRATION_RESPONSE = "Hello narration!";
+  static final String DEFAULT_NARRATION = """
+                                          This is a default narration - NOT a fallback!
+                                          
+                                          High above a bustling city, a symbol of hope and justice soared through the sky, while chaos reigned below, with malevolent laughter echoing through the streets.
+                                          With unwavering determination, the figure swiftly descended, effortlessly evading explosive attacks, closing the gap, and delivering a decisive blow that silenced the wicked laughter.
+                                          
+                                          In the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.
+                                          The people knew that their protector had once again ensured their safety.
+                                          """;
 
   @Inject
   FightConfig fightConfig;
@@ -28,39 +49,121 @@ public abstract class FightServiceTestsBase {
   @InjectSpy
   FightService fightService;
 
+  static Fighters createDefaultFighters() {
+    return new Fighters(createDefaultHero(), createDefaultVillain());
+  }
+
   static Hero createDefaultHero() {
-		return new Hero(
-			DEFAULT_HERO_NAME,
-			DEFAULT_HERO_LEVEL,
-			DEFAULT_HERO_PICTURE,
-			DEFAULT_HERO_POWERS
-		);
-	}
+    return new Hero(
+      DEFAULT_HERO_NAME,
+      DEFAULT_HERO_LEVEL,
+      DEFAULT_HERO_PICTURE,
+      DEFAULT_HERO_POWERS
+    );
+  }
+
+  static FightToNarrate createFightToNarrateHeroWon() {
+    return new FightToNarrate(
+      HEROES_TEAM_NAME,
+      DEFAULT_HERO_NAME,
+      DEFAULT_HERO_POWERS,
+      DEFAULT_HERO_LEVEL,
+      VILLAINS_TEAM_NAME,
+      DEFAULT_VILLAIN_NAME,
+      DEFAULT_VILLAIN_POWERS,
+      DEFAULT_VILLAIN_LEVEL
+    );
+  }
 
   Villain createFallbackVillain() {
-		return new Villain(
-			this.fightConfig.villain().fallback().name(),
-			this.fightConfig.villain().fallback().level(),
-			this.fightConfig.villain().fallback().picture(),
-			this.fightConfig.villain().fallback().powers()
-		);
-	}
+    return new Villain(
+      this.fightConfig.villain().fallback().name(),
+      this.fightConfig.villain().fallback().level(),
+      this.fightConfig.villain().fallback().picture(),
+      this.fightConfig.villain().fallback().powers()
+    );
+  }
 
   Hero createFallbackHero() {
-		return new Hero(
-			this.fightConfig.hero().fallback().name(),
-			this.fightConfig.hero().fallback().level(),
-			this.fightConfig.hero().fallback().picture(),
-			this.fightConfig.hero().fallback().powers()
-		);
-	}
+    return new Hero(
+      this.fightConfig.hero().fallback().name(),
+      this.fightConfig.hero().fallback().level(),
+      this.fightConfig.hero().fallback().picture(),
+      this.fightConfig.hero().fallback().powers()
+    );
+  }
 
-	static Villain createDefaultVillain() {
-		return new Villain(
-			DEFAULT_VILLAIN_NAME,
-			DEFAULT_VILLAIN_LEVEL,
-			DEFAULT_VILLAIN_PICTURE,
-			DEFAULT_VILLAIN_POWERS
-		);
-	}
+  static Villain createDefaultVillain() {
+    return new Villain(
+      DEFAULT_VILLAIN_NAME,
+      DEFAULT_VILLAIN_LEVEL,
+      DEFAULT_VILLAIN_PICTURE,
+      DEFAULT_VILLAIN_POWERS
+    );
+  }
+
+  static ArgumentMatcher<Hero> heroMatcher(Hero hero) {
+    return h -> (hero == h) || (
+      (hero != null) &&
+        (h != null) &&
+        Objects.equals(hero.getName(), h.getName()) &&
+        Objects.equals(hero.getLevel(), h.getLevel()) &&
+        Objects.equals(hero.getPicture(), h.getPicture()) &&
+        Objects.equals(hero.getPowers(), h.getPowers())
+    );
+  }
+
+  static ArgumentMatcher<Villain> villainMatcher(Villain villain) {
+    return v -> (villain == v) || (
+      (villain != null) &&
+        (v != null) &&
+        Objects.equals(villain.getName(), v.getName()) &&
+        Objects.equals(villain.getLevel(), v.getLevel()) &&
+        Objects.equals(villain.getPicture(), v.getPicture()) &&
+        Objects.equals(villain.getPowers(), v.getPowers())
+    );
+  }
+
+  static ArgumentMatcher<Fighters> fightersMatcher(Fighters fighters) {
+    return f -> (fighters == f) || (
+      (fighters != null) &&
+        (f != null) &&
+        heroMatcher(f.getHero()).matches(fighters.getHero()) &&
+        villainMatcher(f.getVillain()).matches(fighters.getVillain())
+    );
+  }
+
+  static ArgumentMatcher<FightToNarrate> fightToNarrateMatcher(FightToNarrate fight) {
+    return f -> (fight == f) || (
+      (fight != null) &&
+        (f != null) &&
+        Objects.equals(fight.loserLevel(), f.loserLevel()) &&
+        Objects.equals(fight.loserName(), f.loserName()) &&
+        Objects.equals(fight.loserPowers(), f.loserPowers()) &&
+        Objects.equals(fight.loserTeam(), f.loserTeam()) &&
+        Objects.equals(fight.winnerLevel(), f.winnerLevel()) &&
+        Objects.equals(fight.winnerName(), f.winnerName()) &&
+        Objects.equals(fight.winnerPowers(), f.winnerPowers()) &&
+        Objects.equals(fight.winnerTeam(), f.winnerTeam())
+    );
+  }
+
+  static ArgumentMatcher<Fight> fightMatcher(Fight fight) {
+    return f -> (fight == f) || (
+      (fight != null) &&
+        (f != null) &&
+        (Objects.equals(fight.fightDate, f.fightDate) || f.fightDate.isAfter(fight.fightDate)) &&
+        Objects.equals(fight.id, f.id) &&
+        Objects.equals(fight.loserLevel, f.loserLevel) &&
+        Objects.equals(fight.loserName, f.loserName) &&
+        Objects.equals(fight.loserPicture, f.loserPicture) &&
+        Objects.equals(fight.loserPowers, f.loserPowers) &&
+        Objects.equals(fight.loserTeam, f.loserTeam) &&
+        Objects.equals(fight.winnerLevel, f.winnerLevel) &&
+        Objects.equals(fight.winnerName, f.winnerName) &&
+        Objects.equals(fight.winnerPicture, f.winnerPicture) &&
+        Objects.equals(fight.winnerPowers, f.winnerPowers) &&
+        Objects.equals(fight.winnerTeam, f.winnerTeam)
+    );
+  }
 }

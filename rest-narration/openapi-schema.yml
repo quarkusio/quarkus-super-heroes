@@ -1,0 +1,66 @@
+---
+openapi: 3.0.3
+info:
+  title: Narration API
+  description: This API allows Narration using the Microsoft Semantic Kernel OpenAI
+  contact:
+    name: Quarkus
+    url: https://github.com/quarkusio
+  version: "1.0"
+tags:
+- name: hello
+- name: narration
+paths:
+  /api/narration:
+    post:
+      tags:
+      - narration
+      summary: Creates a narration for the fight
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Fight'
+      responses:
+        "200":
+          description: The narration
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/narration/hello:
+    get:
+      tags:
+      - hello
+      summary: Ping hello
+      responses:
+        "200":
+          description: Ping hello
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas:
+    Fight:
+      description: The fight that is narrated
+      type: object
+      properties:
+        winnerName:
+          type: string
+        winnerLevel:
+          format: int32
+          type: integer
+        winnerPowers:
+          type: string
+        loserName:
+          type: string
+        loserLevel:
+          format: int32
+          type: integer
+        loserPowers:
+          type: string
+        winnerTeam:
+          type: string
+        loserTeam:
+          type: string

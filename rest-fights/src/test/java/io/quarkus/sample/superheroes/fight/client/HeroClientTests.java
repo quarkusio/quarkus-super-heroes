@@ -16,7 +16,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource;
+import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
 import io.quarkus.sample.superheroes.fight.InjectWireMock;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -30,10 +30,10 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
 /**
  * Tests for the {@link io.quarkus.sample.superheroes.fight.client.HeroClient}. Uses wiremock to stub responses and verify interactions.
- * @see io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource
+ * @see io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource
  */
 @QuarkusTest
-@QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
+@QuarkusTestResource(HeroesVillainsNarrationWiremockServerResource.class)
 class HeroClientTests {
   private static final String HERO_API_BASE_URI = "/api/heroes";
   private static final String HERO_RANDOM_URI = HERO_API_BASE_URI + "/random";

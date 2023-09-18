@@ -95,12 +95,22 @@ create_project_output() {
       cat rest-heroes/$INPUT_DIR/$infra_input_file_name | sed 's/..\/..\/..\//..\/..\//g' >> $all_apps_output_file
     fi
 
+    if [[ -f "rest-narration/$INPUT_DIR/$infra_input_file_name" ]]; then
+      cat rest-heroes/$INPUT_DIR/$infra_input_file_name >> $downstream_project_output_file
+      cat rest-heroes/$INPUT_DIR/$infra_input_file_name | sed 's/..\/..\/..\//..\/..\//g' >> $all_apps_output_file
+    fi
+
     if [[ -f "rest-villains/$INPUT_DIR/$input_file_name" ]]; then
       cat rest-villains/$INPUT_DIR/$input_file_name >> $downstream_project_output_file
       cat rest-villains/$INPUT_DIR/$input_file_name >> $all_apps_output_file
     fi
 
     if [[ -f "rest-heroes/$INPUT_DIR/$input_file_name" ]]; then
+      cat rest-heroes/$INPUT_DIR/$input_file_name >> $downstream_project_output_file
+      cat rest-heroes/$INPUT_DIR/$input_file_name >> $all_apps_output_file
+    fi
+
+    if [[ -f "rest-narration/$INPUT_DIR/$input_file_name" ]]; then
       cat rest-heroes/$INPUT_DIR/$input_file_name >> $downstream_project_output_file
       cat rest-heroes/$INPUT_DIR/$input_file_name >> $all_apps_output_file
     fi
@@ -123,7 +133,7 @@ rm -rf $OUTPUT_DIR/*.yml
 rm -rf $OUTPUT_DIR/monitoring
 rm -rf deploy/db-init
 
-for project in "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
+for project in "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
 do
   rm -rf $project/$OUTPUT_DIR/*.yml
 

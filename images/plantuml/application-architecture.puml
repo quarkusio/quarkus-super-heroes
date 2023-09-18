@@ -1,5 +1,4 @@
 @startuml
-skinparam NodePadding 40
 !include <logos/kafka>
 !include <logos/postgresql>
 !include <logos/mongodb>
@@ -7,6 +6,9 @@ skinparam NodePadding 40
 !include <logos/angular>
 !include <logos/jaeger>
 !include style.puml
+
+skinparam NodePadding 40
+skinparam dpi 100
 
 left to right direction
 
@@ -32,6 +34,14 @@ node "Fight" as fight {
     database "<$mongodb>" as fightMongoDb
     fightQuarkus .up> fightMongoDb
 }
+
+node "Narration" as narration {
+  agent "Quarkus (reactive)" <<application>> as narrationQuarkus
+  hexagon "Microsoft\nSemantic Kernel" as sk
+  narrationQuarkus .up> sk
+}
+
+cloud "OpenAI\nAzure OpenAI" as openai
 
 node "Hero" as hero {
     agent "Quarkus (reactive)" <<application>> as heroQuarkus
@@ -66,8 +76,11 @@ package "stats" {
 }
 
 angularUi --> fightQuarkus : HTTP
+fightQuarkus --> narrationQuarkus : HTTP
 fightQuarkus --> villainQuarkus : HTTP
 fightQuarkus --> heroQuarkus : HTTP
+
+sk --> openai : HTTP
 
 fightQuarkus ..> kafka : Message
 fightQuarkus -[dotted]-> apicurio : HTTP
@@ -77,6 +90,7 @@ statQuarkus -[dotted]-> apicurio : HTTP
 statQuarkus ..> uiStats : Web Sockets
 
 prometheus .> fight : polling
+prometheus .> narration : polling
 prometheus .> hero : polling
 prometheus .> villain : polling
 prometheus .> stats : polling
@@ -85,5 +99,6 @@ otelCollector .> jaeger : gRPC
 otelCollector <-[dotted]- fight : gRPC
 otelCollector <-[dotted]- hero : gRPC
 otelCollector <-[dotted]- villain : gRPC
+otelCollector <-[dotted]- narration : gRPC
 otelCollector <-[dotted]- stats : gRPC
 @enduml

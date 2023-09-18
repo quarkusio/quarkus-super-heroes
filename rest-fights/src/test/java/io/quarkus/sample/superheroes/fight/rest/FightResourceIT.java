@@ -4,7 +4,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.*;
-import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
+import static jakarta.ws.rs.core.HttpHeaders.*;
 import static jakarta.ws.rs.core.MediaType.*;
 import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,8 +36,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
-import io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource;
+import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
 import io.quarkus.sample.superheroes.fight.InjectWireMock;
+import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -67,15 +68,14 @@ import io.vertx.core.Vertx;
  * <p>
  *   Uses an external container image for Kafka
  * </p>
- * @see HeroesVillainsWiremockServerResource
+ * @see io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource
  */
 @QuarkusIntegrationTest
-@QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
+@QuarkusTestResource(HeroesVillainsNarrationWiremockServerResource.class)
 @QuarkusTestResource(value = KafkaCompanionResource.class, restrictToAnnotatedClass = true)
 @TestMethodOrder(OrderAnnotation.class)
 public class FightResourceIT {
 	private static final int DEFAULT_ORDER = 0;
-
   private static final String HERO_API_BASE_URI = "/api/heroes";
 	private static final String HERO_API_URI = HERO_API_BASE_URI + "/random";
   private static final String HERO_API_HELLO_URI = HERO_API_BASE_URI + "/hello";
@@ -105,6 +105,25 @@ public class FightResourceIT {
 	private static final String FALLBACK_HERO_PICTURE = "https://dummyimage.com/280x380/1e8fff/ffffff&text=Fallback+Hero";
 	private static final String FALLBACK_HERO_POWERS = "Fallback hero powers";
 	private static final int FALLBACK_HERO_LEVEL = 1;
+
+  private static final String NARRATION_API_BASE_URI = "/api/narration";
+  private static final String NARRATION_API_HELLO_URI = NARRATION_API_BASE_URI + "/hello";
+  private static final String DEFAULT_NARRATION = """
+                                                  This is a default narration - NOT a fallback!
+                                                  
+                                                  High above a bustling city, a symbol of hope and justice soared through the sky, while chaos reigned below, with malevolent laughter echoing through the streets.
+                                                  With unwavering determination, the figure swiftly descended, effortlessly evading explosive attacks, closing the gap, and delivering a decisive blow that silenced the wicked laughter.
+                                                  
+                                                  In the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.
+                                                  The people knew that their protector had once again ensured their safety.
+                                                  """;
+  private static final String FALLBACK_NARRATION = """
+                                                   High above a bustling city, a symbol of hope and justice soared through the sky, while chaos reigned below, with malevolent laughter echoing through the streets.
+                                                   With unwavering determination, the figure swiftly descended, effortlessly evading explosive attacks, closing the gap, and delivering a decisive blow that silenced the wicked laughter.
+                                                   
+                                                   In the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.
+                                                   The people knew that their protector had once again ensured their safety.
+                                                   """;
 
 	private static final Hero FALLBACK_HERO = new Hero(
 		FALLBACK_HERO_NAME,
@@ -189,7 +208,7 @@ public class FightResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersHeroFallback() {
-		resetCircuitBreakersToClosedState();
+		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
@@ -226,7 +245,7 @@ public class FightResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersVillainFallback() {
-		resetCircuitBreakersToClosedState();
+		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
@@ -298,7 +317,7 @@ public class FightResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersVillainNotFound() {
-		resetCircuitBreakersToClosedState();
+		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
@@ -335,7 +354,7 @@ public class FightResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersHeroAndVillainNotFound() {
-		resetCircuitBreakersToClosedState();
+		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
@@ -369,10 +388,59 @@ public class FightResourceIT {
 		);
 	}
 
+  @Test
+  @Order(DEFAULT_ORDER)
+  public void shouldGetNarration() {
+    this.wireMockServer.stubFor(
+      WireMock.post(urlEqualTo(NARRATION_API_BASE_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+        .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
+        .willReturn(okForContentType(TEXT_PLAIN, DEFAULT_NARRATION))
+    );
+
+    given()
+      .accept(TEXT)
+      .contentType(JSON)
+      .body(createFightToNarrateHeroWon())
+      .when().post("/api/fights/narrate").then()
+      .contentType(TEXT)
+      .body(is(DEFAULT_NARRATION));
+
+    this.wireMockServer.verify(postRequestedFor(urlEqualTo(NARRATION_API_BASE_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+        .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
+    );
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void getNarrationFallback() {
+    resetNarrationCircuitBreakersToClosedState();
+
+    this.wireMockServer.stubFor(
+      WireMock.post(urlEqualTo(NARRATION_API_BASE_URI))
+        .willReturn(serverError())
+    );
+
+    given()
+      .accept(TEXT)
+      .contentType(JSON)
+      .body(createFightToNarrateHeroWon())
+      .when().post("/api/fights/narrate").then()
+      .contentType(TEXT)
+      .body(is(FALLBACK_NARRATION));
+
+    this.wireMockServer.verify(4,
+      postRequestedFor(urlEqualTo(NARRATION_API_BASE_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+        .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
+    );
+  }
+
 	@Test
 	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersHeroAndVillainFallback() {
-		resetCircuitBreakersToClosedState();
+		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
@@ -409,7 +477,7 @@ public class FightResourceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersAllOk() {
-		resetCircuitBreakersToClosedState();
+		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
@@ -444,7 +512,7 @@ public class FightResourceIT {
 	}
 
   @Test
-  @Order(DEFAULT_ORDER + 1)
+  @Order(DEFAULT_ORDER)
   public void helloHeroesOk() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(HERO_API_HELLO_URI))
@@ -507,7 +575,7 @@ public class FightResourceIT {
   }
 
   @Test
-  @Order(DEFAULT_ORDER + 1)
+  @Order(DEFAULT_ORDER)
   public void helloVillainsOk() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(VILLAIN_API_HELLO_URI))
@@ -569,6 +637,69 @@ public class FightResourceIT {
     );
   }
 
+  @Test
+  @Order(DEFAULT_ORDER)
+  public void helloNarrationOk() {
+    this.wireMockServer.stubFor(
+      WireMock.get(urlEqualTo(NARRATION_API_HELLO_URI))
+        .willReturn(okForContentType(TEXT_PLAIN, "Hello narration!"))
+    );
+
+    get("/api/fights/hello/narration")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Hello narration!"));
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(NARRATION_API_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void helloNarrationFallback() {
+    this.wireMockServer.stubFor(
+      WireMock.get(urlEqualTo(NARRATION_API_HELLO_URI))
+        .willReturn(
+          okForContentType(TEXT_PLAIN, "Hello narration!")
+            .withFixedDelay(6 * 1000)
+        )
+    );
+
+    get("/api/fights/hello/narration")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Could not invoke the Narration microservice"));
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(NARRATION_API_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void helloNarrationFail() {
+    this.wireMockServer.stubFor(
+      WireMock.get(urlEqualTo(NARRATION_API_HELLO_URI))
+        .willReturn(serverError())
+    );
+
+    get("/api/fights/hello/narration")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Could not invoke the Narration microservice"));
+
+    this.wireMockServer.verify(1,
+      getRequestedFor(urlEqualTo(NARRATION_API_HELLO_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+    );
+  }
+
 	@Test
 	@Order(DEFAULT_ORDER)
 	public void getAllFights() {
@@ -589,10 +720,12 @@ public class FightResourceIT {
     expectedFight.winnerName = "Chewbacca";
     expectedFight.winnerLevel = 5;
     expectedFight.winnerPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/chewbacca--684239239428094811.jpg";
+    expectedFight.winnerPowers = DEFAULT_HERO_POWERS;
     expectedFight.winnerTeam = HEROES_TEAM_NAME;
     expectedFight.loserName = "Wanderer";
     expectedFight.loserLevel = 3;
     expectedFight.loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/wanderer-300775911119209178.jpg";
+    expectedFight.loserPowers = DEFAULT_VILLAIN_POWERS;
     expectedFight.loserTeam = VILLAINS_TEAM_NAME;
 
 		var fight = get("/api/fights/{id}", getAndVerifyAllFights().get(0).id.toString())
@@ -622,6 +755,7 @@ public class FightResourceIT {
 
 	@ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
 	@MethodSource("invalidFighters")
+  @Order(DEFAULT_ORDER)
 	public void performFightInvalidFighters(Fighters fighters) {
 		given()
 			.when()
@@ -632,6 +766,21 @@ public class FightResourceIT {
 			.then()
 				.statusCode(BAD_REQUEST.getStatusCode());
 	}
+
+  // This is written as an @Test instead of @ParameterizedTest
+  // because @MethodSource does not like java records for some reason
+  @Test
+  @Order(DEFAULT_ORDER)
+  public void shouldNotGetNarrationBecauseInvalidFight() {
+    invalidFightsToNarrate().forEach(fight -> {
+      given()
+        .accept(TEXT)
+        .contentType(JSON)
+        .body(fight)
+        .when().post("/api/fights/narrate").then()
+        .statusCode(BAD_REQUEST.getStatusCode());
+    });
+  }
 
 	@Test
 	@Order(DEFAULT_ORDER + 2)
@@ -647,9 +796,11 @@ public class FightResourceIT {
     expectedFight.winnerLevel = DEFAULT_HERO.getLevel();
     expectedFight.winnerPicture = DEFAULT_HERO.getPicture();
     expectedFight.winnerTeam = HEROES_TEAM_NAME;
+    expectedFight.winnerPowers = DEFAULT_HERO.getPowers();
     expectedFight.loserName = DEFAULT_VILLAIN.getName();
     expectedFight.loserLevel = DEFAULT_VILLAIN.getLevel();
     expectedFight.loserPicture = DEFAULT_VILLAIN.getPicture();
+    expectedFight.loserPowers = DEFAULT_VILLAIN.getPowers();
     expectedFight.loserTeam = VILLAINS_TEAM_NAME;
 
 		var fightResult = given()
@@ -731,10 +882,12 @@ public class FightResourceIT {
     expectedFight.loserName = DEFAULT_HERO.getName();
     expectedFight.loserLevel = DEFAULT_VILLAIN.getLevel();
     expectedFight.loserPicture = DEFAULT_HERO.getPicture();
+    expectedFight.loserPowers = DEFAULT_HERO.getPowers();
     expectedFight.loserTeam = HEROES_TEAM_NAME;
     expectedFight.winnerName = DEFAULT_VILLAIN.getName();
     expectedFight.winnerLevel = DEFAULT_HERO.getLevel();
     expectedFight.winnerPicture = DEFAULT_VILLAIN.getPicture();
+    expectedFight.winnerPowers = DEFAULT_VILLAIN.getPowers();
     expectedFight.winnerTeam = VILLAINS_TEAM_NAME;
 
 		var fightResult = given()
@@ -793,26 +946,32 @@ public class FightResourceIT {
     expectedFights.get(0).winnerName = "Chewbacca";
     expectedFights.get(0).winnerLevel = 5;
     expectedFights.get(0).winnerPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/chewbacca--684239239428094811.jpg";
+    expectedFights.get(0).winnerPowers = DEFAULT_HERO_POWERS;
     expectedFights.get(0).winnerTeam = HEROES_TEAM_NAME;
     expectedFights.get(0).loserName = "Wanderer";
     expectedFights.get(0).loserLevel = 3;
     expectedFights.get(0).loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/wanderer-300775911119209178.jpg";
+    expectedFights.get(0).loserPowers = DEFAULT_VILLAIN_POWERS;
     expectedFights.get(0).loserTeam = VILLAINS_TEAM_NAME;
     expectedFights.get(1).winnerName = "Galadriel";
     expectedFights.get(1).winnerLevel = 10;
     expectedFights.get(1).winnerPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/galadriel--1293733805363806029.jpg";
     expectedFights.get(1).winnerTeam = HEROES_TEAM_NAME;
+    expectedFights.get(1).winnerPowers = DEFAULT_HERO_POWERS;
     expectedFights.get(1).loserName = "Darth Vader";
     expectedFights.get(1).loserLevel = 8;
     expectedFights.get(1).loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg";
+    expectedFights.get(1).loserPowers = DEFAULT_VILLAIN_POWERS;
     expectedFights.get(1).loserTeam = VILLAINS_TEAM_NAME;
     expectedFights.get(2).winnerName = "Annihilus";
     expectedFights.get(2).winnerLevel = 23;
     expectedFights.get(2).winnerPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/annihilus--751928780106678215.jpg";
+    expectedFights.get(2).winnerPowers = DEFAULT_VILLAIN_POWERS;
     expectedFights.get(2).winnerTeam = VILLAINS_TEAM_NAME;
     expectedFights.get(2).loserName = "Shikamaru";
     expectedFights.get(2).loserLevel = 1;
     expectedFights.get(2).loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/nara-shikamaru-1970614934047311432.jpg";
+    expectedFights.get(2).loserPowers = DEFAULT_HERO_POWERS;
     expectedFights.get(2).loserTeam = HEROES_TEAM_NAME;
 
 		var fights = get("/api/fights")
@@ -834,7 +993,7 @@ public class FightResourceIT {
 	/**
 	 * Reset the circuit breakers so they are in closed state
 	 */
-	private void resetCircuitBreakersToClosedState() {
+	private void resetHeroVillainCircuitBreakersToClosedState() {
 		try {
 			// Sleep the necessary delay duration for the breaker to moved into the half-open position
 			TimeUnit.SECONDS.sleep(2);
@@ -887,6 +1046,55 @@ public class FightResourceIT {
 		this.wireMockServer.resetAll();
 	}
 
+  private void resetNarrationCircuitBreakersToClosedState() {
+		try {
+			// Sleep the necessary delay duration for the breaker to moved into the half-open position
+			TimeUnit.SECONDS.sleep(10);
+		}
+		catch (InterruptedException ex) {
+			Log.error(ex.getMessage(), ex);
+		}
+
+		// Reset all the mocks on the WireMockServer
+		this.wireMockServer.resetAll();
+
+		// Stub successful requests
+    this.wireMockServer.stubFor(
+      WireMock.post(urlEqualTo(NARRATION_API_BASE_URI))
+        .willReturn(okForContentType(TEXT_PLAIN, DEFAULT_NARRATION))
+    );
+
+    var fight = createFightToNarrateHeroWon();
+
+		// The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
+		IntStream.rangeClosed(0, 8)
+			.forEach(i -> {
+        var narration = given()
+          .accept(TEXT)
+          .contentType(JSON)
+          .body(fight)
+          .when().post("/api/fights/narrate").then()
+          .statusCode(OK.getStatusCode())
+          .contentType(TEXT_PLAIN)
+          .extract().body().asString();
+
+        assertThat(narration)
+          .isNotNull()
+          .isEqualTo(DEFAULT_NARRATION);
+        }
+			);
+
+		// Verify successful requests
+		this.wireMockServer.verify(9,
+			postRequestedFor(urlEqualTo(NARRATION_API_BASE_URI))
+				.withHeader(ACCEPT, containing(TEXT_PLAIN))
+        .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
+		);
+
+		// Reset all the mocks on the WireMockServer
+		this.wireMockServer.resetAll();
+	}
+
 	private static Stream<Fighters> invalidFighters() {
 		return Stream.of(
 			new Fighters(),
@@ -900,6 +1108,36 @@ public class FightResourceIT {
 			new Fighters(DEFAULT_HERO, new Villain(DEFAULT_VILLAIN_NAME, DEFAULT_VILLAIN_LEVEL, "", DEFAULT_VILLAIN_POWERS))
 		);
 	}
+
+    private static Stream<FightToNarrate> invalidFightsToNarrate() {
+    return Stream.of(
+      new FightToNarrate(null, null, null, 0, null, null, null, 0),
+      new FightToNarrate("", "", "", 0, "", "", "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, "", "", "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, "", 0, "", "", "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, "", "", "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, "", "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, null, null, null, 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, null, 0, null, null, null, 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, null, null, null, 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, null, null, 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, null, 0)
+    );
+  }
+
+  private static FightToNarrate createFightToNarrateHeroWon() {
+    return new FightToNarrate(
+      HEROES_TEAM_NAME,
+      DEFAULT_HERO_NAME,
+      DEFAULT_HERO_POWERS,
+      DEFAULT_HERO_LEVEL,
+      VILLAINS_TEAM_NAME,
+      DEFAULT_VILLAIN_NAME,
+      DEFAULT_VILLAIN_POWERS,
+      DEFAULT_VILLAIN_LEVEL
+    );
+  }
 
 	private static <T> String writeAsJson(T entity) {
 		try {

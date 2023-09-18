@@ -23,6 +23,12 @@ public interface FightConfig {
 	 */
 	Villain villain();
 
+  /**
+   * Fallback narration
+   */
+  @WithDefault("Connection to the narration service could not be established.")
+  String fallbackNarration();
+
 	interface Process {
 		/**
 		 * The number of millis to add as a delay to the fight process. Can be used to introduce deliberate delays.

@@ -231,6 +231,25 @@ create_villains_app() {
       --output json | jq -r .fqdn)"
 }
 
+create_narration_app() {
+  echo "Creating Narration Container App"
+  az containerapp create \
+    --resource-group "$RESOURCE_GROUP" \
+    --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
+    --image "$NARRATION_IMAGE" \
+    --name "$NARRATION_APP" \
+    --environment "$CONTAINERAPPS_ENVIRONMENT" \
+    --ingress external \
+    --target-port 8087 \
+    --min-replicas 1
+
+  echo "Getting URL to narration app"
+  NARRATION_URL="https://$(az containerapp ingress show \
+      --resource-group $RESOURCE_GROUP \
+      --name $NARRATION_APP \
+      --output json | jq -r .fqdn)"
+}
+
 create_statistics_app() {
   echo "Creating Event Statistics Container App"
   az containerapp create \
@@ -274,6 +293,7 @@ create_fights_app() {
                QUARKUS_LIQUIBASE_MONGODB_MIGRATE_AT_START=false \
                QUARKUS_MONGODB_CONNECTION_STRING="$MONGO_COLLECTION_CONNECT_STRING" \
                QUARKUS_REST_CLIENT_HERO_CLIENT_URL="$HEROES_URL" \
+               QUARKUS_REST_CLIENT_NARRATION_CLIENT_URL="$NARRATION_URL" \
                FIGHT_VILLAIN_CLIENT_BASE_URL="$VILLAINS_URL"
 
   echo "Getting URL to event fights app"
@@ -375,6 +395,10 @@ KAFKA_BOOTSTRAP_SERVERS="$KAFKA_NAMESPACE.servicebus.windows.net:9093"
 # Apicurio
 APICURIO_APP="apicurio"
 APICURIO_IMAGE="apicurio/apicurio-registry-mem:2.4.2.Final"
+
+# Narration
+NARRATION_APP="rest-narration"
+NARRATION_IMAGE="${SUPERHEROES_IMAGES_BASE}/${NARRATION_APP}:${IMAGES_TAG}"
 
 # Heroes
 HEROES_APP="rest-heroes"
@@ -552,6 +576,13 @@ echo "-----------------------------------------"
 create_villains_app
 echo
 
+# Create narration
+echo "-----------------------------------------"
+echo "[$(date +"%m/%d/%Y %T")]: Creating the $NARRATION_APP Container App"
+echo "-----------------------------------------"
+create_narration_app
+echo
+
 # Create statistics
 echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: Creating the $STATISTICS_APP Container App"
@@ -586,6 +617,7 @@ echo "  Event stats: $STATISTICS_URL"
 echo "  Fights URL: $FIGHTS_URL"
 echo "  Heroes URL: $HEROES_URL"
 echo "  Villains URL: $VILLAINS_URL"
+echo "  Narration URL: $NARRATION_URL"
 echo "  Apicurio Schema Registry: $APICURIO_URL"
 
 if "$CREATE_CONTAINER_REGISTRY"; then

@@ -34,8 +34,14 @@ The base JVM version for all the applications is Java 17.
     - Favors constructor injection of beans over field injection (`@Inject` annotation).
     - Uses the [Quarkus Qute templating engine](https://quarkus.io/guides/qute) for its [UI](rest-heroes/README.md#running-the-application).
     - Contains [contract verification tests](rest-heroes/README.md#contract-testing-with-pact) using [Pact](https://pact.io).
+- [Narration REST API](rest-narration)
+    - A reactive HTTP microservice integrating with the [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service) to narrate a fight.
+    - Implemented with reactive endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive).
+    - Favors constructor injection of beans over field injection (`@Inject` annotation).
+    - Contains [contract verification tests](rest-narration/README.md#contract-testing-with-pact) using [Pact](https://pact.io).
 - [Fight REST API](rest-fights)
     - A REST API invoking the Hero and Villain APIs to get a random superhero and supervillain. Each fight is then stored in a MongoDB database.
+    - Invokes the [Narration API](rest-narration) to narrate the result of a fight.
     - Implemented with reactive endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) and [Quarkus MongoDB Reactive with Panache's active record pattern](https://quarkus.io/guides/mongodb-panache#reactive).
     - Invocations to the Hero and Villain APIs are done using the [reactive rest client](https://quarkus.io/guides/rest-client-reactive) and are protected using [resilience patterns](https://quarkus.io/guides/smallrye-fault-tolerance), such as retry, timeout, and circuit breaking.
     - Each fight is asynchronously sent, via Kafka, to the [Statistics](event-statistics) microservice.
@@ -54,6 +60,11 @@ Here is an architecture diagram of the application:
 ![Superheroes architecture diagram](images/application-architecture.png)
 
 The main UI allows you to pick one random Hero and Villain by clicking on _New Fighters_. Then, click _Fight!_ to start the battle. The table at the bottom shows the list of previous fights.
+
+You can then click the _Narrate Fight_ button if you want to perform a narration using the [Narration Service](rest-narration).
+
+> **NOTE:** Using Azure OpenAI or OpenAI may not be a free resource for you, so please understand this! Unless configured otherwise, the [Narration Service](rest-narration) does **NOT** communicate with any external service. Instead, by default, it just returns a default narration. See the [Integration with OpenAI Providers](rest-narration/README.md#integration-with-openai-providers) for more details
+
 ![Fight screen](images/fight-screen.png)
 
 ## Running Locally via Docker Compose

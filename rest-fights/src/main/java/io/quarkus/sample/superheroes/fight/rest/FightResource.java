@@ -26,6 +26,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.service.FightService;
 
@@ -108,6 +109,23 @@ public class FightResource {
 		return this.service.performFight(fighters);
 	}
 
+  @POST
+  @Path("/narrate")
+  @Produces(TEXT_PLAIN)
+	@Consumes(APPLICATION_JSON)
+	@Operation(summary = "Narrates a fight")
+	@APIResponse(
+		responseCode = "200",
+		description = "The fight narration"
+	)
+	@APIResponse(
+		responseCode = "400",
+		description = "Invalid fight passed in (or no request body found)"
+	)
+	public Uni<String> narrateFight(@NotNull @Valid FightToNarrate fight) {
+		return this.service.narrateFight(fight);
+	}
+
 	@GET
 	@Produces(TEXT_PLAIN)
 	@Path("/hello")
@@ -147,4 +165,17 @@ public class FightResource {
 	public Uni<String> helloVillains() {
 		return service.helloVillains();
 	}
+
+  @GET
+  @Produces(TEXT_PLAIN)
+  @Path("/hello/narration")
+  @Tag(name = "hello")
+  @Operation(summary = "Ping Narration hello")
+  @APIResponse(
+    responseCode = "200",
+    description = "Ping Narration hello"
+  )
+  public Uni<String> helloNarration() {
+    return this.service.helloNarration();
+  }
 }
