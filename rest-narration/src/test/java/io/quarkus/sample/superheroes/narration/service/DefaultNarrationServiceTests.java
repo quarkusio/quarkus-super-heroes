@@ -33,7 +33,7 @@ class DefaultNarrationServiceTests {
   NarrationConfig narrationConfig;
 
   @Test
-  public void narrateReturnsFallback() {
+  public void narrate() {
     var narration = this.narrationService.narrate(FIGHT)
       .subscribe().withSubscriber(UniAssertSubscriber.create())
       .assertSubscribed()

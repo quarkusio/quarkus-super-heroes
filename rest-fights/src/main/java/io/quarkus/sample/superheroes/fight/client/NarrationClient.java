@@ -39,5 +39,6 @@ public interface NarrationClient {
    */
   @GET
   @Path("/hello")
+  @WithSpan(kind = SpanKind.CLIENT, value = "NarrationClient.hello")
   Uni<String> hello();
 }
