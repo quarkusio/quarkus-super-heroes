@@ -59,7 +59,7 @@ The skill definition(s) can be found in the [`src/main/resources/skills` directo
 
 Because of this integration and our goal to keep this application working at all times, all the OpenAI integration is disabled by default. A default narration will be provided instead.
 
-To enable the OpenAI integration the following properties must be set, either in [`application.properties`](src/main/resources/application.properties):
+To enable the OpenAI integration the following properties must be set, either in [`application.properties`](src/main/resources/application.properties) or as environment variables:
 
 #### Azure OpenAI properties
 
