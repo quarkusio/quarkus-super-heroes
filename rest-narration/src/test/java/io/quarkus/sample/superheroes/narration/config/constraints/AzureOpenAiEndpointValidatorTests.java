@@ -24,7 +24,7 @@ public class AzureOpenAiEndpointValidatorTests {
   }
 
   @Test
-  public void keyFoundNotEnabled() {
+  public void endpointFoundNotEnabled() {
     when(this.azureOpenAI.enabled())
       .thenReturn(false);
 
@@ -40,7 +40,7 @@ public class AzureOpenAiEndpointValidatorTests {
     when(this.azureOpenAI.enabled())
       .thenReturn(true);
 
-    when(this.azureOpenAI.key())
+    when(this.azureOpenAI.endpoint())
       .thenReturn(Optional.empty());
 
     assertThat(this.validator.isValid(this.azureOpenAI, null))

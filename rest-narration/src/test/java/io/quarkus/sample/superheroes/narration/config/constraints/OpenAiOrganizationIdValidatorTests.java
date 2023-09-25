@@ -24,7 +24,7 @@ public class OpenAiOrganizationIdValidatorTests {
   }
 
   @Test
-  public void apiKeyFoundNotEnabled() {
+  public void organizationIdFoundNotEnabled() {
     when(this.openAI.enabled())
       .thenReturn(false);
 
@@ -40,7 +40,7 @@ public class OpenAiOrganizationIdValidatorTests {
     when(this.openAI.enabled())
       .thenReturn(true);
 
-    when(this.openAI.apiKey())
+    when(this.openAI.organizationId())
       .thenReturn(Optional.empty());
 
     assertThat(this.validator.isValid(this.openAI, null))
