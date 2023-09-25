@@ -2,14 +2,15 @@ package io.quarkus.sample.superheroes.narration.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import io.quarkus.arc.lookup.LookupIfProperty;
+import io.quarkus.arc.lookup.LookupUnlessProperty;
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.config.NarrationConfig;
 
 import io.smallrye.mutiny.Uni;
 
-@LookupIfProperty(name = "narration.azure-open-ai.enabled", stringValue = "false", lookupIfMissing = true)
+@LookupUnlessProperty(name = "narration.azure-open-ai.enabled", stringValue = "true")
+@LookupUnlessProperty(name = "narration.open-ai.enabled", stringValue = "true")
 @ApplicationScoped
 public class DefaultNarrationService implements NarrationService {
   private final NarrationConfig narrationConfig;

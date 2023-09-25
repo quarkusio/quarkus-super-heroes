@@ -12,9 +12,11 @@
     - [Deploying directly via Kubernetes Extensions](#deploying-directly-via-kubernetes-extensions)
 
 ## Introduction
-This is the Narration REST API microservice. It is a reactive HTTP microservice integrating with the [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service) to narrate a fight. This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with reactive endpoints and the [Microsoft Semantic Kernel for Java](https://devblogs.microsoft.com/semantic-kernel/introducing-semantic-kernel-for-java/).
+This is the Narration REST API microservice. It is a reactive HTTP microservice using the [Microsoft Semantic Kernel for Java](https://devblogs.microsoft.com/semantic-kernel/introducing-semantic-kernel-for-java/) to integrate with an AI service to generate text narrating a given fight.
 
-Additionally, this application favors constructor injection of beans over field injection (i.e. `@Inject` annotation).
+The Narration microservice needs to access an AI service to generate the text narrating the fight. You can choose between [OpenAI](https://openai.com/) or [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service). Azure OpenAI, or "OpenAI on Azure" is a service that provides REST API access to OpenAI’s models, including the GPT-4, GPT-3, Codex and Embeddings series. The difference between OpenAI and Azure OpenAI is that it runs on Azure global infrastructure, which meets your production needs for critical enterprise security, compliance, and regional availability.
+
+This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with reactive endpoints. Additionally, this application favors constructor injection of beans over field injection (i.e. `@Inject` annotation).
 
 ![rest-narration](images/rest-narration.png)
 
@@ -49,21 +51,34 @@ The application runs on port `8087` (defined by `quarkus.http.port` in [`applica
 From the `quarkus-super-heroes/rest-narration` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application will be exposed at http://localhost:8087 and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at http://localhost:8087/q/dev.
 
 ### Integration with OpenAI Providers
-Currently the only supported OpenAI provider is the [Microsoft Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service) using the [Microsoft Semantic Kernel for Java](https://devblogs.microsoft.com/semantic-kernel/introducing-semantic-kernel-for-java/). This integration requires creating Azure resources prior in order to work properly. The [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources. Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources. Keep in mind that the service may not be free.
+Currently the only supported OpenAI providers are the [Microsoft Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service) and [OpenAI](https://openai.com/) using the [Microsoft Semantic Kernel for Java](https://devblogs.microsoft.com/semantic-kernel/introducing-semantic-kernel-for-java/). This integration requires creating resources, either on OpenAI or Azure, in order to work properly. Additionally, these resources cost money.
+
+For Azure, the [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources. Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources. Keep in mind that the service may not be free.
 
 The skill definition(s) can be found in the [`src/main/resources/skills` directory](src/main/resources/skills).
 
-Because of this integration and our goal to keep this application working at all times, the Azure OpenAI integration is disabled by default. A default narration will be provided instead.
+Because of this integration and our goal to keep this application working at all times, all the OpenAI integration is disabled by default. A default narration will be provided instead.
 
-To enable the Azure OpenAI integration the following properties must be set, either in [`application.properties`](src/main/resources/application.properties):
+To enable the OpenAI integration the following properties must be set, either in [`application.properties`](src/main/resources/application.properties):
+
+#### Azure OpenAI properties
 
 | Description                                                                                    | Environment Variable                              | Java Property                                     | Value                                                                   |
 |------------------------------------------------------------------------------------------------|---------------------------------------------------|---------------------------------------------------|-------------------------------------------------------------------------|
 | Enable Azure OpenAI integration                                                                | `NARRATION_AZURE_OPEN_AI_ENABLED`                 | `narration.azure-open-ai.enabled`                 | `true`                                                                  |
-| Azure cognitive services account key                                                           | `NARRATION_AZURE_OPEN_AI_KEY`                     | `narration.azure-open-ai.key`                     | `your azure openai key`                                                 |
-| The Azure OpenAI endpoint                                                                      | `NARRATION_AZURE_OPEN_AI_ENDPOINT`                | `narration.azure-open-ai.endpoint`                | 'your azure openai endpoint`                                            |
+| Azure cognitive services account key                                                           | `NARRATION_AZURE_OPEN_AI_KEY`                     | `narration.azure-open-ai.key`                     | `Your azure openai key`                                                 |
+| The Azure OpenAI endpoint                                                                      | `NARRATION_AZURE_OPEN_AI_ENDPOINT`                | `narration.azure-open-ai.endpoint`                | `Your azure openai endpoint`                                            |
 | Azure cognitive services deployment name                                                       | `NARRATION_AZURE_OPEN_AI_DEPLOYMENT_NAME`         | `narration.azure-open-ai.deployment-name`         | `csdeploy-super-heroes`                                                 |
 | Any additional properties to be passed to the Microsoft Semantic Kernel `OpenAIClientProvider` | `NARRATION_AZURE_OPEN_AI_ADDITIONAL_PROPERTIES_*` | `narration.azure-open-ai.additional-properties.*` | Any set of key/value pairs to be passed into the `OpenAIClientProvider` |
+
+#### OpenAI properties
+
+| Description                                                                                    | Environment Variable                        | Java Property                               | Value                                                                   |
+|------------------------------------------------------------------------------------------------|---------------------------------------------|---------------------------------------------|-------------------------------------------------------------------------|
+| Enable OpenAI integration                                                                      | `NARRATION_OPEN_AI_ENABLED`                 | `narration.open-ai.enabled`                 | `true`                                                                  |
+| OpenAI API Key                                                                                 | `NARRATION_OPEN_AI_API_KEY`                 | `narration.open-ai.api-key`                 | `Your OpenAI API Key`                                                   |
+| OpenAI Organization ID                                                                         | `NARRATION_OPEN_AI_ORGANIZATION_ID`         | `narration.open-ai.organization-id`         | `Your OpenAI Organization ID`                                           |
+| Any additional properties to be passed to the Microsoft Semantic Kernel `OpenAIClientProvider` | `NARRATION_OPEN_AI_ADDITIONAL_PROPERTIES_*` | `narration.open-ai.additional-properties.*` | Any set of key/value pairs to be passed into the `OpenAIClientProvider` |
 
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-narration`](https://quay.io/repository/quarkus-super-heroes/rest-narration?tab=tags). 

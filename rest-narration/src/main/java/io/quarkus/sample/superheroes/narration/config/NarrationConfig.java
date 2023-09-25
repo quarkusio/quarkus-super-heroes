@@ -99,5 +99,10 @@ public interface NarrationConfig {
      * </p>
      */
     Optional<String> organizationId();
+
+    /**
+     * Any additional properties to be passed into the config as-is
+     */
+    Map<String, String> additionalProperties();
   }
 }

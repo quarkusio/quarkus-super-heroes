@@ -21,18 +21,18 @@ import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.smallrye.mutiny.Uni;
 
-@LookupIfProperty(name = "narration.azure-open-ai.enabled", stringValue = "true")
+@LookupIfProperty(name = "narration.open-ai.enabled", stringValue = "true")
 @ApplicationScoped
-public class AzureOpenAINarrationService extends OpenAINarrationServiceBase {
+public class OpenAINarrationService extends OpenAINarrationServiceBase {
   private final NarrationConfig narrationConfig;
 
-  public AzureOpenAINarrationService(NarrationConfig narrationConfig) {
+  public OpenAINarrationService(NarrationConfig narrationConfig) {
     super();
     this.narrationConfig = narrationConfig;
   }
 
   @Override
-  @Timeout(value = 10, unit = ChronoUnit.SECONDS)
+  @Timeout(value = 30, unit = ChronoUnit.SECONDS)
   @Fallback(fallbackMethod = "fallbackNarrate")
   @CircuitBreaker(requestVolumeThreshold = 8, failureRatio = 0.5, delay = 2, delayUnit = ChronoUnit.SECONDS)
 //  @CircuitBreakerName("narrate")
@@ -44,27 +44,26 @@ public class AzureOpenAINarrationService extends OpenAINarrationServiceBase {
 
   @Override
   protected String getModelId() {
-    return this.narrationConfig.azureOpenAi().deploymentName();
+    return "gpt-3.5-turbo";
   }
 
   @Override
   protected Map<String, String> getOpenAIProperties() {
     var requiredProps = Map.of(
-      "client.azureopenai.key", this.narrationConfig.azureOpenAi().key().orElseThrow(() -> new IllegalArgumentException("Property 'narration.azure-open-ai.key' property is not specified")),
-      "client.azureopenai.endpoint", this.narrationConfig.azureOpenAi().endpoint().orElseThrow(() -> new IllegalArgumentException("Property 'narration.azure-open-ai.endpoint' property is not specified")),
-      "client.azureopenai.deploymentname", this.narrationConfig.azureOpenAi().deploymentName()
+      "client.openai.key", this.narrationConfig.openAi().apiKey().orElseThrow(() -> new IllegalArgumentException("Property 'narration.open-ai.api-key' property is not specified")),
+      "client.openai.organizationid", this.narrationConfig.openAi().organizationId().orElseThrow(() -> new IllegalArgumentException("Property 'narration.open-ai.organization-id' property is not specified"))
     );
 
     var properties = new HashMap<String, String>();
     properties.putAll(requiredProps);
-    properties.putAll(this.narrationConfig.azureOpenAi().additionalProperties());
+    properties.putAll(this.narrationConfig.openAi().additionalProperties());
 
     return properties;
   }
 
   @Override
   protected ClientType getClientType() {
-    return ClientType.AZURE_OPEN_AI;
+    return ClientType.OPEN_AI;
   }
 
   @Override
