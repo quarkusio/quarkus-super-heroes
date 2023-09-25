@@ -51,8 +51,7 @@ public class AzureOpenAINarrationService implements NarrationService {
     Log.debug("Creating the ChatCompletion");
     var textCompletion = SKBuilders.chatCompletion()
       .withOpenAIClient(client)
-//      .withModelId(this.narrationConfig.azureOpenAi().deploymentName())   // SK version 0.2.9
-      .setModelId(this.narrationConfig.azureOpenAi().deploymentName())  // SK version 0.2.8
+      .withModelId(this.narrationConfig.azureOpenAi().deploymentName())
       .build();
 
     // Instantiates the Kernel
@@ -63,10 +62,6 @@ public class AzureOpenAINarrationService implements NarrationService {
 
     // Registers skills
     Log.debug("Creating the skill");
-    // NOTE: In SK version 0.2.8 (the current version in Maven Central), the following DOES NOT WORK when running in Quarkus dev mode
-    // It DOES work if you compile and do java -jar
-    // It also works in both dev mode & java -jar in the upcoming 0.2.9 version
-    // So for now, the SK stuff DOES NOT work in dev mode
     var skill = kernel.importSkillFromResources("skills", "NarrationSkill",  "NarrateFight");
 
     Log.debug("Creating the NarrateFight function");
