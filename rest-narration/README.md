@@ -50,6 +50,8 @@ The application runs on port `8087` (defined by `quarkus.http.port` in [`applica
 
 From the `quarkus-super-heroes/rest-narration` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application will be exposed at http://localhost:8087 and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at http://localhost:8087/q/dev.
 
+> **NOTE:** This app currently does **NOT** support running in native mode due to incompatibilities in the Microsoft Semantic Kernel library and native compilation. Once that is resolved then native support will be enabled for this application.
+
 ### Integration with OpenAI Providers
 Currently the only supported OpenAI providers are the [Microsoft Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service) and [OpenAI](https://openai.com/) using the [Microsoft Semantic Kernel for Java](https://devblogs.microsoft.com/semantic-kernel/introducing-semantic-kernel-for-java/). This integration requires creating resources, either on OpenAI or Azure, in order to work properly. Additionally, these resources cost money.
 
@@ -83,12 +85,13 @@ To enable the OpenAI integration the following properties must be set, either in
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-narration`](https://quay.io/repository/quarkus-super-heroes/rest-narration?tab=tags). 
 
-Pick one of the 4 versions of the application from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-narration` directory.
+Pick one of the versions of the application from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-narration` directory.
 
 | Description | Image Tag       | Docker Compose Run Command                                               |
 |-------------|-----------------|--------------------------------------------------------------------------|
 | JVM Java 17 | `java17-latest` | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans` |
-| Native      | `native-latest` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
+
+[//]: # (| Native      | `native-latest` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |)
 
 These Docker Compose files are meant for standing up this application only. If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
@@ -107,7 +110,8 @@ Pick one of the 4 versions of the application from the table below and deploy th
 | Description | Image Tag       | OpenShift Descriptor                                      | Minikube Descriptor                                     | Kubernetes Descriptor                                       | KNative Descriptor                                    |
 |-------------|-----------------|-----------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------------------|
 | JVM Java 17 | `java17-latest` | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml) | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml) | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml) | [`java17-knative.yml`](deploy/k8s/java17-knative.yml) |
-| Native      | `native-latest` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
+
+[//]: # (| Native      | `native-latest` | [`native-openshift.yml`]&#40;deploy/k8s/native-openshift.yml&#41; | [`native-minikube.yml`]&#40;deploy/k8s/native-minikube.yml&#41; | [`native-kubernetes.yml`]&#40;deploy/k8s/native-kubernetes.yml&#41; | [`native-knative.yml`]&#40;deploy/k8s/native-knative.yml&#41; |)
 
 The application is exposed outside of the cluster on port `80`.
 

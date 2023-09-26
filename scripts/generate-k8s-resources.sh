@@ -150,8 +150,11 @@ do
   # Keeping this if/else here for the future when we might want to build multiple java versions
   if [[ "$kind" == "native-" ]]; then
     javaVersions=(17)
+    # Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
+    projects=("rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
   else
     javaVersions=(17)
+    projects=("rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
 #    javaVersions=(11 17)
   fi
 
@@ -163,7 +166,7 @@ do
       version_tag="${kind}java${javaVersion}"
     fi
 
-    for project in "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
+    for project in ${projects[@]}
     do
       # Generate all the k8s resources for all deployment types in one shot
       do_build $project $version_tag $javaVersion $kind
