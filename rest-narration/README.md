@@ -51,6 +51,8 @@ The application runs on port `8087` (defined by `quarkus.http.port` in [`applica
 From the `quarkus-super-heroes/rest-narration` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application will be exposed at http://localhost:8087 and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at http://localhost:8087/q/dev.
 
 > **NOTE:** This app currently does **NOT** support running in native mode due to incompatibilities in the Microsoft Semantic Kernel library and native compilation. Once that is resolved then native support will be enabled for this application.
+>
+> See https://github.com/microsoft/semantic-kernel/issues/2885 for details.
 
 ### Integration with OpenAI Providers
 Currently the only supported OpenAI providers are the [Microsoft Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service) and [OpenAI](https://openai.com/) using the [Microsoft Semantic Kernel for Java](https://devblogs.microsoft.com/semantic-kernel/introducing-semantic-kernel-for-java/). This integration requires creating resources, either on OpenAI or Azure, in order to work properly. Additionally, these resources cost money.
