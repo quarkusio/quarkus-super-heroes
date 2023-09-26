@@ -96,8 +96,8 @@ create_project_output() {
     fi
 
     if [[ -f "rest-narration/$INPUT_DIR/$infra_input_file_name" ]]; then
-      cat rest-heroes/$INPUT_DIR/$infra_input_file_name >> $downstream_project_output_file
-      cat rest-heroes/$INPUT_DIR/$infra_input_file_name | sed 's/..\/..\/..\//..\/..\//g' >> $all_apps_output_file
+      cat rest-narration/$INPUT_DIR/$infra_input_file_name >> $downstream_project_output_file
+      cat rest-narration/$INPUT_DIR/$infra_input_file_name | sed 's/..\/..\/..\//..\/..\//g' >> $all_apps_output_file
     fi
 
     if [[ -f "rest-villains/$INPUT_DIR/$input_file_name" ]]; then
@@ -111,8 +111,8 @@ create_project_output() {
     fi
 
     if [[ -f "rest-narration/$INPUT_DIR/$input_file_name" ]]; then
-      cat rest-heroes/$INPUT_DIR/$input_file_name >> $downstream_project_output_file
-      cat rest-heroes/$INPUT_DIR/$input_file_name >> $all_apps_output_file
+      cat rest-narration/$INPUT_DIR/$input_file_name >> $downstream_project_output_file
+      cat rest-narration/$INPUT_DIR/$input_file_name >> $all_apps_output_file
     fi
   fi
 }
