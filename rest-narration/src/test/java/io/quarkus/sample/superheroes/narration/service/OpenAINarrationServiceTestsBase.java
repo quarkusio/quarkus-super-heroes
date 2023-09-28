@@ -5,10 +5,9 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -183,12 +182,10 @@ abstract class OpenAINarrationServiceTestsBase<T extends OpenAINarrationServiceB
   }
 
   private static ChatCompletions mockCompletion(String expected) {
-    String[] responseArray = new String[] {
-      expected.substring(0, expected.length() / 2),
-      expected.substring(expected.length() / 2)
-    };
-
-    var choices = Arrays.stream(responseArray)
+    var choices = Stream.of(
+        expected.substring(0, expected.length() / 2),
+        expected.substring(expected.length() / 2)
+      )
       .map(r -> {
         var message = mock(ChatMessage.class);
         var choice = mock(ChatChoice.class);
@@ -207,14 +204,5 @@ abstract class OpenAINarrationServiceTestsBase<T extends OpenAINarrationServiceB
     when(completions.getId()).thenReturn(UUID.randomUUID().toString());
 
     return completions;
-  }
-
-  private static Duration multiply(Duration duration, double factor) {
-    var nanosPerSecond = ChronoUnit.SECONDS.getDuration().toNanos();
-    var nanos = (long) (duration.getNano() * factor);
-
-    return Duration.ofSeconds(
-      Math.addExact((long) (duration.getSeconds() * factor), Math.floorDiv(nanos, nanosPerSecond)),
-      Math.floorMod(nanos, nanosPerSecond));
   }
 }
