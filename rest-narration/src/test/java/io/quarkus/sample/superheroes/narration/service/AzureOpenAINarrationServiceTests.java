@@ -25,7 +25,7 @@ class AzureOpenAINarrationServiceTests extends OpenAINarrationServiceTestsBase<A
   }
 
   @Override
-  protected Duration getOperationTimeout() {
+  protected Duration getExpectedOperationTimeout() {
     return Duration.ofSeconds(10);
   }
 

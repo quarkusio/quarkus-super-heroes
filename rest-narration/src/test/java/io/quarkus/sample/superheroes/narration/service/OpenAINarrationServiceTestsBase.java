@@ -29,7 +29,7 @@ import com.azure.ai.openai.models.ChatMessage;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 import reactor.core.publisher.Flux;
 
-public abstract class OpenAINarrationServiceTestsBase<T extends OpenAINarrationServiceBase> {
+abstract class OpenAINarrationServiceTestsBase<T extends OpenAINarrationServiceBase> {
   protected static final String HERO_NAME = "Super Baguette";
   protected static final int HERO_LEVEL = 42;
   protected static final String HERO_POWERS = "Eats baguette in less than a second";
@@ -97,7 +97,7 @@ public abstract class OpenAINarrationServiceTestsBase<T extends OpenAINarrationS
 
   protected abstract T getNarrationService();
   protected abstract String getModelId();
-  protected abstract Duration getOperationTimeout();
+  protected abstract Duration getExpectedOperationTimeout();
 
   @Test
   public void narrateSuccess() {
@@ -152,7 +152,7 @@ public abstract class OpenAINarrationServiceTestsBase<T extends OpenAINarrationS
 
   @Test
   public void narrateTimeout() {
-    var timeout = getOperationTimeout();
+    var timeout = getExpectedOperationTimeout();
     var timeoutPlusOneSecond = timeout.plusSeconds(1);
     var threeTimes = timeoutPlusOneSecond.multipliedBy(3);
 

@@ -25,7 +25,7 @@ class OpenAINarrationServiceTests extends OpenAINarrationServiceTestsBase<OpenAI
   }
 
   @Override
-  protected Duration getOperationTimeout() {
+  protected Duration getExpectedOperationTimeout() {
     return Duration.ofSeconds(30);
   }
 
