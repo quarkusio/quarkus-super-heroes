@@ -12,7 +12,7 @@ import io.smallrye.mutiny.Uni;
 @LookupUnlessProperty(name = "narration.azure-open-ai.enabled", stringValue = "true")
 @LookupUnlessProperty(name = "narration.open-ai.enabled", stringValue = "true")
 @ApplicationScoped
-public class DefaultNarrationService implements NarrationService {
+public final class DefaultNarrationService implements NarrationService {
   private final NarrationConfig narrationConfig;
 
   public DefaultNarrationService(NarrationConfig narrationConfig) {

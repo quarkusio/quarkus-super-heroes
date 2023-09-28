@@ -1,6 +1,5 @@
 package io.quarkus.sample.superheroes.narration.service;
 
-import java.util.Map;
 import java.util.Optional;
 
 import jakarta.annotation.PostConstruct;
@@ -11,32 +10,26 @@ import io.quarkus.sample.superheroes.narration.config.NarrationConfig;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
 import com.microsoft.semantickernel.SKBuilders;
-import com.microsoft.semantickernel.connectors.ai.openai.util.ClientType;
-import com.microsoft.semantickernel.connectors.ai.openai.util.OpenAIClientProvider;
-import com.microsoft.semantickernel.exceptions.ConfigurationException;
 import com.microsoft.semantickernel.orchestration.SKContext;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.converters.uni.UniReactorConverters;
 
-public abstract class OpenAINarrationServiceBase implements NarrationService {
+public abstract sealed class OpenAINarrationServiceBase implements NarrationService permits AzureOpenAINarrationService, OpenAINarrationService {
   private CompletionSKFunction narrateFunction = null;
 
   protected abstract String getModelId();
-  protected abstract Map<String, String> getOpenAIProperties();
-  protected abstract ClientType getClientType();
   protected abstract NarrationConfig getNarrationConfig();
+  protected abstract OpenAIAsyncClient getOpenAIClient();
 
   @PostConstruct
   void createResources() {
     Log.debugf("My implementation = %s", getClass().getName());
-    Log.debug("Creating OpenAIAsyncClient");
-    var client = getClient();
 
     // Creates an instance of the TextCompletion service
     Log.debug("Creating the ChatCompletion");
     var textCompletion = SKBuilders.chatCompletion()
-      .withOpenAIClient(client)
+      .withOpenAIClient(getOpenAIClient())
       .withModelId(getModelId())
       .build();
 
@@ -78,15 +71,5 @@ public abstract class OpenAINarrationServiceBase implements NarrationService {
     return Uni.createFrom().item(getNarrationConfig().fallbackNarration())
       .invoke(() -> Log.warn("Falling back on Narration"));
 
-  }
-
-  private OpenAIAsyncClient getClient() {
-    try {
-      return new OpenAIClientProvider(getOpenAIProperties(), getClientType())
-        .getAsyncClient();
-    }
-    catch (ConfigurationException e) {
-      throw new RuntimeException(e);
-    }
   }
 }
