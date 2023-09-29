@@ -5,35 +5,46 @@
 
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: rest-narration
+    application: narration-service
+    system: quarkus-super-heroes
+  name: rest-narration-config
+data:
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
+---
+apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: "rest-fights,otel-collector"
+    app.openshift.io/connects-to: otel-collector
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-09-29 - 22:50:47 +0000
+    app.quarkus.io/build-timestamp: 2023-09-29 - 22:48:19 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
-    prometheus.io/port: "8080"
+    prometheus.io/port: "8087"
     prometheus.io/scheme: http
   labels:
-    app.kubernetes.io/name: ui-super-heroes
-    app.kubernetes.io/part-of: ui-super-heroes
+    app.kubernetes.io/name: rest-narration
+    app.kubernetes.io/part-of: narration-service
     app.kubernetes.io/version: java17-latest
-    app: ui-super-heroes
-    application: ui-super-heroes
+    app: rest-narration
+    application: narration-service
     system: quarkus-super-heroes
-  name: ui-super-heroes
+  name: rest-narration
 spec:
   ports:
     - name: http
-      nodePort: 30904
+      nodePort: 31286
       port: 80
       protocol: TCP
-      targetPort: 8080
+      targetPort: 8087
   selector:
-    app.kubernetes.io/name: ui-super-heroes
-    app.kubernetes.io/part-of: ui-super-heroes
+    app.kubernetes.io/name: rest-narration
+    app.kubernetes.io/part-of: narration-service
     app.kubernetes.io/version: java17-latest
   type: NodePort
 ---
@@ -41,46 +52,46 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.openshift.io/connects-to: "rest-fights,otel-collector"
+    app.openshift.io/connects-to: otel-collector
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-09-29 - 22:50:47 +0000
+    app.quarkus.io/build-timestamp: 2023-09-29 - 22:48:19 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
-    prometheus.io/port: "8080"
+    prometheus.io/port: "8087"
     prometheus.io/scheme: http
   labels:
-    app.kubernetes.io/name: ui-super-heroes
-    app.kubernetes.io/part-of: ui-super-heroes
+    app.kubernetes.io/name: rest-narration
+    app.kubernetes.io/part-of: narration-service
     app.kubernetes.io/version: java17-latest
-    app: ui-super-heroes
-    application: ui-super-heroes
+    app: rest-narration
+    application: narration-service
     system: quarkus-super-heroes
-  name: ui-super-heroes
+  name: rest-narration
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: ui-super-heroes
-      app.kubernetes.io/part-of: ui-super-heroes
+      app.kubernetes.io/name: rest-narration
+      app.kubernetes.io/part-of: narration-service
       app.kubernetes.io/version: java17-latest
   template:
     metadata:
       annotations:
-        app.openshift.io/connects-to: "rest-fights,otel-collector"
+        app.openshift.io/connects-to: otel-collector
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-09-29 - 22:50:47 +0000
+        app.quarkus.io/build-timestamp: 2023-09-29 - 22:48:19 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
-        prometheus.io/port: "8080"
+        prometheus.io/port: "8087"
         prometheus.io/scheme: http
       labels:
-        app.kubernetes.io/name: ui-super-heroes
-        app.kubernetes.io/part-of: ui-super-heroes
+        app.kubernetes.io/name: rest-narration
+        app.kubernetes.io/part-of: narration-service
         app.kubernetes.io/version: java17-latest
-        app: ui-super-heroes
-        application: ui-super-heroes
+        app: rest-narration
+        application: narration-service
         system: quarkus-super-heroes
     spec:
       containers:
@@ -89,28 +100,31 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          image: quay.io/quarkus-super-heroes/ui-super-heroes:java17-latest
+          envFrom:
+            - configMapRef:
+                name: rest-narration-config
+          image: quay.io/quarkus-super-heroes/rest-narration:java17-latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
             httpGet:
               path: /q/health/live
-              port: 8080
+              port: 8087
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
-          name: ui-super-heroes
+          name: rest-narration
           ports:
-            - containerPort: 8080
+            - containerPort: 8087
               name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
             httpGet:
               path: /q/health/ready
-              port: 8080
+              port: 8087
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -125,44 +139,9 @@ spec:
             failureThreshold: 3
             httpGet:
               path: /q/health/started
-              port: 8080
+              port: 8087
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    app.openshift.io/connects-to: "rest-fights,otel-collector"
-    app.quarkus.io/vcs-ref: main
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-09-29 - 22:50:47 +0000
-  labels:
-    app: ui-super-heroes
-    application: ui-super-heroes
-    system: quarkus-super-heroes
-    app.kubernetes.io/part-of: ui-super-heroes
-    app.kubernetes.io/name: ui-super-heroes
-    app.kubernetes.io/version: java17-latest
-  name: ui-super-heroes
-spec:
-  rules:
-    - http:
-        paths:
-          - backend:
-              service:
-                name: rest-fights
-                port:
-                  name: http
-            path: /api/fights
-            pathType: Prefix
-          - backend:
-              service:
-                name: ui-super-heroes
-                port:
-                  name: http
-            path: /
-            pathType: Prefix

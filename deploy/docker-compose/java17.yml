@@ -157,6 +157,27 @@ services:
           memory: 256M
           cpus: '0.5'
 
+  rest-narration-java17:
+    image: quay.io/quarkus-super-heroes/rest-narration:java17-latest
+    container_name: rest-narration-java17
+    ports:
+      - "8087:8087"
+    environment:
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
+    restart: on-failure
+    networks:
+      default:
+        aliases:
+          - rest-narration
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+
   event-statistics-java17:
     image: quay.io/quarkus-super-heroes/event-statistics:java17-latest
     container_name: event-statistics-java17
