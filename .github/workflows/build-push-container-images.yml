@@ -319,6 +319,10 @@ jobs:
           - rest-villains
           - rest-narration
           - ui-super-heroes
+# Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
+        exclude:
+          - project: rest-narration
+            kind: "native-"
     name: Create app multiarch manifests (${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})
     steps:
       - name: Calculate Branch (workflow_run event)

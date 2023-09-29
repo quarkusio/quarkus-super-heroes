@@ -40,6 +40,10 @@ public class NarrationResource {
     responseCode = "200",
     description = "The narration"
   )
+  @APIResponse(
+    responseCode = "400",
+    description = "Invalid (or missing) fight"
+  )
   public Uni<String> narrate(@NotNull Fight fight) {
     return this.narrationService.narrate(fight)
       .invoke(narration -> Log.debugf("Narration for fight %s = \"%s\"", fight, narration));
