@@ -33,6 +33,7 @@ jobs:
           - rest-fights
           - rest-heroes
           - rest-villains
+          - rest-narration
           - ui-super-heroes
         arch:
           - amd64
@@ -119,6 +120,8 @@ jobs:
           - rest-fights
           - rest-heroes
           - rest-villains
+# Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
+#          - rest-narration
           - ui-super-heroes
         arch:
           - amd64
@@ -207,10 +210,15 @@ jobs:
           - rest-fights
           - rest-heroes
           - rest-villains
+          - rest-narration
           - ui-super-heroes
         arch:
           - amd64
           - arm64
+# Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
+        exclude:
+          - project: rest-narration
+            kind: "native-"
     name: "Push app images (${{ matrix.arch }}-${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})"
     steps:
       - name: Calculate Branch (workflow_run event)
@@ -309,6 +317,7 @@ jobs:
           - rest-fights
           - rest-heroes
           - rest-villains
+          - rest-narration
           - ui-super-heroes
     name: Create app multiarch manifests (${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})
     steps:

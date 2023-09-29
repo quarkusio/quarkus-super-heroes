@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response.Status;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -20,6 +21,7 @@ import io.quarkus.panache.mock.PanacheMock;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
+import io.quarkus.sample.superheroes.fight.client.NarrationClient;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -43,6 +45,7 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 @PactTestFor(pactVersion = PactSpecVersion.V4)
 @MockServerConfig(providerName = "rest-heroes", port = FightServiceConsumerContractTests.HEROES_MOCK_PORT, hostInterface = "localhost", implementation = MockServerImplementation.KTorServer)
 @MockServerConfig(providerName = "rest-villains", port = FightServiceConsumerContractTests.VILLAINS_MOCK_PORT, hostInterface = "localhost", implementation = MockServerImplementation.KTorServer)
+@MockServerConfig(providerName = "rest-narration", port = FightServiceConsumerContractTests.NARRATION_MOCK_PORT, hostInterface = "localhost", implementation = MockServerImplementation.KTorServer)
 public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
@@ -54,11 +57,20 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String HERO_HELLO_URI = HERO_API_BASE_URI + "/hello";
   static final String HEROES_MOCK_PORT = "8080";
 
+  private static final String NARRATION_API_BASE_URI = "/api/narration";
+  private static final String NARRATION_NARRATE_URI = NARRATION_API_BASE_URI;
+  private static final String NARRATION_HELLO_URI = NARRATION_NARRATE_URI + "/hello";
+  static final String NARRATION_MOCK_PORT = "8085";
+
   @InjectSpy
   HeroClient heroClient;
 
   @InjectSpy
   VillainClient villainClient;
+
+  @InjectSpy
+  @RestClient
+  NarrationClient narrationClient;
 
   @Pact(consumer = "rest-fights", provider = "rest-villains")
   public V4Pact helloVillainsPact(PactDslWithProvider builder) {
@@ -154,6 +166,50 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
       .toPact(V4Pact.class);
   }
 
+  @Pact(consumer = "rest-fights", provider = "rest-narration")
+  public V4Pact helloNarrationPact(PactDslWithProvider builder) {
+    return builder
+      .uponReceiving("A hello request")
+        .path(NARRATION_HELLO_URI)
+        .method(HttpMethod.GET)
+        .headers(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN)
+      .willRespondWith()
+        .headers(Map.of(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN))
+        .status(Status.OK.getStatusCode())
+        .body(PactDslRootValue.stringMatcher(".+", DEFAULT_HELLO_NARRATION_RESPONSE))
+      .toPact(V4Pact.class);
+  }
+
+  @Pact(consumer = "rest-fights", provider = "rest-narration")
+  public V4Pact narrateFightPact(PactDslWithProvider builder) {
+    var fightersBody = newJsonBody(body ->
+      body
+        .stringType("winnerTeam", HEROES_TEAM_NAME)
+        .stringType("winnerName", DEFAULT_HERO_NAME)
+        .stringType("winnerPowers", DEFAULT_HERO_POWERS)
+        .integerType("winnerLevel", DEFAULT_HERO_LEVEL)
+        .stringType("loserTeam", VILLAINS_TEAM_NAME)
+        .stringType("loserName", DEFAULT_VILLAIN_NAME)
+        .stringType("loserPowers", DEFAULT_VILLAIN_POWERS)
+        .integerType("loserLevel", DEFAULT_VILLAIN_LEVEL)
+    ).build();
+
+    return builder
+      .uponReceiving("A request to narrate a fight")
+        .path(NARRATION_NARRATE_URI)
+        .method(HttpMethod.POST)
+        .headers(
+          HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN,
+          HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON
+        )
+        .body(fightersBody)
+      .willRespondWith()
+        .headers(Map.of(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN))
+        .status(Status.OK.getStatusCode())
+        .body(PactDslRootValue.stringMatcher("[.\\s\\S]+", DEFAULT_NARRATION))
+      .toPact(V4Pact.class);
+  }
+
   @Test
   @PactTestFor(pactMethods = { "randomHeroNotFoundPact", "randomVillainNotFoundPact" })
 	public void findRandomFightersNoneFound() {
@@ -177,6 +233,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService, never()).fallbackRandomHero();
 		verify(this.fightService, never()).fallbackRandomVillain();
+    verifyNoInteractions(this.narrationClient);
 		PanacheMock.verifyNoInteractions(Fight.class);
 	}
 
@@ -204,6 +261,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService, never()).fallbackRandomHero();
 		verify(this.fightService, never()).fallbackRandomVillain();
+    verifyNoInteractions(this.narrationClient);
 		PanacheMock.verifyNoInteractions(Fight.class);
 	}
 
@@ -231,6 +289,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService, never()).fallbackRandomHero();
 		verify(this.fightService, never()).fallbackRandomVillain();
+    verifyNoInteractions(this.narrationClient);
 		PanacheMock.verifyNoInteractions(Fight.class);
 	}
 
@@ -258,6 +317,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService, never()).fallbackRandomHero();
 		verify(this.fightService, never()).fallbackRandomVillain();
+    verifyNoInteractions(this.narrationClient);
 		PanacheMock.verifyNoInteractions(Fight.class);
 	}
 
@@ -276,7 +336,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
     verify(this.heroClient).helloHeroes();
     verify(this.fightService).helloHeroes();
-    verifyNoInteractions(this.villainClient);
+    verifyNoInteractions(this.villainClient, this.narrationClient);
   }
 
   @Test
@@ -294,6 +354,48 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
     verify(this.villainClient).helloVillains();
     verify(this.fightService).helloVillains();
-    verifyNoInteractions(this.heroClient);
+    verifyNoInteractions(this.heroClient, this.narrationClient);
+  }
+
+  @Test
+  @PactTestFor(pactMethods = "helloNarrationPact")
+  public void helloNarrationSuccess() {
+    PanacheMock.mock(Fight.class);
+    var message = this.fightService.helloNarration()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull()
+      .isEqualTo(DEFAULT_HELLO_NARRATION_RESPONSE);
+
+    verify(this.narrationClient).hello();
+    verifyNoInteractions(this.heroClient, this.villainClient);
+    PanacheMock.verifyNoInteractions(Fight.class);
+  }
+
+  @Test
+  @PactTestFor(pactMethods = "narrateFightPact")
+  public void narrateFightSuccess() {
+    PanacheMock.mock(Fight.class);
+    var fightToNarrate = createFightToNarrateHeroWon();
+    var narrationMatcher = fightToNarrateMatcher(fightToNarrate);
+
+    var narration = this.fightService.narrateFight(fightToNarrate)
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .getItem();
+
+    assertThat(narration)
+      .isNotNull()
+      .isEqualTo(DEFAULT_NARRATION);
+
+    verify(this.narrationClient).narrate(argThat(narrationMatcher));
+		verify(this.fightService, never()).fallbackNarrateFight(argThat(narrationMatcher));
+    verifyNoInteractions(this.heroClient, this.villainClient);
+		PanacheMock.verifyNoInteractions(Fight.class);
   }
 }

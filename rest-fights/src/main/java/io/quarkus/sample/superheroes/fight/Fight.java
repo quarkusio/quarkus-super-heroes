@@ -26,6 +26,9 @@ public class Fight extends ReactivePanacheMongoEntity {
 	@NotNull
 	public Integer winnerLevel;
 
+  @NotEmpty
+  public String winnerPowers;
+
 	@NotEmpty
 	public String winnerPicture;
 
@@ -34,6 +37,9 @@ public class Fight extends ReactivePanacheMongoEntity {
 
 	@NotNull
 	public Integer loserLevel;
+
+  @NotEmpty
+  public String loserPowers;
 
 	@NotEmpty
 	public String loserPicture;
@@ -68,9 +74,11 @@ public class Fight extends ReactivePanacheMongoEntity {
 			", id=" + this.id +
 			", winnerName='" + this.winnerName + '\'' +
 			", winnerLevel=" + this.winnerLevel +
+      ", winnerPowers='" + this.winnerPowers + '\'' +
 			", winnerPicture='" + this.winnerPicture + '\'' +
 			", loserName='" + this.loserName + '\'' +
 			", loserLevel=" + this.loserLevel +
+      ", loserPowers='" + this.loserPowers + '\'' +
 			", loserPicture='" + this.loserPicture + '\'' +
 			", winnerTeam='" + this.winnerTeam + '\'' +
 			", loserTeam='" + this.loserTeam + '\'' +

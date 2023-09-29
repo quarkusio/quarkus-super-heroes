@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 
 import jakarta.enterprise.inject.Any;
 import jakarta.inject.Inject;
@@ -14,18 +12,17 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.InternalServerErrorException;
 
-import org.bson.types.ObjectId;
 import org.eclipse.microprofile.reactive.messaging.Message;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatcher;
 
 import io.quarkus.panache.mock.PanacheMock;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
-import io.quarkus.sample.superheroes.fight.client.Hero;
+import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
-import io.quarkus.sample.superheroes.fight.client.Villain;
+import io.quarkus.sample.superheroes.fight.client.NarrationClient;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
 import io.quarkus.test.InjectMock;
@@ -43,17 +40,14 @@ import io.smallrye.reactive.messaging.memory.InMemoryConnector;
  */
 @QuarkusTest
 class FightServiceTests extends FightServiceTestsBase {
-	private static final String FIGHTS_CHANNEL_NAME = "fights";
-
-	private static final ObjectId DEFAULT_FIGHT_ID = new ObjectId();
-	private static final Instant DEFAULT_FIGHT_DATE = Instant.now();
-
-  @Inject
-  FightMapper fightMapper;
-
-	@Inject
-	@Any
-	InMemoryConnector emitterConnector;
+  private static final String FIGHTS_CHANNEL_NAME = "fights";
+  private static final String FALLBACK_NARRATION = """
+                                                   High above a bustling city, a symbol of hope and justice soared through the sky, while chaos reigned below, with malevolent laughter echoing through the streets.
+                                                   With unwavering determination, the figure swiftly descended, effortlessly evading explosive attacks, closing the gap, and delivering a decisive blow that silenced the wicked laughter.
+                                                   
+                                                   In the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.
+                                                   The people knew that their protector had once again ensured their safety.
+                                                   """;
 
 	@InjectMock
   HeroClient heroClient;
@@ -61,11 +55,22 @@ class FightServiceTests extends FightServiceTestsBase {
 	@InjectMock
   VillainClient villainClient;
 
-	@BeforeEach
-	public void beforeEach() {
-		// Clear the emitter sink between tests
-		this.emitterConnector.sink(FIGHTS_CHANNEL_NAME).clear();
-	}
+  @InjectMock
+  @RestClient
+  NarrationClient narrationClient;
+
+  @Inject
+  @Any
+  InMemoryConnector emitterConnector;
+
+  @Inject
+  FightMapper fightMapper;
+
+  @BeforeEach
+  public void beforeEach() {
+    // Clear the emitter sink between tests
+    this.emitterConnector.sink(FIGHTS_CHANNEL_NAME).clear();
+  }
 
 	@Test
 	public void findAllFightsNoneFound() {
@@ -109,9 +114,11 @@ class FightServiceTests extends FightServiceTestsBase {
 				"winnerName",
 				"winnerLevel",
 				"winnerPicture",
+        "winnerPowers",
 				"loserName",
 				"loserLevel",
 				"loserPicture",
+        "loserPowers",
 				"winnerTeam",
 				"loserTeam"
 			)
@@ -122,9 +129,11 @@ class FightServiceTests extends FightServiceTestsBase {
 					DEFAULT_HERO_NAME,
 					DEFAULT_HERO_LEVEL,
 					DEFAULT_HERO_PICTURE,
+          DEFAULT_HERO_POWERS,
 					DEFAULT_VILLAIN_NAME,
 					DEFAULT_VILLAIN_LEVEL,
 					DEFAULT_VILLAIN_PICTURE,
+          DEFAULT_VILLAIN_POWERS,
 					HEROES_TEAM_NAME,
 					VILLAINS_TEAM_NAME
 				)
@@ -154,9 +163,11 @@ class FightServiceTests extends FightServiceTestsBase {
 				"winnerName",
 				"winnerLevel",
 				"winnerPicture",
+        "winnerPowers",
 				"loserName",
 				"loserLevel",
 				"loserPicture",
+        "loserPowers",
 				"winnerTeam",
 				"loserTeam"
 			)
@@ -166,9 +177,11 @@ class FightServiceTests extends FightServiceTestsBase {
 				DEFAULT_HERO_NAME,
 				DEFAULT_HERO_LEVEL,
 				DEFAULT_HERO_PICTURE,
+        DEFAULT_HERO_POWERS,
 				DEFAULT_VILLAIN_NAME,
 				DEFAULT_VILLAIN_LEVEL,
 				DEFAULT_VILLAIN_PICTURE,
+        DEFAULT_VILLAIN_POWERS,
 				HEROES_TEAM_NAME,
 				VILLAINS_TEAM_NAME
 			);
@@ -440,6 +453,7 @@ class FightServiceTests extends FightServiceTestsBase {
 		verify(this.fightService, never()).heroWonFight(any(Fighters.class));
 		verify(this.fightService, never()).villainWonFight(any(Fighters.class));
 		verify(this.fightService, never()).persistFight(any(Fight.class));
+    verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
 		PanacheMock.verifyNoInteractions(Fight.class);
 	}
 
@@ -480,8 +494,34 @@ class FightServiceTests extends FightServiceTestsBase {
 		verify(this.fightService, never()).heroWonFight(any(Fighters.class));
 		verify(this.fightService, never()).villainWonFight(any(Fighters.class));
 		verify(this.fightService, never()).persistFight(any(Fight.class));
+    verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
 		PanacheMock.verifyNoInteractions(Fight.class);
 	}
+
+  @Test
+  public void narrateFightNarrationTimesOut() {
+    var fightToNarrate = createFightToNarrateHeroWon();
+    var fightToNarrateMatcher = fightToNarrateMatcher(fightToNarrate);
+
+    when(this.narrationClient.narrate(argThat(fightToNarrateMatcher)))
+      .thenReturn(
+        Uni.createFrom().item(DEFAULT_NARRATION)
+          .onItem().delayIt().by(Duration.ofSeconds(11)
+          )
+      );
+
+    var narration = this.fightService.narrateFight(fightToNarrate)
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.assertSubscribed()
+			.awaitItem(Duration.ofSeconds(45))
+			.getItem();
+
+    assertThat(narration)
+      .isNotNull()
+      .isEqualTo(FALLBACK_NARRATION);
+
+    verify(this.fightService).fallbackNarrateFight(argThat(fightToNarrateMatcher));
+  }
 
 	@Test
 	public void performFightHeroShouldWin() {
@@ -529,6 +569,8 @@ class FightServiceTests extends FightServiceTestsBase {
 		verify(this.fightService, never()).shouldVillainWin(any(Fighters.class));
 		verify(this.fightService, never()).villainWonFight(any(Fighters.class));
 		verify(this.fightService, never()).getRandomWinner(any(Fighters.class));
+    verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
+    verify(this.fightService, never()).fallbackNarrateFight(any(FightToNarrate.class));
 		PanacheMock.verify(Fight.class).persist(argThat(fightMatcher), any());
 		PanacheMock.verifyNoMoreInteractions(Fight.class);
 	}
@@ -581,6 +623,8 @@ class FightServiceTests extends FightServiceTestsBase {
 		verify(this.fightService).shouldVillainWin(argThat(fightersMatcher));
 		verify(this.fightService).shouldHeroWin(argThat(fightersMatcher));
 		verify(this.fightService).villainWonFight(argThat(fightersMatcher));
+    verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
+    verify(this.fightService, never()).fallbackNarrateFight(any(FightToNarrate.class));
 		verify(this.fightService, never()).heroWonFight(any(Fighters.class));
 		verify(this.fightService, never()).getRandomWinner(any(Fighters.class));
 		PanacheMock.verify(Fight.class).persist(argThat(fightMatcher), any());
@@ -637,6 +681,8 @@ class FightServiceTests extends FightServiceTestsBase {
 		verify(this.fightService).getRandomWinner(argThat(fightersMatcher));
 		verify(this.fightService, never()).villainWonFight(any(Fighters.class));
 		verify(this.fightService, never()).heroWonFight(any(Fighters.class));
+    verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
+    verify(this.fightService, never()).fallbackNarrateFight(any(FightToNarrate.class));
 		PanacheMock.verify(Fight.class).persist(argThat(fightMatcher), any());
 		PanacheMock.verifyNoMoreInteractions(Fight.class);
 	}
@@ -789,24 +835,74 @@ class FightServiceTests extends FightServiceTestsBase {
     verifyNoInteractions(this.heroClient);
   }
 
+  @Test
+  public void helloNarrationFallback() {
+    when(this.fightService.fallbackHelloNarration())
+	    .thenReturn(Uni.createFrom().item("fallback"));
+
+    when(this.narrationClient.hello())
+      .thenReturn(
+        Uni.createFrom().item("hello")
+          .onItem()
+          .delayIt().by(Duration.ofSeconds(6))
+      );
+
+    var message = this.fightService.helloNarration()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(10))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull()
+      .isEqualTo("fallback");
+
+    verify(this.narrationClient).hello();
+    verify(this.fightService).helloNarration();
+    verify(this.fightService).fallbackHelloNarration();
+    verifyNoMoreInteractions(this.narrationClient);
+  }
+
+  @Test
+  public void helloNarrationFailure() {
+    when(this.fightService.fallbackHelloNarration())
+	    .thenReturn(Uni.createFrom().item("fallback"));
+
+    when(this.narrationClient.hello())
+      .thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
+
+    var message = this.fightService.helloNarration()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(10))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull()
+      .isEqualTo("fallback");
+
+    verify(this.narrationClient).hello();
+    verify(this.fightService).helloNarration();
+    verify(this.fightService).fallbackHelloNarration();
+    verifyNoMoreInteractions(this.narrationClient);
+  }
+
   private Fighters createFallbackFighters() {
     return new Fighters(createFallbackHero(), createFallbackVillain());
   }
 
-	private static Fighters createDefaultFighters() {
-		return new Fighters(createDefaultHero(), createDefaultVillain());
-	}
-
-	private static Fight createFightHeroWon() {
+  private static Fight createFightHeroWon() {
 		var fight = new Fight();
 		fight.id = DEFAULT_FIGHT_ID;
 		fight.fightDate = DEFAULT_FIGHT_DATE;
 		fight.winnerName = DEFAULT_HERO_NAME;
 		fight.winnerLevel = DEFAULT_HERO_LEVEL;
 		fight.winnerPicture = DEFAULT_HERO_PICTURE;
+    fight.winnerPowers = DEFAULT_HERO_POWERS;
 		fight.loserName = DEFAULT_VILLAIN_NAME;
 		fight.loserLevel = DEFAULT_VILLAIN_LEVEL;
 		fight.loserPicture = DEFAULT_VILLAIN_PICTURE;
+    fight.loserPowers = DEFAULT_VILLAIN_POWERS;
 		fight.winnerTeam = HEROES_TEAM_NAME;
 		fight.loserTeam = VILLAINS_TEAM_NAME;
 
@@ -820,60 +916,14 @@ class FightServiceTests extends FightServiceTestsBase {
 		fight.winnerName = DEFAULT_VILLAIN_NAME;
 		fight.winnerLevel = DEFAULT_VILLAIN_LEVEL;
 		fight.winnerPicture = DEFAULT_VILLAIN_PICTURE;
+    fight.winnerPowers = DEFAULT_VILLAIN_POWERS;
 		fight.winnerTeam = VILLAINS_TEAM_NAME;
 		fight.loserName = DEFAULT_HERO_NAME;
 		fight.loserLevel = DEFAULT_HERO_LEVEL;
 		fight.loserPicture = DEFAULT_HERO_PICTURE;
+    fight.loserPowers = DEFAULT_HERO_POWERS;
 		fight.loserTeam = HEROES_TEAM_NAME;
 
 		return fight;
-	}
-
-	private static ArgumentMatcher<Hero> heroMatcher(Hero hero) {
-		return h -> (hero == h) || (
-			(hero != null) &&
-				(h != null) &&
-				Objects.equals(hero.getName(), h.getName()) &&
-				Objects.equals(hero.getLevel(), h.getLevel()) &&
-				Objects.equals(hero.getPicture(), h.getPicture()) &&
-				Objects.equals(hero.getPowers(), h.getPowers())
-		);
-	}
-
-	private static ArgumentMatcher<Villain> villainMatcher(Villain villain) {
-		return v -> (villain == v) || (
-			(villain != null) &&
-				(v != null) &&
-				Objects.equals(villain.getName(), v.getName()) &&
-				Objects.equals(villain.getLevel(), v.getLevel()) &&
-				Objects.equals(villain.getPicture(), v.getPicture()) &&
-				Objects.equals(villain.getPowers(), v.getPowers())
-		);
-	}
-
-	private static ArgumentMatcher<Fighters> fightersMatcher(Fighters fighters) {
-		return f -> (fighters == f) || (
-			(fighters != null) &&
-				(f != null) &&
-				heroMatcher(f.getHero()).matches(fighters.getHero()) &&
-				villainMatcher(f.getVillain()).matches(fighters.getVillain())
-		);
-	}
-
-	private static ArgumentMatcher<Fight> fightMatcher(Fight fight) {
-		return f -> (fight == f) || (
-			(fight != null) &&
-				(f != null) &&
-				(Objects.equals(fight.fightDate, f.fightDate) || f.fightDate.isAfter(fight.fightDate)) &&
-				Objects.equals(fight.id, f.id) &&
-				Objects.equals(fight.loserLevel, f.loserLevel) &&
-				Objects.equals(fight.loserName, f.loserName) &&
-				Objects.equals(fight.loserPicture, f.loserPicture) &&
-				Objects.equals(fight.loserTeam, f.loserTeam) &&
-				Objects.equals(fight.winnerLevel, f.winnerLevel) &&
-				Objects.equals(fight.winnerName, f.winnerName) &&
-				Objects.equals(fight.winnerPicture, f.winnerPicture) &&
-				Objects.equals(fight.winnerTeam, f.winnerTeam)
-		);
 	}
 }

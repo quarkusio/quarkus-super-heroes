@@ -1,0 +1,26 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: rest-narration
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: java17-latest
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'quay.io/quarkus-super-heroes/rest-narration:java17-latest'
+      importPolicy: { }
+      referencePolicy:
+        type: Source
+# Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
+#    - name: native-latest
+#      annotations: null
+#      from:
+#        kind: DockerImage
+#        name: 'quay.io/quarkus-super-heroes/rest-narration:native-latest'
+#      importPolicy: { }
+#      referencePolicy:
+#        type: Source

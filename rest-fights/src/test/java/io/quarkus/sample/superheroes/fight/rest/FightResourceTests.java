@@ -22,6 +22,7 @@ import org.mockito.ArgumentMatcher;
 
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.service.FightService;
@@ -49,6 +50,15 @@ public class FightResourceTests {
 	private static final String DEFAULT_VILLAIN_POWERS = "does not eat pain au chocolat";
 	private static final int DEFAULT_VILLAIN_LEVEL = 40;
 	private static final String VILLAINS_TEAM_NAME = "villains";
+  private static final String DEFAULT_NARRATION = """
+                                                  This is a default narration - NOT a fallback!
+                                                  
+                                                  High above a bustling city, a symbol of hope and justice soared through the sky, while chaos reigned below, with malevolent laughter echoing through the streets.
+                                                  With unwavering determination, the figure swiftly descended, effortlessly evading explosive attacks, closing the gap, and delivering a decisive blow that silenced the wicked laughter.
+                                                  
+                                                  In the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.
+                                                  The people knew that their protector had once again ensured their safety.
+                                                  """;
 
 	@InjectMock
 	FightService fightService;
@@ -95,6 +105,57 @@ public class FightResourceTests {
   }
 
   @Test
+  public void helloNarrationEndpoint() {
+    when(this.fightService.helloNarration())
+      .thenReturn(Uni.createFrom().item("Hello Narration Resource"));
+
+    get("/api/fights/hello/narration")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Hello Narration Resource"));
+
+    verify(this.fightService).helloNarration();
+    verifyNoMoreInteractions(this.fightService);
+  }
+
+  @Test
+  public void shouldGetNarration() {
+    when(this.fightService.narrateFight(any(FightToNarrate.class)))
+      .thenReturn(Uni.createFrom().item(DEFAULT_NARRATION));
+
+    given()
+      .log().all(true)
+      .accept(TEXT)
+      .contentType(JSON)
+      .body(createFightToNarrateHeroWon())
+      .when().post("/api/fights/narrate").then()
+        .log().all(true)
+        .statusCode(OK.getStatusCode())
+        .contentType(TEXT)
+        .body(is(DEFAULT_NARRATION));
+
+    verify(this.fightService).narrateFight(any(FightToNarrate.class));
+    verifyNoMoreInteractions(this.fightService);
+  }
+
+  // This is written as an @Test instead of @ParameterizedTest
+  // because @MethodSource does not like java records for some reason
+  @Test
+  public void shouldNotGetNarrationBecauseInvalidFight() {
+    invalidFightsToNarrate().forEach(fight -> {
+      given()
+        .accept(TEXT)
+        .contentType(JSON)
+        .body(fight)
+        .when().post("/api/fights/narrate").then()
+        .statusCode(BAD_REQUEST.getStatusCode());
+
+      verifyNoInteractions(this.fightService);
+    });
+  }
+
+  @Test
 	public void shouldGetRandomFighters() {
 		when(this.fightService.findRandomFighters())
 			.thenReturn(Uni.createFrom().item(createDefaultFighters()));
@@ -116,7 +177,8 @@ public class FightResourceTests {
 
 	@Test
 	public void shouldGetNoFights() {
-		when(this.fightService.findAllFights()).thenReturn(Uni.createFrom().item(List.of()));
+		when(this.fightService.findAllFights())
+      .thenReturn(Uni.createFrom().item(List.of()));
 
 		get("/api/fights")
 			.then()
@@ -255,6 +317,23 @@ public class FightResourceTests {
 		);
 	}
 
+  private static Stream<FightToNarrate> invalidFightsToNarrate() {
+    return Stream.of(
+      new FightToNarrate(null, null, null, 0, null, null, null, 0),
+      new FightToNarrate("", "", "", 0, "", "", "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, "", "", "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, "", 0, "", "", "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, "", "", "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, "", "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, "", 0),
+      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, null, null, null, 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, null, 0, null, null, null, 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, null, null, null, 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, null, null, 0),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, null, 0)
+    );
+  }
+
 	private static Hero createDefaultHero() {
 		return new Hero(
 			DEFAULT_HERO_NAME,
@@ -284,13 +363,28 @@ public class FightResourceTests {
 		fight.winnerName = DEFAULT_HERO_NAME;
 		fight.winnerLevel = DEFAULT_HERO_LEVEL;
 		fight.winnerPicture = DEFAULT_HERO_PICTURE;
+    fight.winnerPowers = DEFAULT_HERO_POWERS;
 		fight.loserName = DEFAULT_VILLAIN_NAME;
 		fight.loserLevel = DEFAULT_VILLAIN_LEVEL;
 		fight.loserPicture = DEFAULT_VILLAIN_PICTURE;
+    fight.loserPowers = DEFAULT_VILLAIN_POWERS;
 		fight.winnerTeam = HEROES_TEAM_NAME;
 		fight.loserTeam = VILLAINS_TEAM_NAME;
 
 		return fight;
+	}
+
+  private static FightToNarrate createFightToNarrateHeroWon() {
+    return new FightToNarrate(
+      HEROES_TEAM_NAME,
+      DEFAULT_HERO_NAME,
+      DEFAULT_HERO_POWERS,
+      DEFAULT_HERO_LEVEL,
+      VILLAINS_TEAM_NAME,
+      DEFAULT_VILLAIN_NAME,
+      DEFAULT_VILLAIN_POWERS,
+      DEFAULT_VILLAIN_LEVEL
+    );
 	}
 
 	private static ArgumentMatcher<Hero> heroMatcher(Hero hero) {

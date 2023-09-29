@@ -10,11 +10,11 @@ import io.quarkus.test.common.QuarkusTestResourceLifecycleManager.TestInjector.A
 import com.github.tomakehurst.wiremock.WireMockServer;
 
 /**
- * Quarkus {@link QuarkusTestResourceLifecycleManager} wrapping a {@link WireMockServer}, binding its base url to both the heroes and villains services, and exposing it to tests that want to inject it via {@link InjectWireMock}.
+ * Quarkus {@link QuarkusTestResourceLifecycleManager} wrapping a {@link WireMockServer}, binding its base url to the heroes, villains, and narration services, and exposing it to tests that want to inject it via {@link InjectWireMock}.
  *
  * @see InjectWireMock
  */
-public class HeroesVillainsWiremockServerResource implements QuarkusTestResourceLifecycleManager {
+public class HeroesVillainsNarrationWiremockServerResource implements QuarkusTestResourceLifecycleManager {
   private final WireMockServer wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
 
   @Override
@@ -28,7 +28,8 @@ public class HeroesVillainsWiremockServerResource implements QuarkusTestResource
 
     return Map.of(
       "quarkus.stork.hero-service.service-discovery.address-list", url,
-      "quarkus.stork.villain-service.service-discovery.address-list", url
+      "quarkus.stork.villain-service.service-discovery.address-list", url,
+      "quarkus.stork.narration-service.service-discovery.address-list", url
     );
   }
 
