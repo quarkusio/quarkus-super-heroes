@@ -41,6 +41,10 @@ create_project_output() {
   echo "-----------------------------------------"
   echo "Creating output for project = $project filename = $filename version_file_name = $version_file_name"
 
+  if [[ ! -d "$project/$OUTPUT_DIR" ]]; then
+    mkdir -p $project/$OUTPUT_DIR
+  fi
+
   if [[ ! -f "$all_apps_output_file" ]]; then
     create_output_file $all_apps_output_file
   fi
@@ -137,7 +141,14 @@ for project in "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "eve
 do
   rm -rf $project/$OUTPUT_DIR/*.yml
 
-  for kind in "" "native-"
+  # Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
+  if [[ "$project" == "rest-narration" ]]; then
+    kinds=("")
+  else
+    kinds=("" "native-")
+  fi
+
+  for kind in "${kinds[@]}"
   do
     # Keeping this if/else here for the future when we might want to build multiple java versions
     if [[ "$kind" == "native-" ]]; then

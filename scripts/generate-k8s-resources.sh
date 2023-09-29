@@ -87,6 +87,10 @@ process_quarkus_project() {
 
   rm -rf $project_output_file
 
+  if [[ ! -d "$project/$OUTPUT_DIR" ]]; then
+    mkdir -p $project/$OUTPUT_DIR
+  fi
+
   create_output_file $project_output_file
   create_output_file $all_apps_output_file
 
