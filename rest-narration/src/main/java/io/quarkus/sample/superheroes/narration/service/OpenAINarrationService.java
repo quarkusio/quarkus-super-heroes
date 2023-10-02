@@ -39,7 +39,7 @@ public final class OpenAINarrationService extends OpenAINarrationServiceBase {
   @CircuitBreaker(requestVolumeThreshold = 8, failureRatio = 0.5, delay = 2, delayUnit = ChronoUnit.SECONDS)
   @CircuitBreakerName("openAINarrate")
   @Retry(maxRetries = 3, delay = 200, delayUnit = ChronoUnit.MILLIS)
-  @WithSpan(kind = SpanKind.CLIENT, value="NarrationService.narrate")
+  @WithSpan(kind = SpanKind.CLIENT, value="OpenAINarrationService.narrate")
   public Uni<String> narrate(@SpanAttribute("arg.fight") Fight fight) {
     return narrateFight(fight);
   }
