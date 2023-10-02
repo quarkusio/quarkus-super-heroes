@@ -3,6 +3,8 @@ package io.quarkus.sample.superheroes.narration.service;
 import java.util.Optional;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.narration.Fight;
@@ -18,9 +20,13 @@ import io.smallrye.mutiny.converters.uni.UniReactorConverters;
 public abstract sealed class OpenAINarrationServiceBase implements NarrationService permits AzureOpenAINarrationService, OpenAINarrationService {
   private CompletionSKFunction narrateFunction = null;
 
+  @Inject
+  NarrationConfig narrationConfig;
+
+  @Inject
+  Instance<OpenAIAsyncClient> openAIAsyncClientInstance;
+
   protected abstract String getModelId();
-  protected abstract NarrationConfig getNarrationConfig();
-  protected abstract OpenAIAsyncClient getOpenAIClient();
 
   @PostConstruct
   void createResources() {
@@ -29,7 +35,7 @@ public abstract sealed class OpenAINarrationServiceBase implements NarrationServ
     // Creates an instance of the TextCompletion service
     Log.debug("Creating the ChatCompletion");
     var textCompletion = SKBuilders.chatCompletion()
-      .withOpenAIClient(getOpenAIClient())
+      .withOpenAIClient(this.openAIAsyncClientInstance.get())
       .withModelId(getModelId())
       .build();
 
@@ -68,7 +74,7 @@ public abstract sealed class OpenAINarrationServiceBase implements NarrationServ
   }
 
   Uni<String> fallbackNarrate(Fight fight) {
-    return Uni.createFrom().item(getNarrationConfig().fallbackNarration())
+    return Uni.createFrom().item(this.narrationConfig.fallbackNarration())
       .invoke(() -> Log.warn("Falling back on Narration"));
 
   }
