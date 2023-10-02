@@ -228,7 +228,7 @@ public class FightService {
 		return Fight.persist(fight)
       .replaceWith(fight)
       .map(this.fightMapper::toSchema)
-      .invoke(f -> this.emitter.send(Message.of(f, Metadata.of(TracingMetadata.withCurrent(Context.current())))))
+      .invoke(f -> this.emitter.sendMessageAndForget(Message.of(f, Metadata.of(TracingMetadata.withCurrent(Context.current())))))
       .replaceWith(fight);
 	}
 
