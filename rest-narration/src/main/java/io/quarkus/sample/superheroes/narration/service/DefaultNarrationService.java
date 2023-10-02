@@ -7,6 +7,7 @@ import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.config.NarrationConfig;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.smallrye.mutiny.Uni;
 
 @LookupUnlessProperty(name = "narration.azure-open-ai.enabled", stringValue = "true")
@@ -20,6 +21,7 @@ public final class DefaultNarrationService implements NarrationService {
   }
 
   @Override
+  @WithSpan("NarrationService.narrate")
   public Uni<String> narrate(Fight fight) {
     return Uni.createFrom().item(this.narrationConfig.fallbackNarration())
       .invoke(() -> Log.info("Returning default narration"));
