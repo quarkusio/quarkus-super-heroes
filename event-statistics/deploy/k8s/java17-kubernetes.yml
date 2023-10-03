@@ -73,7 +73,7 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.quarkus.io/vcs-ref: 3.2.Final
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-09-18 - 15:43:09 +0000
+    app.quarkus.io/build-timestamp: 2023-10-03 - 17:25:37 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -106,7 +106,7 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.quarkus.io/vcs-ref: 3.2.Final
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-09-18 - 15:43:09 +0000
+    app.quarkus.io/build-timestamp: 2023-10-03 - 17:25:37 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -116,16 +116,16 @@ metadata:
     application: event-stats
     system: quarkus-super-heroes
     app.kubernetes.io/managed-by: quarkus
-    app.kubernetes.io/name: event-statistics
     app.kubernetes.io/version: java17-latest-3.2.Final
+    app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
   name: event-statistics
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: event-statistics
       app.kubernetes.io/version: java17-latest-3.2.Final
+      app.kubernetes.io/name: event-statistics
       app.kubernetes.io/part-of: event-stats
   template:
     metadata:
@@ -133,7 +133,7 @@ spec:
         app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
         app.quarkus.io/vcs-ref: 3.2.Final
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-09-18 - 15:43:09 +0000
+        app.quarkus.io/build-timestamp: 2023-10-03 - 17:25:37 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -143,8 +143,8 @@ spec:
         application: event-stats
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
-        app.kubernetes.io/name: event-statistics
         app.kubernetes.io/version: java17-latest-3.2.Final
+        app.kubernetes.io/name: event-statistics
         app.kubernetes.io/part-of: event-stats
     spec:
       containers:
@@ -154,10 +154,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: event-statistics-config
             - secretRef:
                 name: event-statistics-config-creds
+            - configMapRef:
+                name: event-statistics-config
           image: quay.io/quarkus-super-heroes/event-statistics:java17-latest-3.2.Final
           imagePullPolicy: Always
           livenessProbe:
