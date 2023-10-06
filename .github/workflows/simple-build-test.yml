@@ -87,7 +87,6 @@ jobs:
       fail-fast: false
       matrix:
         java:
-          - { graal: '17.0.8', java: '17' }
           - { graal: '21.0.0', java: '21'}
         project:
           - event-statistics
@@ -124,10 +123,10 @@ jobs:
           architecture: x64
           cache: maven
 
-      - name: "build-test-native-${{ matrix.project }}-java-${{ matrix.java }}"
+      - name: "build-test-native-${{ matrix.project }}-java-${{ matrix.java.java }}"
         working-directory: ${{ matrix.project }}
         run: |
           ./mvnw -B clean verify -Pnative \
             -Dquarkus.http.host=0.0.0.0 \
-            -Dmaven.compiler.release=${{ matrix.java }} 
+            -Dmaven.compiler.release=${{ matrix.java.java }} 
   
