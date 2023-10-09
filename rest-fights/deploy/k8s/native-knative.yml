@@ -73,10 +73,10 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-10-05 - 15:28:00 +0000
+    app.quarkus.io/build-timestamp: 2023-10-09 - 20:42:23 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -86,19 +86,19 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: fights-service
     system: quarkus-super-heroes
+    app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-latest
   name: rest-fights
 spec:
   template:
     metadata:
       annotations:
         autoscaling.knative.dev/minScale: "1"
-        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
+        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-10-05 - 15:28:00 +0000
+        app.quarkus.io/build-timestamp: 2023-10-09 - 20:42:23 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -108,9 +108,9 @@ spec:
         app.openshift.io/runtime: quarkus
         application: fights-service
         system: quarkus-super-heroes
+        app.kubernetes.io/version: native-latest
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/version: native-latest
     spec:
       containers:
         - envFrom:
