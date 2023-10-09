@@ -109,7 +109,8 @@ az cognitiveservices account deployment create \
   --model-name gpt-35-turbo \
   --model-version 0301 \
   --model-format OpenAI \
-  --scale-settings-scale-type Standard
+  --sku-name Standard \
+  --sku-capacity 1
 
 # Get keys
 echo "-----------------------------------------"
