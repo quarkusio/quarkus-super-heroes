@@ -28,7 +28,7 @@ jobs:
         run: echo "${{ steps.generate_token.outputs.token }}" | gh auth login --with-token
 
       - name: Enable auto-merge for Dependabot PRs
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        if: (steps.metadata.outputs.dependency-type == 'direct:development') && ((steps.metadata.outputs.update-type == 'version-update:semver-major') || (steps.metadata.outputs.update-type == 'version-update:semver-minor') || (steps.metadata.outputs.update-type == 'version-update:semver-patch'))
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: gh pr merge --auto --merge "$PR_URL"
