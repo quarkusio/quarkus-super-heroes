@@ -22,6 +22,8 @@ help() {
   echo "                                             Default: 'eastus'"
   echo "  -t <tag>                               The tag to use when creating resources"
   echo "                                             Default: 'super-heroes'"
+  echo "  -u <unique_identifier>                 A unique identifier to append to some resources. Some Azure services require unique names within a region (across users)."
+  echo "                                             Default is to use the output of the 'whoami' command."
 }
 
 exit_abnormal() {
@@ -36,9 +38,10 @@ COGNITIVE_DEPLOYMENT="csdeploy-super-heroes"
 RESOURCE_GROUP="rg-super-heroes"
 LOCATION="eastus"
 TAG="super-heroes"
+UNIQUE_IDENTIFIER=$(whoami)
 
 # Process the input options
-while getopts "c:d:g:hl:t:" option; do
+while getopts "c:d:g:hl:t:u:" option; do
   case $option in
     c) COGNITIVE_SERVICE=$OPTARG
        ;;
@@ -59,6 +62,9 @@ while getopts "c:d:g:hl:t:" option; do
     t) TAG=$OPTARG
        ;;
 
+    u) UNIQUE_IDENTIFIER=$OPTARG
+       ;;
+
     *) exit_abnormal
        ;;
   esac
@@ -71,8 +77,12 @@ echo "  Cognitive Service Deployment: $COGNITIVE_DEPLOYMENT"
 echo "  Resource Group: $RESOURCE_GROUP"
 echo "  Location: $LOCATION"
 echo "  Tag: $TAG"
+echo "  Unique Identifier: $UNIQUE_IDENTIFIER"
 echo
 echo "Please be patient. This may take several minutes."
+
+COGNITIVE_SERVICE="${COGNITIVE_SERVICE}-${UNIQUE_IDENTIFIER}"
+COGNITIVE_DEPLOYMENT="${COGNITIVE_DEPLOYMENT}-${UNIQUE_IDENTIFIER}"
 
 # Create resource group
 echo "-----------------------------------------"

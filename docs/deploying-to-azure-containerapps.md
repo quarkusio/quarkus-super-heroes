@@ -10,10 +10,12 @@
     - [Create the managed MongoDB database](#create-the-managed-mongodb-database)
     - [Create the managed Kafka](#create-the-managed-kafka)
     - [Create the Schema Registry](#create-the-schema-registry)
+    - [Create the Azure OpenAI resources](#create-the-azure-openai-resources)
     - [Deploying the applications](#deploying-the-applications)
         - [Heroes microservice](#heroes-microservice)
         - [Villains microservice](#villains-microservice)
-        - [Statistics Microservice](#statistics-microservice)
+        - [Narration microservice](#narration-microservice)
+        - [Statistics microservice](#statistics-microservice)
         - [Fights microservice](#fights-microservice)
         - [Super Hero UI](#super-hero-ui)
 - [Load Testing](#Load-testing)
@@ -80,7 +82,7 @@ For that, we need to set the following environment variables:
 ```shell
 # Images
 SUPERHEROES_IMAGES_BASE="quay.io/quarkus-super-heroes"
-IMAGES_TAG="native-latest"
+IMAGES_TAG="java17-latest"
 
 # Azure
 RESOURCE_GROUP="super-heroes"
@@ -112,6 +114,10 @@ KAFKA_BOOTSTRAP_SERVERS="$KAFKA_NAMESPACE.servicebus.windows.net:9093"
 # Apicurio
 APICURIO_APP="apicurio"
 APICURIO_IMAGE="apicurio/apicurio-registry-mem:2.4.2.Final"
+
+# Narration
+NARRATION_APP="rest-narration"
+NARRATION_IMAGE="${SUPERHEROES_IMAGES_BASE}/${NARRATION_APP}:${IMAGES_TAG}"
 
 # Heroes
 HEROES_APP="rest-heroes"
@@ -439,6 +445,24 @@ You can go to the Apicurio web console:
 open $APICURIO_URL
 ```
 
+## Create the Azure OpenAI resources
+The Narration microservice needs to access an AI service to generate the text narrating the fight. [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service), or "OpenAI on Azure" is a service that provides REST API access to OpenAI’s models, including the GPT-4, GPT-3, Codex and Embeddings series. Azure OpenAI runs on Azure global infrastructure, which meets your production needs for critical enterprise security, compliance, and regional availability.
+
+The [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources. Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources.
+
+> Keep in mind that the service may not be free.
+
+Upon completion of the script it will output the following:
+
+```
+Or they can be injected via environment variables:
+  NARRATION_AZURE_OPEN_AI_ENABLED=true
+  NARRATION_AZURE_OPEN_AI_KEY=<azure_openai_key>
+  NARRATION_AZURE_OPEN_AI_ENDPOINT=<azure_openai_endpoint>
+```
+
+Take note of the `NARRATION_AZURE_OPEN_AI_KEY` and `NARRATION_AZURE_OPEN_AI_ENDPOINT` values for use in the step for [deploying the narration microservice](#narration-microservice).
+
 ## Deploying the Applications
 
 Now that the Azure Container Apps environment is all set, we need to deploy our microservices to Azure Container Apps.
@@ -538,6 +562,49 @@ To access the logs of the Villain microservice, you can write the following quer
 ````shell
 az containerapp logs show \
   --name "$VILLAINS_APP" \
+  --resource-group "$RESOURCE_GROUP" \
+  --output table
+````
+
+### Narration Microservice
+The narration microservice communicates with the [Azure OpenAI service](#create-the-azure-openai-resources). You'll need the `NARRATION_AZURE_OPEN_AI_KEY` and the  `NARRATION_AZURE_OPEN_AI_ENDPOINT` values from the [Create the Azure OpenAI resources](#create-the-azure-openai-resources) step.
+
+```shell
+az containerapp create \
+  --resource-group "$RESOURCE_GROUP" \
+  --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
+  --image "$NARRATION_IMAGE" \
+  --name "$NARRATION_APP" \
+  --environment "$CONTAINERAPPS_ENVIRONMENT" \
+  --ingress external \
+  --target-port 8087 \
+  --min-replicas 1 \
+  --env-vars NARRATION_AZURE_OPEN_AI_ENABLED=true \
+             NARRATION_AZURE_OPEN_AI_KEY="$AZURE_OPENAI_KEY" \
+             NARRATION_AZURE_OPEN_AI_ENDPOINT="$AZURE_OPENAI_ENDPOINT"
+```
+
+The following command sets the URL of the deployed application to the `NARRATION_URL` variable:
+
+```shell
+NARRATION_URL="https://$(az containerapp ingress show \
+    --resource-group $RESOURCE_GROUP \
+    --name $NARRATION_APP \
+    --output json | jq -r .fqdn)"
+  
+echo NARRATION_URL
+```
+You can now invoke the Narration microservice APIs with:
+
+```shell
+curl "$NARRATION_URL/api/narration/hello"
+```
+
+To access the logs of the Narration microservice, you can write the following query:
+
+````shell
+az containerapp logs show \
+  --name "$NARRATION_APP" \
   --resource-group "$RESOURCE_GROUP" \
   --output table
 ````

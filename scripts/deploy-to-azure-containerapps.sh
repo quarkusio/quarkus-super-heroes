@@ -15,14 +15,24 @@ help() {
   echo
   echo "Syntax: deploy-to-azure-containerapps.sh [options]"
   echo "options:"
-  echo "  -g <resource_group_name>     Name of the Azure resource group to use to deploy resources. Default is 'super-heroes'."
-  echo "  -h                           Prints this help message"
-  echo "  -l <location>                The location (region) to deploy resources into. Default: 'eastus2'".
-  echo "  -p <postgres_server_tier>    Compute tier of the PostgreSQL servers. Accepted values: Burstable, GeneralPurpose, MemoryOptimized. Default: 'Burstable'."
-  echo "  -r                           If present, create an Azure Container Registry instance (see https://azure.microsoft.com/en-us/services/container-registry). This is optional. No container images are pushed here by this script."
-  echo "  -s <postgres_server_sku>     The SKU to use for the PostgreSQL servers (see https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server). Default: 'B1ms'."
-  echo "  -t <tag>                     The tag for the images to deploy. Accepted values: 'java17-latest' or 'native-latest'. Default: 'native-latest'."
-  echo "  -u <unique_identifier>       A unique identifier to append to some resources. Some Azure services require unique names within a region (across users). Default is to use the output of the 'whoami' command."
+  echo "  -a                                     Create Azure OpenAI resources and bind to the narration service"
+  echo "                                             By default this is not created and the narration service will server a default narration on all requests."
+  echo "  -g <resource_group_name>               Name of the Azure resource group to use to deploy resources"
+  echo "                                             Default: 'super-heroes'"
+  echo "  -h                                     Prints this help message"
+  echo "  -l <location>                          The location (region) to deploy resources into"
+  echo "                                             Default: 'eastus2'"
+  echo "  -p <postgres_server_tier>              Compute tier of the PostgreSQL servers"
+  echo "                                             Accepted values: 'Burstable', 'GeneralPurpose', 'MemoryOptimized'"
+  echo "                                             Default: 'Burstable'"
+  echo "  -r                                     If present, create an Azure Container Registry instance (see https://azure.microsoft.com/en-us/services/container-registry). This is optional. No container images are pushed here by this script."
+  echo "  -s <postgres_server_sku>               The SKU to use for the PostgreSQL servers (see https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server)"
+  echo "                                             Default: 'B1ms'"
+  echo "  -t <tag>                               The tag for the images to deploy"
+  echo "                                             Accepted values: 'java17-latest' or 'native-latest'"
+  echo "                                             Default: 'java17-latest'"
+  echo "  -u <unique_identifier>                 A unique identifier to append to some resources. Some Azure services require unique names within a region (across users)."
+  echo "                                             Default is to use the output of the 'whoami' command."
 }
 
 exit_abnormal() {
@@ -233,15 +243,32 @@ create_villains_app() {
 
 create_narration_app() {
   echo "Creating Narration Container App"
-  az containerapp create \
-    --resource-group "$RESOURCE_GROUP" \
-    --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
-    --image "$NARRATION_IMAGE" \
-    --name "$NARRATION_APP" \
-    --environment "$CONTAINERAPPS_ENVIRONMENT" \
-    --ingress external \
-    --target-port 8087 \
-    --min-replicas 1
+
+  if "$CREATE_AZURE_OPENAI_RESOURCES"; then
+    az containerapp create \
+      --resource-group "$RESOURCE_GROUP" \
+      --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
+      --image "$NARRATION_IMAGE" \
+      --name "$NARRATION_APP" \
+      --environment "$CONTAINERAPPS_ENVIRONMENT" \
+      --ingress external \
+      --target-port 8087 \
+      --min-replicas 1 \
+      --env-vars NARRATION_AZURE_OPEN_AI_ENABLED=true \
+                 NARRATION_AZURE_OPEN_AI_KEY="$AZURE_OPENAI_KEY" \
+                 NARRATION_AZURE_OPEN_AI_ENDPOINT="$AZURE_OPENAI_ENDPOINT" \
+                 NARRATION_AZURE_OPEN_AI_DEPLOYMENT_NAME="$NARRATION_COGNITIVE_SERVICE_DEPLOYMENT_NAME"
+  else
+    az containerapp create \
+      --resource-group "$RESOURCE_GROUP" \
+      --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
+      --image "$NARRATION_IMAGE" \
+      --name "$NARRATION_APP" \
+      --environment "$CONTAINERAPPS_ENVIRONMENT" \
+      --ingress external \
+      --target-port 8087 \
+      --min-replicas 1
+  fi
 
   echo "Getting URL to narration app"
   NARRATION_URL="https://$(az containerapp ingress show \
@@ -322,18 +349,48 @@ create_ui_app() {
       --output json | jq -r .fqdn)"
 }
 
+create_azure_openai_resources() {
+  ./create-azure-openai-resources.sh \
+    -c "$COGNITIVE_SERVICE_NAME" \
+    -d "$COGNITIVE_SERVICE_DEPLOYMENT_NAME" \
+    -g "$RESOURCE_GROUP" \
+    -l "$LOCATION" \
+    -t "$TAG_SYSTEM" \
+    -u "$UNIQUE_IDENTIFIER"
+
+  echo
+
+  AZURE_OPENAI_KEY=$(
+    az cognitiveservices account keys list \
+      --name "$NARRATION_COGNITIVE_SERVICE" \
+      --resource-group "$RESOURCE_GROUP" \
+        | jq -r .key1
+  )
+
+  AZURE_OPENAI_ENDPOINT=$(
+    az cognitiveservices account show \
+      --name "$NARRATION_COGNITIVE_SERVICE" \
+      --resource-group "$RESOURCE_GROUP" \
+      | jq -r .properties.endpoint
+  )
+}
+
 # Define defaults
 RESOURCE_GROUP="super-heroes"
 LOCATION="eastus2"
-IMAGES_TAG="native-latest"
+IMAGES_TAG="java17-latest"
 UNIQUE_IDENTIFIER=$(whoami)
 POSTGRES_SKU="B1ms"
 POSTGRES_TIER="Burstable"
 CREATE_CONTAINER_REGISTRY=false
+CREATE_AZURE_OPENAI_RESOURCES=false
 
 # Process the input options
-while getopts "g:hl:p:rs:t:u:" option; do
+while getopts "ag:hl:p:rs:t:u:" option; do
   case $option in
+    a) CREATE_AZURE_OPENAI_RESOURCES=true
+      ;;
+
     g) RESOURCE_GROUP=$OPTARG
        ;;
 
@@ -399,6 +456,10 @@ APICURIO_IMAGE="apicurio/apicurio-registry-mem:2.4.2.Final"
 # Narration
 NARRATION_APP="rest-narration"
 NARRATION_IMAGE="${SUPERHEROES_IMAGES_BASE}/${NARRATION_APP}:${IMAGES_TAG}"
+COGNITIVE_SERVICE_NAME="cs-super-heroes"
+COGNITIVE_SERVICE_DEPLOYMENT_NAME="csdeploy-super-heroes"
+NARRATION_COGNITIVE_SERVICE="$COGNITIVE_SERVICE_NAME-$UNIQUE_IDENTIFIER"
+NARRATION_COGNITIVE_SERVICE_DEPLOYMENT_NAME="$COGNITIVE_SERVICE_DEPLOYMENT_NAME-$UNIQUE_IDENTIFIER"
 
 # Heroes
 HEROES_APP="rest-heroes"
@@ -480,6 +541,14 @@ if "$CREATE_CONTAINER_REGISTRY"; then
   echo "[$(date +"%m/%d/%Y %T")]: Creating the $CONTAINER_REGISTRY_NAME container registry"
   echo "-----------------------------------------"
   create_container_registry
+fi
+
+# Create the Azure OpenAI resources (if needed)
+if "$CREATE_AZURE_OPENAI_RESOURCES"; then
+  echo "-----------------------------------------"
+  echo "[$(date +"%m/%d/%Y %T")]: Creating the Azure OpenAI resources"
+  echo "-----------------------------------------"
+  create_azure_openai_resources
 fi
 
 # Create the Heroes Postgres db
