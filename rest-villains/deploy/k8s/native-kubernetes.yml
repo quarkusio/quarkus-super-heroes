@@ -33,7 +33,7 @@ metadata:
     app.openshift.io/connects-to: "villains-db,otel-collector"
     app.quarkus.io/vcs-ref: rhbq-2.13
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-09-15 - 15:04:26 +0000
+    app.quarkus.io/build-timestamp: 2023-10-17 - 22:44:12 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -109,7 +109,7 @@ metadata:
     app.openshift.io/connects-to: "villains-db,otel-collector"
     app.quarkus.io/vcs-ref: rhbq-2.13
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-09-15 - 15:04:26 +0000
+    app.quarkus.io/build-timestamp: 2023-10-17 - 22:44:12 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -118,16 +118,16 @@ metadata:
     app: rest-villains
     application: villains-service
     system: quarkus-super-heroes
-    app.kubernetes.io/version: native-latest-rhbq-2.13
     app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/version: native-latest-rhbq-2.13
     app.kubernetes.io/part-of: villains-service
   name: rest-villains
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/version: native-latest-rhbq-2.13
       app.kubernetes.io/name: rest-villains
+      app.kubernetes.io/version: native-latest-rhbq-2.13
       app.kubernetes.io/part-of: villains-service
   template:
     metadata:
@@ -135,7 +135,7 @@ spec:
         app.openshift.io/connects-to: "villains-db,otel-collector"
         app.quarkus.io/vcs-ref: rhbq-2.13
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-09-15 - 15:04:26 +0000
+        app.quarkus.io/build-timestamp: 2023-10-17 - 22:44:12 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -144,8 +144,8 @@ spec:
         app: rest-villains
         application: villains-service
         system: quarkus-super-heroes
-        app.kubernetes.io/version: native-latest-rhbq-2.13
         app.kubernetes.io/name: rest-villains
+        app.kubernetes.io/version: native-latest-rhbq-2.13
         app.kubernetes.io/part-of: villains-service
     spec:
       containers:
@@ -155,10 +155,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:native-latest-rhbq-2.13
           imagePullPolicy: Always
           livenessProbe:
