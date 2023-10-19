@@ -1,0 +1,23 @@
+####
+# This Dockerfile is used in order to build a distroless container that runs the Quarkus application in native (no JVM) mode
+#
+# Before building the container image run:
+#
+# ./mvnw package -Pnative
+#
+# Then, build the image with:
+#
+# docker build -f src/main/docker/Dockerfile.native-distroless -t quarkus/location-service .
+#
+# Then run the container using:
+#
+# docker run -i --rm -p 8089:8089 quarkus/location-service
+#
+###
+FROM quay.io/quarkus/quarkus-distroless-image:2.0
+COPY target/*-runner /application
+
+EXPOSE 8089
+USER nonroot
+
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]

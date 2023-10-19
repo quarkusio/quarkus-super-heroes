@@ -7,7 +7,8 @@
 # 4 - ui
 # 5 - apicurio
 # 6 - rest-narration
-statuses=("0", "0", "0", "0", "0", "0", "0")
+# 7 - locations-service
+statuses=("0", "0", "0", "0", "0", "0", "0", "0")
 
 max_tries=100
 tries=1
@@ -43,6 +44,7 @@ get_status() {
     4) local service_name="ui-super-heroes" ;;
     5) local service_name="apicurio" ;;
     6) local service_name="rest-narration" ;;
+    7) local service_name="location-service" ;;
   esac
 
   local url="http://localhost:${port}${path}"
@@ -81,6 +83,10 @@ get_statuses() {
   if [[ "${statuses[6]}" != "\"200\"" ]]; then
     get_status 8087 6 "/q/health/ready"
   fi
+
+  if [[ "${statuses[7]}" != "\"200\"" ]]; then
+    get_status 8089 7 "/q/health/ready"
+  fi
 }
 
 print_statuses() {
@@ -89,6 +95,7 @@ print_statuses() {
   echo "heroes_status=${statuses[2]}"
   echo "fights_status=${statuses[3]}"
   echo "narration_status=${statuses[6]}"
+  echo "location_status=${statuses[7]}"
   echo "ui_status=${statuses[4]}"
   echo "apicurio=${statuses[5]}"
 }
@@ -111,7 +118,7 @@ while getopts "hi::m::" option; do
   esac
 done
 
-while [[ "${statuses[0]}" != "\"200\"" ]] || [[ "${statuses[1]}" != "\"200\"" ]] || [[ "${statuses[2]}" != "\"200\"" ]] || [[ "${statuses[3]}" != "\"200\"" ]] || [[ "${statuses[4]}" != "\"200\"" ]] || [[ "${statuses[5]}" != "\"200\"" ]]
+while [[ "${statuses[0]}" != "\"200\"" ]] || [[ "${statuses[1]}" != "\"200\"" ]] || [[ "${statuses[2]}" != "\"200\"" ]] || [[ "${statuses[3]}" != "\"200\"" ]] || [[ "${statuses[4]}" != "\"200\"" ]] || [[ "${statuses[5]}" != "\"200\"" ]] || [[ "${statuses[6]}" != "\"200\"" ]] || [[ "${statuses[7]}" != "\"200\"" ]]
 do
   if [[ "$tries" -gt $max_tries ]]; then
     break

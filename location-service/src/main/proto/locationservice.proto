@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.quarkus.sample.superheroes.location.grpc";
+option java_outer_classname = "LocationServiceProto";
+
+package location;
+
+message Location {
+  string name = 1;
+  string description = 2;
+  string picture = 3;
+}
+
+message RandomLocationRequest {}
+message AllLocationsRequest {}
+
+message AllLocationsResponse {
+  repeated Location locations = 1;
+}
+
+message DeleteAllLocationsRequest {}
+message DeleteAllLocationsResponse {}
+message HelloRequest {}
+
+message HelloReply {
+  string message = 1;
+}
+
+service Locations {
+  rpc GetRandomLocation(RandomLocationRequest) returns (Location) {}
+  rpc GetAllLocations(AllLocationsRequest) returns (AllLocationsResponse) {}
+  rpc DeleteAllLocations(DeleteAllLocationsRequest) returns (DeleteAllLocationsResponse) {}
+  rpc Hello(HelloRequest) returns (HelloReply) {}
+}

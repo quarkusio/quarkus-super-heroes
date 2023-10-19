@@ -1,0 +1,28 @@
+
+  locations-service-java17:
+    image: quay.io/quarkus-super-heroes/locations-service:java17-latest
+    container_name: locations-service-java17
+    depends_on:
+      - locations-db
+    ports:
+      - "8089:8089"
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:mariadb://locations-db:3306/locations_database
+      QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: validate
+      QUARKUS_DATASOURCE_USERNAME: locations
+      QUARKUS_DATASOURCE_PASSWORD: locations
+      QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: no-file
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
+    restart: on-failure
+    networks:
+      default:
+        aliases:
+          - locations-service
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
+        reservations:
+          memory: 256M
+          cpus: '0.5'

@@ -1,0 +1,118 @@
+quarkus:
+  application:
+    name: location-service
+  log:
+    level: INFO
+    category:
+      "io.quarkus.sample.superheroes":
+        level: DEBUG
+    console:
+      format: "%d{HH:mm:ss} %-5p traceId=%X{traceId}, parentId=%X{parentId}, spanId=%X{spanId}, sampled=%X{sampled} [%c{2.}] (%t) %s%e%n"
+      level: INFO
+      darken: 1
+  http:
+    port: 8089
+    test-port: 0
+  grpc:
+    server:
+      use-separate-server: false
+      port: "${quarkus.http.port}"
+      test-port: "${quarkus.http.test-port}"
+  otel:
+    resource:
+      attributes: "app=${quarkus.application.name},application=location-service,system=quarkus-super-heroes"
+    exporter:
+      otlp:
+        traces:
+          endpoint: http://localhost:4317
+  hibernate-orm:
+    database:
+      generation: drop-and-create
+  container-image:
+    builder: docker
+    registry: quay.io
+    group: quarkus-super-heroes
+    name: "${quarkus.application.name}"
+  kubernetes:
+    part-of: location-service
+    annotations:
+      "app.openshift.io/connects-to": locations-db,otel-collector
+    env:
+      configmaps: "${quarkus.application.name}-config"
+      secrets: "${quarkus.application.name}-config-creds"
+    labels:
+      app: "${quarkus.application.name}"
+      application: location-service
+      system: quarkus-super-heroes
+  openshift:
+    base-jvm-image: registry.access.redhat.com/ubi9/openjdk-17:1.14
+    base-native-image: quay.io/quarkus/ubi-quarkus-native-binary-s2i:2.0
+    route:
+      expose: true
+    annotations:
+      "app.openshift.io/connects-to": locations-db,otel-collector
+    labels:
+      app: "${quarkus.kubernetes.labels.app}"
+      application: "${quarkus.kubernetes.part-of}"
+      system: "${quarkus.kubernetes.labels.system}"
+  knative:
+    annotations:
+      "app.openshift.io/connects-to": locations-db,otel-collector
+    labels:
+      app: "${quarkus.kubernetes.labels.app}"
+      application: "${quarkus.kubernetes.part-of}"
+      system: "${quarkus.kubernetes.labels.system}"
+
+"%dev,test":
+  quarkus:
+    log:
+      console:
+        format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+        level: DEBUG
+
+"%prod":
+  quarkus:
+    hibernate-orm:
+      sql-load-script: import.sql
+
+"%kubernetes":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    kubernetes:
+      deployment-target: kubernetes
+
+"%openshift":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    container-image:
+      builder: openshift
+    kubernetes:
+      deployment-target: openshift
+
+"%knative":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    kubernetes:
+      deployment-target: knative
+
+"%knative-openshift":
+  quarkus:
+    config:
+      profile:
+        parent: knative
+    container-image:
+      builder: openshift
+
+"%minikube":
+  quarkus:
+    config:
+      profile:
+        parent: prod
+    kubernetes:
+      deployment-target: minikube

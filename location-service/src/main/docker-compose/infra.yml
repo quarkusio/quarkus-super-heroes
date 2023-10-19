@@ -1,0 +1,12 @@
+
+  locations-db:
+    image: mariadb:10.11
+    container_name: locations-db
+    ports:
+      - "3306"
+    environment:
+      POSTGRES_USER: locations
+      POSTGRES_PASSWORD: locations
+      POSTGRES_DB: locations_database
+    volumes:
+      - ../../../locations-service/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/1-init-tables.sql
