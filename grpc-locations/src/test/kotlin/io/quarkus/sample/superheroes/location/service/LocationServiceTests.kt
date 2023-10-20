@@ -6,6 +6,7 @@ import io.mockk.verify
 import io.quarkiverse.test.junit.mockk.InjectMock
 import jakarta.inject.Inject
 import io.quarkus.sample.superheroes.location.Location
+import io.quarkus.sample.superheroes.location.LocationType
 import io.quarkus.sample.superheroes.location.repository.LocationRepository
 import io.quarkus.test.junit.QuarkusTest
 import org.assertj.core.api.Assertions.assertThat
@@ -18,6 +19,7 @@ class LocationServiceTests {
 		private const val DEFAULT_NAME = "Gotham City"
 		private const val DEFAULT_DESCRIPTION = "Where Batman lives"
 		private const val DEFAULT_PICTURE = "gotham_city.png"
+		private val DEFAULT_TYPE = LocationType.PLANET
 
 		private fun createDefaultLocation() : Location {
 			val location = Location()
@@ -25,6 +27,7 @@ class LocationServiceTests {
 			location.name = DEFAULT_NAME
 			location.description = DEFAULT_DESCRIPTION
 			location.picture = DEFAULT_PICTURE
+			location.type = DEFAULT_TYPE
 
 			return location
 		}
@@ -88,5 +91,38 @@ class LocationServiceTests {
 
 		verify { locationRepository.listAll() }
 		confirmVerified(this.locationRepository)
+	}
+
+	@Test
+	fun `get a location by name`() {
+		val location = createDefaultLocation()
+		every { locationRepository.findByName(DEFAULT_NAME) } returns location
+
+		assertThat(this.locationService.getLocationByName(location.name))
+			.isNotNull
+			.usingRecursiveComparison()
+			.isEqualTo(location)
+
+		verify { locationRepository.findByName(location.name) }
+		confirmVerified(this.locationRepository)
+	}
+
+	@Test
+	fun `get a location by name when one doesnt exist`() {
+		every { locationRepository.findByName(DEFAULT_NAME) } returns null
+
+		assertThat(this.locationService.getLocationByName(DEFAULT_NAME))
+			.isNull()
+
+		verify { locationRepository.findByName(DEFAULT_NAME) }
+		confirmVerified(this.locationRepository)
+	}
+
+	@Test
+	fun `get a location by name with null name`() {
+		assertThat(this.locationService.getLocationByName(null))
+			.isNull()
+
+		verify(exactly = 0) { locationRepository.findByName(any()) }
 	}
 }

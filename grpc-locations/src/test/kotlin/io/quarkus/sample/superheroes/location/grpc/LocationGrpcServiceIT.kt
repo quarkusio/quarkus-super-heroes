@@ -1,16 +1,16 @@
 package io.quarkus.sample.superheroes.location.grpc
 
-import io.grpc.CallOptions
-import io.grpc.Channel
-import io.grpc.ClientInterceptor
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
-import io.grpc.MethodDescriptor
-import java.util.concurrent.TimeUnit
+import io.grpc.Status.Code
+import io.grpc.StatusRuntimeException
 import io.quarkus.sample.superheroes.location.Location
+import io.quarkus.sample.superheroes.location.LocationType
 import io.quarkus.sample.superheroes.location.grpc.LocationsGrpc.LocationsBlockingStub
+import io.quarkus.sample.superheroes.location.mapping.LocationMapper
 import io.quarkus.test.junit.QuarkusIntegrationTest
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.microprofile.config.ConfigProvider
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -27,13 +27,9 @@ class LocationGrpcServiceIT {
 		private const val DEFAULT_NAME = "Gotham City"
 		private const val DEFAULT_DESCRIPTION = "Dark city where Batman lives"
 		private const val DEFAULT_PICTURE = "gotham_city.png"
+		private val DEFAULT_TYPE = LocationType.CITY
 		private var NB_LOCATIONS = 1
 		private const val DEFAULT_ORDER = 0
-		private val deadlineInterceptor =
-			object : ClientInterceptor {
-				override fun <ReqT : Any?, RespT : Any?> interceptCall(method: MethodDescriptor<ReqT, RespT>?, callOptions: CallOptions?, next: Channel?) =
-					next?.newCall(method, callOptions?.withDeadlineAfter(10, TimeUnit.SECONDS))!!
-			}
 
 		private lateinit var channel: ManagedChannel
 		private lateinit var locationsGrpcService : LocationsBlockingStub
@@ -44,6 +40,7 @@ class LocationGrpcServiceIT {
 			location.name = DEFAULT_NAME
 			location.description = DEFAULT_DESCRIPTION
 			location.picture = DEFAULT_PICTURE
+			location.type = DEFAULT_TYPE
 
 			return location
 		}
@@ -58,7 +55,7 @@ class LocationGrpcServiceIT {
 
 			locationsGrpcService = LocationsGrpc
 				.newBlockingStub(channel)
-				.withInterceptors(deadlineInterceptor)
+				.withInterceptors(DeadlineInterceptor())
 		}
 
 		@AfterAll
@@ -94,16 +91,8 @@ class LocationGrpcServiceIT {
 
 		assertThat(locationsGrpcService.getRandomLocation(RandomLocationRequest.newBuilder().build()))
 			.isNotNull
-			.extracting(
-				"name",
-				"description",
-				"picture"
-			)
-			.containsExactly(
-				randomLocation.name,
-				randomLocation.description,
-				randomLocation.picture
-			)
+			.usingRecursiveComparison().ignoringFields("memoizedIsInitialized")
+			.isEqualTo(LocationMapper.toGrpcLocation(randomLocation))
 	}
 
 	@Test
@@ -114,16 +103,19 @@ class LocationGrpcServiceIT {
 		assertThat(locationsGrpcService.getAllLocations(AllLocationsRequest.newBuilder().build())?.locationsList)
 			.isNotNull
 			.singleElement()
-			.extracting(
-					"name",
-					"description",
-					"picture"
-				)
-				.containsExactly(
-					location.name,
-					location.description,
-					location.picture
-				)
+			.usingRecursiveComparison().ignoringFields("memoizedIsInitialized")
+			.isEqualTo(LocationMapper.toGrpcLocation(location))
+	}
+
+	@Test
+	@Order(DEFAULT_ORDER)
+	fun `get location by name`() {
+		val location = createDefaultLocation()
+
+		assertThat(locationsGrpcService.getLocationByName(GetLocationRequest.newBuilder().setName(location.name).build()))
+			.isNotNull
+			.usingRecursiveComparison().ignoringFields("memoizedIsInitialized")
+			.isEqualTo(LocationMapper.toGrpcLocation(location))
 	}
 
 	@Test
@@ -137,5 +129,27 @@ class LocationGrpcServiceIT {
 	@Order(DEFAULT_ORDER + 2)
 	fun `Get all locations when there arent any`() {
 		verifyNumberOfLocations(0)
+	}
+
+	@Test
+	@Order(DEFAULT_ORDER + 2)
+	fun `Get a random location when one does not exist`() {
+		assertThatThrownBy { locationsGrpcService.getRandomLocation(RandomLocationRequest.newBuilder().build()) }
+			.isNotNull()
+			.isInstanceOf(StatusRuntimeException::class.java)
+			.hasMessage("${Code.NOT_FOUND}: A location was not found")
+			.extracting { (it as StatusRuntimeException).status.code }
+			.isEqualTo(Code.NOT_FOUND)
+	}
+
+	@Test
+	@Order(DEFAULT_ORDER + 2)
+	fun `get location by name when not found`() {
+		assertThatThrownBy { locationsGrpcService.getLocationByName(GetLocationRequest.newBuilder().setName(DEFAULT_NAME).build()) }
+			.isNotNull()
+			.isInstanceOf(StatusRuntimeException::class.java)
+			.hasMessage("${Code.NOT_FOUND}: A location was not found")
+			.extracting { (it as StatusRuntimeException).status.code }
+			.isEqualTo(Code.NOT_FOUND)
 	}
 }

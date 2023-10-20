@@ -7,10 +7,11 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.verify
 import io.quarkiverse.test.junit.mockk.InjectMock
-import java.util.concurrent.TimeUnit
 import io.quarkus.grpc.GrpcClient
 import io.quarkus.sample.superheroes.location.Location
+import io.quarkus.sample.superheroes.location.LocationType
 import io.quarkus.sample.superheroes.location.grpc.LocationsGrpc.LocationsBlockingStub
+import io.quarkus.sample.superheroes.location.mapping.LocationMapper
 import io.quarkus.sample.superheroes.location.service.LocationService
 import io.quarkus.test.junit.QuarkusTest
 import org.assertj.core.api.Assertions.assertThat
@@ -24,6 +25,7 @@ class LocationGrpcServiceTests {
 		private const val DEFAULT_NAME = "Gotham City"
 		private const val DEFAULT_DESCRIPTION = "Where Batman lives"
 		private const val DEFAULT_PICTURE = "gotham_city.png"
+		private val DEFAULT_TYPE = LocationType.CITY
 
 		private fun createDefaultLocation() : Location {
 			val location = Location()
@@ -31,6 +33,7 @@ class LocationGrpcServiceTests {
 			location.name = DEFAULT_NAME
 			location.description = DEFAULT_DESCRIPTION
 			location.picture = DEFAULT_PICTURE
+			location.type = DEFAULT_TYPE
 
 			return location
 		}
@@ -42,11 +45,9 @@ class LocationGrpcServiceTests {
 	@GrpcClient
 	lateinit var locationsGrpcService : LocationsBlockingStub
 
-	private fun getLocationGrpcService() = locationsGrpcService.withDeadlineAfter(10, TimeUnit.SECONDS)
-
 	@Test
 	fun `Hello endpoint`() {
-		assertThat(getLocationGrpcService().hello(HelloRequest.newBuilder().build()))
+		assertThat(this.locationsGrpcService.hello(HelloRequest.newBuilder().build()))
 			.isNotNull
 
 		verify(exactly = 0, verifyBlock = { locationService.getRandomLocation() })
@@ -59,18 +60,10 @@ class LocationGrpcServiceTests {
 
 		every { locationService.getRandomLocation() } returns randomLocation
 
-		assertThat(getLocationGrpcService().getRandomLocation(RandomLocationRequest.newBuilder().build()))
+		assertThat(this.locationsGrpcService.getRandomLocation(RandomLocationRequest.newBuilder().build()))
 			.isNotNull
-			.extracting(
-				"name",
-				"description",
-				"picture"
-			)
-			.containsExactly(
-				randomLocation.name,
-				randomLocation.description,
-				randomLocation.picture
-			)
+			.usingRecursiveComparison().ignoringFields("memoizedIsInitialized")
+			.isEqualTo(LocationMapper.toGrpcLocation(randomLocation))
 
 		verify { locationService.getRandomLocation() }
 		confirmVerified(this.locationService)
@@ -80,10 +73,10 @@ class LocationGrpcServiceTests {
 	fun `Get a random location when one does not exist`() {
 		every { locationService.getRandomLocation() } returns null
 
-		assertThatThrownBy { getLocationGrpcService().getRandomLocation(RandomLocationRequest.newBuilder().build()) }
+		assertThatThrownBy { this.locationsGrpcService.getRandomLocation(RandomLocationRequest.newBuilder().build()) }
 			.isNotNull()
 			.isInstanceOf(StatusRuntimeException::class.java)
-			.hasMessage("${Code.NOT_FOUND}: A random location was not found")
+			.hasMessage("${Code.NOT_FOUND}: A location was not found")
 			.extracting { (it as StatusRuntimeException).status.code }
 			.isEqualTo(Code.NOT_FOUND)
 
@@ -96,20 +89,12 @@ class LocationGrpcServiceTests {
 		val location = createDefaultLocation()
 		every { locationService.getAllLocations() } returns listOf(location)
 
-		assertThat(getLocationGrpcService().getAllLocations(AllLocationsRequest.newBuilder().build())?.locationsList)
+		assertThat(this.locationsGrpcService.getAllLocations(AllLocationsRequest.newBuilder().build())?.locationsList)
 			.isNotNull
 			.singleElement()
-			.extracting(
-					"name",
-					"description",
-					"picture"
-				)
-				.containsExactly(
-					location.name,
-					location.description,
-					location.picture
-				)
-		
+			.usingRecursiveComparison().ignoringFields("memoizedIsInitialized")
+			.isEqualTo(LocationMapper.toGrpcLocation(location))
+
 		verify { locationService.getAllLocations() }
 		confirmVerified(this.locationService)
 	}
@@ -118,7 +103,7 @@ class LocationGrpcServiceTests {
 	fun `Get all locations when none are found`() {
 		every { locationService.getAllLocations() } returns emptyList()
 
-		assertThat(getLocationGrpcService().getAllLocations(AllLocationsRequest.newBuilder().build())?.locationsList)
+		assertThat(this.locationsGrpcService.getAllLocations(AllLocationsRequest.newBuilder().build())?.locationsList)
 			.isNotNull
 			.isEmpty()
 
@@ -130,10 +115,39 @@ class LocationGrpcServiceTests {
 	fun `delete all locations`() {
 		justRun { locationService.deleteAllLocations() }
 
-		assertThat(getLocationGrpcService().deleteAllLocations(DeleteAllLocationsRequest.newBuilder().build()))
+		assertThat(this.locationsGrpcService.deleteAllLocations(DeleteAllLocationsRequest.newBuilder().build()))
 			.isNotNull
 
 		verify { locationService.deleteAllLocations() }
+		confirmVerified(this.locationService)
+	}
+
+	@Test
+	fun `get location by name`() {
+		val location = createDefaultLocation()
+		every { locationService.getLocationByName(location.name) } returns location
+
+		assertThat(this.locationsGrpcService.getLocationByName(GetLocationRequest.newBuilder().setName(location.name).build()))
+			.isNotNull
+			.usingRecursiveComparison().ignoringFields("memoizedIsInitialized")
+			.isEqualTo(LocationMapper.toGrpcLocation(location))
+
+		verify { locationService.getLocationByName(location.name) }
+		confirmVerified(this.locationService)
+	}
+
+	@Test
+	fun `get location by name when not found`() {
+		every { locationService.getLocationByName(DEFAULT_NAME) } returns null
+
+		assertThatThrownBy { this.locationsGrpcService.getLocationByName(GetLocationRequest.newBuilder().setName(DEFAULT_NAME).build()) }
+			.isNotNull()
+			.isInstanceOf(StatusRuntimeException::class.java)
+			.hasMessage("${Code.NOT_FOUND}: A location was not found")
+			.extracting { (it as StatusRuntimeException).status.code }
+			.isEqualTo(Code.NOT_FOUND)
+
+		verify { locationService.getLocationByName(DEFAULT_NAME) }
 		confirmVerified(this.locationService)
 	}
 }

@@ -1,5 +1,6 @@
 package io.quarkus.sample.superheroes.location.service
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
@@ -13,6 +14,12 @@ class LocationService(private val locationRepository: LocationRepository) {
 
 	@WithSpan("LocationService.getAllLocations")
 	fun getAllLocations() = this.locationRepository.listAll()
+
+	@WithSpan("LocationService.getLocationByName")
+	fun getLocationByName(@SpanAttribute("arg.name") name: String?) = when(name) {
+		null -> null
+		else -> this.locationRepository.findByName(name)
+	}
 
 	@WithSpan("LocationService.deleteAllLocations")
 	@Transactional(REQUIRED)

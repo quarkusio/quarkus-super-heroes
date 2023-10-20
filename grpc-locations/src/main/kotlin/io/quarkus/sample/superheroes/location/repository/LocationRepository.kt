@@ -1,9 +1,9 @@
 package io.quarkus.sample.superheroes.location.repository
 
-import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepository
-import io.quarkus.sample.superheroes.location.Location
 import jakarta.enterprise.context.ApplicationScoped
 import kotlin.random.Random
+import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepository
+import io.quarkus.sample.superheroes.location.Location
 
 @ApplicationScoped
 class LocationRepository : PanacheRepository<Location> {
@@ -17,4 +17,6 @@ class LocationRepository : PanacheRepository<Location> {
 
     return null
   }
+
+	fun findByName(name: String) = find("name", name).firstResult()
 }
