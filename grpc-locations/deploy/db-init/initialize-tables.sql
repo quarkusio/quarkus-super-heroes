@@ -12,4 +12,6 @@ CREATE TABLE locations (
 	PRIMARY KEY (id)
 ) engine=InnoDB;
 
+ALTER TABLE locations ADD CONSTRAINT UK_name UNIQUE (name);
+
 INSERT INTO locations(id, name, description, picture, type) VALUES (next value for locations_SEQ, 'Gotham City', 'Dark city where Batman lives', 'gotham_city.png', 'CITY');
