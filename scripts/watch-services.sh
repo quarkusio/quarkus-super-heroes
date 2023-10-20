@@ -44,7 +44,7 @@ get_status() {
     4) local service_name="ui-super-heroes" ;;
     5) local service_name="apicurio" ;;
     6) local service_name="rest-narration" ;;
-    7) local service_name="location-service" ;;
+    7) local service_name="grpc-locations" ;;
   esac
 
   local url="http://localhost:${port}${path}"

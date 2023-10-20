@@ -1,6 +1,6 @@
 quarkus:
   application:
-    name: location-service
+    name: grpc-locations
   log:
     level: INFO
     category:
@@ -20,7 +20,7 @@ quarkus:
       test-port: "${quarkus.http.test-port}"
   otel:
     resource:
-      attributes: "app=${quarkus.application.name},application=location-service,system=quarkus-super-heroes"
+      attributes: "app=${quarkus.application.name},application=grpc-locations,system=quarkus-super-heroes"
     exporter:
       otlp:
         traces:
@@ -34,7 +34,7 @@ quarkus:
     group: quarkus-super-heroes
     name: "${quarkus.application.name}"
   kubernetes:
-    part-of: location-service
+    part-of: locations-service
     annotations:
       "app.openshift.io/connects-to": locations-db,otel-collector
     env:
@@ -42,7 +42,7 @@ quarkus:
       secrets: "${quarkus.application.name}-config-creds"
     labels:
       app: "${quarkus.application.name}"
-      application: location-service
+      application: "${quarkus.kubernetes.part-of}"
       system: quarkus-super-heroes
   openshift:
     base-jvm-image: registry.access.redhat.com/ubi9/openjdk-17:1.14
