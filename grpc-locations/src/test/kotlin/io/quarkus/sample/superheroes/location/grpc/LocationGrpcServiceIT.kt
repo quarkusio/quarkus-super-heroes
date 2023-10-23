@@ -25,10 +25,10 @@ class LocationGrpcServiceIT {
 	companion object {
 		private const val DEFAULT_ID = 1L
 		private const val DEFAULT_NAME = "Gotham City"
-		private const val DEFAULT_DESCRIPTION = "Dark city where Batman lives"
-		private const val DEFAULT_PICTURE = "gotham_city.png"
+		private const val DEFAULT_DESCRIPTION = "An American city rife with corruption and crime, the home of its iconic protector Batman."
+		private const val DEFAULT_PICTURE = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/locations/gotham_city.jpg"
 		private val DEFAULT_TYPE = LocationType.CITY
-		private var NB_LOCATIONS = 1
+		private var NB_LOCATIONS = 4
 		private const val DEFAULT_ORDER = 0
 
 		private lateinit var channel: ManagedChannel
@@ -80,31 +80,26 @@ class LocationGrpcServiceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	fun `starts with 1 location`() {
+	fun `starts with 4 locations`() {
 		verifyNumberOfLocations()
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
 	fun `Get a random location`() {
-		var randomLocation = createDefaultLocation()
-
 		assertThat(locationsGrpcService.getRandomLocation(RandomLocationRequest.newBuilder().build()))
 			.isNotNull
-			.usingRecursiveComparison().ignoringFields("memoizedIsInitialized")
-			.isEqualTo(LocationMapper.toGrpcLocation(randomLocation))
+			.hasNoNullFieldsOrProperties()
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
 	fun `Get all locations`() {
-		val location = createDefaultLocation()
-
 		assertThat(locationsGrpcService.getAllLocations(AllLocationsRequest.newBuilder().build())?.locationsList)
 			.isNotNull
-			.singleElement()
-			.usingRecursiveComparison().ignoringFields("memoizedIsInitialized")
-			.isEqualTo(LocationMapper.toGrpcLocation(location))
+			.hasSize(NB_LOCATIONS)
+			.doesNotContainNull()
+			.allSatisfy { location -> assertThat(location).hasNoNullFieldsOrProperties() }
 	}
 
 	@Test

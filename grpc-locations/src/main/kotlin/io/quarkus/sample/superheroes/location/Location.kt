@@ -24,6 +24,8 @@ class Location {
 	@Size(min = 3, max = 50)
 	@Column(nullable = false, length = 50, unique = true)
   lateinit var name: String
+
+	@Column(length = 5000)
   var description: String? = null
   var picture: String? = null
 
