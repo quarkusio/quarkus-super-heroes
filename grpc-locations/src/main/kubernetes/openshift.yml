@@ -1,0 +1,25 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: grpc-locations
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: java17-latest
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'quay.io/quarkus-super-heroes/grpc-locations:java17-latest'
+      importPolicy: { }
+      referencePolicy:
+        type: Source
+    - name: native-latest
+      annotations: null
+      from:
+        kind: DockerImage
+        name: 'quay.io/quarkus-super-heroes/grpc-locations:native-latest'
+      importPolicy: { }
+      referencePolicy:
+        type: Source
