@@ -4,9 +4,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import io.quarkus.grpc.GrpcClient;
 import io.quarkus.logging.Log;
-import io.quarkus.sample.superheroes.fight.client.locations.grpc.HelloReply;
-import io.quarkus.sample.superheroes.fight.client.locations.grpc.HelloRequest;
-import io.quarkus.sample.superheroes.fight.client.locations.grpc.Locations;
+import io.quarkus.sample.superheroes.location.grpc.HelloReply;
+import io.quarkus.sample.superheroes.location.grpc.HelloRequest;
+import io.quarkus.sample.superheroes.location.grpc.Locations;
 
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
