@@ -26,6 +26,7 @@ import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
+import io.quarkus.sample.superheroes.fight.client.LocationClient;
 import io.quarkus.sample.superheroes.fight.client.NarrationClient;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
@@ -48,16 +49,18 @@ public class FightService {
 	private final HeroClient heroClient;
 	private final VillainClient villainClient;
   private final NarrationClient narrationClient;
+	private final LocationClient locationClient;
 	private final MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter;
 	private final FightConfig fightConfig;
   private final FightMapper fightMapper;
 	private final Random random = new Random();
 
-	public FightService(HeroClient heroClient, VillainClient villainClient, @RestClient NarrationClient narrationClient, @Channel("fights") MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter, FightConfig fightConfig, FightMapper fightMapper) {
+	public FightService(HeroClient heroClient, VillainClient villainClient, @RestClient NarrationClient narrationClient, LocationClient locationClient, @Channel("fights") MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter, FightConfig fightConfig, FightMapper fightMapper) {
 		this.heroClient = heroClient;
 		this.villainClient = villainClient;
     this.narrationClient = narrationClient;
-    this.emitter = emitter;
+		this.locationClient = locationClient;
+		this.emitter = emitter;
 		this.fightConfig = fightConfig;
     this.fightMapper = fightMapper;
   }
@@ -141,6 +144,20 @@ public class FightService {
     return this.narrationClient.hello()
       .invoke(hello -> Log.debugf("Got %s back from the Narration microservice", hello));
   }
+
+	@Timeout(value = 5, unit = ChronoUnit.SECONDS)
+	@Fallback(fallbackMethod = "fallbackHelloLocations")
+	@WithSpan("FightService.helloLocations")
+	public Uni<String> helloLocations() {
+		Log.debug("Pinging location service");
+		return this.locationClient.helloLocations()
+			.invoke(hello -> Log.debugf("Got %s back from the Locations microservice", hello));
+	}
+
+	Uni<String> fallbackHelloLocations() {
+		return Uni.createFrom().item("Could not invoke the Locations microservice")
+			.invoke(message -> Log.warn(message));
+	}
 
   Uni<String> fallbackHelloNarration() {
     return Uni.createFrom().item("Could not invoke the Narration microservice")

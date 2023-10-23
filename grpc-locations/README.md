@@ -18,7 +18,7 @@ Additionally, this application favors constructor injection of beans over field 
 ![grpc-locations](images/grpc-locations.png)
 
 ### Exposed Endpoints
-Since this is a gRPC service, the protobuf definition can be [found here](src/main/proto/locationservice.proto).
+Since this is a gRPC service, the protobuf definition can be [found here](src/main/proto/locationservice-v1.proto).
 
 ## Benchmarking with Hyperfoil
 Hyperfoil doesn't yet support gRPC. [This issue](https://github.com/Hyperfoil/Hyperfoil/issues/281) is currently tracking it.

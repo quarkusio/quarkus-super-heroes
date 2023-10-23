@@ -1,6 +1,7 @@
 @startuml
 !include <logos/kafka>
 !include <logos/postgresql>
+!include <logos/mariadb>
 !include <logos/mongodb>
 !include <logos/prometheus>
 !include <logos/angular>
@@ -55,6 +56,12 @@ node "Villain" as villain {
     villainQuarkus .up> villainPostgresql
 }
 
+node "Location" as location {
+		agent "Quarkus (imperative)" <<application>> as locationQuarkus
+		database "<$mariadb>" as locationMariadb
+		locationQuarkus .up> locationMariadb
+}
+
 together {
   queue "<$kafka>" as kafka {
   }
@@ -79,14 +86,15 @@ angularUi --> fightQuarkus : HTTP
 fightQuarkus --> narrationQuarkus : HTTP
 fightQuarkus --> villainQuarkus : HTTP
 fightQuarkus --> heroQuarkus : HTTP
+fightQuarkus -[dotted]-> locationQuarkus : gRPC
 
 sk --> openai : HTTP
 
 fightQuarkus ..> kafka : Message
-fightQuarkus -[dotted]-> apicurio : HTTP
+fightQuarkus --> apicurio : HTTP
 
 statQuarkus <.. kafka : Message
-statQuarkus -[dotted]-> apicurio : HTTP
+statQuarkus --> apicurio : HTTP
 statQuarkus ..> uiStats : Web Sockets
 
 prometheus .> fight : polling
@@ -94,6 +102,7 @@ prometheus .> narration : polling
 prometheus .> hero : polling
 prometheus .> villain : polling
 prometheus .> stats : polling
+prometheus .> location : polling
 
 otelCollector .> jaeger : gRPC
 otelCollector <-[dotted]- fight : gRPC
@@ -101,4 +110,5 @@ otelCollector <-[dotted]- hero : gRPC
 otelCollector <-[dotted]- villain : gRPC
 otelCollector <-[dotted]- narration : gRPC
 otelCollector <-[dotted]- stats : gRPC
+otelCollector <-[dotted]- location : gRPC
 @enduml

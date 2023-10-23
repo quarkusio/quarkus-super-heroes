@@ -12,6 +12,7 @@
     <mapstruct.version>1.5.5.Final</mapstruct.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
     <maven.compiler.release>17</maven.compiler.release>
+	  <microcks.version>0.1.1</microcks.version>
     <pact.version>1.1.0</pact.version>
     <pact.writer.overwrite>true</pact.writer.overwrite>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -165,6 +166,16 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-grpc</artifactId>
+    </dependency>
+	  <dependency>
+		  <groupId>io.github.microcks.quarkus</groupId>
+		  <artifactId>quarkus-microcks</artifactId>
+		  <version>${microcks.version}</version>
+		  <scope>provided</scope>
+	  </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>
     </dependency>
@@ -210,7 +221,7 @@
       <groupId>io.quarkiverse.pact</groupId>
       <artifactId>quarkus-pact-provider</artifactId>
       <version>${pact.version}</version>
-      <scope>provided</scope> <!-- See https://github.com/quarkiverse/quarkus-pact/issues/28 -->
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
