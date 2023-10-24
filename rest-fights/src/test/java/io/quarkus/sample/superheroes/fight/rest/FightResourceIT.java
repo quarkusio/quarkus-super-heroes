@@ -68,10 +68,10 @@ import io.vertx.core.Vertx;
  * <p>
  *   Uses an external container image for Kafka
  * </p>
- * @see io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource
+ * @see HeroesVillainsNarrationWiremockServerResource
  */
 @QuarkusIntegrationTest
-@QuarkusTestResource(HeroesVillainsNarrationWiremockServerResource.class)
+@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
 @QuarkusTestResource(value = KafkaCompanionResource.class, restrictToAnnotatedClass = true)
 @TestMethodOrder(OrderAnnotation.class)
 public class FightResourceIT {

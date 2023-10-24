@@ -8,7 +8,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that can be used to inject a {@link com.github.tomakehurst.wiremock.WireMockServer WireMockServer} into a test annotated with either {@link io.quarkus.test.junit.QuarkusTest @QuarkusTest} or {@link io.quarkus.test.junit.QuarkusIntegrationTest @QuarkusIntegrationTest}.
+ * Annotation that can be used to inject a {@link com.github.tomakehurst.wiremock.WireMockServer WireMockServer}
+ * or a {@link org.wiremock.grpc.dsl.WireMockGrpcService WireMockGrpcService} into a test annotated with either {@link io.quarkus.test.junit.QuarkusTest @QuarkusTest} or {@link io.quarkus.test.junit.QuarkusIntegrationTest @QuarkusIntegrationTest}.
  * <p>
  *   <pre>
  *     {@code
@@ -17,7 +18,19 @@ import java.lang.annotation.Target;
  *     }
  *   </pre>
  * </p>
+ * <p>
+ *   or
+ * </p>
+ * <p>
+ *   <pre>
+ *     {@code
+ * @InjectWireMock
+ * WireMockGrpcService grpcServer;
+ *     }
+ *   </pre>
+ * </p>
  * @see HeroesVillainsNarrationWiremockServerResource
+ * @see LocationWiremockServerResource
  */
 @Target({ METHOD, CONSTRUCTOR, FIELD })
 @Retention(RUNTIME)

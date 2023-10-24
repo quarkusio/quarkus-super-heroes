@@ -21,7 +21,8 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>3.4.3</quarkus.platform.version>
     <surefire-plugin.version>3.1.2</surefire-plugin.version>
-    <wiremock.version>2.35.1</wiremock.version>
+    <wiremock.version>3.2.0</wiremock.version>
+	  <wiremock-grpc.version>0.2.0</wiremock-grpc.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -196,11 +197,23 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-jre8</artifactId>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock</artifactId>
       <version>${wiremock.version}</version>
       <scope>test</scope>
     </dependency>
+	  <dependency>
+		  <groupId>org.wiremock</groupId>
+		  <artifactId>wiremock-grpc-extension</artifactId>
+		  <version>${wiremock-grpc.version}</version>
+		  <scope>test</scope>
+		  <exclusions>
+			  <exclusion>
+				  <groupId>io.grpc</groupId>
+				  <artifactId>grpc-bom</artifactId>
+			  </exclusion>
+		  </exclusions>
+	  </dependency>
     <dependency>
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>smallrye-reactive-messaging-in-memory</artifactId>
