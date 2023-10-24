@@ -16,6 +16,7 @@ quarkus:
   grpc:
     server:
       use-separate-server: false
+      enable-reflection-service: true
       port: "${quarkus.http.port}"
       test-port: "${quarkus.http.test-port}"
   otel:
@@ -49,6 +50,9 @@ quarkus:
     base-native-image: quay.io/quarkus/ubi-quarkus-native-binary-s2i:2.0
     route:
       expose: true
+      tls:
+        termination: passthrough
+        insecure-edge-termination-policy: None
     annotations:
       "app.openshift.io/connects-to": locations-db,otel-collector
     labels:
@@ -58,6 +62,7 @@ quarkus:
   knative:
     annotations:
       "app.openshift.io/connects-to": locations-db,otel-collector
+      "serverless.openshift.io/default-enable-http2": 'true'
     labels:
       app: "${quarkus.kubernetes.labels.app}"
       application: "${quarkus.kubernetes.part-of}"

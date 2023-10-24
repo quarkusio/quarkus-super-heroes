@@ -5,7 +5,7 @@ metadata:
   name: grpc-locations-config
   labels:
     app: grpc-locations
-    application: location-service
+    application: locations-service
     system: quarkus-super-heroes
 data:
   quarkus.hibernate-orm.database.generation: validate
@@ -20,7 +20,7 @@ metadata:
   name: grpc-locations-config-creds
   labels:
     app: grpc-locations
-    application: location-service
+    application: locations-service
     system: quarkus-super-heroes
 data:
   quarkus.datasource.username: bG9jYXRpb25z
@@ -33,7 +33,7 @@ metadata:
   name: locations-db-config
   labels:
     app: locations-db
-    application: location-service
+    application: locations-service
     system: quarkus-super-heroes
 data:
   MARIADB_DATABASE: bG9jYXRpb25zX2RhdGFiYXNl
@@ -47,7 +47,7 @@ metadata:
   name: locations-db-init
   labels:
     app: locations-db
-    application: location-service
+    application: locations-service
     system: quarkus-super-heroes
 data:
   get-data.sh: |-
@@ -60,10 +60,10 @@ kind: Deployment
 metadata:
   labels:
     app: locations-db
-    application: location-service
+    application: locations-service
     system: quarkus-super-heroes
-    app.kubernetes.io/part-of: location-service
-    app.openshift.io/runtime: postgresql
+    app.kubernetes.io/part-of: locations-service
+    app.openshift.io/runtime: mariadb
   name: locations-db
 spec:
   replicas: 1
@@ -73,21 +73,21 @@ spec:
   template:
     metadata:
       labels:
-        application: location-service
+        application: locations-service
         name: locations-db
     spec:
       initContainers:
         - name: get-data
           image: registry.access.redhat.com/ubi8-minimal:8.6
-          workingDir: /docker-entrypoint-startdb.d
+          workingDir: /tmp/dbinit
           command:
             - 'sh'
             - 'get-data.sh'
-            - '&&'
-            - 'rm -rf get-data.sh'
           volumeMounts:
-            - name: locations-db-init
+            - name: locations-initdata
               mountPath: /docker-entrypoint-startdb.d
+            - name: locations-db-init
+              mountPath: /tmp/dbinit
       containers:
         - image: bitnami/mariadb:10.11
           name: locations-db
@@ -102,15 +102,17 @@ spec:
           volumeMounts:
             - name: locations-db-data
               mountPath: /bitnami/mariadb
-            - name: locations-db-init
+            - name: locations-initdata
               mountPath: /docker-entrypoint-startdb.d
           resources:
             limits:
-              memory: 128Mi
+              memory: 256Mi
             requests:
-              memory: 32Mi
+              memory: 64Mi
       volumes:
         - name: locations-db-data
+          emptyDir: {}
+        - name: locations-initdata
           emptyDir: {}
         - name: locations-db-init
           configMap:
@@ -121,7 +123,7 @@ kind: Service
 metadata:
   labels:
     name: locations-db
-    application: location-service
+    application: locations-service
     system: quarkus-super-heroes
   name: locations-db
 spec:
