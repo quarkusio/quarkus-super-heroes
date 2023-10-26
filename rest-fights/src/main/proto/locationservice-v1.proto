@@ -19,17 +19,9 @@ message Location {
 }
 
 message RandomLocationRequest {}
-message AllLocationsRequest {}
 
 message LocationsList {
   repeated Location locations = 1;
-}
-
-message DeleteAllLocationsRequest {}
-message DeleteAllLocationsResponse {}
-
-message GetLocationRequest {
-  string name = 1;
 }
 
 message HelloRequest {}
@@ -40,8 +32,5 @@ message HelloReply {
 
 service Locations {
   rpc GetRandomLocation(RandomLocationRequest) returns (Location) {}
-  rpc GetAllLocations(AllLocationsRequest) returns (LocationsList) {}
-  rpc DeleteAllLocations(DeleteAllLocationsRequest) returns (DeleteAllLocationsResponse) {}
-  rpc GetLocationByName(GetLocationRequest) returns (Location) {}
   rpc Hello(HelloRequest) returns (HelloReply) {}
 }

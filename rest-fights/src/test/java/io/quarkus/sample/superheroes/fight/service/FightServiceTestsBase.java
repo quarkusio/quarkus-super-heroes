@@ -33,6 +33,7 @@ public abstract class FightServiceTestsBase {
   static final String VILLAINS_TEAM_NAME = "villains";
   static final String DEFAULT_HELLO_VILLAIN_RESPONSE = "Hello villains!";
   static final String DEFAULT_HELLO_NARRATION_RESPONSE = "Hello narration!";
+	static final String DEFAULT_HELLO_LOCATION_RESPONSE = "Hello location!";
   static final String DEFAULT_NARRATION = """
                                           This is a default narration - NOT a fallback!
                                           
