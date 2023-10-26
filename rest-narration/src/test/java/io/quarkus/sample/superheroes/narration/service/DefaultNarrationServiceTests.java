@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.narration.Fight;
+import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
 import io.quarkus.sample.superheroes.narration.config.NarrationConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -24,7 +25,19 @@ class DefaultNarrationServiceTests {
   private static final int VILLAIN_LEVEL = 43;
   private static final String VILLAIN_POWERS = "Transforms chocolatine into pain au chocolat";
   private static final String VILLAIN_TEAM_NAME = "villains";
-  private static final Fight FIGHT = new Fight(VILLAIN_NAME, VILLAIN_LEVEL, VILLAIN_POWERS, HERO_NAME, HERO_LEVEL, HERO_POWERS, VILLAIN_TEAM_NAME, HERO_TEAM_NAME);
+  private static final String DEFAULT_LOCATION_NAME = "Gotham City";
+  private static final String DEFAULT_LOCATION_DESCRIPTION = "An American city rife with corruption and crime, the home of its iconic protector Batman.";
+  private static final Fight FIGHT = new Fight(
+    VILLAIN_NAME,
+    VILLAIN_LEVEL,
+    VILLAIN_POWERS,
+    HERO_NAME,
+    HERO_LEVEL,
+    HERO_POWERS,
+    VILLAIN_TEAM_NAME,
+    HERO_TEAM_NAME,
+    new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION)
+  );
 
   @Inject
   DefaultNarrationService narrationService;

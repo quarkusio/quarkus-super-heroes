@@ -65,6 +65,10 @@
       "request": {
         "body": {
           "content": {
+            "location": {
+              "description": "An American city rife with corruption and crime, the home of its iconic protector Batman.",
+              "name": "Gotham City"
+            },
             "loserLevel": 42,
             "loserName": "Super Chocolatine",
             "loserPowers": "does not eat pain au chocolat",
@@ -87,6 +91,22 @@
         },
         "matchingRules": {
           "body": {
+            "$.location.description": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.location.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
             "$.loserLevel": {
               "combine": "AND",
               "matchers": [

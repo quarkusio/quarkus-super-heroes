@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.narration.Fight;
+import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
 @QuarkusIntegrationTest
@@ -27,7 +28,19 @@ public class NarrationResourceIT {
                                           In the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.
                                           The people knew that their protector had once again ensured their safety.
                                           """;
-  private static final Fight FIGHT = new Fight(VILLAIN_NAME, VILLAIN_LEVEL, VILLAIN_POWERS, HERO_NAME, HERO_LEVEL, HERO_POWERS, VILLAIN_TEAM_NAME, HERO_TEAM_NAME);
+  private static final String DEFAULT_LOCATION_NAME = "Gotham City";
+  private static final String DEFAULT_LOCATION_DESCRIPTION = "An American city rife with corruption and crime, the home of its iconic protector Batman.";
+  private static final Fight FIGHT = new Fight(
+    VILLAIN_NAME,
+    VILLAIN_LEVEL,
+    VILLAIN_POWERS,
+    HERO_NAME,
+    HERO_LEVEL,
+    HERO_POWERS,
+    VILLAIN_TEAM_NAME,
+    HERO_TEAM_NAME,
+    new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION)
+  );
 
   @Test
   void shouldPingOpenAPI() {

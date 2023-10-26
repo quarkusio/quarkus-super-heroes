@@ -65,6 +65,8 @@ public abstract sealed class OpenAINarrationServiceBase implements NarrationServ
     fightContext.setVariable("loser_name", fight.loserName());
     fightContext.setVariable("loser_powers", fight.loserPowers());
     fightContext.setVariable("loser_level", String.valueOf(fight.loserLevel()));
+    fightContext.setVariable("location_name", fight.location().name());
+    fightContext.setVariable("location_description", fight.location().description());
 
     var resultMono = this.narrateFunction.invokeAsync(fightContext);
 

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 
 import io.quarkus.sample.superheroes.narration.Fight;
+import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
 import io.quarkus.sample.superheroes.narration.config.NarrationConfig;
 import io.quarkus.test.junit.QuarkusMock;
 
@@ -37,23 +38,37 @@ abstract class OpenAINarrationServiceTestsBase<T extends OpenAINarrationServiceB
   protected static final int VILLAIN_LEVEL = 43;
   protected static final String VILLAIN_POWERS = "Transforms chocolatine into pain au chocolat";
   protected static final String VILLAIN_TEAM_NAME = "villains";
-  protected static final Fight FIGHT = new Fight(VILLAIN_NAME, VILLAIN_LEVEL, VILLAIN_POWERS, HERO_NAME, HERO_LEVEL, HERO_POWERS, VILLAIN_TEAM_NAME, HERO_TEAM_NAME);
-  protected static final ArgumentMatcher<Fight> FIGHT_MATCHER = FIGHT::equals;
+
+  protected static final Fight FIGHT = new Fight(
+    VILLAIN_NAME,
+    VILLAIN_LEVEL,
+    VILLAIN_POWERS,
+    HERO_NAME,
+    HERO_LEVEL,
+    HERO_POWERS,
+    VILLAIN_TEAM_NAME,
+    HERO_TEAM_NAME,
+    new FightLocation(
+      "Gotham City",
+      "An American city rife with corruption and crime, the home of its iconic protector Batman."
+    )
+  );
+
   protected static final String PROMPT = """
     ACT LIKE YOU WERE A MARVEL COMICS WRITER, EXPERT IN ALL SORTS OF SUPER HEROES AND SUPER VILLAINS.
     NARRATE THE FIGHT BETWEEN A SUPER HERO AND A SUPER VILLAIN.
     DURING THE NARRATION DON'T REPEAT "super hero" OR "super villain" WE KNOW WHO IS WHO.
     WRITE 4 PARAGRAPHS MAXIMUM.
-                                           
+    
     THE NARRATION MUST BE:
     - G RATED
     - WORKPLACE/FAMILY SAFE
     NO SEXISM, RACISM OR OTHER BIAS/BIGOTRY
-                                           
+    
     BE CREATIVE.
-                                           
+    
     HERE IS THE DATA YOU WILL USE FOR THE WINNER:
-                                           
+    
     +++++
     name:   Super Chocolatine
     powers: Transforms chocolatine into pain au chocolat
@@ -67,11 +82,13 @@ abstract class OpenAINarrationServiceTestsBase<T extends OpenAINarrationServiceB
     powers: Eats baguette in less than a second
     level:  42
     +++++
-                                           
+    
     HERE IS THE DATA YOU WILL USE FOR THE FIGHT:
-                                           
+    
     +++++
     Super Chocolatine WHO IS A villains HAS WON THE FIGHT AGAINST Super Baguette WHO IS A heroes.
+    
+    THE FIGHT TOOK PLACE IN Gotham City WHICH CAN BE DESCRIBED AS An American city rife with corruption and crime, the home of its iconic protector Batman.
     +++++
                                        """;
 
@@ -120,8 +137,8 @@ abstract class OpenAINarrationServiceTestsBase<T extends OpenAINarrationServiceB
       .isNotNull()
       .isEqualTo(expectedNarration);
 
-    verify(narrationService).narrate(argThat(FIGHT_MATCHER));
-    verify(narrationService, never()).fallbackNarrate(argThat(FIGHT_MATCHER));
+    verify(narrationService).narrate(eq(FIGHT));
+    verify(narrationService, never()).fallbackNarrate(eq(FIGHT));
   }
 
   @Test
@@ -145,8 +162,8 @@ abstract class OpenAINarrationServiceTestsBase<T extends OpenAINarrationServiceB
       .isNotNull()
       .isEqualTo(this.narrationConfig.fallbackNarration());
 
-    verify(narrationService).narrate(argThat(FIGHT_MATCHER));
-    verify(narrationService).fallbackNarrate(argThat(FIGHT_MATCHER));
+    verify(narrationService).narrate(eq(FIGHT));
+    verify(narrationService).fallbackNarrate(eq(FIGHT));
   }
 
   @Test
@@ -177,8 +194,8 @@ abstract class OpenAINarrationServiceTestsBase<T extends OpenAINarrationServiceB
       .isNotNull()
       .isEqualTo(this.narrationConfig.fallbackNarration());
 
-    verify(narrationService).narrate(argThat(FIGHT_MATCHER));
-    verify(narrationService).fallbackNarrate(argThat(FIGHT_MATCHER));
+    verify(narrationService).narrate(eq(FIGHT));
+    verify(narrationService).fallbackNarrate(eq(FIGHT));
   }
 
   private static ChatCompletions mockCompletion(String expected) {
