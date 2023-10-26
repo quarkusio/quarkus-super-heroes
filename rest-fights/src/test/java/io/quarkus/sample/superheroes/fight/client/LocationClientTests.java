@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.GrpcMockServerResource;
 import io.quarkus.sample.superheroes.fight.InjectGrpcMock;
 import io.quarkus.sample.superheroes.location.grpc.HelloReply;
@@ -45,6 +46,7 @@ public class LocationClientTests {
 		.setPicture(DEFAULT_LOCATION_PICTURE)
 		.setType(DEFAULT_LOCATION_TYPE)
 		.build();
+  private static final FightLocation DEFAULT_FIGHT_LOCATION = new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION, DEFAULT_LOCATION_PICTURE);
 
 	@Inject
 	LocationClient locationClient;
@@ -104,7 +106,7 @@ public class LocationClientTests {
 
         assertThat(location)
           .isNotNull()
-	        .isEqualTo(DEFAULT_LOCATION);
+	        .isEqualTo(DEFAULT_FIGHT_LOCATION);
       });
 
 		this.grpcMock.verifyThat(

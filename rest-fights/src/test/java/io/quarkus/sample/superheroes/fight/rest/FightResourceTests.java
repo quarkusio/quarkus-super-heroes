@@ -5,24 +5,21 @@ import static io.restassured.http.ContentType.*;
 import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.params.ParameterizedTest.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentMatcher;
 
 import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
+import io.quarkus.sample.superheroes.fight.client.FightToNarrate.FightToNarrateLocation;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.service.FightService;
@@ -59,6 +56,10 @@ public class FightResourceTests {
                                                   In the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.
                                                   The people knew that their protector had once again ensured their safety.
                                                   """;
+
+  private static final String DEFAULT_LOCATION_NAME = "Gotham City";
+  private static final String DEFAULT_LOCATION_DESCRIPTION = "An American city rife with corruption and crime, the home of its iconic protector Batman.";
+  private static final String DEFAULT_LOCATION_PICTURE = "gotham_city.png";
 
 	@InjectMock
 	FightService fightService;
@@ -122,13 +123,13 @@ public class FightResourceTests {
 	@Test
 	public void helloLocationEndpoint() {
 		when(this.fightService.helloLocations())
-			.thenReturn(Uni.createFrom().item("Hello Location Resource"));
+			.thenReturn(Uni.createFrom().item("Hello FightLocation Resource"));
 
 		get("/api/fights/hello/locations")
 			.then()
 			.statusCode(OK.getStatusCode())
 			.contentType(TEXT)
-			.body(is("Hello Location Resource"));
+			.body(is("Hello FightLocation Resource"));
 
 		verify(this.fightService).helloLocations();
 		verifyNoMoreInteractions(this.fightService);
@@ -168,6 +169,25 @@ public class FightResourceTests {
 
       verifyNoInteractions(this.fightService);
     });
+  }
+
+  @Test
+  public void shouldGetRandomLocation() {
+    when(this.fightService.findRandomLocation())
+      .thenReturn(Uni.createFrom().item(FightResourceTests::createDefaultLocation));
+
+    var randomLocation = get("/api/fights/randomlocation")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(JSON)
+      .extract().as(FightLocation.class);
+
+    assertThat(randomLocation)
+      .isNotNull().usingRecursiveComparison()
+      .isEqualTo(createDefaultLocation());
+
+    verify(this.fightService).findRandomLocation();
+    verifyNoMoreInteractions(this.fightService);
   }
 
   @Test
@@ -270,26 +290,25 @@ public class FightResourceTests {
 		verifyNoInteractions(this.fightService);
 	}
 
-	@ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
-	@MethodSource("invalidFighters")
-	public void shouldNotPerformFightInvalidFighters(Fighters fighters) {
-		given()
-			.when()
-				.contentType(JSON)
-				.accept(JSON)
-				.body(fighters)
-				.post("/api/fights")
-			.then()
-				.statusCode(BAD_REQUEST.getStatusCode());
+	@Test
+	public void shouldNotPerformFightInvalidFighters() {
+    invalidFighters().forEach(fighters -> {
+      given()
+        .when()
+          .contentType(JSON)
+          .accept(JSON)
+          .body(fighters)
+          .post("/api/fights")
+        .then()
+          .statusCode(BAD_REQUEST.getStatusCode());
 
-		verifyNoInteractions(this.fightService);
+      verifyNoInteractions(this.fightService);
+    });
 	}
 
 	@Test
 	public void shouldPerformFight() {
-		var fightersMatcher = fightersMatcher(createDefaultFighters());
-
-		when(this.fightService.performFight(argThat(fightersMatcher)))
+		when(this.fightService.performFight(eq(createDefaultFighters())))
 			.thenReturn(Uni.createFrom().item(createFightHeroWon()));
 
 		var fight = given()
@@ -308,7 +327,7 @@ public class FightResourceTests {
       .usingRecursiveComparison()
       .isEqualTo(createFightHeroWon());
 
-		verify(this.fightService).performFight(argThat(fightersMatcher));
+		verify(this.fightService).performFight(eq(createDefaultFighters()));
 		verifyNoMoreInteractions(this.fightService);
 	}
 
@@ -320,7 +339,7 @@ public class FightResourceTests {
 
 	private static Stream<Fighters> invalidFighters() {
 		return Stream.of(
-			new Fighters(),
+      new Fighters(),
 			new Fighters(createDefaultHero(), null),
 			new Fighters(null, createDefaultVillain()),
 			new Fighters(new Hero(null, DEFAULT_HERO_LEVEL, DEFAULT_HERO_PICTURE, DEFAULT_HERO_POWERS), createDefaultVillain()),
@@ -334,18 +353,18 @@ public class FightResourceTests {
 
   private static Stream<FightToNarrate> invalidFightsToNarrate() {
     return Stream.of(
-      new FightToNarrate(null, null, null, 0, null, null, null, 0),
-      new FightToNarrate("", "", "", 0, "", "", "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, "", "", "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, "", 0, "", "", "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, "", "", "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, "", "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, null, null, null, 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, null, 0, null, null, null, 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, null, null, null, 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, null, null, 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, null, 0)
+      new FightToNarrate(null, null, null, 0, null, null, null, 0, null),
+      new FightToNarrate("", "", "", 0, "", "", "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, "", "", "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, "", 0, "", "", "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, "", "", "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, "", "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, null, null, null, 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, null, 0, null, null, null, 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, null, null, null, 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, null, null, 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, null, 0, null)
     );
   }
 
@@ -385,6 +404,7 @@ public class FightResourceTests {
     fight.loserPowers = DEFAULT_VILLAIN_POWERS;
 		fight.winnerTeam = HEROES_TEAM_NAME;
 		fight.loserTeam = VILLAINS_TEAM_NAME;
+    fight.location = createDefaultLocation();
 
 		return fight;
 	}
@@ -398,38 +418,12 @@ public class FightResourceTests {
       VILLAINS_TEAM_NAME,
       DEFAULT_VILLAIN_NAME,
       DEFAULT_VILLAIN_POWERS,
-      DEFAULT_VILLAIN_LEVEL
+      DEFAULT_VILLAIN_LEVEL,
+      new FightToNarrateLocation(createDefaultLocation())
     );
 	}
 
-	private static ArgumentMatcher<Hero> heroMatcher(Hero hero) {
-		return h -> (hero == h) || (
-			(hero != null) &&
-				(h != null) &&
-				Objects.equals(hero.getName(), h.getName()) &&
-				Objects.equals(hero.getLevel(), h.getLevel()) &&
-				Objects.equals(hero.getPicture(), h.getPicture()) &&
-				Objects.equals(hero.getPowers(), h.getPowers())
-		);
-	}
-
-	private static ArgumentMatcher<Villain> villainMatcher(Villain villain) {
-		return v -> (villain == v) || (
-			(villain != null) &&
-				(v != null) &&
-				Objects.equals(villain.getName(), v.getName()) &&
-				Objects.equals(villain.getLevel(), v.getLevel()) &&
-				Objects.equals(villain.getPicture(), v.getPicture()) &&
-				Objects.equals(villain.getPowers(), v.getPowers())
-		);
-	}
-
-	private static ArgumentMatcher<Fighters> fightersMatcher(Fighters fighters) {
-		return f -> (fighters == f) || (
-			(fighters != null) &&
-				(f != null) &&
-				heroMatcher(f.getHero()).matches(fighters.getHero()) &&
-				villainMatcher(f.getVillain()).matches(fighters.getVillain())
-		);
-	}
+  private static FightLocation createDefaultLocation() {
+    return new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION, DEFAULT_LOCATION_PICTURE);
+  }
 }

@@ -22,6 +22,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
@@ -32,6 +33,7 @@ import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
+import io.quarkus.sample.superheroes.fight.mapping.LocationMapper;
 
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
@@ -53,9 +55,10 @@ public class FightService {
 	private final MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter;
 	private final FightConfig fightConfig;
   private final FightMapper fightMapper;
+  private final LocationMapper locationMapper;
 	private final Random random = new Random();
 
-	public FightService(HeroClient heroClient, VillainClient villainClient, @RestClient NarrationClient narrationClient, LocationClient locationClient, @Channel("fights") MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter, FightConfig fightConfig, FightMapper fightMapper) {
+	public FightService(HeroClient heroClient, VillainClient villainClient, @RestClient NarrationClient narrationClient, LocationClient locationClient, @Channel("fights") MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter, FightConfig fightConfig, FightMapper fightMapper, LocationMapper locationMapper) {
 		this.heroClient = heroClient;
 		this.villainClient = villainClient;
     this.narrationClient = narrationClient;
@@ -63,6 +66,7 @@ public class FightService {
 		this.emitter = emitter;
 		this.fightConfig = fightConfig;
     this.fightMapper = fightMapper;
+    this.locationMapper = locationMapper;
   }
 
 	/**
@@ -107,9 +111,18 @@ public class FightService {
 		return addDelay(Uni.combine()
 			.all()
 			.unis(hero, villain)
-			.combinedWith(Fighters::new)
+      .with((h, v) -> new Fighters(h, v))
 		);
 	}
+
+  @Timeout(value = 2, unit = ChronoUnit.SECONDS)
+  @Fallback(fallbackMethod = "fallbackRandomLocation")
+  public Uni<FightLocation> findRandomLocation() {
+    Log.debug("Finding a random location");
+    return this.locationClient.findRandomLocation()
+      .onItem().ifNull().continueWith(this::createFallbackLocation)
+      .invoke(location -> Log.debugf("Got random location: %s", location));
+  }
 
 	@Timeout(value = 2, unit = ChronoUnit.SECONDS)
 	@Fallback(fallbackMethod = "fallbackRandomHero")
@@ -207,6 +220,19 @@ public class FightService {
 			.invoke(v -> Log.warn("Falling back on Villain"));
 	}
 
+  Uni<FightLocation> fallbackRandomLocation() {
+    return Uni.createFrom().item(this::createFallbackLocation)
+      .invoke(l -> Log.warn("Falling back on Location"));
+  }
+
+  private FightLocation createFallbackLocation() {
+    return new FightLocation(
+      this.fightConfig.location().fallback().name(),
+      this.fightConfig.location().fallback().description(),
+      this.fightConfig.location().fallback().picture()
+    );
+  }
+
   Uni<String> fallbackNarrateFight(FightToNarrate fight) {
     return Uni.createFrom().item(this.fightConfig.fallbackNarration())
       .invoke(n -> Log.warn("Falling back on Narration"));
@@ -277,11 +303,11 @@ public class FightService {
 		int heroAdjust = this.random.nextInt(this.fightConfig.hero().adjustBound());
 		int villainAdjust = this.random.nextInt(this.fightConfig.villain().adjustBound());
 
-		return (fighters.getHero().getLevel() + heroAdjust) > (fighters.getVillain().getLevel() + villainAdjust);
+		return (fighters.hero().level() + heroAdjust) > (fighters.villain().level() + villainAdjust);
 	}
 
 	boolean shouldVillainWin(Fighters fighters) {
-		return fighters.getHero().getLevel() < fighters.getVillain().getLevel();
+		return fighters.hero().level() < fighters.villain().level();
 	}
 
 	Fight getRandomWinner(Fighters fighters) {
@@ -291,17 +317,17 @@ public class FightService {
 	}
 
 	Fight heroWonFight(Fighters fighters) {
-		Log.infof("Yes, Hero %s won over %s :o)", fighters.getHero().getName(), fighters.getVillain().getName());
+		Log.infof("Yes, Hero %s won over %s :o)", fighters.hero().name(), fighters.villain().name());
 
 		Fight fight = new Fight();
-		fight.winnerName = fighters.getHero().getName();
-		fight.winnerPicture = fighters.getHero().getPicture();
-		fight.winnerLevel = fighters.getHero().getLevel();
-    fight.winnerPowers = fighters.getHero().getPowers();
-		fight.loserName = fighters.getVillain().getName();
-		fight.loserPicture = fighters.getVillain().getPicture();
-		fight.loserLevel = fighters.getVillain().getLevel();
-    fight.loserPowers = fighters.getVillain().getPowers();
+		fight.winnerName = fighters.hero().name();
+		fight.winnerPicture = fighters.hero().picture();
+		fight.winnerLevel = fighters.hero().level();
+    fight.winnerPowers = fighters.hero().powers();
+		fight.loserName = fighters.villain().name();
+		fight.loserPicture = fighters.villain().picture();
+		fight.loserLevel = fighters.villain().level();
+    fight.loserPowers = fighters.villain().powers();
 		fight.winnerTeam = this.fightConfig.hero().teamName();
 		fight.loserTeam = this.fightConfig.villain().teamName();
 
@@ -309,17 +335,17 @@ public class FightService {
 	}
 
 	Fight villainWonFight(Fighters fighters) {
-		Log.infof("Gee, Villain %s won over %s :o(", fighters.getVillain().getName(), fighters.getHero().getName());
+		Log.infof("Gee, Villain %s won over %s :o(", fighters.villain().name(), fighters.hero().name());
 
 		Fight fight = new Fight();
-		fight.winnerName = fighters.getVillain().getName();
-		fight.winnerPicture = fighters.getVillain().getPicture();
-		fight.winnerLevel = fighters.getVillain().getLevel();
-    fight.winnerPowers = fighters.getVillain().getPowers();
-		fight.loserName = fighters.getHero().getName();
-		fight.loserPicture = fighters.getHero().getPicture();
-		fight.loserLevel = fighters.getHero().getLevel();
-    fight.loserPowers = fighters.getHero().getPowers();
+		fight.winnerName = fighters.villain().name();
+		fight.winnerPicture = fighters.villain().picture();
+		fight.winnerLevel = fighters.villain().level();
+    fight.winnerPowers = fighters.villain().powers();
+		fight.loserName = fighters.hero().name();
+		fight.loserPicture = fighters.hero().picture();
+		fight.loserLevel = fighters.hero().level();
+    fight.loserPowers = fighters.hero().powers();
 		fight.winnerTeam = this.fightConfig.villain().teamName();
 		fight.loserTeam = this.fightConfig.hero().teamName();
 		return fight;

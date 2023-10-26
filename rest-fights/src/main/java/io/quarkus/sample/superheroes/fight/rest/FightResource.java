@@ -25,6 +25,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
@@ -69,6 +70,18 @@ public class FightResource {
 		return this.service.findRandomFighters()
 			.invoke(fighters -> Log.debugf("Got random fighters: %s", fighters));
 	}
+
+  @GET
+  @Path("/randomlocation")
+  @Operation(summary = "Returns a random location")
+  @APIResponse(
+    responseCode = "200",
+    description = "A random location"
+  )
+  public Uni<FightLocation> getRandomFightLocation() {
+    return this.service.findRandomLocation()
+      .invoke(location -> Log.debugf("Got random location: %s", location));
+  }
 
 	@GET
 	@Path("/{id}")

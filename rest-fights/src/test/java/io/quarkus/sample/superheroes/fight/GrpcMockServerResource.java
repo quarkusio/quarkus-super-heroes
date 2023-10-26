@@ -17,6 +17,7 @@ public class GrpcMockServerResource implements QuarkusTestResourceLifecycleManag
 
 		return Map.of(
 				"quarkus.grpc.clients.locations.host", "localhost",
+        "quarkus.grpc.clients.locations.port", String.valueOf(this.server.getPort()),
 		    "quarkus.grpc.clients.locations.test-port", String.valueOf(this.server.getPort())
 	    );
 	}

@@ -10,9 +10,10 @@ import org.eclipse.microprofile.faulttolerance.Retry;
 
 import io.quarkus.grpc.GrpcClient;
 import io.quarkus.logging.Log;
+import io.quarkus.sample.superheroes.fight.FightLocation;
+import io.quarkus.sample.superheroes.fight.mapping.LocationMapper;
 import io.quarkus.sample.superheroes.location.grpc.HelloReply;
 import io.quarkus.sample.superheroes.location.grpc.HelloRequest;
-import io.quarkus.sample.superheroes.location.grpc.Location;
 import io.quarkus.sample.superheroes.location.grpc.Locations;
 import io.quarkus.sample.superheroes.location.grpc.RandomLocationRequest;
 
@@ -27,19 +28,22 @@ import io.smallrye.mutiny.Uni;
 @ApplicationScoped
 public class LocationClient {
 	private final Locations locationClient;
+  private final LocationMapper locationMapper;
 
-	public LocationClient(@GrpcClient("locations") Locations locationClient) {
+	public LocationClient(@GrpcClient("locations") Locations locationClient, LocationMapper locationMapper) {
 		this.locationClient = locationClient;
-	}
+    this.locationMapper = locationMapper;
+  }
 
 	@CircuitBreaker(requestVolumeThreshold = 8, failureRatio = 0.5, delay = 2, delayUnit = ChronoUnit.SECONDS)
   @CircuitBreakerName("findRandomLocation")
   @Retry(maxRetries = 3, delay = 200, delayUnit = ChronoUnit.MILLIS)
   @WithSpan(kind = SpanKind.CLIENT, value = "LocationClient.findRandomLocation")
-	public Uni<Location> findRandomLocation() {
+	public Uni<FightLocation> findRandomLocation() {
 		Log.debug("Making request to location service to find a random location");
 
 		return this.locationClient.getRandomLocation(RandomLocationRequest.newBuilder().build())
+      .map(this.locationMapper::fromGrpc)
 			.invoke(location -> Log.debugf("Got random location from locations service: %s", location))
 			.onFailure(this::isNotFoundFailure).recoverWithNull();
 	}

@@ -91,18 +91,7 @@ class HeroClientTests {
 
         assertThat(hero)
           .isNotNull()
-          .extracting(
-            Hero::getName,
-            Hero::getLevel,
-            Hero::getPicture,
-            Hero::getPowers
-          )
-          .containsExactly(
-            DEFAULT_HERO_NAME,
-            DEFAULT_HERO_LEVEL,
-            DEFAULT_HERO_PICTURE,
-            DEFAULT_HERO_POWERS
-          );
+          .isEqualTo(DEFAULT_HERO);
       });
 
     this.wireMockServer.verify(5,

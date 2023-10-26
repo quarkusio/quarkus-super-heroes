@@ -92,18 +92,7 @@ class VillainClientTests {
 
         assertThat(villain)
           .isNotNull()
-          .extracting(
-            Villain::getName,
-            Villain::getLevel,
-            Villain::getPicture,
-            Villain::getPowers
-          )
-          .containsExactly(
-            DEFAULT_VILLAIN_NAME,
-            DEFAULT_VILLAIN_LEVEL,
-            DEFAULT_VILLAIN_PICTURE,
-            DEFAULT_VILLAIN_POWERS
-          );
+          .isEqualTo(DEFAULT_VILLAIN);
       });
 
     this.wireMockServer.verify(5,
