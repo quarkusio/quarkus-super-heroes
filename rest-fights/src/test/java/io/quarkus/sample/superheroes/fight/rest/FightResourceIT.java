@@ -90,9 +90,9 @@ import io.vertx.core.Vertx;
  * @see KafkaCompanionResource
  */
 @QuarkusIntegrationTest
-@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(HeroesVillainsNarrationWiremockServerResource.class)
 @QuarkusTestResource(value = KafkaCompanionResource.class, restrictToAnnotatedClass = true)
-@QuarkusTestResource(value = GrpcMockServerResource.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(GrpcMockServerResource.class)
 @TestMethodOrder(OrderAnnotation.class)
 public class FightResourceIT {
 	private static final int DEFAULT_ORDER = 0;

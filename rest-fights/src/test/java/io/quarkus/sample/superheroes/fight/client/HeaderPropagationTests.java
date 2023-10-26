@@ -33,7 +33,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
 @QuarkusTest
-@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(HeroesVillainsNarrationWiremockServerResource.class)
 public class HeaderPropagationTests {
   private static final String PROPAGATE_HEADER_NAME = "x-propagate";
   private static final String PROPAGATE_HEADER_VALUE = "propagate-value";

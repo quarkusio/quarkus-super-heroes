@@ -33,7 +33,7 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
  * @see HeroesVillainsNarrationWiremockServerResource
  */
 @QuarkusTest
-@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(HeroesVillainsNarrationWiremockServerResource.class)
 class VillainClientTests {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
