@@ -50,6 +50,23 @@ public class Fight extends ReactivePanacheMongoEntity {
 	@NotEmpty
 	public String loserTeam;
 
+	public Location location = new Location();
+
+	public static class Location {
+		public String name;
+		public String description;
+		public String picture;
+
+		@Override
+		public String toString() {
+			return "Location{" +
+				"name='" + name + '\'' +
+				", description='" + description + '\'' +
+				", picture='" + picture + '\'' +
+				'}';
+		}
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
@@ -82,6 +99,7 @@ public class Fight extends ReactivePanacheMongoEntity {
 			", loserPicture='" + this.loserPicture + '\'' +
 			", winnerTeam='" + this.winnerTeam + '\'' +
 			", loserTeam='" + this.loserTeam + '\'' +
+			", location=" + this.location +
 			'}';
 	}
 }

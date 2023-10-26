@@ -178,4 +178,17 @@ public class FightResource {
   public Uni<String> helloNarration() {
     return this.service.helloNarration();
   }
+
+	@GET
+	@Produces(TEXT_PLAIN)
+	@Path("/hello/locations")
+	@Tag(name = "hello")
+	@Operation(summary = "Ping Locations hello")
+	@APIResponse(
+		responseCode = "200",
+		description = "Ping Locations hello"
+	)
+	public Uni<String> helloLocations() {
+		return this.service.helloLocations();
+	}
 }

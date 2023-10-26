@@ -1,0 +1,14 @@
+
+  locations-db:
+    image: mariadb:10.11
+    container_name: locations-db
+    ports:
+      - "3306"
+    environment:
+      MARIADB_USER: locations
+      MARIADB_PASSWORD: locations
+      MARIADB_DATABASE: locations_database
+      MARIADB_ROOT_PASSWORD: locations
+      MARIADB_SKIP_TEST_DB: yes
+    volumes:
+      - ../../../grpc-locations/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/1-init-tables.sql

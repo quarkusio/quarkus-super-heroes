@@ -119,6 +119,21 @@ public class FightResourceTests {
     verifyNoMoreInteractions(this.fightService);
   }
 
+	@Test
+	public void helloLocationEndpoint() {
+		when(this.fightService.helloLocations())
+			.thenReturn(Uni.createFrom().item("Hello Location Resource"));
+
+		get("/api/fights/hello/locations")
+			.then()
+			.statusCode(OK.getStatusCode())
+			.contentType(TEXT)
+			.body(is("Hello Location Resource"));
+
+		verify(this.fightService).helloLocations();
+		verifyNoMoreInteractions(this.fightService);
+	}
+
   @Test
   public void shouldGetNarration() {
     when(this.fightService.narrateFight(any(FightToNarrate.class)))

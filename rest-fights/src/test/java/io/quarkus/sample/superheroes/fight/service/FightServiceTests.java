@@ -22,12 +22,15 @@ import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
+import io.quarkus.sample.superheroes.fight.client.LocationClient;
 import io.quarkus.sample.superheroes.fight.client.NarrationClient;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 import io.smallrye.reactive.messaging.memory.InMemoryConnector;
@@ -54,6 +57,9 @@ class FightServiceTests extends FightServiceTestsBase {
 
 	@InjectMock
   VillainClient villainClient;
+
+	@InjectMock
+	LocationClient locationClient;
 
   @InjectMock
   @RestClient
@@ -780,6 +786,78 @@ class FightServiceTests extends FightServiceTestsBase {
     verifyNoMoreInteractions(this.heroClient);
     verifyNoInteractions(this.villainClient);
   }
+
+	@Test
+	public void helloLocationsSuccess() {
+		when(this.locationClient.helloLocations())
+			.thenReturn(Uni.createFrom().item(DEFAULT_HELLO_LOCATION_RESPONSE));
+
+		var message = this.fightService.helloLocations()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull()
+      .isEqualTo(DEFAULT_HELLO_LOCATION_RESPONSE);
+
+    verify(this.locationClient).helloLocations();
+    verify(this.fightService).helloLocations();
+    verifyNoInteractions(this.heroClient, this.villainClient, this.narrationClient);
+	}
+
+	@Test
+  public void helloLocationsFallback() {
+    when(this.fightService.fallbackHelloLocations())
+	    .thenReturn(Uni.createFrom().item("fallback"));
+
+    when(this.locationClient.helloLocations())
+	    .thenReturn(
+				Uni.createFrom().item("hello")
+					.onItem()
+					.delayIt().by(Duration.ofSeconds(6))
+	    );
+
+    var message = this.fightService.helloLocations()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(10))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull()
+      .isEqualTo("fallback");
+
+    verify(this.locationClient).helloLocations();
+    verify(this.fightService).helloLocations();
+    verify(this.fightService).fallbackHelloLocations();
+    verifyNoMoreInteractions(this.locationClient);
+  }
+
+	@Test
+	public void helloLocationsFailure() {
+		when(this.fightService.fallbackHelloLocations())
+			.thenReturn(Uni.createFrom().item("fallback"));
+
+		when(this.locationClient.helloLocations())
+			.thenReturn(Uni.createFrom().failure(() -> new StatusRuntimeException(Status.UNAVAILABLE)));
+
+		var message = this.fightService.helloLocations()
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(10))
+      .getItem();
+
+		assertThat(message)
+      .isNotNull()
+      .isEqualTo("fallback");
+
+		verify(this.locationClient).helloLocations();
+		verify(this.fightService).helloLocations();
+		verify(this.fightService).fallbackHelloLocations();
+		verifyNoMoreInteractions(this.locationClient);
+	}
 
   @Test
   public void helloVillainsFallback() {
