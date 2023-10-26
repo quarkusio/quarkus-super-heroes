@@ -19,10 +19,9 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>3.4.3</quarkus.platform.version>
-    <surefire-plugin.version>3.1.2</surefire-plugin.version>
+    <quarkus.platform.version>3.5.0</quarkus.platform.version>
+    <surefire-plugin.version>3.2.1</surefire-plugin.version>
     <wiremock.version>3.2.0</wiremock.version>
-	  <wiremock-grpc.version>0.2.0</wiremock-grpc.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -167,16 +166,6 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-grpc</artifactId>
-    </dependency>
-	  <dependency>
-		  <groupId>io.github.microcks.quarkus</groupId>
-		  <artifactId>quarkus-microcks</artifactId>
-		  <version>${microcks.version}</version>
-		  <scope>provided</scope>
-	  </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>
     </dependency>
@@ -202,18 +191,6 @@
       <version>${wiremock.version}</version>
       <scope>test</scope>
     </dependency>
-	  <dependency>
-		  <groupId>org.wiremock</groupId>
-		  <artifactId>wiremock-grpc-extension</artifactId>
-		  <version>${wiremock-grpc.version}</version>
-		  <scope>test</scope>
-		  <exclusions>
-			  <exclusion>
-				  <groupId>io.grpc</groupId>
-				  <artifactId>grpc-bom</artifactId>
-			  </exclusion>
-		  </exclusions>
-	  </dependency>
     <dependency>
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>smallrye-reactive-messaging-in-memory</artifactId>
@@ -234,7 +211,7 @@
       <groupId>io.quarkiverse.pact</groupId>
       <artifactId>quarkus-pact-provider</artifactId>
       <version>${pact.version}</version>
-      <scope>provided</scope>
+      <scope>provided</scope> <!-- See https://github.com/quarkiverse/quarkus-pact/issues/28 -->
     </dependency>
   </dependencies>
   <build>
