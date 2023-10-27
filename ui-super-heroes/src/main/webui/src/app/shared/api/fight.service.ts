@@ -17,6 +17,7 @@ import {Observable} from 'rxjs';
 
 import {Fight} from '../model/fight';
 import {Fighters} from '../model/fighters';
+import {FightLocation} from "../model/fightLocation";
 import {ModelLong} from '../model/modelLong';
 import {ModelString} from '../model/modelString';
 import {URI} from '../model/uRI';
@@ -309,6 +310,42 @@ export class FightService {
     const consumes: string[] = [];
 
     return this.httpClient.get<Fighters>(`${this.basePath}/api/fights/randomfighters`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   * Returns a random location
+   *
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  // tag::adocService[]
+  public apiFightsRandomLocationGet(observe?: 'body', reportProgress?: boolean): Observable<FightLocation>;
+  public apiFightsRandomLocationGet(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<FightLocation>>;
+  public apiFightsRandomLocationGet(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<FightLocation>>;
+  // end::adocService[]
+  public apiFightsRandomLocationGet(observe: any = 'body', reportProgress: boolean = false): Observable<any> {
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      'application/json'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [];
+
+    return this.httpClient.get<FightLocation>(`${this.basePath}/api/fights/randomlocation`,
       {
         withCredentials: this.configuration.withCredentials,
         headers: headers,

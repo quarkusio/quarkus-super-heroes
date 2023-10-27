@@ -14,7 +14,9 @@ This is the main user interface for the application. The application is an Angul
 
 ![ui-super-heroes](images/ui-super-heroes.png)
 
-The main UI allows you to pick up one random Hero and Villain by clicking on "New Fighters." Then it’s just a matter of clicking on "Fight!" to get them to fight. The table at the bottom shows the list of the previous fights.
+The main UI allows you to pick up one random Hero and Villain by clicking on "New Fighters", then pick a random location for the fight to take place by clicking on "New Location".
+
+Then it’s just a matter of clicking on "Fight!" to get them to fight. The table at the bottom shows the list of the previous fights.
 
 ![main-ui](images/main-ui.png)
 
