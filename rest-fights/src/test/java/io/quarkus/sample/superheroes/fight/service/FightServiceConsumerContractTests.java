@@ -68,17 +68,17 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
   private static final String VILLAIN_HELLO_URI = VILLAIN_API_BASE_URI + "/hello";
-  static final String VILLAINS_MOCK_PORT = "8083";
+  static final String VILLAINS_MOCK_PORT = "9083";
 
   private static final String HERO_API_BASE_URI = "/api/heroes";
   private static final String HERO_RANDOM_URI = HERO_API_BASE_URI + "/random";
   private static final String HERO_HELLO_URI = HERO_API_BASE_URI + "/hello";
-  static final String HEROES_MOCK_PORT = "8080";
+  static final String HEROES_MOCK_PORT = "9080";
 
   private static final String NARRATION_API_BASE_URI = "/api/narration";
   private static final String NARRATION_NARRATE_URI = NARRATION_API_BASE_URI;
   private static final String NARRATION_HELLO_URI = NARRATION_NARRATE_URI + "/hello";
-  static final String NARRATION_MOCK_PORT = "8085";
+  static final String NARRATION_MOCK_PORT = "9085";
 
 
   @InjectSpy
