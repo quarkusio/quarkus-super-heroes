@@ -65,7 +65,7 @@ public class VillainResource {
 		content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = Villain.class, required = true),
-      examples = @ExampleObject(name = "villain", value = "{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"darth_vader.png\", \"powers\": \"Uses light sabre, dark side of the force\"}")
+      examples = @ExampleObject(name = "villain", value = "{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"powers\": \"Uses light sabre, dark side of the force\"}")
     )
 	)
 	@APIResponse(
@@ -92,7 +92,7 @@ public class VillainResource {
 		content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = Villain.class, type = SchemaType.ARRAY),
-      examples = @ExampleObject(name = "villains", value = "[{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"darth_vader.png\", \"powers\": \"Uses light sabre, dark side of the force\"}]")
+      examples = @ExampleObject(name = "villains", value = "[{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"powers\": \"Uses light sabre, dark side of the force\"}]")
     )
 	)
 	public List<Villain> getAllVillains(@Parameter(name = "name_filter", description = "An optional filter parameter to filter results by name") @QueryParam("name_filter") Optional<String> nameFilter) {
@@ -114,7 +114,7 @@ public class VillainResource {
 		content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = Villain.class),
-      examples = @ExampleObject(name = "villain", value = "{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"darth_vader.png\", \"powers\": \"Uses light sabre, dark side of the force\"}")
+      examples = @ExampleObject(name = "villain", value = "{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"powers\": \"Uses light sabre, dark side of the force\"}")
     )
 	)
 	@APIResponse(
@@ -152,7 +152,7 @@ public class VillainResource {
       content = @Content(
         mediaType = APPLICATION_JSON,
         schema = @Schema(implementation = Villain.class),
-        examples = @ExampleObject(name = "valid_villain", value = "{\"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"darth_vader.png\", \"powers\": \"Uses light sabre, dark side of the force\"}")
+        examples = @ExampleObject(name = "valid_villain", value = "{\"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"powers\": \"Uses light sabre, dark side of the force\"}")
       )
     )
     @Valid @NotNull Villain villain,
@@ -187,7 +187,7 @@ public class VillainResource {
       content = @Content(
         mediaType = APPLICATION_JSON,
         schema = @Schema(implementation = Villain.class),
-        examples = @ExampleObject(name = "valid_villain", value = "{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"darth_vader.png\", \"powers\": \"Uses light sabre, dark side of the force\"}")
+        examples = @ExampleObject(name = "valid_villain", value = "{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"powers\": \"Uses light sabre, dark side of the force\"}")
       )
     )
     @Valid @NotNull Villain villain) {
@@ -225,7 +225,7 @@ public class VillainResource {
       content = @Content(
         mediaType = APPLICATION_JSON,
         schema = @Schema(implementation = Villain.class, type = SchemaType.ARRAY),
-        examples = @ExampleObject(name = "villains", value = "[{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"darth_vader.png\", \"powers\": \"Uses light sabre, dark side of the force\"}]")
+        examples = @ExampleObject(name = "villains", value = "[{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"powers\": \"Uses light sabre, dark side of the force\"}]")
       )
     )
     @NotNull List<Villain> villains,
@@ -246,7 +246,7 @@ public class VillainResource {
 		content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = Villain.class),
-      examples = @ExampleObject(name = "villain", value = "{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"darth_vader.png\", \"powers\": \"Uses light sabre, dark side of the force\"}")
+      examples = @ExampleObject(name = "villain", value = "{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"powers\": \"Uses light sabre, dark side of the force\"}")
     )
 	)
 	@APIResponse(
@@ -264,7 +264,7 @@ public class VillainResource {
       required = true,
       content = @Content(
         schema = @Schema(implementation = Villain.class),
-        examples = @ExampleObject(name = "valid_villain", value = "{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"darth_vader.png\", \"powers\": \"Uses light sabre, dark side of the force\"}")
+        examples = @ExampleObject(name = "valid_villain", value = "{\"id\": 1, \"name\": \"Darth Vader\", \"level\": 5, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"powers\": \"Uses light sabre, dark side of the force\"}")
       )
     )
     @NotNull Villain villain) {
