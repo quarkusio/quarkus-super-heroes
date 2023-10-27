@@ -6,11 +6,6 @@
       - fights-db
       - apicurio
       - fights-kafka
-      - rest-heroes-native
-      - rest-villains-native
-      - grpc-locations-native
-# Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
-#      - rest-narration-native
     ports:
       - "8082:8082"
     environment:
@@ -23,6 +18,7 @@
       QUARKUS_STORK_VILLAIN_SERVICE_SERVICE_DISCOVERY_ADDRESS_LIST: rest-villains:8084
       QUARKUS_STORK_NARRATION_SERVICE_SERVICE_DISCOVERY_ADDRESS_LIST: rest-narration:8087
       QUARKUS_GRPC_CLIENTS_LOCATIONS_HOST: grpc-locations
+      QUARKUS_GRPC_CLIENTS_LOCATIONS_PORT: 80
       MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL: http://apicurio:8086/apis/registry/v2
       QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
     restart: on-failure
