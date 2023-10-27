@@ -21,6 +21,23 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Fight'
+            examples:
+              valid_fight:
+                value:
+                  winnerName: Chewbacca
+                  winnerLevel: 5
+                  winnerPicture: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/chewbacca--684239239428094811.jpg
+                  winnerPowers: "Big, hairy, strong"
+                  winnerTeam: heroes
+                  loserName: Wanderer
+                  loserLevel: 3
+                  loserPicture: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/wanderer-300775911119209178.jpg
+                  loserPowers: Not strong
+                  location:
+                    name: Gotham City
+                    description: "An American city rife with corruption and crime,\
+                      \ the home of its iconic protector Batman."
+        required: true
       responses:
         "200":
           description: The narration
@@ -28,6 +45,9 @@ paths:
             text/plain:
               schema:
                 type: string
+              examples:
+                narration_success:
+                  value: This is your fight narration!
         "400":
           description: Invalid (or missing) fight
   /api/narration/hello:
@@ -42,6 +62,9 @@ paths:
             text/plain:
               schema:
                 type: string
+              examples:
+                hello_success:
+                  value: Hello Narration Resource
 components:
   schemas:
     Fight:
@@ -65,4 +88,14 @@ components:
         winnerTeam:
           type: string
         loserTeam:
+          type: string
+        location:
+          $ref: '#/components/schemas/FightLocation'
+    FightLocation:
+      description: Location of a fight
+      type: object
+      properties:
+        name:
+          type: string
+        description:
           type: string

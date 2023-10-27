@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.FightLocation;
+import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate.FightToNarrateLocation;
@@ -308,14 +309,14 @@ public class FightResourceTests {
 
 	@Test
 	public void shouldPerformFight() {
-		when(this.fightService.performFight(eq(createDefaultFighters())))
+		when(this.fightService.performFight(eq(createDefaultFightRequest())))
 			.thenReturn(Uni.createFrom().item(createFightHeroWon()));
 
 		var fight = given()
 			.when()
 				.contentType(JSON)
 				.accept(JSON)
-				.body(createDefaultFighters())
+				.body(createDefaultFightRequest())
 				.post("/api/fights")
 			.then()
 				.statusCode(OK.getStatusCode())
@@ -327,7 +328,7 @@ public class FightResourceTests {
       .usingRecursiveComparison()
       .isEqualTo(createFightHeroWon());
 
-		verify(this.fightService).performFight(eq(createDefaultFighters()));
+		verify(this.fightService).performFight(eq(createDefaultFightRequest()));
 		verifyNoMoreInteractions(this.fightService);
 	}
 
@@ -389,6 +390,10 @@ public class FightResourceTests {
 	private static Fighters createDefaultFighters() {
 		return new Fighters(createDefaultHero(), createDefaultVillain());
 	}
+
+  private static FightRequest createDefaultFightRequest() {
+    return new FightRequest(createDefaultHero(), createDefaultVillain(), createDefaultLocation());
+  }
 
 	private static Fight createFightHeroWon() {
 		var fight = new Fight();

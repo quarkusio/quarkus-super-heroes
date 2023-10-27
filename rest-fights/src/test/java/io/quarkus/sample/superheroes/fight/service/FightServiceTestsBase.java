@@ -10,7 +10,7 @@ import org.mockito.ArgumentMatcher;
 
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.FightLocation;
-import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate.FightToNarrateLocation;
 import io.quarkus.sample.superheroes.fight.client.Hero;
@@ -55,8 +55,8 @@ public abstract class FightServiceTestsBase {
   @InjectSpy
   FightService fightService;
 
-  static Fighters createDefaultFighters() {
-    return new Fighters(createDefaultHero(), createDefaultVillain());
+  static FightRequest createDefaultFightRequest() {
+    return new FightRequest(createDefaultHero(), createDefaultVillain(), createDefaultFightLocation());
   }
 
   static Hero createDefaultHero() {
@@ -137,7 +137,7 @@ public abstract class FightServiceTestsBase {
         Objects.equals(fight.winnerPicture, f.winnerPicture) &&
         Objects.equals(fight.winnerPowers, f.winnerPowers) &&
         Objects.equals(fight.winnerTeam, f.winnerTeam) &&
-        Objects.equals(fight.loserPowers, f.location)
+        Objects.equals(fight.location, f.location)
     );
   }
 }

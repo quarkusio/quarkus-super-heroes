@@ -25,6 +25,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Fight'
+              examples:
+                fights:
+                  value:
+                  - id: 653bea9d188984908cd12429
+                    fightDate: 2075-10-27T16:51:41.787Z
+                    winnerName: Luke Skywalker
+                    winnerLevel: 10
+                    winnerPowers: "Uses light sabre, The force"
+                    winnerPicture: luke_skywalker.png
+                    loserName: Darth Vader
+                    loserLevel: 3
+                    loserPowers: "Uses light sabre, dark side of the force"
+                    loserPicture: darth_vader.png
+                    location:
+                      name: Gotham City
+                      description: "An American city rife with corruption and crime,\
+                        \ the home of its iconic protector Batman."
+                      picture: gotham_city.png
     post:
       tags:
       - fights
@@ -33,7 +51,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Fighters'
+              $ref: '#/components/schemas/FightRequest'
+            examples:
+              fighters:
+                value:
+                  hero:
+                    name: Luke Skywalker
+                    level: 10
+                    powers: "Uses light sabre, The force"
+                    picture: luke_skywalker.png
+                  villain:
+                    name: Darth Vader
+                    level: 3
+                    powers: "Uses light sabre, dark side of the force"
+                    picture: darth_vader.png
+                  location:
+                    name: Gotham City
+                    description: "An American city rife with corruption and crime,\
+                      \ the home of its iconic protector Batman."
+                    picture: gotham_city.png
+        required: true
       responses:
         "200":
           description: The fight
@@ -41,6 +78,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Fight'
+              examples:
+                fight:
+                  value:
+                    id: 653bea9d188984908cd12429
+                    fightDate: 2075-10-27T16:51:41.787Z
+                    winnerName: Luke Skywalker
+                    winnerLevel: 10
+                    winnerPowers: "Uses light sabre, The force"
+                    winnerPicture: luke_skywalker.png
+                    loserName: Darth Vader
+                    loserLevel: 3
+                    loserPowers: "Uses light sabre, dark side of the force"
+                    loserPicture: darth_vader.png
+                    location:
+                      name: Gotham City
+                      description: "An American city rife with corruption and crime,\
+                        \ the home of its iconic protector Batman."
+                      picture: gotham_city.png
         "400":
           description: Invalid fighters passed in (or no request body found)
   /api/fights/hello:
@@ -55,6 +110,9 @@ paths:
             text/plain:
               schema:
                 type: string
+              examples:
+                hello_success:
+                  value: Hello Fight Resource
   /api/fights/hello/heroes:
     get:
       tags:
@@ -67,6 +125,24 @@ paths:
             text/plain:
               schema:
                 type: string
+              examples:
+                hello_heroes_success:
+                  value: Hello Heroes
+  /api/fights/hello/locations:
+    get:
+      tags:
+      - hello
+      summary: Ping Locations hello
+      responses:
+        "200":
+          description: Ping Locations hello
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                hello_locations_success:
+                  value: Hello Locations
   /api/fights/hello/narration:
     get:
       tags:
@@ -79,6 +155,9 @@ paths:
             text/plain:
               schema:
                 type: string
+              examples:
+                hello_narration_success:
+                  value: Hello Narration
   /api/fights/hello/villains:
     get:
       tags:
@@ -91,6 +170,9 @@ paths:
             text/plain:
               schema:
                 type: string
+              examples:
+                hello_villains_success:
+                  value: Hello Villains
   /api/fights/narrate:
     post:
       tags:
@@ -101,6 +183,24 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/FightToNarrate'
+            examples:
+              valid_fight:
+                value:
+                  id: 653bea9d188984908cd12429
+                  fightDate: 2075-10-27T16:51:41.787Z
+                  winnerName: Luke Skywalker
+                  winnerLevel: 10
+                  winnerPowers: "Uses light sabre, The force"
+                  winnerPicture: luke_skywalker.png
+                  loserName: Darth Vader
+                  loserLevel: 3
+                  loserPowers: "Uses light sabre, dark side of the force"
+                  loserPicture: darth_vader.png
+                  location:
+                    name: Gotham City
+                    description: "An American city rife with corruption and crime,\
+                      \ the home of its iconic protector Batman."
+        required: true
       responses:
         "200":
           description: The fight narration
@@ -108,6 +208,9 @@ paths:
             text/plain:
               schema:
                 type: string
+              examples:
+                narration:
+                  value: This is the narration for the fight
         "400":
           description: Invalid fight passed in (or no request body found)
   /api/fights/randomfighters:
@@ -122,6 +225,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Fighters'
+              examples:
+                fighters:
+                  value:
+                    hero:
+                      name: Luke Skywalker
+                      level: 10
+                      powers: "Uses light sabre, The force"
+                      picture: luke_skywalker.png
+                    villain:
+                      name: Darth Vader
+                      level: 3
+                      powers: "Uses light sabre, dark side of the force"
+                      picture: darth_vader.png
+  /api/fights/randomlocation:
+    get:
+      tags:
+      - fights
+      summary: Returns a random location
+      responses:
+        "200":
+          description: A random location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FightLocation'
+              examples:
+                random_location:
+                  value:
+                    name: Gotham City
+                    description: "An American city rife with corruption and crime,\
+                      \ the home of its iconic protector Batman."
+                    picture: gotham_city.png
   /api/fights/{id}:
     get:
       tags:
@@ -139,7 +274,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Hero'
+                $ref: '#/components/schemas/Fight'
+              examples:
+                fight:
+                  value:
+                    id: 653bea9d188984908cd12429
+                    fightDate: 2075-10-27T16:51:41.787Z
+                    winnerName: Luke Skywalker
+                    winnerLevel: 10
+                    winnerPowers: "Uses light sabre, The force"
+                    winnerPicture: luke_skywalker.png
+                    loserName: Darth Vader
+                    loserLevel: 3
+                    loserPowers: "Uses light sabre, dark side of the force"
+                    loserPicture: darth_vader.png
+                    location:
+                      name: Gotham City
+                      description: "An American city rife with corruption and crime,\
+                        \ the home of its iconic protector Batman."
+                      picture: gotham_city.png
         "404":
           description: The fight is not found for a given identifier
 components:
@@ -149,7 +302,7 @@ components:
       type: string
       example: 2022-03-10
     Fight:
-      description: Each fight has a winner and a loser
+      description: "Each fight has a winner, a loser, and a location"
       required:
       - fightDate
       - winnerName
@@ -198,8 +351,32 @@ components:
         loserTeam:
           minLength: 1
           type: string
-        narration:
+        location:
+          $ref: '#/components/schemas/FightLocation'
+    FightLocation:
+      description: Location of a fight
+      type: object
+      properties:
+        name:
           type: string
+        description:
+          type: string
+        picture:
+          type: string
+    FightRequest:
+      description: A request to perform a fight between one hero and one villain in
+        a location
+      required:
+      - hero
+      - villain
+      type: object
+      properties:
+        hero:
+          $ref: '#/components/schemas/Hero'
+        villain:
+          $ref: '#/components/schemas/Villain'
+        location:
+          $ref: '#/components/schemas/FightLocation'
     FightToNarrate:
       description: Each fight has a winner and a loser
       required:
@@ -235,6 +412,15 @@ components:
         loserLevel:
           format: int32
           type: integer
+        location:
+          $ref: '#/components/schemas/FightToNarrateLocation'
+    FightToNarrateLocation:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
     Fighters:
       description: A fight between one hero and one villain
       required:

@@ -29,8 +29,10 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.headers.Header;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
@@ -63,7 +65,11 @@ public class HeroResource {
 	@APIResponse(
 		responseCode = "200",
 		description = "Gets a random hero",
-		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Hero.class, required = true))
+		content = @Content(
+      mediaType = APPLICATION_JSON,
+      schema = @Schema(implementation = Hero.class, required = true),
+      examples = @ExampleObject(name = "hero", value = "{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"luke_skywalker.png\", \"powers\": \"Uses light sabre, The force\"}")
+    )
 	)
 	@APIResponse(
 		responseCode = "404",
@@ -86,7 +92,11 @@ public class HeroResource {
 	@APIResponse(
 		responseCode = "200",
 		description = "Gets all heroes",
-		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Hero.class, type = SchemaType.ARRAY))
+		content = @Content(
+      mediaType = APPLICATION_JSON,
+      schema = @Schema(implementation = Hero.class, type = SchemaType.ARRAY),
+      examples = @ExampleObject(name = "heroes", value = "[{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"luke_skywalker.png\", \"powers\": \"Uses light sabre, The force\"}]")
+    )
 	)
 	public Uni<List<Hero>> getAllHeroes(@Parameter(name = "name_filter", description = "An optional filter parameter to filter results by name") @QueryParam("name_filter") Optional<String> nameFilter) {
     return nameFilter
@@ -101,7 +111,10 @@ public class HeroResource {
 	@APIResponse(
 		responseCode = "200",
 		description = "Gets a hero for a given id",
-		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Hero.class))
+		content = @Content(
+      mediaType = APPLICATION_JSON, schema = @Schema(implementation = Hero.class),
+      examples = @ExampleObject(name = "hero", value = "{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"luke_skywalker.png\", \"powers\": \"Uses light sabre, The force\"}")
+    )
 	)
 	@APIResponse(
 		responseCode = "404",
@@ -131,7 +144,18 @@ public class HeroResource {
 		responseCode = "400",
 		description = "Invalid hero passed in (or no request body found)"
 	)
-	public Uni<Response> createHero(@Valid @NotNull Hero hero, @Context UriInfo uriInfo) {
+	public Uni<Response> createHero(
+    @RequestBody(
+      name = "hero",
+      required = true,
+      content = @Content(
+        mediaType = APPLICATION_JSON,
+        schema = @Schema(implementation = Hero.class),
+        examples = @ExampleObject(name = "valid_hero", value = "{\"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"luke_skywalker.png\", \"powers\": \"Uses light sabre, The force\"}")
+      )
+    )
+    @Valid @NotNull Hero hero, @
+    Context UriInfo uriInfo) {
 		return this.heroService.persistHero(hero)
 			.map(h -> {
 				var uri = uriInfo.getAbsolutePathBuilder().path(Long.toString(h.getId())).build();
@@ -156,7 +180,18 @@ public class HeroResource {
 		responseCode = "404",
 		description = "No hero found"
 	)
-	public Uni<Response> fullyUpdateHero(@Parameter(name = "id", required = true) @PathParam("id") Long id, @Valid @NotNull Hero hero) {
+	public Uni<Response> fullyUpdateHero(@
+    Parameter(name = "id", required = true) @PathParam("id") Long id,
+    @RequestBody(
+      name = "hero",
+      required = true,
+      content = @Content(
+        mediaType = APPLICATION_JSON,
+        schema = @Schema(implementation = Hero.class),
+        examples = @ExampleObject(name = "valid_hero", value = "{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"luke_skywalker.png\", \"powers\": \"Uses light sabre, The force\"}")
+      )
+    )
+    @Valid @NotNull Hero hero) {
     if (hero.getId() == null) {
 			hero.setId(id);
 		}
@@ -184,7 +219,18 @@ public class HeroResource {
 		responseCode = "400",
 		description = "Invalid heroes passed in (or no request body found)"
 	)
-  public Uni<Response> replaceAllHeroes(@NotNull List<Hero> heroes, @Context UriInfo uriInfo) {
+  public Uni<Response> replaceAllHeroes(
+    @RequestBody(
+      name = "valid_villains",
+      required = true,
+      content = @Content(
+        mediaType = APPLICATION_JSON,
+        schema = @Schema(implementation = Hero.class, type = SchemaType.ARRAY),
+        examples = @ExampleObject(name = "heroes", value = "[{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"luke_skywalker.png\", \"powers\": \"Uses light sabre, The force\"}]")
+      )
+    )
+    @NotNull List<Hero> heroes,
+    @Context UriInfo uriInfo) {
     return this.heroService.replaceAllHeroes(heroes)
       .map(h -> {
 				var uri = uriInfo.getAbsolutePathBuilder().build();
@@ -200,7 +246,11 @@ public class HeroResource {
 	@APIResponse(
 		responseCode = "200",
 		description = "Updated the hero",
-		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Hero.class))
+		content = @Content(
+      mediaType = APPLICATION_JSON,
+      schema = @Schema(implementation = Hero.class),
+      examples = @ExampleObject(name = "hero", value = "{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"luke_skywalker.png\", \"powers\": \"Uses light sabre, The force\"}")
+    )
 	)
 	@APIResponse(
 		responseCode = "400",
@@ -210,7 +260,17 @@ public class HeroResource {
 		responseCode = "404",
 		description = "No hero found"
 	)
-	public Uni<Response> partiallyUpdateHero(@Parameter(name = "id", required = true) @PathParam("id") Long id, @NotNull Hero hero) {
+	public Uni<Response> partiallyUpdateHero(
+    @Parameter(name = "id", required = true) @PathParam("id") Long id,
+    @RequestBody(
+      name = "valid_hero",
+      required = true,
+      content = @Content(
+        schema = @Schema(implementation = Hero.class),
+        examples = @ExampleObject(name = "valid_hero", value = "{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"luke_skywalker.png\", \"powers\": \"Uses light sabre, The force\"}")
+      )
+    )
+    @NotNull Hero hero) {
 		if (hero.getId() == null) {
 			hero.setId(id);
 		}
@@ -258,7 +318,11 @@ public class HeroResource {
 	@Operation(summary = "Ping hello")
 	@APIResponse(
 		responseCode = "200",
-		description = "Ping hello"
+		description = "Ping hello",
+    content = @Content(
+      schema = @Schema(implementation = String.class),
+      examples = @ExampleObject(name = "hello_success", value = "Hello Hero Resource")
+    )
 	)
 	@NonBlocking
 	public String hello() {

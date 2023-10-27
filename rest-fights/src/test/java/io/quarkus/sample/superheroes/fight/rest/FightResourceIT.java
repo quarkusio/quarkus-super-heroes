@@ -39,6 +39,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.FightLocation;
+import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.GrpcMockServerResource;
 import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
@@ -90,9 +91,9 @@ import io.vertx.core.Vertx;
  * @see KafkaCompanionResource
  */
 @QuarkusIntegrationTest
-@QuarkusTestResource(HeroesVillainsNarrationWiremockServerResource.class)
+@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
 @QuarkusTestResource(value = KafkaCompanionResource.class, restrictToAnnotatedClass = true)
-@QuarkusTestResource(GrpcMockServerResource.class)
+@QuarkusTestResource(value = GrpcMockServerResource.class, restrictToAnnotatedClass = true)
 @TestMethodOrder(OrderAnnotation.class)
 public class FightResourceIT {
 	private static final int DEFAULT_ORDER = 0;
@@ -990,7 +991,7 @@ public class FightResourceIT {
 			.when()
 				.contentType(JSON)
 				.accept(JSON)
-				.body(new Fighters(DEFAULT_HERO, DEFAULT_VILLAIN))
+				.body(new FightRequest(DEFAULT_HERO, DEFAULT_VILLAIN, DEFAULT_LOCATION))
 				.post("/api/fights")
 			.then()
 				.statusCode(OK.getStatusCode())
@@ -1046,19 +1047,20 @@ public class FightResourceIT {
       .withAutoCommit()
       .fromTopics("fights", 1);
 
-    var fighters = new Fighters(
-			new Hero(
-				DEFAULT_HERO_NAME,
-				DEFAULT_VILLAIN_LEVEL,
-				DEFAULT_HERO_PICTURE,
-				DEFAULT_HERO_POWERS
-		),
-			new Villain(
-				DEFAULT_VILLAIN_NAME,
-				DEFAULT_HERO_LEVEL,
-				DEFAULT_VILLAIN_PICTURE,
-				DEFAULT_VILLAIN_POWERS
-			)
+    var fightRequest = new FightRequest(
+      new Hero(
+        DEFAULT_HERO_NAME,
+        DEFAULT_VILLAIN_LEVEL,
+        DEFAULT_HERO_PICTURE,
+        DEFAULT_HERO_POWERS
+      ),
+      new Villain(
+        DEFAULT_VILLAIN_NAME,
+        DEFAULT_HERO_LEVEL,
+        DEFAULT_VILLAIN_PICTURE,
+        DEFAULT_VILLAIN_POWERS
+      ),
+      DEFAULT_LOCATION
 		);
 
     var expectedFight = new Fight();
@@ -1078,7 +1080,7 @@ public class FightResourceIT {
 			.when()
 				.contentType(JSON)
 				.accept(JSON)
-				.body(fighters)
+				.body(fightRequest)
 				.post("/api/fights")
 			.then()
 				.statusCode(OK.getStatusCode())

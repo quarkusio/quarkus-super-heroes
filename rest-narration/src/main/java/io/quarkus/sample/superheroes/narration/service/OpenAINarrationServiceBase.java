@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.narration.Fight;
+import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
 import io.quarkus.sample.superheroes.narration.config.NarrationConfig;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
@@ -65,8 +66,10 @@ public abstract sealed class OpenAINarrationServiceBase implements NarrationServ
     fightContext.setVariable("loser_name", fight.loserName());
     fightContext.setVariable("loser_powers", fight.loserPowers());
     fightContext.setVariable("loser_level", String.valueOf(fight.loserLevel()));
-    fightContext.setVariable("location_name", fight.location().name());
-    fightContext.setVariable("location_description", fight.location().description());
+
+    var fightLocation = Optional.ofNullable(fight.location());
+    fightContext.setVariable("location_name", fightLocation.map(FightLocation::name).orElse(""));
+    fightContext.setVariable("location_description", fightLocation.map(FightLocation::description).orElse(""));
 
     var resultMono = this.narrateFunction.invokeAsync(fightContext);
 

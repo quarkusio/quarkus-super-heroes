@@ -23,6 +23,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.FightLocation;
+import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
@@ -248,9 +249,9 @@ public class FightService {
 	}
 
   @WithSpan("FightService.performFight")
-	public Uni<Fight> performFight(@SpanAttribute("arg.fighters") @NotNull @Valid Fighters fighters) {
-    Log.debugf("Performing a fight with fighters: %s", fighters);
-    return determineWinner(fighters)
+	public Uni<Fight> performFight(@SpanAttribute("arg.fighters") @NotNull @Valid FightRequest fightRequest) {
+    Log.debugf("Performing a fight with fighters: %s", fightRequest);
+    return determineWinner(fightRequest)
       .chain(this::persistFight);
   }
 
@@ -275,21 +276,21 @@ public class FightService {
       .replaceWith(fight);
 	}
 
-	Uni<Fight> determineWinner(@SpanAttribute("arg.fighters") Fighters fighters) {
-    Log.debugf("Determining winner between fighters: %s", fighters);
+	Uni<Fight> determineWinner(@SpanAttribute("arg.fighters") FightRequest fightRequest) {
+    Log.debugf("Determining winner between fighters: %s", fightRequest);
 
 		// Amazingly fancy logic to determine the winner...
 		return Uni.createFrom().item(() -> {
 				Fight fight;
 
-				if (shouldHeroWin(fighters)) {
-					fight = heroWonFight(fighters);
+				if (shouldHeroWin(fightRequest)) {
+					fight = heroWonFight(fightRequest);
 				}
-				else if (shouldVillainWin(fighters)) {
-					fight = villainWonFight(fighters);
+				else if (shouldVillainWin(fightRequest)) {
+					fight = villainWonFight(fightRequest);
 				}
 				else {
-					fight = getRandomWinner(fighters);
+					fight = getRandomWinner(fightRequest);
 				}
 
 				fight.fightDate = Instant.now();
@@ -299,55 +300,58 @@ public class FightService {
 		);
 	}
 
-	boolean shouldHeroWin(Fighters fighters) {
+	boolean shouldHeroWin(FightRequest fightRequest) {
 		int heroAdjust = this.random.nextInt(this.fightConfig.hero().adjustBound());
 		int villainAdjust = this.random.nextInt(this.fightConfig.villain().adjustBound());
 
-		return (fighters.hero().level() + heroAdjust) > (fighters.villain().level() + villainAdjust);
+		return (fightRequest.hero().level() + heroAdjust) > (fightRequest.villain().level() + villainAdjust);
 	}
 
-	boolean shouldVillainWin(Fighters fighters) {
-		return fighters.hero().level() < fighters.villain().level();
+	boolean shouldVillainWin(FightRequest fightRequest) {
+		return fightRequest.hero().level() < fightRequest.villain().level();
 	}
 
-	Fight getRandomWinner(Fighters fighters) {
+	Fight getRandomWinner(FightRequest fightRequest) {
 		return this.random.nextBoolean() ?
-		       heroWonFight(fighters) :
-		       villainWonFight(fighters);
+		       heroWonFight(fightRequest) :
+		       villainWonFight(fightRequest);
 	}
 
-	Fight heroWonFight(Fighters fighters) {
-		Log.infof("Yes, Hero %s won over %s :o)", fighters.hero().name(), fighters.villain().name());
+	Fight heroWonFight(FightRequest fightRequest) {
+		Log.infof("Yes, Hero %s won over %s :o)", fightRequest.hero().name(), fightRequest.villain().name());
 
 		Fight fight = new Fight();
-		fight.winnerName = fighters.hero().name();
-		fight.winnerPicture = fighters.hero().picture();
-		fight.winnerLevel = fighters.hero().level();
-    fight.winnerPowers = fighters.hero().powers();
-		fight.loserName = fighters.villain().name();
-		fight.loserPicture = fighters.villain().picture();
-		fight.loserLevel = fighters.villain().level();
-    fight.loserPowers = fighters.villain().powers();
+		fight.winnerName = fightRequest.hero().name();
+		fight.winnerPicture = fightRequest.hero().picture();
+		fight.winnerLevel = fightRequest.hero().level();
+    fight.winnerPowers = fightRequest.hero().powers();
+		fight.loserName = fightRequest.villain().name();
+		fight.loserPicture = fightRequest.villain().picture();
+		fight.loserLevel = fightRequest.villain().level();
+    fight.loserPowers = fightRequest.villain().powers();
 		fight.winnerTeam = this.fightConfig.hero().teamName();
 		fight.loserTeam = this.fightConfig.villain().teamName();
+    fight.location = fightRequest.location();
 
 		return fight;
 	}
 
-	Fight villainWonFight(Fighters fighters) {
-		Log.infof("Gee, Villain %s won over %s :o(", fighters.villain().name(), fighters.hero().name());
+	Fight villainWonFight(FightRequest fightRequest) {
+		Log.infof("Gee, Villain %s won over %s :o(", fightRequest.villain().name(), fightRequest.hero().name());
 
 		Fight fight = new Fight();
-		fight.winnerName = fighters.villain().name();
-		fight.winnerPicture = fighters.villain().picture();
-		fight.winnerLevel = fighters.villain().level();
-    fight.winnerPowers = fighters.villain().powers();
-		fight.loserName = fighters.hero().name();
-		fight.loserPicture = fighters.hero().picture();
-		fight.loserLevel = fighters.hero().level();
-    fight.loserPowers = fighters.hero().powers();
+		fight.winnerName = fightRequest.villain().name();
+		fight.winnerPicture = fightRequest.villain().picture();
+		fight.winnerLevel = fightRequest.villain().level();
+    fight.winnerPowers = fightRequest.villain().powers();
+		fight.loserName = fightRequest.hero().name();
+		fight.loserPicture = fightRequest.hero().picture();
+		fight.loserLevel = fightRequest.hero().level();
+    fight.loserPowers = fightRequest.hero().powers();
 		fight.winnerTeam = this.fightConfig.villain().teamName();
 		fight.loserTeam = this.fightConfig.hero().teamName();
+    fight.location = fightRequest.location();
+
 		return fight;
 	}
 }

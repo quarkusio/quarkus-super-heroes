@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.panache.mock.PanacheMock;
 import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
@@ -470,12 +471,12 @@ class FightServiceTests extends FightServiceTestsBase {
 				"must not be null"
 			);
 
-		verify(this.fightService, never()).determineWinner(any(Fighters.class));
-		verify(this.fightService, never()).shouldHeroWin(any(Fighters.class));
-		verify(this.fightService, never()).shouldVillainWin(any(Fighters.class));
-		verify(this.fightService, never()).getRandomWinner(any(Fighters.class));
-		verify(this.fightService, never()).heroWonFight(any(Fighters.class));
-		verify(this.fightService, never()).villainWonFight(any(Fighters.class));
+		verify(this.fightService, never()).determineWinner(any(FightRequest.class));
+		verify(this.fightService, never()).shouldHeroWin(any(FightRequest.class));
+		verify(this.fightService, never()).shouldVillainWin(any(FightRequest.class));
+		verify(this.fightService, never()).getRandomWinner(any(FightRequest.class));
+		verify(this.fightService, never()).heroWonFight(any(FightRequest.class));
+		verify(this.fightService, never()).villainWonFight(any(FightRequest.class));
 		verify(this.fightService, never()).persistFight(any(Fight.class));
     verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
 		PanacheMock.verifyNoInteractions(Fight.class);
@@ -486,7 +487,7 @@ class FightServiceTests extends FightServiceTestsBase {
 		PanacheMock.mock(Fight.class);
 
 		var cve = catchThrowableOfType(
-			() -> this.fightService.performFight(new Fighters(null, createDefaultVillain())),
+			() -> this.fightService.performFight(new FightRequest(null, createDefaultVillain(), createDefaultFightLocation())),
 			ConstraintViolationException.class);
 
 		assertThat(cve)
@@ -511,12 +512,12 @@ class FightServiceTests extends FightServiceTestsBase {
 				"must not be null"
 			);
 
-		verify(this.fightService, never()).determineWinner(any(Fighters.class));
-		verify(this.fightService, never()).shouldHeroWin(any(Fighters.class));
-		verify(this.fightService, never()).shouldVillainWin(any(Fighters.class));
-		verify(this.fightService, never()).getRandomWinner(any(Fighters.class));
-		verify(this.fightService, never()).heroWonFight(any(Fighters.class));
-		verify(this.fightService, never()).villainWonFight(any(Fighters.class));
+		verify(this.fightService, never()).determineWinner(any(FightRequest.class));
+		verify(this.fightService, never()).shouldHeroWin(any(FightRequest.class));
+		verify(this.fightService, never()).shouldVillainWin(any(FightRequest.class));
+		verify(this.fightService, never()).getRandomWinner(any(FightRequest.class));
+		verify(this.fightService, never()).heroWonFight(any(FightRequest.class));
+		verify(this.fightService, never()).villainWonFight(any(FightRequest.class));
 		verify(this.fightService, never()).persistFight(any(Fight.class));
     verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
 		PanacheMock.verifyNoInteractions(Fight.class);
@@ -550,22 +551,22 @@ class FightServiceTests extends FightServiceTestsBase {
 	public void performFightHeroShouldWin() {
     var fightOutcome = createFightHeroWon();
 		var fightMatcher = fightMatcher(fightOutcome);
-    var defaultFighters = createDefaultFighters();
+    var defaultFightRequest = createDefaultFightRequest();
 
 		PanacheMock.mock(Fight.class);
 		PanacheMock.doReturn(Uni.createFrom().voidItem())
 			.when(Fight.class)
-			.persist(eq(defaultFighters), any());
+			.persist(eq(defaultFightRequest), any());
 
 		doReturn(true)
       .when(this.fightService)
-      .shouldHeroWin(eq(defaultFighters));
+      .shouldHeroWin(eq(defaultFightRequest));
 
 		doReturn(fightOutcome)
       .when(this.fightService)
-      .heroWonFight(eq(defaultFighters));
+      .heroWonFight(eq(defaultFightRequest));
 
-		var fight = this.fightService.performFight(createDefaultFighters())
+		var fight = this.fightService.performFight(createDefaultFightRequest())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
 			.assertSubscribed()
 			.awaitItem(Duration.ofSeconds(5))
@@ -585,13 +586,13 @@ class FightServiceTests extends FightServiceTestsBase {
       .usingRecursiveComparison()
 			.isEqualTo(this.fightMapper.toSchema(fightOutcome));
 
-		verify(this.fightService).determineWinner(eq(defaultFighters));
+		verify(this.fightService).determineWinner(eq(defaultFightRequest));
 		verify(this.fightService).persistFight(argThat(fightMatcher));
-		verify(this.fightService).shouldHeroWin(eq(defaultFighters));
-		verify(this.fightService).heroWonFight(eq(defaultFighters));
-		verify(this.fightService, never()).shouldVillainWin(any(Fighters.class));
-		verify(this.fightService, never()).villainWonFight(any(Fighters.class));
-		verify(this.fightService, never()).getRandomWinner(any(Fighters.class));
+		verify(this.fightService).shouldHeroWin(eq(defaultFightRequest));
+		verify(this.fightService).heroWonFight(eq(defaultFightRequest));
+		verify(this.fightService, never()).shouldVillainWin(any(FightRequest.class));
+		verify(this.fightService, never()).villainWonFight(any(FightRequest.class));
+		verify(this.fightService, never()).getRandomWinner(any(FightRequest.class));
     verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
     verify(this.fightService, never()).fallbackNarrateFight(any(FightToNarrate.class));
 		PanacheMock.verify(Fight.class).persist(argThat(fightMatcher), any());
@@ -602,7 +603,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	public void performFightVillainShouldWin() {
     var fightOutcome = createFightVillainWon();
     var fightMatcher = fightMatcher(fightOutcome);
-    var defaultFighters = createDefaultFighters();
+    var defaultFightRequest = createDefaultFightRequest();
 
 		PanacheMock.mock(Fight.class);
 		PanacheMock.doReturn(Uni.createFrom().voidItem())
@@ -611,17 +612,17 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		doReturn(false)
       .when(this.fightService)
-      .shouldHeroWin(eq(defaultFighters));
+      .shouldHeroWin(eq(defaultFightRequest));
 
 		doReturn(true)
       .when(this.fightService)
-      .shouldVillainWin(eq(defaultFighters));
+      .shouldVillainWin(eq(defaultFightRequest));
 
 		doReturn(fightOutcome)
       .when(this.fightService)
-      .villainWonFight(eq(defaultFighters));
+      .villainWonFight(eq(defaultFightRequest));
 
-		var fight = this.fightService.performFight(createDefaultFighters())
+		var fight = this.fightService.performFight(createDefaultFightRequest())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
 			.assertSubscribed()
 			.awaitItem(Duration.ofSeconds(5))
@@ -641,15 +642,15 @@ class FightServiceTests extends FightServiceTestsBase {
 			.usingRecursiveComparison()
 			.isEqualTo(this.fightMapper.toSchema(fightOutcome));
 
-		verify(this.fightService).determineWinner(eq(defaultFighters));
+		verify(this.fightService).determineWinner(eq(defaultFightRequest));
 		verify(this.fightService).persistFight(argThat(fightMatcher));
-		verify(this.fightService).shouldVillainWin(eq(defaultFighters));
-		verify(this.fightService).shouldHeroWin(eq(defaultFighters));
-		verify(this.fightService).villainWonFight(eq(defaultFighters));
+		verify(this.fightService).shouldVillainWin(eq(defaultFightRequest));
+		verify(this.fightService).shouldHeroWin(eq(defaultFightRequest));
+		verify(this.fightService).villainWonFight(eq(defaultFightRequest));
     verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
     verify(this.fightService, never()).fallbackNarrateFight(any(FightToNarrate.class));
-		verify(this.fightService, never()).heroWonFight(any(Fighters.class));
-		verify(this.fightService, never()).getRandomWinner(any(Fighters.class));
+		verify(this.fightService, never()).heroWonFight(any(FightRequest.class));
+		verify(this.fightService, never()).getRandomWinner(any(FightRequest.class));
 		PanacheMock.verify(Fight.class).persist(argThat(fightMatcher), any());
 		PanacheMock.verifyNoMoreInteractions(Fight.class);
 	}
@@ -658,7 +659,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	public void performFightRandomWinner() {
     var fightOutcome = createFightVillainWon();
     var fightMatcher = fightMatcher(fightOutcome);
-		var defaultFighters = createDefaultFighters();
+		var defaultFightRequest = createDefaultFightRequest();
 
 		PanacheMock.mock(Fight.class);
 		PanacheMock.doReturn(Uni.createFrom().voidItem())
@@ -667,17 +668,17 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		doReturn(false)
       .when(this.fightService)
-      .shouldHeroWin(eq(defaultFighters));
+      .shouldHeroWin(eq(defaultFightRequest));
 
 		doReturn(false)
       .when(this.fightService)
-      .shouldVillainWin(eq(defaultFighters));
+      .shouldVillainWin(eq(defaultFightRequest));
 
 		doReturn(fightOutcome)
       .when(this.fightService)
-      .getRandomWinner(eq(defaultFighters));
+      .getRandomWinner(eq(defaultFightRequest));
 
-		var fight = this.fightService.performFight(createDefaultFighters())
+		var fight = this.fightService.performFight(createDefaultFightRequest())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
 			.assertSubscribed()
 			.awaitItem(Duration.ofSeconds(5))
@@ -697,13 +698,13 @@ class FightServiceTests extends FightServiceTestsBase {
 			.usingRecursiveComparison()
 			.isEqualTo(this.fightMapper.toSchema(fightOutcome));
 
-		verify(this.fightService).determineWinner(eq(defaultFighters));
+		verify(this.fightService).determineWinner(eq(defaultFightRequest));
 		verify(this.fightService).persistFight(argThat(fightMatcher));
-		verify(this.fightService).shouldVillainWin(eq(defaultFighters));
-		verify(this.fightService).shouldHeroWin(eq(defaultFighters));
-		verify(this.fightService).getRandomWinner(eq(defaultFighters));
-		verify(this.fightService, never()).villainWonFight(any(Fighters.class));
-		verify(this.fightService, never()).heroWonFight(any(Fighters.class));
+		verify(this.fightService).shouldVillainWin(eq(defaultFightRequest));
+		verify(this.fightService).shouldHeroWin(eq(defaultFightRequest));
+		verify(this.fightService).getRandomWinner(eq(defaultFightRequest));
+		verify(this.fightService, never()).villainWonFight(any(FightRequest.class));
+		verify(this.fightService, never()).heroWonFight(any(FightRequest.class));
     verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
     verify(this.fightService, never()).fallbackNarrateFight(any(FightToNarrate.class));
 		PanacheMock.verify(Fight.class).persist(argThat(fightMatcher), any());
@@ -712,45 +713,45 @@ class FightServiceTests extends FightServiceTestsBase {
 
 	@Test
 	public void didHeroWinTrue() {
-		var f = createDefaultFighters();
+		var f = createDefaultFightRequest();
     var h = new Hero(f.hero().name(), (Integer.MAX_VALUE - this.fightConfig.hero().adjustBound()), f.hero().picture(), f.hero().powers());
     var v = new Villain(f.villain().name(), Integer.MIN_VALUE, f.villain().picture(), f.villain().powers());
-    var fighters = new Fighters(h, v);
+    var fightRequest = new FightRequest(h, v, f.location());
 
-		assertThat(this.fightService.shouldHeroWin(fighters))
+		assertThat(this.fightService.shouldHeroWin(fightRequest))
 			.isTrue();
 	}
 
 	@Test
 	public void didHeroWinFalse() {
-		var f = createDefaultFighters();
+		var f = createDefaultFightRequest();
     var h = new Hero(f.hero().name(), Integer.MIN_VALUE, f.hero().picture(), f.hero().powers());
     var v = new Villain(f.villain().name(), Integer.MAX_VALUE - this.fightConfig.hero().adjustBound(), f.villain().picture(), f.villain().powers());
-    var fighters = new Fighters(h, v);
+    var fightRequest = new FightRequest(h, v, f.location());
 
-		assertThat(this.fightService.shouldHeroWin(fighters))
+		assertThat(this.fightService.shouldHeroWin(fightRequest))
 			.isFalse();
 	}
 
 	@Test
 	public void didVillainWinTrue() {
-		var f = createDefaultFighters();
+		var f = createDefaultFightRequest();
     var h = new Hero(f.hero().name(), Integer.MIN_VALUE, f.hero().picture(), f.hero().powers());
     var v = new Villain(f.villain().name(), Integer.MAX_VALUE, f.villain().picture(), f.villain().powers());
-    var fighters = new Fighters(h, v);
+    var fightRequest = new FightRequest(h, v, f.location());
 
-		assertThat(this.fightService.shouldVillainWin(fighters))
+		assertThat(this.fightService.shouldVillainWin(fightRequest))
 			.isTrue();
 	}
 
 	@Test
 	public void didVillainWinFalse() {
-		var f = createDefaultFighters();
+		var f = createDefaultFightRequest();
     var h = new Hero(f.hero().name(), Integer.MAX_VALUE, f.hero().picture(), f.hero().powers());
     var v = new Villain(f.villain().name(), Integer.MIN_VALUE, f.villain().picture(), f.villain().powers());
-    var fighters = new Fighters(h, v);
+    var fightRequest = new FightRequest(h, v, f.location());
 
-		assertThat(this.fightService.shouldVillainWin(fighters))
+		assertThat(this.fightService.shouldVillainWin(fightRequest))
 			.isFalse();
 	}
 
