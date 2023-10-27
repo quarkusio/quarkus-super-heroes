@@ -57,7 +57,7 @@ public class FightResource {
 		content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = Fight.class, type = ARRAY),
-      examples = @ExampleObject(name = "fights", value = "[{\"id\": \"653bea9d188984908cd12429\", \"fightDate\": \"2075-10-27T16:51:41.787Z\", \"winnerName\": \"Luke Skywalker\", \"winnerLevel\": 10, \"winnerPowers\": \"Uses light sabre, The force\", \"winnerPicture\": \"luke_skywalker.png\", \"loserName\": \"Darth Vader\", \"loserLevel\": 3, \"loserPowers\": \"Uses light sabre, dark side of the force\", \"loserPicture\": \"darth_vader.png\", \"location\": {\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\", \"picture\": \"gotham_city.png\"}}]")
+      examples = @ExampleObject(name = "fights", value = "[{\"id\": \"653bea9d188984908cd12429\", \"fightDate\": \"2075-10-27T16:51:41.787Z\", \"winnerName\": \"Luke Skywalker\", \"winnerLevel\": 10, \"winnerPowers\": \"Uses light sabre, The force\", \"winnerPicture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"loserName\": \"Darth Vader\", \"loserLevel\": 3, \"loserPowers\": \"Uses light sabre, dark side of the force\", \"loserPicture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"location\": {\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\", \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/locations/gotham_city.jpg\"}}]")
     )
 	)
 	public Uni<List<Fight>> getAllFights() {
@@ -74,7 +74,7 @@ public class FightResource {
     content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = Fighters.class),
-      examples = @ExampleObject(name = "fighters", value = "{\"hero\": {\"name\": \"Luke Skywalker\", \"level\": 10, \"powers\": \"Uses light sabre, The force\", \"picture\": \"luke_skywalker.png\"}, \"villain\": {\"name\": \"Darth Vader\", \"level\": 3, \"powers\": \"Uses light sabre, dark side of the force\", \"picture\": \"darth_vader.png\"}}")
+      examples = @ExampleObject(name = "fighters", value = "{\"hero\": {\"name\": \"Luke Skywalker\", \"level\": 10, \"powers\": \"Uses light sabre, The force\", \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\"}, \"villain\": {\"name\": \"Darth Vader\", \"level\": 3, \"powers\": \"Uses light sabre, dark side of the force\", \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\"}}")
     )
 	)
 	public Uni<Fighters> getRandomFighters() {
@@ -91,7 +91,7 @@ public class FightResource {
     content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = FightLocation.class),
-      examples = @ExampleObject(name = "random_location", value = "{\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\", \"picture\": \"gotham_city.png\"}")
+      examples = @ExampleObject(name = "random_location", value = "{\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\", \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/locations/gotham_city.jpg\"}")
     )
   )
   public Uni<FightLocation> getRandomFightLocation() {
@@ -108,7 +108,7 @@ public class FightResource {
 		content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = Fight.class),
-      examples = @ExampleObject(name = "fight", value = "{\"id\": \"653bea9d188984908cd12429\", \"fightDate\": \"2075-10-27T16:51:41.787Z\", \"winnerName\": \"Luke Skywalker\", \"winnerLevel\": 10, \"winnerPowers\": \"Uses light sabre, The force\", \"winnerPicture\": \"luke_skywalker.png\", \"loserName\": \"Darth Vader\", \"loserLevel\": 3, \"loserPowers\": \"Uses light sabre, dark side of the force\", \"loserPicture\": \"darth_vader.png\", \"location\": {\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\", \"picture\": \"gotham_city.png\"}}")
+      examples = @ExampleObject(name = "fight", value = "{\"id\": \"653bea9d188984908cd12429\", \"fightDate\": \"2075-10-27T16:51:41.787Z\", \"winnerName\": \"Luke Skywalker\", \"winnerLevel\": 10, \"winnerPowers\": \"Uses light sabre, The force\", \"winnerPicture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"loserName\": \"Darth Vader\", \"loserLevel\": 3, \"loserPowers\": \"Uses light sabre, dark side of the force\", \"loserPicture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"location\": {\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\", \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/locations/gotham_city.jpg\"}}")
     )
 	)
 	@APIResponse(
@@ -136,7 +136,7 @@ public class FightResource {
     content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = Fight.class),
-      examples = @ExampleObject(name = "fight", value = "{\"id\": \"653bea9d188984908cd12429\", \"fightDate\": \"2075-10-27T16:51:41.787Z\", \"winnerName\": \"Luke Skywalker\", \"winnerLevel\": 10, \"winnerPowers\": \"Uses light sabre, The force\", \"winnerPicture\": \"luke_skywalker.png\", \"loserName\": \"Darth Vader\", \"loserLevel\": 3, \"loserPowers\": \"Uses light sabre, dark side of the force\", \"loserPicture\": \"darth_vader.png\", \"location\": {\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\", \"picture\": \"gotham_city.png\"}}")
+      examples = @ExampleObject(name = "fight", value = "{\"id\": \"653bea9d188984908cd12429\", \"fightDate\": \"2075-10-27T16:51:41.787Z\", \"winnerName\": \"Luke Skywalker\", \"winnerLevel\": 10, \"winnerPowers\": \"Uses light sabre, The force\", \"winnerPicture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"loserName\": \"Darth Vader\", \"loserLevel\": 3, \"loserPowers\": \"Uses light sabre, dark side of the force\", \"loserPicture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"location\": {\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\", \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/locations/gotham_city.jpg\"}}")
     )
 	)
 	@APIResponse(
@@ -150,7 +150,7 @@ public class FightResource {
       content = @Content(
         mediaType = APPLICATION_JSON,
         schema = @Schema(implementation = FightRequest.class),
-        examples = @ExampleObject(name = "fighters", value = "{\"hero\": {\"name\": \"Luke Skywalker\", \"level\": 10, \"powers\": \"Uses light sabre, The force\", \"picture\": \"luke_skywalker.png\"}, \"villain\": {\"name\": \"Darth Vader\", \"level\": 3, \"powers\": \"Uses light sabre, dark side of the force\", \"picture\": \"darth_vader.png\"}, \"location\": {\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\", \"picture\": \"gotham_city.png\"}}")
+        examples = @ExampleObject(name = "fighters", value = "{\"hero\": {\"name\": \"Luke Skywalker\", \"level\": 10, \"powers\": \"Uses light sabre, The force\", \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\"}, \"villain\": {\"name\": \"Darth Vader\", \"level\": 3, \"powers\": \"Uses light sabre, dark side of the force\", \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\"}, \"location\": {\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\", \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/locations/gotham_city.jpg\"}}")
       )
     )
     @NotNull @Valid FightRequest fightRequest) {
@@ -182,7 +182,7 @@ public class FightResource {
       content = @Content(
         mediaType = APPLICATION_JSON,
         schema = @Schema(implementation = FightToNarrate.class),
-        examples = @ExampleObject(name = "valid_fight", value = "{\"id\": \"653bea9d188984908cd12429\", \"fightDate\": \"2075-10-27T16:51:41.787Z\", \"winnerName\": \"Luke Skywalker\", \"winnerLevel\": 10, \"winnerPowers\": \"Uses light sabre, The force\", \"winnerPicture\": \"luke_skywalker.png\", \"loserName\": \"Darth Vader\", \"loserLevel\": 3, \"loserPowers\": \"Uses light sabre, dark side of the force\", \"loserPicture\": \"darth_vader.png\", \"location\": {\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\"}}")
+        examples = @ExampleObject(name = "valid_fight", value = "{\"id\": \"653bea9d188984908cd12429\", \"fightDate\": \"2075-10-27T16:51:41.787Z\", \"winnerName\": \"Luke Skywalker\", \"winnerLevel\": 10, \"winnerPowers\": \"Uses light sabre, The force\", \"winnerPicture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"loserName\": \"Darth Vader\", \"loserLevel\": 3, \"loserPowers\": \"Uses light sabre, dark side of the force\", \"loserPicture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg\", \"location\": {\"name\": \"Gotham City\", \"description\": \"An American city rife with corruption and crime, the home of its iconic protector Batman.\"}}")
       )
     )
     @NotNull @Valid FightToNarrate fight) {
