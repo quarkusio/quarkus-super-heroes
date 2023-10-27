@@ -19,6 +19,7 @@ export class FightComponent implements OnInit {
 
   ngOnInit() {
     this.newFighters();
+    this.newLocation();
   }
 
   fight() {
