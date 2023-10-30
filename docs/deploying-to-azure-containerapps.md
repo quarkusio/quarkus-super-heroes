@@ -7,6 +7,7 @@
     - [Create a resource group](#create-a-resource-group)
     - [Create a Container Apps environment](#create-a-container-apps-environment)
     - [Create the managed Postgres databases](#create-the-managed-postgres-databases)
+    - [Create the managed MariaDB database](#create-the-managed-mariadb-database)
     - [Create the managed MongoDB database](#create-the-managed-mongodb-database)
     - [Create the managed Kafka](#create-the-managed-kafka)
     - [Create the Schema Registry](#create-the-schema-registry)
@@ -14,6 +15,7 @@
     - [Deploying the applications](#deploying-the-applications)
         - [Heroes microservice](#heroes-microservice)
         - [Villains microservice](#villains-microservice)
+        - [Locations microservice](#locations-microservice)
         - [Narration microservice](#narration-microservice)
         - [Statistics microservice](#statistics-microservice)
         - [Fights microservice](#fights-microservice)
@@ -102,6 +104,11 @@ POSTGRES_DB_VERSION="14"
 POSTGRES_SKU="B1ms"
 POSTGRES_TIER="Burstable"
 
+# MariaDB
+MARIADB_ADMIN_USER="$POSTGRES_DB_ADMIN"
+MARIADB_ADMIN_PWD="$POSTGRES_DB_PWD"
+MARIADB_VERSION="5.7"
+
 # MongoDB
 MONGO_DB="fights-db-$UNIQUE_IDENTIFIER"
 MONGO_DB_VERSION="4.2"
@@ -119,6 +126,13 @@ APICURIO_IMAGE="apicurio/apicurio-registry-mem:2.4.2.Final"
 NARRATION_APP="rest-narration"
 NARRATION_IMAGE="${SUPERHEROES_IMAGES_BASE}/${NARRATION_APP}:${IMAGES_TAG}"
 
+# Location
+LOCATIONS_APP="grpc-locations"
+LOCATIONS_DB="locations-db-$UNIQUE_IDENTIFIER"
+LOCATIONS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${LOCATIONS_APP}:${IMAGES_TAG}"
+LOCATIONS_DB_SCHEMA="locations"
+LOCATIONS_DB_CONNECT_STRING="jdbc:mariadb://${LOCATIONS_APP}.mysql.database.azure.com:3306/${LOCATIONS_DB_SCHEMA}?sslmode=trust&useMysqlMetadata=true"
+
 # Heroes
 HEROES_APP="rest-heroes"
 HEROES_DB="heroes-db-$UNIQUE_IDENTIFIER"
@@ -131,7 +145,7 @@ VILLAINS_APP="rest-villains"
 VILLAINS_DB="villains-db-$UNIQUE_IDENTIFIER"
 VILLAINS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${VILLAINS_APP}:${IMAGES_TAG}"
 VILLAINS_DB_SCHEMA="villains"
-VILLAINS_DB_CONNECT_STRING="jdbc:otel:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
+VILLAINS_DB_CONNECT_STRING="jdbc:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
 
 # Fights
 FIGHTS_APP="rest-fights"
@@ -322,6 +336,74 @@ az postgres flexible-server show-connection-string \
 > You also need to append `ssl=true&sslmode=require` to the end of each connect string to force the driver to use ssl.
 > 
 > These commands are just here for your own examination purposes.
+
+## Create the managed MariaDB database
+
+We need to create a single MariaDB database so the Location microservice can store data.
+Because we also want to access these database from external SQL client, we make them available to the outside world thanks to the `-public all` parameter.
+Create the database with the following command:
+
+```shell
+az mysql flexible-server create \
+  --resource-group "$RESOURCE_GROUP" \
+  --location "$LOCATION" \
+  --tags system="$TAG_SYSTEM" application="$LOCATIONS_APP" \
+  --name "$LOCATIONS_DB" \
+  --admin-user "$MARIADB_ADMIN_USER" \
+  --admin-password "$MARIADB_ADMIN_PWD" \
+  --public all \
+  --sku-name "Standard_$MARIADB_SKU" \
+  --tier "$MARIADB_TIER" \
+  --storage-size 256 \
+  --version "$MARIADB_VERSION"
+````
+  
+Then, we create the database schema:
+
+```shell
+az mysql flexible-server db create \
+  --resource-group "$RESOURCE_GROUP" \
+  --server-name "$LOCATIONS_DB" \
+  --database-name "$LOCATIONS_DB_SCHEMA"
+```
+
+Add data to the database using the following commands:
+```shell
+az mysql flexible-server execute \
+  --name "$LOCATIONS_DB" \
+  --admin-user "$MARIADB_ADMIN_USER" \
+  --admin-password "$MARIADB_ADMIN_PWD" \
+  --database-name "$LOCATIONS_DB_SCHEMA" \
+  --file-path "grpc-locations/deploy/db-init/initialize-tables.sql"
+```
+
+You can check the content of the table with the following command:
+```shell
+az mysql flexible-server execute \
+  --name "$LOCATIONS_DB" \
+  --admin-user "$MARIADB_ADMIN_USER" \
+  --admin-password "$MARIADB_ADMIN_PWD" \
+  --database-name "$LOCATIONS_DB_SCHEMA" \
+  --querytext "select * from locations"
+```
+
+If you'd like to see the connection string to the databases (so you can access your database from an external SQL client), use the following command:
+
+```shell
+az mysql flexible-server show-connection-string \
+  --database-name "$LOCATIONS_DB_SCHEMA" \
+  --server-name "$LOCATIONS_DB" \
+  --admin-user "$MARIADB_ADMIN_USER" \
+  --admin-password "$LOCATIONS_DB_SCHEMA" \
+  --query "connectionStrings.jdbc" \
+  --output tsv
+```
+
+> **NOTE:** This isn't the actual connection string used.
+> 
+> You also need to append `?sslmode=trust&useMysqlMetadata=true` to the end of each connect string to force the driver to use ssl and to use MySQL metadata.
+> 
+> This command is just here for your own examination purposes.
 
 ## Create the managed MongoDB Database
 
@@ -566,6 +648,46 @@ az containerapp logs show \
   --output table
 ````
 
+### Locations Microservice
+The Location microservice needs to access the managed MariaDB database, so we need to set the right variables.
+
+```shell
+az containerapp create \
+  --resource-group "$RESOURCE_GROUP" \
+  --tags system="$TAG_SYSTEM" application="$VILLAINS_APP" \
+  --image "$LOCATIONS_IMAGE" \
+  --name "$LOCATIONS_APP" \
+  --environment "$CONTAINERAPPS_ENVIRONMENT" \
+  --ingress external \
+  --target-port 8089 \
+  --min-replicas 1 \
+  --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
+             QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT=no-file \
+             QUARKUS_DATASOURCE_USERNAME="$MARIADB_ADMIN_USER" \
+             QUARKUS_DATASOURCE_PASSWORD="$MARIADB_ADMIN_PWD" \
+             QUARKUS_DATASOURCE_JDBC_URL="$LOCATIONS_DB_CONNECT_STRING"
+```
+
+The following command sets the host of the deployed application to the `LOCATIONS_HOST` variable:
+
+```shell
+LOCATIONS_HOST="$(az containerapp ingress show \
+  --resource-group $RESOURCE_GROUP \
+  --name $LOCATIONS_APP \
+  --output json | jq -r .fqdn)"
+  
+echo $LOCATIONS_HOST
+```
+
+To access the logs of the Location microservice, you can write the following query:
+
+````shell
+az containerapp logs show \
+  --name "$LOCATION_APP" \
+  --resource-group "$RESOURCE_GROUP" \
+  --output table
+````
+
 ### Narration Microservice
 The narration microservice communicates with the [Azure OpenAI service](#create-the-azure-openai-resources). You'll need the `NARRATION_AZURE_OPEN_AI_KEY` and the  `NARRATION_AZURE_OPEN_AI_ENDPOINT` values from the [Create the Azure OpenAI resources](#create-the-azure-openai-resources) step.
 
@@ -683,6 +805,8 @@ az containerapp create \
              QUARKUS_LIQUIBASE_MONGODB_MIGRATE_AT_START=false \
              QUARKUS_MONGODB_CONNECTION_STRING="$MONGO_CONNECTION_STRING" \
              QUARKUS_REST_CLIENT_HERO_CLIENT_URL="$HEROES_URL" \
+             QUARKUS_REST_CLIENT_NARRATION_CLIENT_URL="$NARRATION_URL" \
+             QUARKUS_GRPC_CLIENTS_LOCATIONS_HOST="$LOCATIONS_HOST" \
              FIGHT_VILLAIN_CLIENT_BASE_URL="$VILLAINS_URL"
 ```
 
