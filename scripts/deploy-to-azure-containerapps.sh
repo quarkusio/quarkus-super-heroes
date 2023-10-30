@@ -785,7 +785,7 @@ echo "  Fights URL: $FIGHTS_URL"
 echo "  Heroes URL: $HEROES_URL"
 echo "  Villains URL: $VILLAINS_URL"
 echo "  Narration URL: $NARRATION_URL"
-echo "  Locations URL: $LOCATIONS_URL"
+echo "  Locations URL: grpc://$LOCATIONS_HOST"
 echo "  Apicurio Schema Registry: $APICURIO_URL"
 
 if "$CREATE_CONTAINER_REGISTRY"; then
