@@ -1,0 +1,136 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grpc-locations-config
+  labels:
+    app: grpc-locations
+    application: locations-service
+    system: quarkus-super-heroes
+data:
+  quarkus.hibernate-orm.database.generation: validate
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.jdbc.url: jdbc:mariadb://locations-db:3306/locations_database
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: grpc-locations-config-creds
+  labels:
+    app: grpc-locations
+    application: locations-service
+    system: quarkus-super-heroes
+data:
+  quarkus.datasource.username: bG9jYXRpb25z
+  quarkus.datasource.password: bG9jYXRpb25z
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: locations-db-config
+  labels:
+    app: locations-db
+    application: locations-service
+    system: quarkus-super-heroes
+data:
+  MARIADB_DATABASE: bG9jYXRpb25zX2RhdGFiYXNl
+  MARIADB_USER: bG9jYXRpb25z
+  MARIADB_PASSWORD: bG9jYXRpb25z
+  MARIADB_ROOT_PASSWORD: bG9jYXRpb25z
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: locations-db-init
+  labels:
+    app: locations-db
+    application: locations-service
+    system: quarkus-super-heroes
+data:
+  get-data.sh: |-
+    #!/bin/bash
+    
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-startdb.d/1-init-tables.sql
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: locations-db
+    application: locations-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/part-of: locations-service
+    app.openshift.io/runtime: mariadb
+  name: locations-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: locations-db
+  template:
+    metadata:
+      labels:
+        application: locations-service
+        name: locations-db
+    spec:
+      initContainers:
+        - name: get-data
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          workingDir: /tmp/dbinit
+          command:
+            - 'sh'
+            - 'get-data.sh'
+          volumeMounts:
+            - name: locations-initdata
+              mountPath: /docker-entrypoint-startdb.d
+            - name: locations-db-init
+              mountPath: /tmp/dbinit
+      containers:
+        - image: bitnami/mariadb:10.11
+          name: locations-db
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MARIADB_SKIP_TEST_DB
+              value: yes
+          envFrom:
+            - secretRef:
+                name: locations-db-config
+          volumeMounts:
+            - name: locations-db-data
+              mountPath: /bitnami/mariadb
+            - name: locations-initdata
+              mountPath: /docker-entrypoint-startdb.d
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              memory: 64Mi
+      volumes:
+        - name: locations-db-data
+          emptyDir: {}
+        - name: locations-initdata
+          emptyDir: {}
+        - name: locations-db-init
+          configMap:
+            name: locations-db-init
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: locations-db
+    application: locations-service
+    system: quarkus-super-heroes
+  name: locations-db
+spec:
+  ports:
+    - port: 3306
+      protocol: TCP
+      targetPort: 3306
+  selector:
+    name: locations-db
+  type: ClusterIP

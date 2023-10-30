@@ -21,10 +21,13 @@ import io.quarkus.panache.mock.PanacheMock;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
+import io.quarkus.sample.superheroes.fight.client.LocationClient;
 import io.quarkus.sample.superheroes.fight.client.NarrationClient;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.sample.superheroes.fight.service.FightServiceConsumerContractTests.PactConsumerContractTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.QuarkusTestProfile;
+import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.mockito.InjectSpy;
 
 import au.com.dius.pact.consumer.dsl.PactDslRootValue;
@@ -40,33 +43,52 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
 @QuarkusTest
-@QuarkusTestResource(value = PactConsumerContractTestResource.class, restrictToAnnotatedClass = true)
+@TestProfile(PactConsumerContractTestProfile.class)
 @ExtendWith(PactConsumerTestExt.class)
 @PactTestFor(pactVersion = PactSpecVersion.V4)
-@MockServerConfig(providerName = "rest-heroes", port = FightServiceConsumerContractTests.HEROES_MOCK_PORT, hostInterface = "localhost", implementation = MockServerImplementation.KTorServer)
-@MockServerConfig(providerName = "rest-villains", port = FightServiceConsumerContractTests.VILLAINS_MOCK_PORT, hostInterface = "localhost", implementation = MockServerImplementation.KTorServer)
-@MockServerConfig(providerName = "rest-narration", port = FightServiceConsumerContractTests.NARRATION_MOCK_PORT, hostInterface = "localhost", implementation = MockServerImplementation.KTorServer)
+@MockServerConfig(
+  providerName = "rest-heroes",
+  port = FightServiceConsumerContractTests.HEROES_MOCK_PORT,
+  hostInterface = "localhost",
+  implementation = MockServerImplementation.KTorServer
+)
+@MockServerConfig(
+  providerName = "rest-villains",
+  port = FightServiceConsumerContractTests.VILLAINS_MOCK_PORT,
+  hostInterface = "localhost",
+  implementation = MockServerImplementation.KTorServer
+)
+@MockServerConfig(
+  providerName = "rest-narration",
+  port = FightServiceConsumerContractTests.NARRATION_MOCK_PORT,
+  hostInterface = "localhost",
+  implementation = MockServerImplementation.KTorServer
+)
 public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
   private static final String VILLAIN_HELLO_URI = VILLAIN_API_BASE_URI + "/hello";
-  static final String VILLAINS_MOCK_PORT = "8083";
+  static final String VILLAINS_MOCK_PORT = "9083";
 
   private static final String HERO_API_BASE_URI = "/api/heroes";
   private static final String HERO_RANDOM_URI = HERO_API_BASE_URI + "/random";
   private static final String HERO_HELLO_URI = HERO_API_BASE_URI + "/hello";
-  static final String HEROES_MOCK_PORT = "8080";
+  static final String HEROES_MOCK_PORT = "9080";
 
   private static final String NARRATION_API_BASE_URI = "/api/narration";
   private static final String NARRATION_NARRATE_URI = NARRATION_API_BASE_URI;
   private static final String NARRATION_HELLO_URI = NARRATION_NARRATE_URI + "/hello";
-  static final String NARRATION_MOCK_PORT = "8085";
+  static final String NARRATION_MOCK_PORT = "9085";
+
 
   @InjectSpy
   HeroClient heroClient;
 
   @InjectSpy
   VillainClient villainClient;
+
+	@InjectSpy
+	LocationClient locationClient;
 
   @InjectSpy
   @RestClient
@@ -192,6 +214,12 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
         .stringType("loserName", DEFAULT_VILLAIN_NAME)
         .stringType("loserPowers", DEFAULT_VILLAIN_POWERS)
         .integerType("loserLevel", DEFAULT_VILLAIN_LEVEL)
+        .object(
+          "location",
+          location -> location
+            .stringType("name", DEFAULT_LOCATION_NAME)
+            .stringType("description", DEFAULT_LOCATION_DESCRIPTION)
+          )
     ).build();
 
     return builder
@@ -233,7 +261,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService, never()).fallbackRandomHero();
 		verify(this.fightService, never()).fallbackRandomVillain();
-    verifyNoInteractions(this.narrationClient);
+    verifyNoInteractions(this.narrationClient, this.locationClient);
 		PanacheMock.verifyNoInteractions(Fight.class);
 	}
 
@@ -261,7 +289,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService, never()).fallbackRandomHero();
 		verify(this.fightService, never()).fallbackRandomVillain();
-    verifyNoInteractions(this.narrationClient);
+    verifyNoInteractions(this.narrationClient, this.locationClient);
 		PanacheMock.verifyNoInteractions(Fight.class);
 	}
 
@@ -289,7 +317,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService, never()).fallbackRandomHero();
 		verify(this.fightService, never()).fallbackRandomVillain();
-    verifyNoInteractions(this.narrationClient);
+    verifyNoInteractions(this.narrationClient, this.locationClient);
 		PanacheMock.verifyNoInteractions(Fight.class);
 	}
 
@@ -317,7 +345,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 		verify(this.fightService).addDelay(any(Uni.class));
 		verify(this.fightService, never()).fallbackRandomHero();
 		verify(this.fightService, never()).fallbackRandomVillain();
-    verifyNoInteractions(this.narrationClient);
+    verifyNoInteractions(this.narrationClient, this.locationClient);
 		PanacheMock.verifyNoInteractions(Fight.class);
 	}
 
@@ -336,7 +364,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
     verify(this.heroClient).helloHeroes();
     verify(this.fightService).helloHeroes();
-    verifyNoInteractions(this.villainClient, this.narrationClient);
+    verifyNoInteractions(this.villainClient, this.narrationClient, this.locationClient);
   }
 
   @Test
@@ -354,7 +382,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
     verify(this.villainClient).helloVillains();
     verify(this.fightService).helloVillains();
-    verifyNoInteractions(this.heroClient, this.narrationClient);
+    verifyNoInteractions(this.heroClient, this.narrationClient, this.locationClient);
   }
 
   @Test
@@ -372,7 +400,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
       .isEqualTo(DEFAULT_HELLO_NARRATION_RESPONSE);
 
     verify(this.narrationClient).hello();
-    verifyNoInteractions(this.heroClient, this.villainClient);
+    verifyNoInteractions(this.heroClient, this.villainClient, this.locationClient);
     PanacheMock.verifyNoInteractions(Fight.class);
   }
 
@@ -381,7 +409,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   public void narrateFightSuccess() {
     PanacheMock.mock(Fight.class);
     var fightToNarrate = createFightToNarrateHeroWon();
-    var narrationMatcher = fightToNarrateMatcher(fightToNarrate);
 
     var narration = this.fightService.narrateFight(fightToNarrate)
       .subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -393,9 +420,20 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
       .isNotNull()
       .isEqualTo(DEFAULT_NARRATION);
 
-    verify(this.narrationClient).narrate(argThat(narrationMatcher));
-		verify(this.fightService, never()).fallbackNarrateFight(argThat(narrationMatcher));
-    verifyNoInteractions(this.heroClient, this.villainClient);
+    verify(this.narrationClient).narrate(eq(fightToNarrate));
+		verify(this.fightService, never()).fallbackNarrateFight(eq(fightToNarrate));
+    verifyNoInteractions(this.heroClient, this.villainClient, this.locationClient);
 		PanacheMock.verifyNoInteractions(Fight.class);
   }
+
+	public static class PactConsumerContractTestProfile implements QuarkusTestProfile {
+		@Override
+		public Map<String, String> getConfigOverrides() {
+			return Map.of(
+      "quarkus.rest-client.hero-client.url", String.format("http://localhost:%s", HEROES_MOCK_PORT),
+      "fight.villain.client-base-url", String.format("http://localhost:%s", VILLAINS_MOCK_PORT),
+      "quarkus.rest-client.narration-client.url", String.format("http://localhost:%s", NARRATION_MOCK_PORT)
+			);
+		}
+	}
 }

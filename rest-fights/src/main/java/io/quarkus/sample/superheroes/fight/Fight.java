@@ -15,7 +15,7 @@ import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
  * Mongo entity class for a Fight. Re-used in the API layer
  */
 @MongoEntity(collection = "Fights")
-@Schema(description = "Each fight has a winner and a loser")
+@Schema(description = "Each fight has a winner, a loser, and a location")
 public class Fight extends ReactivePanacheMongoEntity {
 	@NotNull
 	public Instant fightDate;
@@ -50,7 +50,9 @@ public class Fight extends ReactivePanacheMongoEntity {
 	@NotEmpty
 	public String loserTeam;
 
-	@Override
+	public FightLocation location = new FightLocation();
+
+  @Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -82,6 +84,7 @@ public class Fight extends ReactivePanacheMongoEntity {
 			", loserPicture='" + this.loserPicture + '\'' +
 			", winnerTeam='" + this.winnerTeam + '\'' +
 			", loserTeam='" + this.loserTeam + '\'' +
+			", location=" + this.location +
 			'}';
 	}
 }

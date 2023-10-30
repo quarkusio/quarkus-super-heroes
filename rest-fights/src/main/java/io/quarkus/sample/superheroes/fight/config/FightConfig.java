@@ -24,6 +24,11 @@ public interface FightConfig {
 	Villain villain();
 
   /**
+   * FightLocation configuration
+   */
+  Location location();
+
+  /**
    * Fallback narration
    */
   @WithDefault("Connection to the narration service could not be established.")
@@ -138,4 +143,28 @@ public interface FightConfig {
 			String powers();
 		}
 	}
+
+  interface Location {
+    /**
+     * FightLocation fallback configuration
+     */
+    LocationFallback fallback();
+
+    interface LocationFallback {
+      /**
+			 * FightLocation fallback name
+			 */
+			String name();
+
+      /**
+       * FightLocation fallback description
+       */
+      String description();
+
+      /**
+       * FightLocation fallback picture
+       */
+      String picture();
+    }
+  }
 }

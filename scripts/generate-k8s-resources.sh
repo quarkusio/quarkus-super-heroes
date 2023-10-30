@@ -102,12 +102,13 @@ process_quarkus_project() {
     local villains_output_file="rest-villains/$OUTPUT_DIR/${output_filename}.yml"
     local heroes_output_file="rest-heroes/$OUTPUT_DIR/${output_filename}.yml"
     local narration_output_file="rest-narration/$OUTPUT_DIR/${output_filename}.yml"
+    local locations_output_file="grpc-locations/$OUTPUT_DIR/${output_filename}.yml"
 
     rm -rf $all_downstream_output_file
 
     create_output_file $all_downstream_output_file
 
-    echo "Copying ${app_generated_input_file}, ${villains_output_file}, ${heroes_output_file}, and ${narration_output_file} to ${all_downstream_output_file}"
+    echo "Copying ${app_generated_input_file}, ${villains_output_file}, ${heroes_output_file}, ${narration_output_file}, and ${locations_output_file} to ${all_downstream_output_file}"
     if [[ -f "$villains_output_file" ]]; then
       cat $villains_output_file >> $all_downstream_output_file
     fi
@@ -118,6 +119,10 @@ process_quarkus_project() {
 
     if [[ -f "$narration_output_file" ]]; then
       cat $narration_output_file >> $all_downstream_output_file
+    fi
+
+    if [[ -f "$locations_output_file" ]]; then
+      cat $locations_output_file >> $all_downstream_output_file
     fi
 
     if [[ -f "$app_generated_input_file" ]]; then
@@ -160,10 +165,10 @@ do
   if [[ "$kind" == "native-" ]]; then
     javaVersions=(17)
     # Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
-    projects=("rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
+    projects=("grpc-locations" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
   else
     javaVersions=(17)
-    projects=("rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
+    projects=("grpc-locations" "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
 #    javaVersions=(11 17)
   fi
 

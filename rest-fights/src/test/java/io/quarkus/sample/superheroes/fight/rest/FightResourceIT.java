@@ -8,6 +8,7 @@ import static jakarta.ws.rs.core.HttpHeaders.*;
 import static jakarta.ws.rs.core.MediaType.*;
 import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.grpcmock.GrpcMock.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.ParameterizedTest.*;
 
@@ -23,6 +24,7 @@ import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.bson.types.ObjectId;
+import org.grpcmock.GrpcMock;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,16 +33,28 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.FightLocation;
+import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.GrpcMockServerResource;
 import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
+import io.quarkus.sample.superheroes.fight.InjectGrpcMock;
 import io.quarkus.sample.superheroes.fight.InjectWireMock;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
+import io.quarkus.sample.superheroes.fight.client.FightToNarrate.FightToNarrateLocation;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
+import io.quarkus.sample.superheroes.location.grpc.HelloReply;
+import io.quarkus.sample.superheroes.location.grpc.HelloRequest;
+import io.quarkus.sample.superheroes.location.grpc.Location;
+import io.quarkus.sample.superheroes.location.grpc.LocationType;
+import io.quarkus.sample.superheroes.location.grpc.LocationsGrpc;
+import io.quarkus.sample.superheroes.location.grpc.RandomLocationRequest;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.kafka.InjectKafkaCompanion;
@@ -57,22 +71,29 @@ import io.apicurio.registry.serde.avro.AvroKafkaSerdeConfig;
 import io.apicurio.registry.serde.avro.AvroKafkaSerializer;
 import io.apicurio.registry.serde.avro.ReflectAvroDatumProvider;
 import io.apicurio.rest.client.VertxHttpClientProvider;
+import io.grpc.Status;
 import io.smallrye.reactive.messaging.kafka.companion.KafkaCompanion;
 import io.vertx.core.Vertx;
 
 /**
  * Integration tests for the application as a whole. Orders tests in an order to faciliate a scenario of interactions
  * <p>
- *   Uses wiremock to stub responses and verify interactions with the hero and villain services.
+ *   Uses wiremock to stub responses and verify interactions with the hero, villain, and narration services.
+ * </p>
+ * <p>
+ *   Uses grpcmock to stub responses and verify interactions with the location service
  * </p>
  * <p>
  *   Uses an external container image for Kafka
  * </p>
- * @see io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource
+ * @see HeroesVillainsNarrationWiremockServerResource
+ * @see GrpcMockServerResource
+ * @see KafkaCompanionResource
  */
 @QuarkusIntegrationTest
-@QuarkusTestResource(HeroesVillainsNarrationWiremockServerResource.class)
+@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
 @QuarkusTestResource(value = KafkaCompanionResource.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(value = GrpcMockServerResource.class, restrictToAnnotatedClass = true)
 @TestMethodOrder(OrderAnnotation.class)
 public class FightResourceIT {
 	private static final int DEFAULT_ORDER = 0;
@@ -105,6 +126,11 @@ public class FightResourceIT {
 	private static final String FALLBACK_HERO_PICTURE = "https://dummyimage.com/280x380/1e8fff/ffffff&text=Fallback+Hero";
 	private static final String FALLBACK_HERO_POWERS = "Fallback hero powers";
 	private static final int FALLBACK_HERO_LEVEL = 1;
+
+  private static final String FALLBACK_LOCATION_NAME = "Fallback location";
+  private static final String FALLBACK_LOCATION_DESCRIPTION = "This is a fallback location. Not generally someplace you'd like to visit.";
+  private static final String FALLBACK_LOCATION_PICTURE = "https://dummyimage.com/280x380/b22222/ffffff&text=Fallback+Location";
+  private static final FightLocation FALLBACK_LOCATION = new FightLocation(FALLBACK_LOCATION_NAME, FALLBACK_LOCATION_DESCRIPTION, FALLBACK_LOCATION_PICTURE);
 
   private static final String NARRATION_API_BASE_URI = "/api/narration";
   private static final String NARRATION_API_HELLO_URI = NARRATION_API_BASE_URI + "/hello";
@@ -151,12 +177,28 @@ public class FightResourceIT {
 		FALLBACK_VILLAIN_POWERS
 	);
 
+  private static final FightLocation DEFAULT_LOCATION = new FightLocation(
+    "Gotham City",
+    "An American city rife with corruption and crime, the home of its iconic protector Batman.",
+    "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/locations/gotham_city.jpg"
+  );
+
+  private static final Location DEFAULT_GRPC_LOCATION = Location.newBuilder()
+    .setName(DEFAULT_LOCATION.name())
+    .setDescription(DEFAULT_LOCATION.description())
+    .setPicture(DEFAULT_LOCATION.picture())
+    .setType(LocationType.PLANET)
+    .build();
+
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	private static final int NB_FIGHTS = 3;
 
 	@InjectWireMock
 	WireMockServer wireMockServer;
+
+  @InjectGrpcMock
+  GrpcMock grpcMock;
 
 	@InjectKafkaCompanion
   KafkaCompanion companion;
@@ -181,6 +223,10 @@ public class FightResourceIT {
 	public void beforeEach() {
 		// Reset WireMock
 		this.wireMockServer.resetAll();
+
+    // Reset GrpcMock
+    this.grpcMock.resetAll();
+
     // Configure Avro Serde for Fight
     companion.setCommonClientConfig(Map.of(AvroKafkaSerdeConfig.AVRO_DATUM_PROVIDER, ReflectAvroDatumProvider.class.getName()));
     Serde<io.quarkus.sample.superheroes.fight.schema.Fight> serde = Serdes.serdeFrom(new AvroKafkaSerializer<>(), new AvroKafkaDeserializer<>());
@@ -474,6 +520,72 @@ public class FightResourceIT {
 		);
 	}
 
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void getRandomLocationOk() {
+    resetLocationCircuitBreakerToClosedState();
+
+    this.grpcMock.register(
+      unaryMethod(LocationsGrpc.getGetRandomLocationMethod())
+        .willReturn(DEFAULT_GRPC_LOCATION)
+    );
+
+    var randomLocation = get("/api/fights/randomlocation")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(JSON)
+      .extract().as(FightLocation.class);
+
+    assertThat(randomLocation)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(DEFAULT_LOCATION);
+
+    this.grpcMock.verifyThat(
+      calledMethod(LocationsGrpc.getGetRandomLocationMethod())
+        .withRequest(RandomLocationRequest.newBuilder().build())
+        .build(),
+      GrpcMock.times(1)
+    );
+  }
+
+  @ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
+  @MethodSource("randomLocationFailReasons")
+  @Order(DEFAULT_ORDER + 1)
+  public void getRandomLocationFail(Status status, int expectedNumberOfCalls) {
+    resetLocationCircuitBreakerToClosedState();
+
+    this.grpcMock.register(
+      unaryMethod(LocationsGrpc.getGetRandomLocationMethod())
+        .willReturn(status)
+    );
+
+    var randomLocation = get("/api/fights/randomlocation")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(JSON)
+      .extract().as(FightLocation.class);
+
+    assertThat(randomLocation)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(FALLBACK_LOCATION);
+
+    this.grpcMock.verifyThat(
+      calledMethod(LocationsGrpc.getGetRandomLocationMethod())
+        .withRequest(RandomLocationRequest.newBuilder().build())
+        .build(),
+      GrpcMock.times(expectedNumberOfCalls)
+    );
+  }
+
+  static Stream<Arguments> randomLocationFailReasons() {
+    return Stream.of(
+      Arguments.of(Status.UNAVAILABLE.withDescription("Service isn't there"), 4),
+      Arguments.of(Status.NOT_FOUND.withDescription("A location was not found"), 1)
+    );
+  }
+
 	@Test
 	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersAllOk() {
@@ -658,6 +770,75 @@ public class FightResourceIT {
   }
 
   @Test
+  @Order(DEFAULT_ORDER)
+  public void helloLocationsOk() {
+    this.grpcMock.register(
+			unaryMethod(LocationsGrpc.getHelloMethod())
+				.willReturn(HelloReply.newBuilder().setMessage("Hello location!").build())
+		);
+
+    get("/api/fights/hello/locations")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Hello location!"));
+
+    this.grpcMock.verifyThat(
+			calledMethod(LocationsGrpc.getHelloMethod())
+				.withRequest(HelloRequest.newBuilder().build())
+				.build(),
+			times(1)
+    );
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void helloLocationsFallback() {
+    this.grpcMock.register(
+      unaryMethod(LocationsGrpc.getHelloMethod())
+        .willReturn(
+          response(HelloReply.newBuilder().setMessage("Hello location!").build())
+            .withFixedDelay(Duration.ofSeconds(6))
+        )
+    );
+
+    get("/api/fights/hello/locations")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Could not invoke the Locations microservice"));
+
+    this.grpcMock.verifyThat(
+			calledMethod(LocationsGrpc.getHelloMethod())
+				.withRequest(HelloRequest.newBuilder().build())
+				.build(),
+			times(1)
+    );
+  }
+
+  @Test
+  @Order(DEFAULT_ORDER + 1)
+  public void helloLocationsFail() {
+    this.grpcMock.register(
+			unaryMethod(LocationsGrpc.getHelloMethod())
+				.willReturn(Status.UNAVAILABLE.withDescription("Service isn't there"))
+		);
+
+    get("/api/fights/hello/locations")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(TEXT)
+      .body(is("Could not invoke the Locations microservice"));
+
+   this.grpcMock.verifyThat(
+			calledMethod(LocationsGrpc.getHelloMethod())
+				.withRequest(HelloRequest.newBuilder().build())
+				.build(),
+			times(1)
+    );
+  }
+
+  @Test
   @Order(DEFAULT_ORDER + 1)
   public void helloNarrationFallback() {
     this.wireMockServer.stubFor(
@@ -727,6 +908,7 @@ public class FightResourceIT {
     expectedFight.loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/wanderer-300775911119209178.jpg";
     expectedFight.loserPowers = DEFAULT_VILLAIN_POWERS;
     expectedFight.loserTeam = VILLAINS_TEAM_NAME;
+    expectedFight.location = DEFAULT_LOCATION;
 
 		var fight = get("/api/fights/{id}", getAndVerifyAllFights().get(0).id.toString())
 			.then()
@@ -753,18 +935,19 @@ public class FightResourceIT {
 				.statusCode(BAD_REQUEST.getStatusCode());
 	}
 
-	@ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
-	@MethodSource("invalidFighters")
+	@Test
   @Order(DEFAULT_ORDER)
-	public void performFightInvalidFighters(Fighters fighters) {
-		given()
-			.when()
-				.contentType(JSON)
-				.accept(JSON)
-				.body(fighters)
-				.post("/api/fights")
-			.then()
-				.statusCode(BAD_REQUEST.getStatusCode());
+	public void performFightInvalidFighters() {
+    invalidFighters().forEach(fighters ->
+      given()
+        .when()
+          .contentType(JSON)
+          .accept(JSON)
+          .body(fighters)
+          .post("/api/fights")
+        .then()
+          .statusCode(BAD_REQUEST.getStatusCode())
+    );
 	}
 
   // This is written as an @Test instead of @ParameterizedTest
@@ -792,22 +975,23 @@ public class FightResourceIT {
       .fromTopics("fights", 1);
 
     var expectedFight = new Fight();
-    expectedFight.winnerName = DEFAULT_HERO.getName();
-    expectedFight.winnerLevel = DEFAULT_HERO.getLevel();
-    expectedFight.winnerPicture = DEFAULT_HERO.getPicture();
+    expectedFight.winnerName = DEFAULT_HERO.name();
+    expectedFight.winnerLevel = DEFAULT_HERO.level();
+    expectedFight.winnerPicture = DEFAULT_HERO.picture();
     expectedFight.winnerTeam = HEROES_TEAM_NAME;
-    expectedFight.winnerPowers = DEFAULT_HERO.getPowers();
-    expectedFight.loserName = DEFAULT_VILLAIN.getName();
-    expectedFight.loserLevel = DEFAULT_VILLAIN.getLevel();
-    expectedFight.loserPicture = DEFAULT_VILLAIN.getPicture();
-    expectedFight.loserPowers = DEFAULT_VILLAIN.getPowers();
+    expectedFight.winnerPowers = DEFAULT_HERO.powers();
+    expectedFight.loserName = DEFAULT_VILLAIN.name();
+    expectedFight.loserLevel = DEFAULT_VILLAIN.level();
+    expectedFight.loserPicture = DEFAULT_VILLAIN.picture();
+    expectedFight.loserPowers = DEFAULT_VILLAIN.powers();
     expectedFight.loserTeam = VILLAINS_TEAM_NAME;
+    expectedFight.location = DEFAULT_LOCATION;
 
 		var fightResult = given()
 			.when()
 				.contentType(JSON)
 				.accept(JSON)
-				.body(new Fighters(DEFAULT_HERO, DEFAULT_VILLAIN))
+				.body(new FightRequest(DEFAULT_HERO, DEFAULT_VILLAIN, DEFAULT_LOCATION))
 				.post("/api/fights")
 			.then()
 				.statusCode(OK.getStatusCode())
@@ -843,13 +1027,13 @@ public class FightResourceIT {
         io.quarkus.sample.superheroes.fight.schema.Fight::getLoserTeam
 			)
 			.containsExactly(
-				DEFAULT_HERO.getName(),
-				DEFAULT_HERO.getLevel(),
-				DEFAULT_HERO.getPicture(),
+				DEFAULT_HERO.name(),
+				DEFAULT_HERO.level(),
+				DEFAULT_HERO.picture(),
 				HEROES_TEAM_NAME,
-				DEFAULT_VILLAIN.getName(),
-				DEFAULT_VILLAIN.getLevel(),
-				DEFAULT_VILLAIN.getPicture(),
+				DEFAULT_VILLAIN.name(),
+				DEFAULT_VILLAIN.level(),
+				DEFAULT_VILLAIN.picture(),
 				VILLAINS_TEAM_NAME
 			);
 	}
@@ -863,38 +1047,40 @@ public class FightResourceIT {
       .withAutoCommit()
       .fromTopics("fights", 1);
 
-    var fighters = new Fighters(
-			new Hero(
-				DEFAULT_HERO_NAME,
-				DEFAULT_VILLAIN_LEVEL,
-				DEFAULT_HERO_PICTURE,
-				DEFAULT_HERO_POWERS
-		),
-			new Villain(
-				DEFAULT_VILLAIN_NAME,
-				DEFAULT_HERO_LEVEL,
-				DEFAULT_VILLAIN_PICTURE,
-				DEFAULT_VILLAIN_POWERS
-			)
+    var fightRequest = new FightRequest(
+      new Hero(
+        DEFAULT_HERO_NAME,
+        DEFAULT_VILLAIN_LEVEL,
+        DEFAULT_HERO_PICTURE,
+        DEFAULT_HERO_POWERS
+      ),
+      new Villain(
+        DEFAULT_VILLAIN_NAME,
+        DEFAULT_HERO_LEVEL,
+        DEFAULT_VILLAIN_PICTURE,
+        DEFAULT_VILLAIN_POWERS
+      ),
+      DEFAULT_LOCATION
 		);
 
     var expectedFight = new Fight();
-    expectedFight.loserName = DEFAULT_HERO.getName();
-    expectedFight.loserLevel = DEFAULT_VILLAIN.getLevel();
-    expectedFight.loserPicture = DEFAULT_HERO.getPicture();
-    expectedFight.loserPowers = DEFAULT_HERO.getPowers();
+    expectedFight.loserName = DEFAULT_HERO.name();
+    expectedFight.loserLevel = DEFAULT_VILLAIN.level();
+    expectedFight.loserPicture = DEFAULT_HERO.picture();
+    expectedFight.loserPowers = DEFAULT_HERO.powers();
     expectedFight.loserTeam = HEROES_TEAM_NAME;
-    expectedFight.winnerName = DEFAULT_VILLAIN.getName();
-    expectedFight.winnerLevel = DEFAULT_HERO.getLevel();
-    expectedFight.winnerPicture = DEFAULT_VILLAIN.getPicture();
-    expectedFight.winnerPowers = DEFAULT_VILLAIN.getPowers();
+    expectedFight.winnerName = DEFAULT_VILLAIN.name();
+    expectedFight.winnerLevel = DEFAULT_HERO.level();
+    expectedFight.winnerPicture = DEFAULT_VILLAIN.picture();
+    expectedFight.winnerPowers = DEFAULT_VILLAIN.powers();
     expectedFight.winnerTeam = VILLAINS_TEAM_NAME;
+    expectedFight.location = DEFAULT_LOCATION;
 
 		var fightResult = given()
 			.when()
 				.contentType(JSON)
 				.accept(JSON)
-				.body(fighters)
+				.body(fightRequest)
 				.post("/api/fights")
 			.then()
 				.statusCode(OK.getStatusCode())
@@ -930,13 +1116,13 @@ public class FightResourceIT {
         io.quarkus.sample.superheroes.fight.schema.Fight::getLoserTeam
 			)
 			.containsExactly(
-				DEFAULT_VILLAIN.getName(),
-				DEFAULT_HERO.getLevel(),
-				DEFAULT_VILLAIN.getPicture(),
+				DEFAULT_VILLAIN.name(),
+				DEFAULT_HERO.level(),
+				DEFAULT_VILLAIN.picture(),
 				VILLAINS_TEAM_NAME,
-				DEFAULT_HERO.getName(),
-				DEFAULT_VILLAIN.getLevel(),
-				DEFAULT_HERO.getPicture(),
+				DEFAULT_HERO.name(),
+				DEFAULT_VILLAIN.level(),
+				DEFAULT_HERO.picture(),
 				HEROES_TEAM_NAME
 			);
 	}
@@ -953,6 +1139,7 @@ public class FightResourceIT {
     expectedFights.get(0).loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/wanderer-300775911119209178.jpg";
     expectedFights.get(0).loserPowers = DEFAULT_VILLAIN_POWERS;
     expectedFights.get(0).loserTeam = VILLAINS_TEAM_NAME;
+    expectedFights.get(0).location = DEFAULT_LOCATION;
     expectedFights.get(1).winnerName = "Galadriel";
     expectedFights.get(1).winnerLevel = 10;
     expectedFights.get(1).winnerPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/galadriel--1293733805363806029.jpg";
@@ -963,6 +1150,7 @@ public class FightResourceIT {
     expectedFights.get(1).loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg";
     expectedFights.get(1).loserPowers = DEFAULT_VILLAIN_POWERS;
     expectedFights.get(1).loserTeam = VILLAINS_TEAM_NAME;
+    expectedFights.get(1).location = new FightLocation("Krypton", "An ancient world, Krypton was home to advanced civilization known as Kryptonians.", "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/locations/krypton.jpg");
     expectedFights.get(2).winnerName = "Annihilus";
     expectedFights.get(2).winnerLevel = 23;
     expectedFights.get(2).winnerPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/annihilus--751928780106678215.jpg";
@@ -973,6 +1161,7 @@ public class FightResourceIT {
     expectedFights.get(2).loserPicture = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/nara-shikamaru-1970614934047311432.jpg";
     expectedFights.get(2).loserPowers = DEFAULT_HERO_POWERS;
     expectedFights.get(2).loserTeam = HEROES_TEAM_NAME;
+    expectedFights.get(2).location = new FightLocation("Earth", "Earth, our home planet, is the only place we know of so far that is inhabited by living things.", "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/locations/earth.jpg");
 
 		var fights = get("/api/fights")
 			.then()
@@ -1046,6 +1235,51 @@ public class FightResourceIT {
 		this.wireMockServer.resetAll();
 	}
 
+  private void resetLocationCircuitBreakerToClosedState() {
+		try {
+			// Sleep the necessary delay duration for the breaker to moved into the half-open position
+			TimeUnit.SECONDS.sleep(2);
+		}
+		catch (InterruptedException ex) {
+			Log.error(ex.getMessage(), ex);
+		}
+
+		// Reset all the mocks on the GrpcMock
+		this.grpcMock.resetAll();
+
+		// Stub successful requests
+    this.grpcMock.register(
+      unaryMethod(LocationsGrpc.getGetRandomLocationMethod())
+        .willReturn(DEFAULT_GRPC_LOCATION)
+    );
+
+		// The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
+		IntStream.rangeClosed(0, 8)
+			.forEach(i -> {
+        var location = get("/api/fights/randomlocation").then()
+          .statusCode(OK.getStatusCode())
+          .contentType(JSON)
+          .extract().as(FightLocation.class);
+
+        assertThat(location)
+          .isNotNull()
+          .usingRecursiveComparison()
+          .isEqualTo(DEFAULT_LOCATION);
+        }
+			);
+
+		// Verify successful requests
+    this.grpcMock.verifyThat(
+      calledMethod(LocationsGrpc.getGetRandomLocationMethod())
+        .withRequest(RandomLocationRequest.newBuilder().build())
+        .build(),
+      GrpcMock.times(9)
+    );
+
+		// Reset all the mocks on the GrpcMock
+		this.grpcMock.resetAll();
+	}
+
   private void resetNarrationCircuitBreakersToClosedState() {
 		try {
 			// Sleep the necessary delay duration for the breaker to moved into the half-open position
@@ -1109,20 +1343,20 @@ public class FightResourceIT {
 		);
 	}
 
-    private static Stream<FightToNarrate> invalidFightsToNarrate() {
+  private static Stream<FightToNarrate> invalidFightsToNarrate() {
     return Stream.of(
-      new FightToNarrate(null, null, null, 0, null, null, null, 0),
-      new FightToNarrate("", "", "", 0, "", "", "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, "", "", "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, "", 0, "", "", "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, "", "", "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, "", "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, "", 0),
-      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, null, null, null, 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, null, 0, null, null, null, 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, null, null, null, 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, null, null, 0),
-      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, null, 0)
+      new FightToNarrate(null, null, null, 0, null, null, null, 0, null),
+      new FightToNarrate("", "", "", 0, "", "", "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, "", "", "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, "", 0, "", "", "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, "", "", "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, "", "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, "", 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, "", "", 0, null, null, null, 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, null, 0, null, null, null, 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, null, null, null, 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, null, null, 0, null),
+      new FightToNarrate(HEROES_TEAM_NAME, DEFAULT_HERO_NAME, DEFAULT_HERO_POWERS, 0, VILLAINS_TEAM_NAME, DEFAULT_VILLAIN_NAME, null, 0, null)
     );
   }
 
@@ -1135,7 +1369,8 @@ public class FightResourceIT {
       VILLAINS_TEAM_NAME,
       DEFAULT_VILLAIN_NAME,
       DEFAULT_VILLAIN_POWERS,
-      DEFAULT_VILLAIN_LEVEL
+      DEFAULT_VILLAIN_LEVEL,
+      new FightToNarrateLocation(DEFAULT_LOCATION.name(), DEFAULT_LOCATION.description())
     );
   }
 
@@ -1155,4 +1390,8 @@ public class FightResourceIT {
 	private static String getDefaultHeroJson() {
 		return writeAsJson(DEFAULT_HERO);
 	}
+
+  private static String getDefaultLocationJson() {
+    return writeAsJson(DEFAULT_LOCATION);
+  }
 }

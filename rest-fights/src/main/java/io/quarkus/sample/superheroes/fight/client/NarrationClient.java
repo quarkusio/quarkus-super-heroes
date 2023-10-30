@@ -10,6 +10,8 @@ import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import io.quarkus.sample.superheroes.fight.Fight;
+
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
@@ -26,7 +28,7 @@ import io.smallrye.mutiny.Uni;
 public interface NarrationClient {
   /**
    * HTTP <code>POST</code> call to {@code /api/narration} on the Narration service
-   * @param fight The {@link io.quarkus.sample.superheroes.fight.Fight Fight} to narrate
+   * @param fight The {@link Fight Fight} to narrate
    * @return The narration for the fight
    */
   @POST

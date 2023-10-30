@@ -9,8 +9,10 @@ import org.bson.types.ObjectId;
 import org.mockito.ArgumentMatcher;
 
 import io.quarkus.sample.superheroes.fight.Fight;
-import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.FightLocation;
+import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
+import io.quarkus.sample.superheroes.fight.client.FightToNarrate.FightToNarrateLocation;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
@@ -33,6 +35,7 @@ public abstract class FightServiceTestsBase {
   static final String VILLAINS_TEAM_NAME = "villains";
   static final String DEFAULT_HELLO_VILLAIN_RESPONSE = "Hello villains!";
   static final String DEFAULT_HELLO_NARRATION_RESPONSE = "Hello narration!";
+	static final String DEFAULT_HELLO_LOCATION_RESPONSE = "Hello location!";
   static final String DEFAULT_NARRATION = """
                                           This is a default narration - NOT a fallback!
                                           
@@ -42,6 +45,9 @@ public abstract class FightServiceTestsBase {
                                           In the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.
                                           The people knew that their protector had once again ensured their safety.
                                           """;
+  static final String DEFAULT_LOCATION_NAME = "Gotham City";
+  static final String DEFAULT_LOCATION_DESCRIPTION = "An American city rife with corruption and crime, the home of its iconic protector Batman.";
+  static final String DEFAULT_LOCATION_PICTURE = "gotham_city.png";
 
   @Inject
   FightConfig fightConfig;
@@ -49,8 +55,8 @@ public abstract class FightServiceTestsBase {
   @InjectSpy
   FightService fightService;
 
-  static Fighters createDefaultFighters() {
-    return new Fighters(createDefaultHero(), createDefaultVillain());
+  static FightRequest createDefaultFightRequest() {
+    return new FightRequest(createDefaultHero(), createDefaultVillain(), createDefaultFightLocation());
   }
 
   static Hero createDefaultHero() {
@@ -71,7 +77,8 @@ public abstract class FightServiceTestsBase {
       VILLAINS_TEAM_NAME,
       DEFAULT_VILLAIN_NAME,
       DEFAULT_VILLAIN_POWERS,
-      DEFAULT_VILLAIN_LEVEL
+      DEFAULT_VILLAIN_LEVEL,
+      new FightToNarrateLocation(createDefaultFightLocation())
     );
   }
 
@@ -102,49 +109,15 @@ public abstract class FightServiceTestsBase {
     );
   }
 
-  static ArgumentMatcher<Hero> heroMatcher(Hero hero) {
-    return h -> (hero == h) || (
-      (hero != null) &&
-        (h != null) &&
-        Objects.equals(hero.getName(), h.getName()) &&
-        Objects.equals(hero.getLevel(), h.getLevel()) &&
-        Objects.equals(hero.getPicture(), h.getPicture()) &&
-        Objects.equals(hero.getPowers(), h.getPowers())
-    );
+  static FightLocation createDefaultFightLocation() {
+    return new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION, DEFAULT_LOCATION_PICTURE);
   }
 
-  static ArgumentMatcher<Villain> villainMatcher(Villain villain) {
-    return v -> (villain == v) || (
-      (villain != null) &&
-        (v != null) &&
-        Objects.equals(villain.getName(), v.getName()) &&
-        Objects.equals(villain.getLevel(), v.getLevel()) &&
-        Objects.equals(villain.getPicture(), v.getPicture()) &&
-        Objects.equals(villain.getPowers(), v.getPowers())
-    );
-  }
-
-  static ArgumentMatcher<Fighters> fightersMatcher(Fighters fighters) {
-    return f -> (fighters == f) || (
-      (fighters != null) &&
-        (f != null) &&
-        heroMatcher(f.getHero()).matches(fighters.getHero()) &&
-        villainMatcher(f.getVillain()).matches(fighters.getVillain())
-    );
-  }
-
-  static ArgumentMatcher<FightToNarrate> fightToNarrateMatcher(FightToNarrate fight) {
-    return f -> (fight == f) || (
-      (fight != null) &&
-        (f != null) &&
-        Objects.equals(fight.loserLevel(), f.loserLevel()) &&
-        Objects.equals(fight.loserName(), f.loserName()) &&
-        Objects.equals(fight.loserPowers(), f.loserPowers()) &&
-        Objects.equals(fight.loserTeam(), f.loserTeam()) &&
-        Objects.equals(fight.winnerLevel(), f.winnerLevel()) &&
-        Objects.equals(fight.winnerName(), f.winnerName()) &&
-        Objects.equals(fight.winnerPowers(), f.winnerPowers()) &&
-        Objects.equals(fight.winnerTeam(), f.winnerTeam())
+  FightLocation createFallbackLocation() {
+    return new FightLocation(
+      this.fightConfig.location().fallback().name(),
+      this.fightConfig.location().fallback().description(),
+      this.fightConfig.location().fallback().picture()
     );
   }
 
@@ -163,7 +136,8 @@ public abstract class FightServiceTestsBase {
         Objects.equals(fight.winnerName, f.winnerName) &&
         Objects.equals(fight.winnerPicture, f.winnerPicture) &&
         Objects.equals(fight.winnerPowers, f.winnerPowers) &&
-        Objects.equals(fight.winnerTeam, f.winnerTeam)
+        Objects.equals(fight.winnerTeam, f.winnerTeam) &&
+        Objects.equals(fight.location, f.location)
     );
   }
 }

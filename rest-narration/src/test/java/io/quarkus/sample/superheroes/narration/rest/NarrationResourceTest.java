@@ -12,9 +12,9 @@ import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatcher;
 
 import io.quarkus.sample.superheroes.narration.Fight;
+import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
 import io.quarkus.sample.superheroes.narration.service.NarrationService;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -32,8 +32,19 @@ public class NarrationResourceTest {
   private static final String VILLAIN_POWERS = "Transforms chocolatine into pain au chocolat";
   private static final String VILLAIN_TEAM_NAME = "villains";
   private static final String NARRATION = "Lorem ipsum dolor sit amet";
-  private static final Fight FIGHT = new Fight(VILLAIN_NAME, VILLAIN_LEVEL, VILLAIN_POWERS, HERO_NAME, HERO_LEVEL, HERO_POWERS, VILLAIN_TEAM_NAME, HERO_TEAM_NAME);
-  private static final ArgumentMatcher<Fight> FIGHT_MATCHER = fight -> FIGHT.equals(fight);
+  private static final String DEFAULT_LOCATION_NAME = "Gotham City";
+  private static final String DEFAULT_LOCATION_DESCRIPTION = "An American city rife with corruption and crime, the home of its iconic protector Batman.";
+  private static final Fight FIGHT = new Fight(
+    VILLAIN_NAME,
+    VILLAIN_LEVEL,
+    VILLAIN_POWERS,
+    HERO_NAME,
+    HERO_LEVEL,
+    HERO_POWERS,
+    VILLAIN_TEAM_NAME,
+    HERO_TEAM_NAME,
+    new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION)
+  );
 
   @Inject
   Instance<NarrationService> narrationServiceInstance;
@@ -45,7 +56,7 @@ public class NarrationResourceTest {
     this.narrationService = mock((Class<NarrationService>) this.narrationServiceInstance.getHandle().getBean().getBeanClass());
     QuarkusMock.installMockForInstance(narrationService, this.narrationServiceInstance.get());
 
-    when(this.narrationService.narrate(argThat(FIGHT_MATCHER)))
+    when(this.narrationService.narrate(eq(FIGHT)))
       .thenReturn(Uni.createFrom().item(NARRATION));
   }
 
@@ -81,7 +92,7 @@ public class NarrationResourceTest {
         .contentType(TEXT)
         .body(is(NARRATION));
 
-    verify(this.narrationService).narrate(argThat(FIGHT_MATCHER));
+    verify(this.narrationService).narrate(eq(FIGHT));
     verifyNoMoreInteractions(this.narrationService);
   }
 

@@ -10,7 +10,7 @@
  * Do not edit the class manually.
  */
 import {FightFightDate} from './fightFightDate';
-
+import {FightLocation} from "./fightLocation";
 
 /**
  * Each fight has a winner and a loser
@@ -27,5 +27,6 @@ export interface Fight {
     loserLevel: number;
     loserPicture: string;
     loserPowers: string;
+    location: FightLocation;
 }
 // end::adocModel[]

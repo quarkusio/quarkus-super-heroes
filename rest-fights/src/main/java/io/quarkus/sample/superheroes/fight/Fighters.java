@@ -12,44 +12,12 @@ import io.quarkus.sample.superheroes.fight.client.Villain;
  * Entity class representing Fighters
  */
 @Schema(description = "A fight between one hero and one villain")
-public class Fighters {
-	@NotNull
-	@Valid
-	private Hero hero;
+public record Fighters(@NotNull @Valid Hero hero, @NotNull @Valid Villain villain) {
+  public Fighters(Fighters fighters) {
+    this(fighters.hero(), fighters.villain());
+  }
 
-	@NotNull
-	@Valid
-	private Villain villain;
-
-	public Fighters(Hero hero, Villain villain) {
-		this.hero = hero;
-		this.villain = villain;
-	}
-
-	public Fighters() {
-	}
-
-	public Hero getHero() {
-		return this.hero;
-	}
-
-	public void setHero(Hero hero) {
-		this.hero = hero;
-	}
-
-	public Villain getVillain() {
-		return this.villain;
-	}
-
-	public void setVillain(Villain villain) {
-		this.villain = villain;
-	}
-
-	@Override
-	public String toString() {
-		return "Fighters{" +
-			"hero=" + this.hero +
-			", villain=" + this.villain +
-			'}';
-	}
+  public Fighters() {
+    this(null, null);
+  }
 }

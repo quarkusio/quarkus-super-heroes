@@ -30,10 +30,10 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
 /**
  * Tests for the {@link io.quarkus.sample.superheroes.fight.client.HeroClient}. Uses wiremock to stub responses and verify interactions.
- * @see io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource
+ * @see HeroesVillainsNarrationWiremockServerResource
  */
 @QuarkusTest
-@QuarkusTestResource(HeroesVillainsNarrationWiremockServerResource.class)
+@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
 class HeroClientTests {
   private static final String HERO_API_BASE_URI = "/api/heroes";
   private static final String HERO_RANDOM_URI = HERO_API_BASE_URI + "/random";
@@ -91,18 +91,7 @@ class HeroClientTests {
 
         assertThat(hero)
           .isNotNull()
-          .extracting(
-            Hero::getName,
-            Hero::getLevel,
-            Hero::getPicture,
-            Hero::getPowers
-          )
-          .containsExactly(
-            DEFAULT_HERO_NAME,
-            DEFAULT_HERO_LEVEL,
-            DEFAULT_HERO_PICTURE,
-            DEFAULT_HERO_POWERS
-          );
+          .isEqualTo(DEFAULT_HERO);
       });
 
     this.wireMockServer.verify(5,

@@ -11,5 +11,9 @@ public record Fight(
   int loserLevel,
   String loserPowers,
   String winnerTeam,
-  String loserTeam
-) { }
+  String loserTeam,
+  FightLocation location
+) {
+  @Schema(description = "Location of a fight")
+  public record FightLocation(String name, String description) { }
+}

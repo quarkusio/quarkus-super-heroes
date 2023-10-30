@@ -33,7 +33,7 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
  * @see HeroesVillainsNarrationWiremockServerResource
  */
 @QuarkusTest
-@QuarkusTestResource(HeroesVillainsNarrationWiremockServerResource.class)
+@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
 class VillainClientTests {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
@@ -92,18 +92,7 @@ class VillainClientTests {
 
         assertThat(villain)
           .isNotNull()
-          .extracting(
-            Villain::getName,
-            Villain::getLevel,
-            Villain::getPicture,
-            Villain::getPowers
-          )
-          .containsExactly(
-            DEFAULT_VILLAIN_NAME,
-            DEFAULT_VILLAIN_LEVEL,
-            DEFAULT_VILLAIN_PICTURE,
-            DEFAULT_VILLAIN_POWERS
-          );
+          .isEqualTo(DEFAULT_VILLAIN);
       });
 
     this.wireMockServer.verify(5,

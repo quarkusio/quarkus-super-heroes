@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import { Fight, FightService } from '../shared';
+import {Fight, FightService} from '../shared';
 import {MatTableDataSource} from "@angular/material/table";
 
 @Component({
@@ -10,7 +10,7 @@ import {MatTableDataSource} from "@angular/material/table";
 export class FightListComponent implements OnInit {
 
   dataSource: MatTableDataSource < Fight > ;
-  displayedColumns: string[] = ['id', 'fightDate', 'winnerName', 'loserName'];
+  displayedColumns: string[] = ['id', 'fightDate', 'winnerName', 'loserName', 'location'];
 
   constructor(private fightService: FightService) {
     this.dataSource = new MatTableDataSource<Fight>();
