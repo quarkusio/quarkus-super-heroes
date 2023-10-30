@@ -7,7 +7,6 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
@@ -15,19 +14,18 @@ import jakarta.validation.constraints.Size
 @Entity
 @Table(name = "locations")
 class Location {
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE)
-  @SequenceGenerator(name = "locations_seq", initialValue = 1, allocationSize = 1)
-  var id: Long? = null
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	var id: Long? = null
 
 	@NotNull
 	@Size(min = 3, max = 50)
 	@Column(nullable = false, length = 50, unique = true)
-  lateinit var name: String
+	lateinit var name: String
 
 	@Column(length = 5000)
-  var description: String? = null
-  var picture: String? = null
+	var description: String? = null
+	var picture: String? = null
 
 	@Enumerated(STRING)
 	@Column(nullable = false)
