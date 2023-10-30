@@ -105,7 +105,7 @@ create_project_output() {
     fi
 
     if [[ -f "grpc-locations/$INPUT_DIR/$infra_input_file_name" ]]; then
-      cat grpc-locationsn/$INPUT_DIR/$infra_input_file_name >> $downstream_project_output_file
+      cat grpc-locations/$INPUT_DIR/$infra_input_file_name >> $downstream_project_output_file
       cat grpc-locations/$INPUT_DIR/$infra_input_file_name | sed 's/..\/..\/..\//..\/..\//g' >> $all_apps_output_file
     fi
 
