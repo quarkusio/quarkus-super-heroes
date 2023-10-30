@@ -29,6 +29,20 @@ class LocationGrpcService(private val locationService: LocationService) : Locati
 	}
 
 	@Blocking
+	override fun replaceAllLocations(request: LocationsList?, responseObserver: StreamObserver<ReplaceAllLocationsResponse>?) {
+		if (request != null) {
+			Log.debug("Replacing all locations")
+			this.locationService.replaceAllLocations(
+					request.locationsList.map(LocationMapper::fromGrpcLocation)
+			)
+
+			responseObserver?.onNext(ReplaceAllLocationsResponse.getDefaultInstance())
+		}
+
+		responseObserver?.onCompleted()
+	}
+
+	@Blocking
 	override fun getAllLocations(request: AllLocationsRequest?, responseObserver: StreamObserver<LocationsList>?) {
 		val allLocations = this.locationService.getAllLocations()
 		Log.debug("Got all locations: $allLocations")
@@ -45,7 +59,7 @@ class LocationGrpcService(private val locationService: LocationService) : Locati
 		Log.debug("Deleting all locations")
 
 		this.locationService.deleteAllLocations()
-		responseObserver?.onNext(DeleteAllLocationsResponse.newBuilder().build())
+		responseObserver?.onNext(DeleteAllLocationsResponse.getDefaultInstance())
 		responseObserver?.onCompleted()
 	}
 

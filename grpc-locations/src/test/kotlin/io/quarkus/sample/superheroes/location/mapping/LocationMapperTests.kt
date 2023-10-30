@@ -23,16 +23,23 @@ class LocationMapperTests {
 
 			return location
 		}
+
+		private fun createDefaultGrpcLocation() = io.quarkus.sample.superheroes.location.grpc.Location.newBuilder()
+			.setName(DEFAULT_NAME)
+			.setDescription(DEFAULT_DESCRIPTION)
+			.setPicture(DEFAULT_PICTURE)
+			.setType(io.quarkus.sample.superheroes.location.grpc.LocationType.CITY)
+			.build()
 	}
 
 	@Test
-	fun `mapper works correctly for null`() {
+	fun `mapper works correctly for null (model to gRPC)`() {
 		assertThat(LocationMapper.toGrpcLocationMaybeNull(null))
 			.isNull()
 	}
 
 	@Test
-	fun `mapper works correctly for non-null`() {
+	fun `mapper works correctly for non-null (model to gRPC)`() {
 		assertThat(LocationMapper.toGrpcLocation(createDefaultLocation()))
 			.isNotNull
 			.extracting(
@@ -46,6 +53,24 @@ class LocationMapperTests {
 				DEFAULT_DESCRIPTION,
 				DEFAULT_PICTURE,
 				io.quarkus.sample.superheroes.location.grpc.LocationType.CITY
+			)
+	}
+
+	@Test
+	fun `mapper works correctly (gRPC to model)`() {
+		assertThat(LocationMapper.fromGrpcLocation(createDefaultGrpcLocation()))
+			.isNotNull
+			.extracting(
+				"name",
+				"description",
+				"picture",
+				"type"
+			)
+			.containsExactly(
+				DEFAULT_NAME,
+				DEFAULT_DESCRIPTION,
+				DEFAULT_PICTURE,
+				DEFAULT_TYPE
 			)
 	}
 }

@@ -4,7 +4,7 @@ import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
-import jakarta.transaction.Transactional.TxType.REQUIRED
+import io.quarkus.sample.superheroes.location.Location
 import io.quarkus.sample.superheroes.location.repository.LocationRepository
 
 @ApplicationScoped
@@ -22,8 +22,18 @@ class LocationService(private val locationRepository: LocationRepository) {
 	}
 
 	@WithSpan("LocationService.deleteAllLocations")
-	@Transactional(REQUIRED)
+	@Transactional
 	fun deleteAllLocations() {
 		this.locationRepository.deleteAll()
+	}
+
+	@WithSpan("LocationService.replaceAllLocations")
+	@Transactional
+	fun replaceAllLocations(locations: Collection<Location>) {
+		this.locationRepository.deleteAll()
+
+		if (locations.isNotEmpty()) {
+			this.locationRepository.persist(locations)
+		}
 	}
 }

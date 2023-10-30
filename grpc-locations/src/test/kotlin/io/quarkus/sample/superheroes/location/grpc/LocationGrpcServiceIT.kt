@@ -45,6 +45,8 @@ class LocationGrpcServiceIT {
 			return location
 		}
 
+		private fun createDefaultGrpcLocation() = LocationMapper.toGrpcLocation(createDefaultLocation())
+
 		@BeforeAll
 		@JvmStatic
 		internal fun beforeAll() {
@@ -65,7 +67,7 @@ class LocationGrpcServiceIT {
 		}
 
 		fun verifyNumberOfLocations(expected: Int = NB_LOCATIONS) {
-			assertThat(locationsGrpcService.getAllLocations(AllLocationsRequest.newBuilder().build())?.locationsList)
+			assertThat(locationsGrpcService.getAllLocations(AllLocationsRequest.getDefaultInstance())?.locationsList)
 				.isNotNull
 				.hasSize(expected)
 		}
@@ -74,7 +76,7 @@ class LocationGrpcServiceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	fun `Hello endpoint`() {
-		assertThat(locationsGrpcService.hello(HelloRequest.newBuilder().build()))
+		assertThat(locationsGrpcService.hello(HelloRequest.getDefaultInstance()))
 			.isNotNull
 	}
 
@@ -87,7 +89,7 @@ class LocationGrpcServiceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	fun `Get a random location`() {
-		assertThat(locationsGrpcService.getRandomLocation(RandomLocationRequest.newBuilder().build()))
+		assertThat(locationsGrpcService.getRandomLocation(RandomLocationRequest.getDefaultInstance()))
 			.isNotNull
 			.hasNoNullFieldsOrProperties()
 	}
@@ -95,7 +97,7 @@ class LocationGrpcServiceIT {
 	@Test
 	@Order(DEFAULT_ORDER)
 	fun `Get all locations`() {
-		assertThat(locationsGrpcService.getAllLocations(AllLocationsRequest.newBuilder().build())?.locationsList)
+		assertThat(locationsGrpcService.getAllLocations(AllLocationsRequest.getDefaultInstance())?.locationsList)
 			.isNotNull
 			.hasSize(NB_LOCATIONS)
 			.doesNotContainNull()
@@ -116,7 +118,7 @@ class LocationGrpcServiceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 1)
 	fun `delete all locations`() {
-		locationsGrpcService.deleteAllLocations(DeleteAllLocationsRequest.newBuilder().build())
+		locationsGrpcService.deleteAllLocations(DeleteAllLocationsRequest.getDefaultInstance())
 		verifyNumberOfLocations(0)
 	}
 
@@ -129,7 +131,7 @@ class LocationGrpcServiceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 2)
 	fun `Get a random location when one does not exist`() {
-		assertThatThrownBy { locationsGrpcService.getRandomLocation(RandomLocationRequest.newBuilder().build()) }
+		assertThatThrownBy { locationsGrpcService.getRandomLocation(RandomLocationRequest.getDefaultInstance()) }
 			.isNotNull()
 			.isInstanceOf(StatusRuntimeException::class.java)
 			.hasMessage("${Code.NOT_FOUND}: A location was not found")
@@ -146,5 +148,21 @@ class LocationGrpcServiceIT {
 			.hasMessage("${Code.NOT_FOUND}: A location was not found")
 			.extracting { (it as StatusRuntimeException).status.code }
 			.isEqualTo(Code.NOT_FOUND)
+	}
+
+	@Test
+	@Order(DEFAULT_ORDER + 3)
+	fun `replace all locations`() {
+		locationsGrpcService.replaceAllLocations(LocationsList.newBuilder().addAllLocations(listOf(createDefaultGrpcLocation())).build())
+		verifyNumberOfLocations(1)
+	}
+
+	@Test
+	@Order(DEFAULT_ORDER + 4)
+	fun `Get all locations after replacing`() {
+		assertThat(locationsGrpcService.getAllLocations(AllLocationsRequest.getDefaultInstance())?.locationsList)
+			.isNotNull
+			.singleElement()
+			.isEqualTo(createDefaultGrpcLocation())
 	}
 }

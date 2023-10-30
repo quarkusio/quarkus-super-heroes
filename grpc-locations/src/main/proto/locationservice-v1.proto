@@ -28,6 +28,8 @@ message LocationsList {
 message DeleteAllLocationsRequest {}
 message DeleteAllLocationsResponse {}
 
+message ReplaceAllLocationsResponse {}
+
 message GetLocationRequest {
   string name = 1;
 }
@@ -43,5 +45,6 @@ service Locations {
   rpc GetAllLocations(AllLocationsRequest) returns (LocationsList) {}
   rpc DeleteAllLocations(DeleteAllLocationsRequest) returns (DeleteAllLocationsResponse) {}
   rpc GetLocationByName(GetLocationRequest) returns (Location) {}
+  rpc ReplaceAllLocations(LocationsList) returns (ReplaceAllLocationsResponse) {}
   rpc Hello(HelloRequest) returns (HelloReply) {}
 }
