@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.Produces;
+import jakarta.enterprise.inject.Produces;
 
 import io.quarkus.arc.lookup.LookupIfProperty;
 import io.quarkus.sample.superheroes.narration.config.NarrationConfig;
