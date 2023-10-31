@@ -67,6 +67,16 @@ scrape_configs:
           application: narration-service
           system: quarkus-super-heroes
 
+  - job_name: locations
+    metrics_path: /q/metrics
+    honor_labels: true
+    static_configs:
+      - targets: [ 'grpc-locations:8089' ]
+        labels:
+          app: grpc-locations
+          application: location-service
+          system: quarkus-super-heroes
+
   - job_name: ui-super-heroes
     honor_labels: true
     static_configs:

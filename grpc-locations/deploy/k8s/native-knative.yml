@@ -8,88 +8,90 @@ apiVersion: v1
 kind: Secret
 metadata:
   labels:
-    app: rest-villains
-    application: villains-service
+    app: grpc-locations
+    application: locations-service
     system: quarkus-super-heroes
-  name: rest-villains-config-creds
+  name: grpc-locations-config-creds
 data:
-  quarkus.datasource.username: c3VwZXJiYWQ=
-  quarkus.datasource.password: c3VwZXJiYWQ=
+  quarkus.datasource.username: bG9jYXRpb25z
+  quarkus.datasource.password: bG9jYXRpb25z
 type: Opaque
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   labels:
-    app: villains-db
-    application: villains-service
+    app: locations-db
+    application: locations-service
     system: quarkus-super-heroes
-  name: villains-db-config
+  name: locations-db-config
 data:
-  POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
-  POSTGRESQL_USERNAME: c3VwZXJiYWQ=
-  POSTGRESQL_PASSWORD: c3VwZXJiYWQ=
+  MARIADB_DATABASE: bG9jYXRpb25zX2RhdGFiYXNl
+  MARIADB_USER: bG9jYXRpb25z
+  MARIADB_PASSWORD: bG9jYXRpb25z
+  MARIADB_ROOT_PASSWORD: bG9jYXRpb25z
 type: Opaque
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-    app: rest-villains
-    application: villains-service
+    app: grpc-locations
+    application: locations-service
     system: quarkus-super-heroes
-  name: rest-villains-config
+  name: grpc-locations-config
 data:
   quarkus.hibernate-orm.database.generation: validate
   quarkus.hibernate-orm.sql-load-script: no-file
-  quarkus.datasource.jdbc.url: jdbc:postgresql://villains-db:5432/villains_database
+  quarkus.datasource.jdbc.url: jdbc:mariadb://locations-db:3306/locations_database
   quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-    app: villains-db
-    application: villains-service
+    app: locations-db
+    application: locations-service
     system: quarkus-super-heroes
-  name: villains-db-init
+  name: locations-db-init
 data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-startdb.d/1-init-tables.sql
 ---
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: "villains-db,otel-collector"
+    app.openshift.io/connects-to: "locations-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-10-31 - 01:11:47 +0000
+    serverless.openshift.io/default-enable-http2: "true"
+    app.quarkus.io/build-timestamp: 2023-10-31 - 01:16:03 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
-    prometheus.io/port: "8084"
+    prometheus.io/port: "8089"
     prometheus.io/scheme: http
   labels:
-    app: rest-villains
+    app: grpc-locations
     app.openshift.io/runtime: quarkus
-    application: villains-service
+    application: locations-service
     system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-villains
-    app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java17-latest
-  name: rest-villains
+    app.kubernetes.io/version: native-latest
+    app.kubernetes.io/name: grpc-locations
+    app.kubernetes.io/part-of: locations-service
+  name: grpc-locations
 spec:
   template:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
-                name: rest-villains-config
-          image: quay.io/quarkus-super-heroes/rest-villains:java17-latest
+                name: grpc-locations-config
+            - secretRef:
+                name: grpc-locations-config-creds
+          image: quay.io/quarkus-super-heroes/grpc-locations:native-latest
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -101,9 +103,9 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
-          name: rest-villains
+          name: grpc-locations
           ports:
-            - containerPort: 8084
+            - containerPort: 8089
               name: http1
               protocol: TCP
           readinessProbe:
@@ -118,66 +120,69 @@ spec:
             timeoutSeconds: 10
           resources:
             limits:
-              memory: 768Mi
+              memory: 128Mi
             requests:
-              memory: 256Mi
+              memory: 32Mi
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    name: villains-db
-    application: villains-service
+    name: locations-db
+    application: locations-service
     system: quarkus-super-heroes
-  name: villains-db
+  name: locations-db
 spec:
   ports:
-    - port: 5432
+    - port: 3306
       protocol: TCP
-      targetPort: 5432
+      targetPort: 3306
   selector:
-    name: villains-db
+    name: locations-db
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: villains-db
-    application: villains-service
+    app: locations-db
+    application: locations-service
     system: quarkus-super-heroes
-    app.kubernetes.io/part-of: villains-service
-    app.openshift.io/runtime: postgresql
-  name: villains-db
+    app.kubernetes.io/part-of: locations-service
+    app.openshift.io/runtime: mariadb
+  name: locations-db
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: villains-db
+      name: locations-db
   template:
     metadata:
       labels:
-        application: villains-service
-        name: villains-db
+        application: locations-service
+        name: locations-db
     spec:
       containers:
-        - envFrom:
+        - env:
+            - name: MARIADB_SKIP_TEST_DB
+              value: "true"
+          envFrom:
             - secretRef:
-                name: villains-db-config
-          image: bitnami/postgresql:14
-          name: villains-db
+                name: locations-db-config
+          image: bitnami/mariadb:10.11
+          name: locations-db
           ports:
-            - containerPort: 5432
+            - containerPort: 3306
           resources:
             limits:
-              memory: 128Mi
+              memory: 256Mi
             requests:
-              memory: 32Mi
+              memory: 64Mi
           volumeMounts:
-            - mountPath: /bitnami/postgresql
-              name: villains-db-data
-            - mountPath: /docker-entrypoint-initdb.d
-              name: villains-db-init-data
+            - mountPath: /bitnami/mariadb
+              name: locations-db-data
+            - mountPath: /docker-entrypoint-startdb.d
+              name: locations-initdata
       initContainers:
         - command:
             - sh
@@ -185,16 +190,16 @@ spec:
           image: registry.access.redhat.com/ubi8-minimal:8.6
           name: get-data
           volumeMounts:
-            - mountPath: /docker-entrypoint-preinitdb.d
-              name: villains-db-init
-            - mountPath: /docker-entrypoint-initdb.d
-              name: villains-db-init-data
-          workingDir: /docker-entrypoint-preinitdb.d
+            - mountPath: /docker-entrypoint-startdb.d
+              name: locations-initdata
+            - mountPath: /tmp/dbinit
+              name: locations-db-init
+          workingDir: /tmp/dbinit
       volumes:
         - emptyDir: {}
-          name: villains-db-data
+          name: locations-db-data
         - emptyDir: {}
-          name: villains-db-init-data
+          name: locations-initdata
         - configMap:
-            name: villains-db-init
-          name: villains-db-init
+            name: locations-db-init
+          name: locations-db-init

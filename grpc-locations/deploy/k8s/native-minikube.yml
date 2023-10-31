@@ -8,154 +8,153 @@ apiVersion: v1
 kind: Secret
 metadata:
   labels:
-    app: rest-heroes
-    application: heroes-service
+    app: grpc-locations
+    application: locations-service
     system: quarkus-super-heroes
-  name: rest-heroes-config-creds
+  name: grpc-locations-config-creds
 data:
-  quarkus.datasource.username: c3VwZXJtYW4=
-  quarkus.datasource.password: c3VwZXJtYW4=
+  quarkus.datasource.username: bG9jYXRpb25z
+  quarkus.datasource.password: bG9jYXRpb25z
 type: Opaque
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   labels:
-    app: heroes-db
-    application: heroes-service
+    app: locations-db
+    application: locations-service
     system: quarkus-super-heroes
-  name: heroes-db-config
+  name: locations-db-config
 data:
-  POSTGRESQL_DATABASE: aGVyb2VzX2RhdGFiYXNl
-  POSTGRESQL_USERNAME: c3VwZXJtYW4=
-  POSTGRESQL_PASSWORD: c3VwZXJtYW4=
+  MARIADB_DATABASE: bG9jYXRpb25zX2RhdGFiYXNl
+  MARIADB_USER: bG9jYXRpb25z
+  MARIADB_PASSWORD: bG9jYXRpb25z
+  MARIADB_ROOT_PASSWORD: bG9jYXRpb25z
 type: Opaque
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-    app: rest-heroes
-    application: heroes-service
+    app: grpc-locations
+    application: locations-service
     system: quarkus-super-heroes
-  name: rest-heroes-config
+  name: grpc-locations-config
 data:
   quarkus.hibernate-orm.database.generation: validate
   quarkus.hibernate-orm.sql-load-script: no-file
-  quarkus.datasource.reactive.url: postgresql://heroes-db:5432/heroes_database
+  quarkus.datasource.jdbc.url: jdbc:mariadb://locations-db:3306/locations_database
   quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-    app: heroes-db
-    application: heroes-service
+    app: locations-db
+    application: locations-service
     system: quarkus-super-heroes
-  name: heroes-db-init
+  name: locations-db-init
 data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-startdb.d/1-init-tables.sql
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    name: heroes-db
-    application: heroes-service
+    name: locations-db
+    application: locations-service
     system: quarkus-super-heroes
-  name: heroes-db
+  name: locations-db
 spec:
   ports:
-    - port: 5432
+    - port: 3306
       protocol: TCP
-      targetPort: 5432
+      targetPort: 3306
   selector:
-    name: heroes-db
+    name: locations-db
   type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: "heroes-db,otel-collector"
+    app.openshift.io/connects-to: "locations-db,otel-collector"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-10-31 - 01:16:46 +0000
+    app.quarkus.io/build-timestamp: 2023-10-31 - 01:16:03 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
-    prometheus.io/port: "8083"
+    prometheus.io/port: "8089"
     prometheus.io/scheme: http
   labels:
-    app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/name: grpc-locations
+    app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: native-latest
-    app: rest-heroes
-    application: heroes-service
+    app: grpc-locations
+    application: locations-service
     system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-  name: rest-heroes
+  name: grpc-locations
 spec:
   ports:
     - name: http
+      nodePort: 31372
       port: 80
       protocol: TCP
-      targetPort: 8083
+      targetPort: 8089
   selector:
-    app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/name: grpc-locations
+    app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: native-latest
-  type: ClusterIP
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.openshift.io/connects-to: "heroes-db,otel-collector"
+    app.openshift.io/connects-to: "locations-db,otel-collector"
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-10-31 - 01:16:46 +0000
+    app.quarkus.io/build-timestamp: 2023-10-31 - 01:16:03 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
-    prometheus.io/port: "8083"
+    prometheus.io/port: "8089"
     prometheus.io/scheme: http
   labels:
-    app: rest-heroes
-    application: heroes-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/name: grpc-locations
+    app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: native-latest
-    app.kubernetes.io/part-of: heroes-service
-  name: rest-heroes
+    app: grpc-locations
+    application: locations-service
+    system: quarkus-super-heroes
+  name: grpc-locations
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: rest-heroes
+      app.kubernetes.io/name: grpc-locations
+      app.kubernetes.io/part-of: locations-service
       app.kubernetes.io/version: native-latest
-      app.kubernetes.io/part-of: heroes-service
   template:
     metadata:
       annotations:
-        app.openshift.io/connects-to: "heroes-db,otel-collector"
+        app.openshift.io/connects-to: "locations-db,otel-collector"
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-10-31 - 01:16:46 +0000
+        app.quarkus.io/build-timestamp: 2023-10-31 - 01:16:03 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
-        prometheus.io/port: "8083"
+        prometheus.io/port: "8089"
         prometheus.io/scheme: http
       labels:
-        app: rest-heroes
-        application: heroes-service
-        system: quarkus-super-heroes
-        app.kubernetes.io/managed-by: quarkus
-        app.kubernetes.io/name: rest-heroes
+        app.kubernetes.io/name: grpc-locations
+        app.kubernetes.io/part-of: locations-service
         app.kubernetes.io/version: native-latest
-        app.kubernetes.io/part-of: heroes-service
+        app: grpc-locations
+        application: locations-service
+        system: quarkus-super-heroes
     spec:
       containers:
         - env:
@@ -164,32 +163,32 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-heroes-config-creds
             - configMapRef:
-                name: rest-heroes-config
-          image: quay.io/quarkus-super-heroes/rest-heroes:native-latest
-          imagePullPolicy: Always
+                name: grpc-locations-config
+            - secretRef:
+                name: grpc-locations-config-creds
+          image: quay.io/quarkus-super-heroes/grpc-locations:native-latest
+          imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
             httpGet:
               path: /q/health/live
-              port: 8083
+              port: 8089
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
-          name: rest-heroes
+          name: grpc-locations
           ports:
-            - containerPort: 8083
+            - containerPort: 8089
               name: http
               protocol: TCP
           readinessProbe:
             failureThreshold: 3
             httpGet:
               path: /q/health/ready
-              port: 8083
+              port: 8089
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -204,7 +203,7 @@ spec:
             failureThreshold: 3
             httpGet:
               path: /q/health/started
-              port: 8083
+              port: 8089
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -215,42 +214,44 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: heroes-db
-    application: heroes-service
+    app: locations-db
+    application: locations-service
     system: quarkus-super-heroes
-    app.kubernetes.io/part-of: heroes-service
-    app.openshift.io/runtime: postgresql
-  name: heroes-db
+    app.kubernetes.io/part-of: locations-service
+    app.openshift.io/runtime: mariadb
+  name: locations-db
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: heroes-db
+      name: locations-db
   template:
     metadata:
       labels:
-        name: heroes-db
-        application: heroes-service
-        system: quarkus-super-heroes
+        application: locations-service
+        name: locations-db
     spec:
       containers:
-        - envFrom:
+        - env:
+            - name: MARIADB_SKIP_TEST_DB
+              value: "true"
+          envFrom:
             - secretRef:
-                name: heroes-db-config
-          image: bitnami/postgresql:14
-          name: heroes-db
+                name: locations-db-config
+          image: bitnami/mariadb:10.11
+          name: locations-db
           ports:
-            - containerPort: 5432
+            - containerPort: 3306
           resources:
             limits:
-              memory: 128Mi
+              memory: 256Mi
             requests:
-              memory: 32Mi
+              memory: 64Mi
           volumeMounts:
-            - mountPath: /bitnami/postgresql
-              name: heroes-db-data
-            - mountPath: /docker-entrypoint-initdb.d
-              name: heroes-db-init-data
+            - mountPath: /bitnami/mariadb
+              name: locations-db-data
+            - mountPath: /docker-entrypoint-startdb.d
+              name: locations-initdata
       initContainers:
         - command:
             - sh
@@ -258,16 +259,16 @@ spec:
           image: registry.access.redhat.com/ubi8-minimal:8.6
           name: get-data
           volumeMounts:
-            - mountPath: /docker-entrypoint-preinitdb.d
-              name: heroes-db-init
-            - mountPath: /docker-entrypoint-initdb.d
-              name: heroes-db-init-data
-          workingDir: /docker-entrypoint-preinitdb.d
+            - mountPath: /docker-entrypoint-startdb.d
+              name: locations-initdata
+            - mountPath: /tmp/dbinit
+              name: locations-db-init
+          workingDir: /tmp/dbinit
       volumes:
         - emptyDir: {}
-          name: heroes-db-data
+          name: locations-db-data
         - emptyDir: {}
-          name: heroes-db-init-data
+          name: locations-initdata
         - configMap:
-            name: heroes-db-init
-          name: heroes-db-init
+            name: locations-db-init
+          name: locations-db-init

@@ -54,6 +54,8 @@ data:
   quarkus.stork.narration-service.service-discovery.application: rest-narration
   quarkus.stork.narration-service.service-discovery.refresh-period: 1M
   quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
+  quarkus.grpc.clients.locations.host: grpc-locations
+  quarkus.grpc.clients.locations.port: "80"
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
 ---
@@ -73,10 +75,10 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,otel-collector"
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-10-26 - 13:58:50 +0000
+    app.quarkus.io/build-timestamp: 2023-10-31 - 01:12:46 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -86,19 +88,19 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: fights-service
     system: quarkus-super-heroes
-    app.kubernetes.io/version: java17-latest
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/version: java17-latest
   name: rest-fights
 spec:
   template:
     metadata:
       annotations:
         autoscaling.knative.dev/minScale: "1"
-        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,otel-collector"
+        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-10-26 - 13:58:50 +0000
+        app.quarkus.io/build-timestamp: 2023-10-31 - 01:12:46 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -108,9 +110,9 @@ spec:
         app.openshift.io/runtime: quarkus
         application: fights-service
         system: quarkus-super-heroes
-        app.kubernetes.io/version: java17-latest
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/version: java17-latest
     spec:
       containers:
         - envFrom:
