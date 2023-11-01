@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS locations;
 
 CREATE TABLE locations (
 	id bigint NOT NULL AUTO_INCREMENT,
-	description VARCHAR(5000),
+	description TEXT,
 	name VARCHAR(50) NOT NULL,
 	picture VARCHAR(255),
 	type ENUM ('CITY','PLANET', 'PLACE', 'ISLAND', 'COUNTRY', 'MOON') NOT NULL,

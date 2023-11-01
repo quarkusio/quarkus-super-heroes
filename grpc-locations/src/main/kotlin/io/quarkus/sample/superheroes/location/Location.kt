@@ -23,7 +23,7 @@ class Location {
 	@Column(nullable = false, length = 50, unique = true)
 	lateinit var name: String
 
-	@Column(length = 5000)
+	@Column(columnDefinition = "TEXT")
 	var description: String? = null
 	var picture: String? = null
 
