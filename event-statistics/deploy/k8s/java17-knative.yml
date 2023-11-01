@@ -23,9 +23,9 @@ metadata:
     system: quarkus-super-heroes
   name: event-statistics-config
 data:
-  kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
-  mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
-  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
+  KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://fights-kafka:9092
+  MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL: http://apicurio:8080/apis/registry/v2
+  QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
 ---
 apiVersion: serving.knative.dev/v1
 kind: Service
@@ -34,7 +34,7 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-10-31 - 15:14:20 +0000
+    app.quarkus.io/build-timestamp: 2023-11-01 - 18:31:58 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
