@@ -11,11 +11,13 @@
         - [Hero Client](#hero-client)
         - [Villain Client](#villain-client)
         - [Narration Client](#narration-client)
+        - [Location Client](#location-client)
 - [Service Discovery and Load Balancing](#service-discovery-and-client-load-balancing)
     - [Service Discovery](#service-discovery)
     - [Client-side Load Balancing](#client-side-load-balancing)
 - [Testing](#testing)
     - [Contract testing with Pact](#contract-testing-with-pact) 
+- [Integration with Microcks](#integration-with-microcks)
 - [Benchmarking with Hyperfoil](#benchmarking-with-hyperfoil)
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
@@ -27,7 +29,7 @@
     - [Deploying directly via Kubernetes Extensions](#deploying-directly-via-kubernetes-extensions)
 
 ## Introduction
-This is the Fight REST API microservice. It is a reactive HTTP microservice exposing an API for performing fights between [Heroes](../rest-heroes) and [Villains](../rest-villains). Once a winner has been determined, the [Narration service](../rest-narration) creates a narration of the fight.
+This is the Fight REST API microservice. It is a reactive HTTP microservice exposing an API for performing fights between [Heroes](../rest-heroes) and [Villains](../rest-villains), in a location obtained from the [Location Service](../grpc-locations). Once a winner has been determined, the [Narration service](../rest-narration) creates a narration of the fight.
 
 Each fight and it's corresponding narration is then persisted into a MongoDB database and can be retrieved via the REST API. This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with reactive endpoints and [Quarkus MongoDB Reactive with Panache's active record pattern](https://quarkus.io/guides/mongodb-panache#reactive).
 
@@ -59,13 +61,13 @@ The [`FightConfig`](src/main/java/io/quarkus/sample/superheroes/fight/config/Fig
 
 ## Resiliency
 ### Timeouts
-The [`FightService`](src/main/java/io/quarkus/sample/superheroes/fight/service/FightService.java) class uses [timeouts](https://quarkus.io/guides/smallrye-fault-tolerance#adding-resiliency-timeouts) from [SmallRye Fault Tolerance](https://quarkus.io/guides/smallrye-fault-tolerance) to protect against calls to the downstream [Hero](../rest-heroes), [Villain](../rest-villains), and [Narration](../rest-narration) services. Tests for these conditions can be found in [`FightServiceTests`](src/test/java/io/quarkus/sample/superheroes/fight/service/FightServiceTests.java).
+The [`FightService`](src/main/java/io/quarkus/sample/superheroes/fight/service/FightService.java) class uses [timeouts](https://quarkus.io/guides/smallrye-fault-tolerance#adding-resiliency-timeouts) from [SmallRye Fault Tolerance](https://quarkus.io/guides/smallrye-fault-tolerance) to protect against calls to the downstream [Hero](../rest-heroes), [Villain](../rest-villains), [Narration](../rest-narration), and [Location](../grpc-locations) services. Tests for these conditions can be found in [`FightServiceTests`](src/test/java/io/quarkus/sample/superheroes/fight/service/FightServiceTests.java).
 
 ### Fallbacks
-The [`FightService`](src/main/java/io/quarkus/sample/superheroes/fight/service/FightService.java) class uses [fallbacks](https://quarkus.io/guides/smallrye-fault-tolerance#adding-resiliency-fallbacks) from [SmallRye Fault Tolerance](https://quarkus.io/guides/smallrye-fault-tolerance) to protect against calls to the downstream [Hero](../rest-heroes), [Villain](../rest-villains), and [Narration](../rest-narration) services. Tests for these conditions can be found in [`FightServiceTests`](src/test/java/io/quarkus/sample/superheroes/fight/service/FightServiceTests.java).
+The [`FightService`](src/main/java/io/quarkus/sample/superheroes/fight/service/FightService.java) class uses [fallbacks](https://quarkus.io/guides/smallrye-fault-tolerance#adding-resiliency-fallbacks) from [SmallRye Fault Tolerance](https://quarkus.io/guides/smallrye-fault-tolerance) to protect against calls to the downstream [Hero](../rest-heroes), [Villain](../rest-villains), [Narration](../rest-narration), and [Location](../grpc-locations) services. Tests for these conditions can be found in [`FightServiceTests`](src/test/java/io/quarkus/sample/superheroes/fight/service/FightServiceTests.java).
 
 ### Retries
-Retry logic to the downstream [Hero](../rest-heroes), [Villain](../rest-villains), and [Narration](../rest-narration) services is implemented in the clients for each service.
+Retry logic to the downstream [Hero](../rest-heroes), [Villain](../rest-villains), [Narration](../rest-narration), and [Location](../grpc-locations) services is implemented in the clients for each service.
 
 #### Hero Client
 The [`HeroRestClient`](src/main/java/io/quarkus/sample/superheroes/fight/client/HeroRestClient.java) is implemented using the [reactive rest client](https://quarkus.io/guides/rest-client-reactive). All of its configuration can be found in [`application.properties`](src/main/resources/application.properties) under the `quarkus.rest-client.hero-client` key. This client is not exposed outside of the `io.quarkus.sample.superheroes.fight.client` package.
@@ -81,6 +83,9 @@ The [`VillainClient`](src/main/java/io/quarkus/sample/superheroes/fight/client/V
 
 #### Narration Client
 The [`NarrationClient`](src/main/java/io/quarkus/sample/superheroes/fight/client/NarrationClient.java) is implemented using the [reactive rest client](https://quarkus.io/guides/rest-client-reactive). All of its configuration can be found in [`application.properties`](src/main/resources/application.properties) under the `quarkus.rest-client.narration-client` key.
+
+#### Location Client
+The [`LocationClient`](src/main/java/io/quarkus/sample/superheroes/fight/client/LocationClient.java) is implemented using the [Quarkus gRPC client](https://quarkus.io/guides/grpc-service-consumption). All of its configuration can be found in [`application.properties`](src/main/resources/application.properties) under the `quarkus.grpc.clients.locations` key.
 
 ## Service Discovery and Client Load Balancing
 The fight service implements service discovery and client-side load balancing when making downstream calls to the [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), and [`rest-narration`](../rest-narration) services. The service discovery is implemented in Quarkus using [SmallRye Stork](https://quarkus.io/blog/smallrye-stork-intro).
@@ -126,11 +131,24 @@ The consumer contract tests and provider verification tests **ARE** executed dur
 
 The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility.
 
+## Integration with Microcks
+[Microcks](https://microcks.io) is an open source tool for API mocking and testing. It allows developers to turn an API contract or [Postman Collection](https://learning.postman.com/docs/getting-started/first-steps/creating-the-first-collection) into live mocks.
+
+This can be especially useful while developing applications that have downstream dependencies, like the `rest-fights` application does. The `rest-fights` application depends on [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration), and [`grpc-locations`](../grpc-locations). Due to the [resiliency built into `rest-fights`](#resiliency), the `rest-fights` application can function without the downstream dependencies. However, it would be nice to be able to live code in `rest-fights` and have mock data get served to `rest-fights`.
+
+This problem is what the [Microcks Quarkus extension](https://github.com/microcks/microcks-quarkus) solves. This extension has been integrated into `rest-fights` so that when live coding in dev mode, mock responses from [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration), and [`grpc-locations`](../grpc-locations) will automatically get served.
+
+Furthermore, the [Microcks user interface](https://microcks.io/documentation/using/mocks) is accessible from the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui):
+
+![Microcks user interface](images/microcks-dev-ui.png)
+
+If you wish to disable this functionality, simply add `-Dquarkus.profile=no-microcks` when you run Quarkus dev mode (via [Maven](https://quarkus.io/guides/maven-tooling#dev-mode), [Gradle](https://quarkus.io/guides/gradle-tooling#dev-mode), or the [Quarkus CLI](https://quarkus.io/guides/cli-tooling#development-mode)). In this case, the Microcks dev service will be disabled and the `rest-fights` application will attempt to make live calls to the downstream services.
+
 ## Benchmarking with Hyperfoil
 There are some [Hyperfoil benchmarks](https://hyperfoil.io) in [this directory](hyperfoil). See [the README](hyperfoil/README.md) for more details.
 
 ## Running the Application
-First you need to start up all of the downstream services ([Heroes Service](../rest-heroes) and [Villains Service](../rest-villains) - the [Narration Service](../rest-narration) and [Event Statistics Service](../event-statistics) are optional).
+First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Location Service](../grpc-locations) - the [Narration Service](../rest-narration) and [Event Statistics Service](../event-statistics) are optional).
 
 The application runs on port `8082` (defined by `quarkus.http.port` in [`application.properties`](src/main/resources/application.properties)).
 
@@ -152,12 +170,14 @@ By default, the application is configured with the following:
 | Heroes Service URL       | `QUARKUS_REST_CLIENT_HERO_CLIENT_URL`                         | `quarkus.rest-client.hero-client.url`                         | `stork://hero-service`                   |
 | Villains Service URL     | `FIGHT_VILLAIN_CLIENT_BASE_URL`                               | `fight.villain.client-base-url`                               | `stork://villain-service`                |
 | Narration Service URL    | `QUARKUS_REST_CLIENT_NARRATION_CLIENT_URL`                    | `quarkus.rest-client.narration-client.url`                    | `stork://narration-service`              |
+| Location Service Host    | `QUARKUS_GRPC_CLIENTS_LOCATIONS_HOST`                         | `quarkus.grpc.clients.locations.host`                         | `localhost`                              |
+| Location Service Port    | `QUARKUS_GRPC_CLIENTS_LOCATIONS_PORT`                         | `quarkus.grpc.clients.locations.port`                         | `localhost`                              |
 
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-fights`](https://quay.io/repository/quarkus-super-heroes/rest-fights?tab=tags). 
 
 ### Only Fights Service
-Pick one of the 4 versions of the application from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
+Pick one of the versions of the application from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
 
    > **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
 
@@ -167,7 +187,7 @@ Pick one of the 4 versions of the application from the table below and execute t
 | Native      | `native-latest` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
 
 ### Fights Service and all Downstream Dependencies
-The above Docker Compose files are meant for standing up this application and the required database, Kafka broker, and Apicurio Schema Registry only. If you want to stand up this application and its downstream services ([rest-villains](../rest-villains), [rest-heroes](../rest-heroes), & [rest-narration](../rest-narration)), pick one of the 4 versions from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
+The above Docker Compose files are meant for standing up this application and the required database, Kafka broker, and Apicurio Schema Registry only. If you want to stand up this application and its downstream services ([rest-villains](../rest-villains), [rest-heroes](../rest-heroes), [rest-narration](../rest-narration), & [grpc-locations](../grpc-locations)), pick one of the versions from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
 
    > **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
 
@@ -177,14 +197,14 @@ The above Docker Compose files are meant for standing up this application and th
 | Native      | `native-latest` | `docker compose -f deploy/docker-compose/native-all-downstream.yml up --remove-orphans` |
 
 ### Only Downstream Dependencies
-If you want to develop the Fights service (i.e. via [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode)) but want to stand up just it's downstream services ([rest-villains](../rest-villains), [rest-heroes](../rest-heroes), & [rest-narration](../rest-narration)), pick one of the 4 versions from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes` directory.
+If you want to develop the Fights service (i.e. via [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode)) but want to stand up just it's downstream services ([rest-villains](../rest-villains), [rest-heroes](../rest-heroes), [rest-narration](../rest-narration), & [grpc-locations](../grpc-locations)), pick one of the versions from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes` directory.
 
 > **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
 
-| Description | Image Tag       | Docker Compose Run Command                                                                                                                                                                |
-|-------------|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | `docker compose -f rest-heroes/deploy/docker-compose/java17.yml -f rest-villains/deploy/docker-compose/java17.yml -f rest-narration/deploy/docker-compose/java17.yml up --remove-orphans` |
-| Native      | `native-latest` | `docker compose -f rest-heroes/deploy/docker-compose/native.yml -f rest-villains/deploy/docker-compose/native.yml -f rest-narration/deploy/docker-compose/native.yml up --remove-orphans` |
+| Description | Image Tag       | Docker Compose Run Command                                                                                                                                                                                                                   |
+|-------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| JVM Java 17 | `java17-latest` | `docker compose -f rest-heroes/deploy/docker-compose/java17.yml -f rest-villains/deploy/docker-compose/java17.yml -f rest-narration/deploy/docker-compose/java17.yml -f grpc-locations/deploy/docker-compose/java17.yml up --remove-orphans` |
+| Native      | `native-latest` | `docker compose -f rest-heroes/deploy/docker-compose/native.yml -f rest-villains/deploy/docker-compose/native.yml -f rest-narration/deploy/docker-compose/native.yml -f grpc-locations/deploy/docker-compose/java17.yml up --remove-orphans` |
 
 If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
@@ -198,7 +218,7 @@ Pre-built images for this application can be found at [`quay.io/quarkus-super-he
 
 Deployment descriptors for these images are provided in the [`deploy/k8s`](deploy/k8s) directory. There are versions for [OpenShift](https://www.openshift.com), [Minikube](https://quarkus.io/guides/deploying-to-kubernetes#deploying-to-minikube), [Kubernetes](https://www.kubernetes.io), and [KNative](https://knative.dev).
 
-Pick one of the 4 versions of the application from the table below and deploy the appropriate descriptor from the [`deploy/k8s` directory](deploy/k8s).
+Pick one of the versions of the application from the table below and deploy the appropriate descriptor from the [`deploy/k8s` directory](deploy/k8s).
 
 | Description | Image Tag       | OpenShift Descriptor                                      | Minikube Descriptor                                     | Kubernetes Descriptor                                       | KNative Descriptor                                    |
 |-------------|-----------------|-----------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------------------|
@@ -207,7 +227,7 @@ Pick one of the 4 versions of the application from the table below and deploy th
 
 The application is exposed outside of the cluster on port `80`.
 
-These are only the descriptors for this application and the required database, Kafka broker, and Apicurio Schema Registry only. If you want to deploy this application and its downstream services ([rest-villains](../rest-villains), [rest-heroes](../rest-heroes), & [rest-narration](../rest-narration)), pick one of the 4 versions of the application from the table below and deploy the appropriate descriptor from the [`rest-fights/deploy/k8s` directory](deploy/k8s).
+These are only the descriptors for this application and the required database, Kafka broker, and Apicurio Schema Registry only. If you want to deploy this application and its downstream services ([rest-villains](../rest-villains), [rest-heroes](../rest-heroes), [rest-narration](../rest-narration), & [grpc-locations](../grpc-locations)), pick one of the versions of the application from the table below and deploy the appropriate descriptor from the [`rest-fights/deploy/k8s` directory](deploy/k8s).
 
 | Description | Image Tag       | OpenShift Descriptor                                                                    | Minikube Descriptor                                                                   | Kubernetes Descriptor                                                                     | KNative Descriptor                                                                  |
 |-------------|-----------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
