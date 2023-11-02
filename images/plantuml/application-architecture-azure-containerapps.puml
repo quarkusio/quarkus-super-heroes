@@ -3,6 +3,7 @@
 !includeurl AzurePuml/AzureCommon.puml
 !includeurl AzurePuml/Databases/AzureCosmosDb.puml
 !includeurl AzurePuml/Databases/AzureDatabaseForPostgreSQL.puml
+!includeurl AzurePuml/Databases/AzureDatabaseForMariaDB.puml
 !includeurl AzurePuml/Analytics/AzureEventHub.puml
 !includeurl AzurePuml/AIMachineLearning/AzureCognitiveServices.puml
 !include <logos/angular>
@@ -51,6 +52,12 @@ node "Villain" <<AzureContainerApp>> as villain {
     villainQuarkus .up> villainPostgresql
 }
 
+node "Location" <<AzureContainerApp>> as location {
+  agent "Quarkus (imperative)" <<application>> as locationQuarkus
+  AzureDatabaseForMariaDB(locationMariaDB, "LocationsDB", "")
+  locationQuarkus .up> locationMariaDB
+}
+
 together {
   AzureEventHub(kafka, "Kafka", "")
 
@@ -74,6 +81,7 @@ angularUi --> fightQuarkus : HTTP
 fightQuarkus --> narrationQuarkus : HTTP
 fightQuarkus --> villainQuarkus : HTTP
 fightQuarkus --> heroQuarkus : HTTP
+fightQuarkus -[dotted]-> locationQuarkus: gRPC
 
 sk --> openai : HTTP
 
@@ -89,4 +97,5 @@ prometheus .> narration : polling
 prometheus .> hero : polling
 prometheus .> villain : polling
 prometheus .> stat : polling
+prometheus .> location : polling
 @enduml
