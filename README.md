@@ -17,6 +17,8 @@
 
 This is a sample application demonstrating Quarkus features and best practices. The application allows superheroes to fight against supervillains. The application consists of several microservices, communicating either synchronously via REST or asynchronously using Kafka. All the data used by the applications are [on the `characterdata` branch](https://github.com/quarkusio/quarkus-super-heroes/tree/characterdata) of this repository.
 
+This is **NOT** a single multi-module project. Each service in the system is its own sub-directory of this parent directory. As such, each individual service needs to be run on its own.
+
 The base JVM version for all the applications is Java 17.
 
 - [Super Hero Battle UI](ui-super-heroes)
