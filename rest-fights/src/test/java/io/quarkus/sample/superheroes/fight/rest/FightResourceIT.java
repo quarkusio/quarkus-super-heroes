@@ -72,6 +72,8 @@ import io.apicurio.registry.serde.avro.AvroKafkaSerializer;
 import io.apicurio.registry.serde.avro.ReflectAvroDatumProvider;
 import io.apicurio.rest.client.VertxHttpClientProvider;
 import io.grpc.Status;
+import io.restassured.RestAssured;
+import io.restassured.config.HttpClientConfig;
 import io.smallrye.reactive.messaging.kafka.companion.KafkaCompanion;
 import io.vertx.core.Vertx;
 
@@ -290,6 +292,46 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
+	public void getRandomFightersHeroDelay() {
+		resetHeroVillainCircuitBreakersToClosedState();
+
+		this.wireMockServer.stubFor(
+			WireMock.get(urlEqualTo(HERO_API_URI))
+				.willReturn(
+					okForContentType(APPLICATION_JSON, getDefaultHeroJson())
+						.withFixedDelay(3_000)
+				)
+		);
+
+		this.wireMockServer.stubFor(
+			WireMock.get(urlEqualTo(VILLAIN_API_URI))
+				.willReturn(okForContentType(APPLICATION_JSON, getDefaultVillainJson()))
+		);
+
+		var fighters = get("/api/fights/randomfighters")
+			.then()
+			.statusCode(OK.getStatusCode())
+			.contentType(JSON)
+      .extract().as(Fighters.class);
+
+    assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new Fighters(FALLBACK_HERO, DEFAULT_VILLAIN));
+
+		this.wireMockServer.verify(1,
+			getRequestedFor(urlEqualTo(HERO_API_URI))
+				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+		);
+
+		this.wireMockServer.verify(1,
+			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
+				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+		);
+	}
+
+	@Test
+	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersVillainFallback() {
 		resetHeroVillainCircuitBreakersToClosedState();
 
@@ -320,6 +362,46 @@ public class FightResourceIT {
 		);
 
 		this.wireMockServer.verify(4,
+			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
+				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+		);
+	}
+
+	@Test
+	@Order(DEFAULT_ORDER + 1)
+	public void getRandomFightersVillainDelay() {
+		resetHeroVillainCircuitBreakersToClosedState();
+
+		this.wireMockServer.stubFor(
+			WireMock.get(urlEqualTo(HERO_API_URI))
+				.willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
+		);
+
+		this.wireMockServer.stubFor(
+			WireMock.get(urlEqualTo(VILLAIN_API_URI))
+				.willReturn(
+					okForContentType(APPLICATION_JSON, getDefaultVillainJson())
+					.withFixedDelay(3_000)
+				)
+		);
+
+		var fighters = get("/api/fights/randomfighters")
+			.then()
+			.statusCode(OK.getStatusCode())
+			.contentType(JSON)
+      .extract().as(Fighters.class);
+
+    assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new Fighters(DEFAULT_HERO, FALLBACK_VILLAIN));
+
+		this.wireMockServer.verify(1,
+			getRequestedFor(urlEqualTo(HERO_API_URI))
+				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+		);
+
+		this.wireMockServer.verify(1,
 			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
@@ -484,6 +566,45 @@ public class FightResourceIT {
   }
 
 	@Test
+  @Order(DEFAULT_ORDER + 1)
+  public void getNarrationDelay() {
+    resetNarrationCircuitBreakersToClosedState();
+
+		var delay = 11_000;
+
+    this.wireMockServer.stubFor(
+      WireMock.post(urlEqualTo(NARRATION_API_BASE_URI))
+        .willReturn(
+					okForContentType(TEXT_PLAIN, DEFAULT_NARRATION)
+						.withFixedDelay(delay)
+        )
+    );
+
+		// Need to increase the rest-assured timeouts
+		var config = RestAssured.config()
+			.httpClient(
+				HttpClientConfig.httpClientConfig()
+					.setParam("http.connection.timeout", delay * 4)
+					.setParam("http.socket.timeout", delay * 4)
+			);
+
+    given()
+	    .config(config)
+      .accept(TEXT)
+      .contentType(JSON)
+      .body(createFightToNarrateHeroWon())
+      .when().post("/api/fights/narrate").then()
+        .contentType(TEXT)
+        .body(is(FALLBACK_NARRATION));
+
+    this.wireMockServer.verify(4,
+      postRequestedFor(urlEqualTo(NARRATION_API_BASE_URI))
+        .withHeader(ACCEPT, containing(TEXT_PLAIN))
+        .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
+    );
+  }
+
+	@Test
 	@Order(DEFAULT_ORDER + 1)
 	public void getRandomFightersHeroAndVillainFallback() {
 		resetHeroVillainCircuitBreakersToClosedState();
@@ -520,6 +641,49 @@ public class FightResourceIT {
 		);
 	}
 
+	@Test
+	@Order(DEFAULT_ORDER + 1)
+	public void getRandomFightersHeroAndVillainDelay() {
+		resetHeroVillainCircuitBreakersToClosedState();
+
+		this.wireMockServer.stubFor(
+			WireMock.get(urlEqualTo(HERO_API_URI))
+				.willReturn(
+					okForContentType(APPLICATION_JSON, getDefaultHeroJson())
+						.withFixedDelay(3_000)
+				)
+		);
+
+		this.wireMockServer.stubFor(
+			WireMock.get(urlEqualTo(VILLAIN_API_URI))
+				.willReturn(
+					okForContentType(APPLICATION_JSON, getDefaultVillainJson())
+					.withFixedDelay(3_000)
+				)
+		);
+
+		var fighters = get("/api/fights/randomfighters")
+			.then()
+			.statusCode(OK.getStatusCode())
+			.contentType(JSON)
+      .extract().as(Fighters.class);
+
+    assertThat(fighters)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(new Fighters(FALLBACK_HERO, FALLBACK_VILLAIN));
+
+		this.wireMockServer.verify(1,
+			getRequestedFor(urlEqualTo(HERO_API_URI))
+				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+		);
+
+		this.wireMockServer.verify(1,
+			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
+				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
+		);
+	}
+
   @Test
   @Order(DEFAULT_ORDER + 1)
   public void getRandomLocationOk() {
@@ -540,6 +704,38 @@ public class FightResourceIT {
       .isNotNull()
       .usingRecursiveComparison()
       .isEqualTo(DEFAULT_LOCATION);
+
+    this.grpcMock.verifyThat(
+      calledMethod(LocationsGrpc.getGetRandomLocationMethod())
+        .withRequest(RandomLocationRequest.newBuilder().build())
+        .build(),
+      GrpcMock.times(1)
+    );
+  }
+
+	@Test
+  @Order(DEFAULT_ORDER + 1)
+  public void getRandomLocationDelay() {
+    resetLocationCircuitBreakerToClosedState();
+
+    this.grpcMock.register(
+      unaryMethod(LocationsGrpc.getGetRandomLocationMethod())
+        .willReturn(
+					response(DEFAULT_GRPC_LOCATION)
+						.withFixedDelay(Duration.ofSeconds(3))
+        )
+    );
+
+    var randomLocation = get("/api/fights/randomlocation")
+      .then()
+      .statusCode(OK.getStatusCode())
+      .contentType(JSON)
+      .extract().as(FightLocation.class);
+
+    assertThat(randomLocation)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(FALLBACK_LOCATION);
 
     this.grpcMock.verifyThat(
       calledMethod(LocationsGrpc.getGetRandomLocationMethod())
