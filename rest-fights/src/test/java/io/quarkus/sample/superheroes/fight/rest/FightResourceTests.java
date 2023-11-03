@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.fight.Fight;
@@ -27,6 +28,7 @@ import io.quarkus.sample.superheroes.fight.service.FightService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 
+import io.restassured.RestAssured;
 import io.smallrye.mutiny.Uni;
 
 /**
@@ -64,6 +66,11 @@ public class FightResourceTests {
 
 	@InjectMock
 	FightService fightService;
+
+	@BeforeAll
+	static void beforeAll() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+	}
 
 	@Test
 	public void helloEndpoint() {

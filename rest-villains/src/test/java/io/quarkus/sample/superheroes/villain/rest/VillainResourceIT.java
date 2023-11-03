@@ -13,6 +13,7 @@ import java.util.Random;
 
 import jakarta.ws.rs.core.HttpHeaders;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
+
+import io.restassured.RestAssured;
 
 @QuarkusIntegrationTest
 @TestMethodOrder(OrderAnnotation.class)
@@ -39,6 +42,11 @@ public class VillainResourceIT {
 
 	private static final int NB_VILLAINS = 100;
 	private static String villainId;
+
+	@BeforeAll
+	static void beforeAll() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+	}
 
 	@Test
 	@Order(DEFAULT_ORDER)

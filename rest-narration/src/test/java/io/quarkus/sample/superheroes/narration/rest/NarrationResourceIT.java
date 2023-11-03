@@ -5,11 +5,14 @@ import static io.restassured.http.ContentType.*;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.Matchers.is;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
+
+import io.restassured.RestAssured;
 
 @QuarkusIntegrationTest
 public class NarrationResourceIT {
@@ -41,6 +44,11 @@ public class NarrationResourceIT {
     HERO_TEAM_NAME,
     new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION)
   );
+
+  @BeforeAll
+	static void beforeAll() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+	}
 
   @Test
   void shouldPingOpenAPI() {

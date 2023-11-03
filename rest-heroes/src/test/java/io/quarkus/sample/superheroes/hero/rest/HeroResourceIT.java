@@ -12,6 +12,7 @@ import java.util.Random;
 
 import jakarta.ws.rs.core.HttpHeaders;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import io.quarkus.sample.superheroes.hero.Hero;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
+
+import io.restassured.RestAssured;
 
 @QuarkusIntegrationTest
 @TestMethodOrder(OrderAnnotation.class)
@@ -37,6 +40,11 @@ public class HeroResourceIT {
 
 	private static final int NB_HEROES = 100;
 	private static String heroId;
+
+	@BeforeAll
+	static void beforeAll() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+	}
 
 	@Test
 	@Order(DEFAULT_ORDER)

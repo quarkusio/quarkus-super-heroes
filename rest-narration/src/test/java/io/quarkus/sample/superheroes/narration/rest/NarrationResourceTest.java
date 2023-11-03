@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,7 @@ import io.quarkus.sample.superheroes.narration.service.NarrationService;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 
+import io.restassured.RestAssured;
 import io.smallrye.mutiny.Uni;
 
 @QuarkusTest
@@ -50,6 +52,11 @@ public class NarrationResourceTest {
   Instance<NarrationService> narrationServiceInstance;
 
   NarrationService narrationService;
+
+  @BeforeAll
+	static void beforeAll() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+	}
 
   @BeforeEach
   public void setup() {

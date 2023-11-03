@@ -209,6 +209,8 @@ public class FightResourceIT {
 
 	@BeforeAll
 	public static void beforeAll() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+
 		OBJECT_MAPPER.setSerializationInclusion(Include.NON_EMPTY);
     // Set Apicurio Avro
     vertx = Vertx.vertx();

@@ -17,6 +17,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.HttpHeaders;
 
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 
@@ -24,6 +25,8 @@ import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.service.VillainService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+
+import io.restassured.RestAssured;
 
 @QuarkusTest
 public class VillainResourceTests {
@@ -41,6 +44,11 @@ public class VillainResourceTests {
 
 	@InjectMock
 	VillainService villainService;
+
+	@BeforeAll
+	static void beforeAll() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+	}
 
 	@Test
 	public void helloEndpoint() {
