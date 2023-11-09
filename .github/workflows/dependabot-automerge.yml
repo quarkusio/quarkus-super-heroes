@@ -1,0 +1,31 @@
+name: Dependabot auto-merge (RHBQ 3.2)
+
+on: 
+  pull_request_target:
+    branches:
+      - main
+      - 2.13.Final
+      - 3.2.Final
+      - rhbq-2.7
+      - rhbq-2.13
+      - rhbq-3.2
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Authenticate cli with PAT
+        run: echo "${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}" | gh auth login --with-token
+      
+      - name: Enable auto-merge for Dependabot PRs
+        if: (steps.metadata.outputs.update-type == 'version-update:semver-patch') || (steps.metadata.outputs.update-type == 'version-update:semver-minor') || (steps.metadata.outputs.update-type == 'version-update:semver-major')
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash "$PR_URL"
