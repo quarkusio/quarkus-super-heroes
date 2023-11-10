@@ -1,12 +1,12 @@
 package io.quarkus.sample.superheroes.ui;
 
-import static io.restassured.RestAssured.*;
-import static jakarta.ws.rs.core.Response.Status.*;
+import static io.restassured.RestAssured.get;
+import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.Matchers.is;
 
-import io.quarkus.test.junit.QuarkusTest;
-
 import org.junit.jupiter.api.Test;
+
+import io.quarkus.test.junit.QuarkusTest;
 
 /**
  * Tests the resource layer ({@link EnvResource}).
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 public class EnvResourceTests {
 
   /**
-   * Checks that the angular app would be able to do
+   * Checks that the react app would be able to do
    * <script src="env.js"></script>
    * and get something sensible back
    */
@@ -24,7 +24,7 @@ public class EnvResourceTests {
 		get("/env.js")
 			.then()
 			.statusCode(OK.getStatusCode())
-			.body(is("window.NG_CONFIG={\"API_BASE_URL\":\"http://localhost:8082\",\"CALCULATE_API_BASE_URL\":false}"));
+			.body(is("window.APP_CONFIG={\"API_BASE_URL\":\"http://localhost:8082\",\"CALCULATE_API_BASE_URL\":false}"));
     // This content is javascript, not json. Doing a simple equality check like this
     // is brittle, but we can update it to something more flexible if we start to see issues
 	}
