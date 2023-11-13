@@ -54,12 +54,6 @@ describe("the fight visualisation", () => {
       // Return undefined
       getRandomFighters.mockResolvedValue()
       getRandomLocation.mockResolvedValue()
-      jest.spyOn(console, 'error')
-      console.error.mockImplementation(() => null)
-    })
-
-    afterEach(() => {
-      console.error.mockRestore()
     })
 
     afterAll(() => {
@@ -90,11 +84,11 @@ describe("the fight visualisation", () => {
       await act(async () => {
         render(<Fight/>)
       })
-      expect(screen.getByTestId("hero")).toBeInTheDocument()
-      expect(screen.getByTestId("villain")).toBeInTheDocument()
-      expect(screen.getByTestId("fight-controls")).toBeInTheDocument()
-      expect(screen.getByText("Fake hero")).toBeInTheDocument()
-      expect(screen.getByText("Fake villain")).toBeInTheDocument()
+
+      expect(screen.getByText(fighters.hero.name)).toBeInTheDocument()
+      expect(screen.getByText(fighters.villain.name)).toBeInTheDocument()
+      expect(screen.getByText(/NEW FIGHTERS/i)).toBeInTheDocument()
+      expect(screen.getByText(/NEW LOCATION/i)).toBeInTheDocument()
     })
 
     it("renders a fight button", async () => {

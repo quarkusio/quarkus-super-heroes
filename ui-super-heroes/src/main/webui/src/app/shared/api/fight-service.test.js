@@ -88,20 +88,24 @@ const narrationResponse = {
   headers: {"content-length": "433", "content-type": "text/plain"}
 }
 
-
 describe("the fight service", () => {
+  beforeEach(() => {
+    jest.spyOn(console, 'error')
+    console.error.mockImplementation(() => null)
+  })
+
+  afterEach(() => {
+    console.error.mockRestore()
+  })
 
   describe("getting random fighters", () => {
 
     beforeEach(() => {
       axios.get.mockResolvedValue(fightersResponse)
-      jest.spyOn(console, 'error')
-      console.error.mockImplementation(() => null)
     })
 
     afterEach(() => {
       jest.resetAllMocks()
-      console.error.mockRestore()
     })
 
     it("invokes the remote api", async () => {
@@ -153,13 +157,10 @@ describe("the fight service", () => {
     describe("when back-end services are missing", () => {
       beforeEach(() => {
         axios.get.mockRejectedValue(new Error('Deliberate error: No Java services available'))
-        jest.spyOn(console, 'error')
-        console.error.mockImplementation(() => null)
       })
 
       afterEach(() => {
         jest.resetAllMocks()
-        console.error.mockRestore()
       })
 
       it("gets new location", async () => {
@@ -172,13 +173,10 @@ describe("the fight service", () => {
   describe("triggering a fight", () => {
     beforeEach(() => {
       axios.post.mockResolvedValue(fightResponse)
-      jest.spyOn(console, 'error')
-      console.error.mockImplementation(() => null)
     })
 
     afterEach(() => {
       jest.resetAllMocks()
-      console.error.mockRestore()
     })
 
     it("invokes the remote api", async () => {
@@ -197,13 +195,10 @@ describe("the fight service", () => {
 
     beforeEach(() => {
       axios.post.mockResolvedValue(narrationResponse)
-      jest.spyOn(console, 'error')
-      console.error.mockImplementation(() => null)
     })
 
     afterEach(() => {
       jest.resetAllMocks()
-      console.error.mockRestore()
     })
 
     it("invokes the remote api", async () => {
@@ -221,13 +216,10 @@ describe("the fight service", () => {
   describe("listing fights", () => {
     beforeEach(() => {
       axios.get.mockResolvedValue(fightsList)
-      jest.spyOn(console, 'error')
-      console.error.mockImplementation(() => null)
     })
 
     afterEach(() => {
       jest.resetAllMocks()
-      console.error.mockRestore()
     })
 
     it("invokes the remote api", async () => {

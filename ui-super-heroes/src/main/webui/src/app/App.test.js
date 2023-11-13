@@ -49,12 +49,6 @@ describe("renders the elements", () => {
     getRandomFighters.mockResolvedValue(fighters)
     getRandomLocation.mockResolvedValue(location)
     getFights.mockResolvedValue([fight])
-    jest.spyOn(console, 'error')
-    console.error.mockImplementation(() => null)
-  })
-
-  afterEach(() => {
-    console.error.mockRestore()
   })
 
   afterAll(() => {
@@ -74,9 +68,9 @@ describe("renders the elements", () => {
       render(<App/>)
     })
 
-    expect(screen.getByTestId("fights-list")).toBeInTheDocument()
-
     const table = screen.getByRole("table")
+    expect(table).toBeInTheDocument()
+
     const thead = within(table).getAllByRole('rowgroup')[0]
     const headRows = within(thead).getAllByRole("row")
     const headCols = within(headRows[0]).getAllByRole("columnheader")
@@ -104,8 +98,10 @@ describe("renders the elements", () => {
     await act(async () => {
       render(<App/>)
     })
-    expect(screen.getByTestId("hero")).toBeInTheDocument()
-    expect(screen.getByTestId("villain")).toBeInTheDocument()
-    expect(screen.getByTestId("fight-controls")).toBeInTheDocument()
+    expect(screen.getByText(fighters.hero.name)).toBeInTheDocument()
+    expect(screen.getByText(fighters.villain.name)).toBeInTheDocument()
+    expect(screen.getByText(/NEW FIGHTERS/i)).toBeInTheDocument()
+    expect(screen.getByText(/NEW LOCATION/i)).toBeInTheDocument()
+    expect(screen.getByText(/FIGHT !/i)).toBeInTheDocument()
   })
 })

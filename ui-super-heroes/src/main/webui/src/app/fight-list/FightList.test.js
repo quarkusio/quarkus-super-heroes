@@ -41,8 +41,9 @@ describe("the fight list", () => {
       render(<FightList/>)
     })
 
-    expect(screen.getByTestId("fights-list")).toBeInTheDocument()
     const table = screen.getByRole("table")
+    expect(table).toBeInTheDocument()
+
     const thead = within(table).getAllByRole('rowgroup')[0]
     const headRows = within(thead).getAllByRole("row")
     const headCols = within(headRows[0]).getAllByRole("columnheader")
