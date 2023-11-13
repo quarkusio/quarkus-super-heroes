@@ -10,7 +10,7 @@
     - [Routing](#routing)
 
 ## Introduction
-This is the main user interface for the application. The application is an React application served via [Quinoa](https://quarkus.io/extensions/io.quarkiverse.quinoa/quarkus-quinoa).
+This is the main user interface for the application. The application is a React application served via [Quinoa](https://quarkus.io/extensions/io.quarkiverse.quinoa/quarkus-quinoa).
 
 ![ui-super-heroes](images/ui-super-heroes.png)
 
