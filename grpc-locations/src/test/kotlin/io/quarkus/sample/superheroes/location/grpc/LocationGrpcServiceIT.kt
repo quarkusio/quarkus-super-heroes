@@ -28,7 +28,7 @@ class LocationGrpcServiceIT {
 		private const val DEFAULT_DESCRIPTION = "An American city rife with corruption and crime, the home of its iconic protector Batman."
 		private const val DEFAULT_PICTURE = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/locations/gotham_city.jpg"
 		private val DEFAULT_TYPE = LocationType.CITY
-		private var NB_LOCATIONS = 30
+		private var NB_LOCATIONS = 31
 		private const val DEFAULT_ORDER = 0
 
 		private lateinit var channel: ManagedChannel
