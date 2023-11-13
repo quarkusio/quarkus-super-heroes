@@ -74,7 +74,7 @@ function Fight() {
                 <div className="narration-text"><strong><span data-testid="location-name">{location.name}: </span></strong>{location.description}</div>
               )}
               {location && (
-                <div><img alt="Location Picture" className="squared" src={location.picture}></img></div>
+                <div><img alt="Location" className="squared" src={location.picture}></img></div>
               )}
               <button onClick={fight} className="btn btn-danger btn-block btn-lg">
                 <h4><i className="fab fa-battle-net"></i> FIGHT !</h4>
