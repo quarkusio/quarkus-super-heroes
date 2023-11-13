@@ -90,6 +90,9 @@ describe("the fight visualisation", () => {
       await act(async () => {
         render(<Fight/>)
       })
+      expect(screen.getByTestId("hero")).toBeInTheDocument()
+      expect(screen.getByTestId("villain")).toBeInTheDocument()
+      expect(screen.getByTestId("fight-controls")).toBeInTheDocument()
       expect(screen.getByText("Fake hero")).toBeInTheDocument()
       expect(screen.getByText("Fake villain")).toBeInTheDocument()
     })

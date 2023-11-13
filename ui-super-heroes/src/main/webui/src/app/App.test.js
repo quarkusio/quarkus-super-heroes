@@ -1,5 +1,5 @@
 import React from "react";
-import {render, screen} from "@testing-library/react";
+import {render, screen, within} from "@testing-library/react";
 import App from "./App";
 import "@testing-library/jest-dom";
 import {act} from "react-dom/test-utils";
@@ -73,7 +73,31 @@ describe("renders the elements", () => {
     await act(async () => {
       render(<App/>)
     })
+
     expect(screen.getByTestId("fights-list")).toBeInTheDocument()
+
+    const table = screen.getByRole("table")
+    const thead = within(table).getAllByRole('rowgroup')[0]
+    const headRows = within(thead).getAllByRole("row")
+    const headCols = within(headRows[0]).getAllByRole("columnheader")
+
+    expect(headCols).toHaveLength(5)
+    expect(headCols[0]).toHaveTextContent("Id")
+    expect(headCols[1]).toHaveTextContent("Fight Date")
+    expect(headCols[2]).toHaveTextContent("Winner")
+    expect(headCols[3]).toHaveTextContent("Loser")
+    expect(headCols[4]).toHaveTextContent("Location")
+
+    const tbody = within(table).getAllByRole('rowgroup')[1];
+    const bodyRows = within(tbody).getAllByRole('row');
+    const rowCols = within(bodyRows[0]).getAllByRole("cell")
+
+    expect(rowCols).toHaveLength(5)
+    expect(rowCols[0]).toHaveTextContent(fight.id)
+    expect(rowCols[1]).toHaveTextContent(fight.fightDate)
+    expect(rowCols[2]).toHaveTextContent(fight.winnerName)
+    expect(rowCols[3]).toHaveTextContent(fight.loserName)
+    expect(rowCols[4]).toHaveTextContent(fight.location.name)
   })
 
   it("renders fighters", async () => {

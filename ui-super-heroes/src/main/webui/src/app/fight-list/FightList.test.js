@@ -1,5 +1,5 @@
 import React from "react"
-import {render, screen} from "@testing-library/react"
+import {render, screen, within} from "@testing-library/react"
 import "@testing-library/jest-dom"
 import {FightList} from "./FightList"
 import {getFights} from "../shared/api/fight-service"
@@ -40,10 +40,19 @@ describe("the fight list", () => {
     await act(async () => {
       render(<FightList/>)
     })
-    expect(screen.getByText(/Winner/i)).toBeInTheDocument()
-    expect(screen.getByText(/Loser/i)).toBeInTheDocument()
-    expect(screen.getByText(/Fight Date/i)).toBeInTheDocument()
-    expect(screen.getByText(/Location/i)).toBeInTheDocument()
+
+    expect(screen.getByTestId("fights-list")).toBeInTheDocument()
+    const table = screen.getByRole("table")
+    const thead = within(table).getAllByRole('rowgroup')[0]
+    const headRows = within(thead).getAllByRole("row")
+    const headCols = within(headRows[0]).getAllByRole("columnheader")
+
+    expect(headCols).toHaveLength(5)
+    expect(headCols[0]).toHaveTextContent("Id")
+    expect(headCols[1]).toHaveTextContent("Fight Date")
+    expect(headCols[2]).toHaveTextContent("Winner")
+    expect(headCols[3]).toHaveTextContent("Loser")
+    expect(headCols[4]).toHaveTextContent("Location")
   })
 
   it("renders rows for the fights", async () => {
@@ -51,10 +60,17 @@ describe("the fight list", () => {
       render(<FightList/>)
     })
 
-    expect(screen.getByText("Fake hero")).toBeInTheDocument()
-    expect(screen.getByText("Fake villain")).toBeInTheDocument()
-    expect(screen.getByText("2023-10-24T21:34:47.617598Z")).toBeInTheDocument()
-    expect(screen.getByText("Gotham City")).toBeInTheDocument()
-    expect(screen.getByText("Gotham City").closest("a")).toHaveAttribute("href", "https://dummyimage.com/280x380/1e8fff/ffffff&text=Gotham")
+    const table = screen.getByRole("table")
+    const tbody = within(table).getAllByRole('rowgroup')[1];
+    const bodyRows = within(tbody).getAllByRole('row');
+    const rowCols = within(bodyRows[0]).getAllByRole("cell")
+
+    expect(rowCols).toHaveLength(5)
+    expect(rowCols[0]).toHaveTextContent(fight.id)
+    expect(rowCols[1]).toHaveTextContent(fight.fightDate)
+    expect(rowCols[2]).toHaveTextContent(fight.winnerName)
+    expect(rowCols[3]).toHaveTextContent(fight.loserName)
+    expect(rowCols[4]).toHaveTextContent(fight.location.name)
+    expect(screen.getByText(fight.location.name).closest("a")).toHaveAttribute("href", fight.location.picture)
   })
 })
