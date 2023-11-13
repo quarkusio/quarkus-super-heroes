@@ -10,7 +10,7 @@
     - [Routing](#routing)
 
 ## Introduction
-This is the main user interface for the application. The application is an Angular application served via [Quinoa](https://quarkus.io/extensions/io.quarkiverse.quinoa/quarkus-quinoa).
+This is the main user interface for the application. The application is a React application served via [Quinoa](https://quarkus.io/extensions/io.quarkiverse.quinoa/quarkus-quinoa).
 
 ![ui-super-heroes](images/ui-super-heroes.png)
 
@@ -23,9 +23,7 @@ Then it’s just a matter of clicking on "Fight!" to get them to fight. The tabl
 ## Building the Application
 Environment variables can be injected into the build using the [ngx-env](https://github.com/chihab/ngx-env) plugin. Remember, these are pulled in at build time and are inserted as string literals in the resulting JS files.
 
-Variables must start with the `NG_APP` prefix, e.g `NG_APP_MY_URL=http://localhost:1234`.
-
-Production builds are served using a Quarkus server. This server serves the compiled Angular application and an `env.js` file. This `env.js` file is generated at startup, and adds a `window.NG_CONFIG` property that the Angular application can read from.
+Production builds are served using a Quarkus server. This server serves the compiled React application and an `env.js` file. This `env.js` file is generated at startup, and adds a `window.APP_CONFIG` property that the React application can read from.
 
 Currently, the `env.js` will expose just the `API_BASE_URL` that's set at runtime. This will control the base URL to connect to the [fights](../rest-fights) service. The default if unset is http://localhost:8082.
 You can control the base URL using normal Quarkus configuration, such as setting `api.base.url` in `application.properties` or an `API_BASE_URL` environment variable.
@@ -48,12 +46,12 @@ Use the following command:
 quarkus dev
 ```
 
-This starts both Quarkus and the Angular hot reloading server at http://localhost:4200. The Quarkus server to supplies the `env.js` file to the Javascript front-end. 
+This starts both Quarkus and the React hot reloading server at http://localhost:3000. The Quarkus server to supplies the `env.js` file to the Javascript front-end. 
 
 The Quarkus server port can be changed in the usual way, with `application.properties`. 
 
 ## Running the Application
-1. First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), and [Fights Service](../rest-fights)). 
+1. First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), [Location Service](../grpc-locations), and [Fights Service](../rest-fights)). 
     - The [Event Statistics Service](../event-statistics) is optional.
 2. Follow the steps above section, *Building the Application*.
 3. Set the `API_BASE_URL` environment variable with the appropriate [Fights Service](../rest-fights) hostname and port.
@@ -125,7 +123,7 @@ You may need to adjust other configuration options as well (see [Quarkus Kuberne
 > The [`do_build` function in the `generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) uses these extensions to generate the manifests in the [`deploy/k8s` directory](deploy/k8s).
 
 ### Routing
-There are 2 environment variables that can be set on this application to control how the Angular UI communicates with the [`rest-fights`](../rest-fights) application:
+There are 2 environment variables that can be set on this application to control how the React UI communicates with the [`rest-fights`](../rest-fights) application:
 
 | Env Var                  | Default Value                                        | Description                                                                                                                                                                                                                                                                                                      |
 |--------------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
