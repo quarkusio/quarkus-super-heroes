@@ -11,11 +11,12 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.smallrye.common.annotation.NonBlocking;
 
 /**
  * JAX-RS API endpoints to serve configuration to a front-end.
  */
-@Path("/")
+@Path("/env.js")
 public class EnvResource {
 
     @ConfigProperty(name = "api.base.url", defaultValue = "http://localhost:8082")
@@ -29,7 +30,7 @@ public class EnvResource {
 
     @GET
     @Produces(APPLICATION_JSON)
-    @Path("/env.js")
+    @NonBlocking
     public String getConfig() throws JsonProcessingException {
         var config = new Config(this.url, this.calculateApiBaseUrl);
 
