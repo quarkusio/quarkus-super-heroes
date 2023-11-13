@@ -42,7 +42,7 @@ function Fight() {
     return (
       <div className="row" id="fight-row">
         <div>
-          <div className={winner === fighters.hero.name ? 'hero-winner-card' : 'off'}>
+          <div className={winner === fighters.hero.name ? 'hero-winner-card' : 'off'} data-testid="hero">
             <h2 className="hero-name">
               {fighters.hero.name}
             </h2>
@@ -61,7 +61,7 @@ function Fight() {
           </div>
         </div>
 
-        <div className="controls">
+        <div className="controls" data-testid="fight-controls">
           <div className="card-pf">
             <div className="card-pf-body">
               <button onClick={newFighters} className="btn btn-primary btn-block btn-lg">
@@ -95,7 +95,7 @@ function Fight() {
         </div>
 
         <div>
-          <div className={winner === fighters.villain.name ? 'villain-winner-card' : 'off'}>
+          <div className={winner === fighters.villain.name ? 'villain-winner-card' : 'off'} data-testid="villain">
             <h2 className="villain-name">
               {fighters.villain.name}
             </h2>

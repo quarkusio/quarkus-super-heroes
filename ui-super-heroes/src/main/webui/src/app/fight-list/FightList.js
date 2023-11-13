@@ -12,7 +12,7 @@ export function FightList() {
   )
 
   return (
-    <table className="table table-striped">
+    <table className="table table-striped" data-testid="fights-list">
       <thead>
       <tr>
         <th className="fight-list-header thead-dark">Id</th>

@@ -145,8 +145,6 @@ describe("the fight visualisation", () => {
         render(<Fight/>)
       })
 
-      const nameCount = screen.getAllByText("Fake villain").length
-
       await act(async () => {
         fireEvent.click(screen.getByText(/FIGHT !/i))
       })
@@ -157,8 +155,5 @@ describe("the fight visualisation", () => {
       expect(narrateFight).toHaveBeenLastCalledWith(fight)
       expect(screen.getByText(narration)).toBeInTheDocument()
     })
-
-
   })
-
 })
