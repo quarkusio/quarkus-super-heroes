@@ -71,7 +71,7 @@ The main UI allows you to pick one random Hero and Villain by clicking on _New F
 You can then click the _Narrate Fight_ button if you want to perform a narration using the [Narration Service](rest-narration).
 
 > [!CAUTION]
-> Using Azure OpenAI or OpenAI may not be a free resource for you, so please understand this! Unless configured otherwise, the [Narration Service](rest-narration) does **NOT** communicate with any external service. Instead, by default, it just returns a default narration. See the [Integration with OpenAI Providers](rest-narration/README.md#integration-with-openai-providers) for more details
+> Using Azure OpenAI or OpenAI may not be a free resource for you, so please understand this! Unless configured otherwise, the [Narration Service](rest-narration) does **NOT** communicate with any external service. Instead, by default, it just returns a default narration. See the [Integration with OpenAI Providers](rest-narration/README.md#integration-with-openai-providers) for more details.
 
 ![Fight screen](images/fight-screen.png)
 

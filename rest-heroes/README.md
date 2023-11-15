@@ -4,7 +4,6 @@
 - [Introduction](#introduction)
     - [Exposed Endpoints](#exposed-endpoints)
 - [Contract testing with Pact](#contract-testing-with-pact)
-- [End-to-End UI testing with Playwright](#end-to-end-ui-testing-with-playwright)
 - [Benchmarking with Hyperfoil](#benchmarking-with-hyperfoil)
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
@@ -59,11 +58,6 @@ scenario, if a broker wasn't used, the consumer's CI/CD would commit the contrac
 
 The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility.
 
-## End-to-End UI testing with Playwright
-The [application UI](#running-the-application) is tested using [Playwright](https://playwright.dev/java). We are using the [Quarkus Playwright extension](https://docs.quarkiverse.io/quarkus-playwright/dev) for this.
-
-During tests, the UI is loaded in a headless browser and interactions are tested during unit and integration tests. See [`UIResourceTests`](src/test/java/io/quarkus/sample/superheroes/hero/rest/UIResourceTests.java) and [`UIResourceIT`](src/test/java/io/quarkus/sample/superheroes/hero/rest/UIResourceIT.java) for details.
-
 ## Benchmarking with Hyperfoil
 There are some [Hyperfoil benchmarks](https://hyperfoil.io) in [this directory](hyperfoil). See [the README](hyperfoil/README.md) for more details.
 
@@ -89,7 +83,8 @@ Pre-built images for this application can be found at [`quay.io/quarkus-super-he
 
 Pick one of the 4 versions of the application from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-heroes` directory.
 
-   > **NOTE**: You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
+   > [!NOTE]
+   > You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
 
 | Description | Image Tag       | Docker Compose Run Command                                               |
 |-------------|-----------------|--------------------------------------------------------------------------|
@@ -108,6 +103,9 @@ Pre-built images for this application can be found at [`quay.io/quarkus-super-he
 
 Deployment descriptors for these images are provided in the [`deploy/k8s`](deploy/k8s) directory. There are versions for [OpenShift](https://www.openshift.com), [Minikube](https://quarkus.io/guides/deploying-to-kubernetes#deploying-to-minikube), [Kubernetes](https://www.kubernetes.io), and [Knative](https://knative.dev).
 
+> [!NOTE]
+> The [Knative](https://knative.dev/docs/) variant can be used on any Knative installation that runs on top of Kubernetes or OpenShift. For OpenShift, you need [OpenShift Serverless](https://docs.openshift.com/serverless/latest/about/about-serverless.html) installed from the OpenShift operator catalog. Using Knative has the benefit that services are scaled down to zero replicas when they are not used.
+
 Pick one of the 4 versions of the application from the table below and deploy the appropriate descriptor from the [`deploy/k8s` directory](deploy/k8s).
 
 | Description | Image Tag       | OpenShift Descriptor                                      | Minikube Descriptor                                     | Kubernetes Descriptor                                       | Knative Descriptor                                    |
@@ -122,7 +120,8 @@ These are only the descriptors for this application and the required database on
 ### Deploying directly via Kubernetes Extensions
 Following the [deployment section](https://quarkus.io/guides/deploying-to-kubernetes#deployment) of the [Quarkus Kubernetes Extension Guide](https://quarkus.io/guides/deploying-to-kubernetes) (or the [deployment section](https://quarkus.io/guides/deploying-to-openshift#build-and-deployment) of the [Quarkus OpenShift Extension Guide](https://quarkus.io/guides/deploying-to-openshift) if deploying to [OpenShift](https://openshift.com)), you can run one of the following commands to deploy the application and any of its dependencies (see [Kubernetes (and variants) resource generation](../docs/automation.md#kubernetes-and-variants-resource-generation) of the [automation strategy document](../docs/automation.md)) to your preferred Kubernetes distribution.
 
-> **NOTE:** For non-OpenShift or minikube Kubernetes variants, you will most likely need to [push the image to a container registry](https://quarkus.io/guides/container-image#pushing) by adding the `-Dquarkus.container-image.push=true` flag, as well as setting the `quarkus.container-image.registry`, `quarkus.container-image.group`, and/or the `quarkus.container-image.name` properties to different values.
+> [!NOTE]
+> For non-OpenShift or minikube Kubernetes variants, you will most likely need to [push the image to a container registry](https://quarkus.io/guides/container-image#pushing) by adding the `-Dquarkus.container-image.push=true` flag, as well as setting the `quarkus.container-image.registry`, `quarkus.container-image.group`, and/or the `quarkus.container-image.name` properties to different values.
 
 | Target Platform        | Java Version | Command                                                                                                                                                                                                                                      |
 |------------------------|:------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -134,4 +133,5 @@ Following the [deployment section](https://quarkus.io/guides/deploying-to-kubern
 
 You may need to adjust other configuration options as well (see [Quarkus Kubernetes Extension configuration options](https://quarkus.io/guides/deploying-to-kubernetes#configuration-options) and [Quarkus OpenShift Extension configuration options](https://quarkus.io/guides/deploying-to-openshift#configuration-reference)).
 
+> [!TIP]
 > The [`do_build` function in the `generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) uses these extensions to generate the manifests in the [`deploy/k8s` directory](deploy/k8s).
