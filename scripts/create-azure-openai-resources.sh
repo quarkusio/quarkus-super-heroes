@@ -20,10 +20,14 @@ help() {
   echo "  -h                                     Prints this help message"
   echo "  -l <location>                          The location (region) to deploy resources into"
   echo "                                             Default: 'eastus'"
+  echo "  -m <model>                             The model to use"
+  echo "                                             Default: 'gpt-35-turbo'"
   echo "  -t <tag>                               The tag to use when creating resources"
   echo "                                             Default: 'super-heroes'"
   echo "  -u <unique_identifier>                 A unique identifier to append to some resources. Some Azure services require unique names within a region (across users)."
   echo "                                             Default is to use the output of the 'whoami' command."
+  echo "  -v <model_version>                     The model version to use"
+  echo "                                             Default: '0301'"
 }
 
 exit_abnormal() {
@@ -38,10 +42,12 @@ COGNITIVE_DEPLOYMENT="csdeploy-super-heroes"
 RESOURCE_GROUP="rg-super-heroes"
 LOCATION="eastus"
 TAG="super-heroes"
+MODEL="gpt-35-turbo"
+MODEL_VERSION="0301"
 UNIQUE_IDENTIFIER=$(whoami)
 
 # Process the input options
-while getopts "c:d:g:hl:t:u:" option; do
+while getopts "c:d:g:hm:l:t:u:v:" option; do
   case $option in
     c) COGNITIVE_SERVICE=$OPTARG
        ;;
@@ -57,6 +63,12 @@ while getopts "c:d:g:hl:t:u:" option; do
        ;;
 
     l) LOCATION=$OPTARG
+       ;;
+
+    m) MODEL=$OPTARG
+       ;;
+
+    v) MODEL_VERSION=$OPTARG
        ;;
 
     t) TAG=$OPTARG
@@ -76,6 +88,8 @@ echo "  Cognitive Service Name: $COGNITIVE_SERVICE"
 echo "  Cognitive Service Deployment: $COGNITIVE_DEPLOYMENT"
 echo "  Resource Group: $RESOURCE_GROUP"
 echo "  Location: $LOCATION"
+echo "  Model: $MODEL"
+echo "  Model Version: $MODEL_VERSION"
 echo "  Tag: $TAG"
 echo "  Unique Identifier: $UNIQUE_IDENTIFIER"
 echo
@@ -116,8 +130,8 @@ az cognitiveservices account deployment create \
   --name "$COGNITIVE_SERVICE" \
   --resource-group "$RESOURCE_GROUP" \
   --deployment-name "$COGNITIVE_DEPLOYMENT" \
-  --model-name gpt-35-turbo \
-  --model-version 0301 \
+  --model-name "$MODEL"turbo \
+  --model-version "$MODEL_VERSION" \
   --model-format OpenAI \
   --sku-name Standard \
   --sku-capacity 1
