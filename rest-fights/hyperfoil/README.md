@@ -6,4 +6,5 @@ Each benchmark can be customized via parameters. All the parameters are describe
 |------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | [`get-fights.hf.yml`](get-fights.hf.yml)                   | Runs a `GET` to the `/api/fights` endpoint                                                |
 | [`get-random-fighters.hf.yml`](get-random-fighters.hf.yml) | Runs a `GET` to the `/api/fights/randomfighters` endpoint                                 |
+| [`get-random-location.hf.yml`](get-random-location.hf.yml) | Runs a `GET` to the `/api/fights/randomlocation` endpoint                                 |
 | [`perform-fight.hf.yml`](perform-fight.hf.yml)             | Performs a "Perform fight" operation, which runs a sequence of requests in each iteration |
