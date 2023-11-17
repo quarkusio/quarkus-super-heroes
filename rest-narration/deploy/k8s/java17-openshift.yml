@@ -22,7 +22,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: otel-collector
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-11-17 - 20:10:05 +0000
+    app.quarkus.io/build-timestamp: 2023-11-17 - 21:40:53 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8087"
@@ -49,71 +49,42 @@ spec:
     app.kubernetes.io/version: java17-latest
   type: ClusterIP
 ---
-apiVersion: image.openshift.io/v1
-kind: ImageStream
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   annotations:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: otel-collector
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-11-17 - 20:10:05 +0000
-  labels:
-    app: rest-narration
-    application: narration-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-    app.openshift.io/runtime: quarkus
-    app.kubernetes.io/name: rest-narration
-    app.kubernetes.io/version: java17-latest
-    app.kubernetes.io/part-of: narration-service
-  name: rest-narration
-spec:
-  lookupPolicy:
-    local: true
-  tags:
-    - from:
-        kind: DockerImage
-        name: quay.io/quarkus-super-heroes/rest-narration:java17-latest
-      importPolicy: {}
-      name: java17-latest
-      referencePolicy:
-        type: Source
----
-apiVersion: apps.openshift.io/v1
-kind: DeploymentConfig
-metadata:
-  annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: otel-collector
-    app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-11-17 - 20:10:05 +0000
+    app.quarkus.io/build-timestamp: 2023-11-17 - 21:40:53 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8087"
     prometheus.io/scheme: http
   labels:
-    app.kubernetes.io/name: rest-narration
-    app.kubernetes.io/part-of: narration-service
-    app.kubernetes.io/version: java17-latest
     app: rest-narration
     application: narration-service
     system: quarkus-super-heroes
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: narration-service
+    app.kubernetes.io/name: rest-narration
   name: rest-narration
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/name: rest-narration
-    app.kubernetes.io/version: java17-latest
-    app.kubernetes.io/part-of: narration-service
+    matchLabels:
+      app.kubernetes.io/version: java17-latest
+      app.kubernetes.io/part-of: narration-service
+      app.kubernetes.io/name: rest-narration
   template:
     metadata:
       annotations:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: otel-collector
         app.openshift.io/vcs-ref: main
-        app.quarkus.io/build-timestamp: 2023-11-17 - 20:10:05 +0000
+        app.quarkus.io/build-timestamp: 2023-11-17 - 21:40:53 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8087"
@@ -124,17 +95,12 @@ spec:
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/name: rest-narration
         app.kubernetes.io/version: java17-latest
         app.kubernetes.io/part-of: narration-service
+        app.kubernetes.io/name: rest-narration
     spec:
       containers:
-        - env:
-            - name: KUBERNETES_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-          envFrom:
+        - envFrom:
             - configMapRef:
                 name: rest-narration-config
           image: quay.io/quarkus-super-heroes/rest-narration:java17-latest
@@ -179,15 +145,6 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
-  triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-          - rest-narration
-        from:
-          kind: ImageStreamTag
-          name: rest-narration:java17-latest
-      type: ImageChange
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -196,7 +153,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: otel-collector
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-11-17 - 20:10:05 +0000
+    app.quarkus.io/build-timestamp: 2023-11-17 - 21:40:53 +0000
   labels:
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
