@@ -83,7 +83,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-11-17 - 20:13:17 +0000
+    app.quarkus.io/build-timestamp: 2023-11-17 - 21:44:13 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -109,43 +109,6 @@ spec:
     app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: native-latest
   type: ClusterIP
----
-apiVersion: image.openshift.io/v1
-kind: ImageStream
-metadata:
-  annotations:
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "heroes-db,otel-collector"
-    app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-11-17 - 20:13:17 +0000
-  labels:
-    app: rest-heroes
-    application: heroes-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-    app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: native-latest
-    app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
-  name: rest-heroes
-spec:
-  lookupPolicy:
-    local: true
-  tags:
-    - from:
-        kind: DockerImage
-        name: quay.io/quarkus-super-heroes/rest-heroes:java17-latest
-      importPolicy: {}
-      name: java17-latest
-      referencePolicy:
-        type: Source
-    - from:
-        kind: DockerImage
-        name: quay.io/quarkus-super-heroes/rest-heroes:native-latest
-      importPolicy: {}
-      name: native-latest
-      referencePolicy:
-        type: Source
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -208,41 +171,42 @@ spec:
             name: heroes-db-init
           name: heroes-db-init
 ---
-apiVersion: apps.openshift.io/v1
-kind: DeploymentConfig
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   annotations:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-11-17 - 20:13:17 +0000
+    app.quarkus.io/build-timestamp: 2023-11-17 - 21:44:13 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
     prometheus.io/scheme: http
   labels:
-    app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: native-latest
     app: rest-heroes
     application: heroes-service
     system: quarkus-super-heroes
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/version: native-latest
+    app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/name: rest-heroes
   name: rest-heroes
 spec:
   replicas: 1
   selector:
-    app.kubernetes.io/version: native-latest
-    app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
+    matchLabels:
+      app.kubernetes.io/version: native-latest
+      app.kubernetes.io/part-of: heroes-service
+      app.kubernetes.io/name: rest-heroes
   template:
     metadata:
       annotations:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "heroes-db,otel-collector"
         app.openshift.io/vcs-ref: main
-        app.quarkus.io/build-timestamp: 2023-11-17 - 20:13:17 +0000
+        app.quarkus.io/build-timestamp: 2023-11-17 - 21:44:13 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -254,20 +218,15 @@ spec:
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/version: native-latest
-        app.kubernetes.io/name: rest-heroes
         app.kubernetes.io/part-of: heroes-service
+        app.kubernetes.io/name: rest-heroes
     spec:
       containers:
-        - env:
-            - name: KUBERNETES_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-          envFrom:
-            - secretRef:
-                name: rest-heroes-config-creds
+        - envFrom:
             - configMapRef:
                 name: rest-heroes-config
+            - secretRef:
+                name: rest-heroes-config-creds
           image: quay.io/quarkus-super-heroes/rest-heroes:native-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -310,15 +269,6 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
-  triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-          - rest-heroes
-        from:
-          kind: ImageStreamTag
-          name: rest-heroes:native-latest
-      type: ImageChange
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -327,7 +277,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
-    app.quarkus.io/build-timestamp: 2023-11-17 - 20:13:17 +0000
+    app.quarkus.io/build-timestamp: 2023-11-17 - 21:44:13 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
