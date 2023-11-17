@@ -23,6 +23,7 @@ jobs:
     permissions:
       actions: read
       contents: write
+      pull-requests: write
     steps:
       - name: Calculate Branch (NOT workflow_dispatch event)
         if: github.event_name != 'workflow_dispatch'
@@ -56,12 +57,28 @@ jobs:
         shell: bash
         run: scripts/generate-docker-compose-resources.sh
 
-      - name: Commit generated resources
-        uses: EndBug/add-and-commit@v9
+      - name: Commit generated resources via PR
+        id: create-pr
+        uses: peter-evans/create-pull-request@v5
         with:
-          default_author: github_actions
-          message: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
-          add: '["**/deploy/k8s/*.yml", "deploy/k8s/*.yml", "**/deploy/docker-compose/*.yml", "deploy/docker-compose/*.yml", "deploy/db-init/**"]'
-          pathspec_error_handling: exitImmediately
-          new_branch: ${{ env.BRANCH }}
-          push: origin ${{ env.BRANCH }} --set-upstream --force
+          add-paths: |
+            **/deploy/k8s/*.yml
+            deploy/k8s/*.yml
+            **/deploy/docker-compose/*.yml
+            deploy/docker-compose/*.yml
+            deploy/db-init/**
+          commit-message: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
+          branch-suffix: short-commit-hash
+          delete-branch: true
+          base: ${{ env.BRANCH }}
+          title: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
+          body: "Generated deployment resource changes from [${{ github.workflow }} run # ${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          labels: |
+            Generated Resources
+
+      - name: Merge PR
+        if: (steps.create-pr.outputs.pull-request-operation == 'created') && (steps.create-pr.outputs.pull-request-number)
+        run: |
+          echo "${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}" | gh auth login --with-token
+          gh pr review --approve ${{ steps.create-pr.outputs.pull-request-number }}
+          gh pr merge --squash --delete-branch --admin ${{ steps.create-pr.outputs.pull-request-number }}

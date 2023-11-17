@@ -47,9 +47,9 @@ do_build() {
 
   printf -v deployment_types_str '%s,' "${DEPLOYMENT_TYPES[@]}"
 
-  $project/mvnw -f $project/pom.xml versions:set clean package \
+  $project/mvnw -f $project/pom.xml versions:set -DnewVersion=$container_tag && \
+  $project/mvnw -f $project/pom.xml clean package \
     -DskipTests \
-    -DnewVersion=$container_tag \
     -Dmaven.compiler.release=$javaVersion \
     -Dquarkus.liquibase-mongodb.migrate-at-start=false \
     -Dquarkus.container-image.tag=$container_tag \
