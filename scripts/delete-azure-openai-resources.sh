@@ -34,7 +34,7 @@ LOCATION="eastus"
 UNIQUE_IDENTIFIER=$(whoami)
 
 # Process the input options
-while getopts "c:g:hl:" option; do
+while getopts "c:g:hl:u:" option; do
   case $option in
     c) COGNITIVE_SERVICE=$OPTARG
        ;;
