@@ -70,7 +70,7 @@ jobs:
           commit-message: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
           branch: create-deploy-resources/sourceref
           branch-suffix: short-commit-hash
-          delete-branch: true
+#          delete-branch: true
           base: ${{ env.BRANCH }}
           title: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
           body: "Generated deployment resource changes from [${{ github.workflow }} run # ${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}), which was triggered by commit ${{ env.REF }}."
@@ -79,7 +79,7 @@ jobs:
 
       - name: Merge PR
         if: (steps.create-pr.outputs.pull-request-operation == 'created') && (steps.create-pr.outputs.pull-request-number)
-        continue-on-error: true
+#        continue-on-error: true
         run: |
           echo "${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}" | gh auth login --with-token
           gh pr review --approve ${{ steps.create-pr.outputs.pull-request-number }}
