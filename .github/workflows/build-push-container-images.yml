@@ -2,8 +2,7 @@ name: Build and Push Container images
 
 env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
-  MANDREL_IMAGE: "quay.io/quarkus/ubi-quarkus-mandrel-builder-image"
-  MANDREL_VERSION: "23.0"
+  GRAALVM_IMAGE: "quay.io/quarkus/ubi-quarkus-graalvmce-builder-image"
   LATEST_IMAGE_TAG: "latest"
 
 on:
@@ -28,6 +27,7 @@ jobs:
       matrix:
         java:
           - '17'
+          - '21'
         project:
           - event-statistics
           - rest-fights
@@ -62,7 +62,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
-          distribution: temurin
+          distribution: zulu
           cache: maven
 
       - name: Create env vars
@@ -115,7 +115,7 @@ jobs:
       fail-fast: false
       matrix:
         java:
-          - '17'
+          - '21'
         project:
           - event-statistics
           - rest-fights
@@ -151,7 +151,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
-          distribution: temurin
+          distribution: zulu
           cache: maven
 
       - name: Create env vars
@@ -182,7 +182,7 @@ jobs:
             -Dmaven.compiler.release=${{ matrix.java }} \
             -Dquarkus.http.host=0.0.0.0 \
             -Dquarkus.native.container-build=true \
-            -Dquarkus.native.builder-image=${{ env.MANDREL_IMAGE }}:${{ env.MANDREL_VERSION }}-java${{ matrix.java }} \
+            -Dquarkus.native.builder-image=${{ env.GRAALVM_IMAGE }}:jdk-${{ matrix.java }} \
             -Dquarkus.native.container-runtime-options=--platform=linux/${{ matrix.arch }} \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=false \
@@ -204,6 +204,7 @@ jobs:
       matrix:
         java:
           - '17'
+          - '21'
         kind:
           - ""
           - "native-"
@@ -218,9 +219,11 @@ jobs:
         arch:
           - amd64
           - arm64
-# Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
         exclude:
+# Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
           - project: rest-narration
+            kind: "native-"
+          - java: 17
             kind: "native-"
     name: "Push app images (${{ matrix.arch }}-${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})"
     steps:
@@ -312,6 +315,7 @@ jobs:
       matrix:
         java:
           - '17'
+          - '21'
         kind:
           - ""
           - "native-"
@@ -323,9 +327,11 @@ jobs:
           - rest-narration
           - grpc-locations
           - ui-super-heroes
-# Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
         exclude:
+# Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
           - project: rest-narration
+            kind: "native-"
+          - java: 17
             kind: "native-"
     name: Create app multiarch manifests (${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }})
     steps:

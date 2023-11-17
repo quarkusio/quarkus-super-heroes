@@ -1,3 +1,9 @@
+paths:
+  dockerfile:
+    jvm-21: src/main/docker/Dockerfile.jvm21
+  base-image:
+    jvm-21: registry.access.redhat.com/ubi9/openjdk-21:1.17
+
 quarkus:
   application:
     name: grpc-locations
@@ -92,6 +98,14 @@ quarkus:
     kubernetes:
       deployment-target: kubernetes
 
+"%kubernetes-21":
+  quarkus:
+    config:
+      profile:
+        parent: kubernetes
+    docker:
+      dockerfile-jvm-path: "${paths.dockerfile.jvm-21}"
+
 "%openshift":
   quarkus:
     config:
@@ -102,6 +116,17 @@ quarkus:
     kubernetes:
       deployment-target: openshift
 
+"%openshift-21":
+  quarkus:
+    config:
+      profile:
+        parent: openshift
+    docker:
+      dockerfile-jvm-path: "${paths.dockerfile.jvm-21}"
+    openshift:
+      jvm-dockerfile: "${paths.dockerfile.jvm-21}"
+      base-jvm-image: "${paths.base-image.jvm-21}"
+
 "%knative":
   quarkus:
     config:
@@ -109,6 +134,14 @@ quarkus:
         parent: prod
     kubernetes:
       deployment-target: knative
+
+"%knative-21":
+  quarkus:
+    config:
+      profile:
+        parent: knative
+    docker:
+      dockerfile-jvm-path: "${paths.dockerfile.jvm-21}"
 
 "%knative-openshift":
   quarkus:
@@ -118,6 +151,17 @@ quarkus:
     container-image:
       builder: openshift
 
+"%knative-openshift-21":
+  quarkus:
+    config:
+      profile:
+        parent: knative-openshift
+    docker:
+      dockerfile-jvm-path: "${paths.dockerfile.jvm-21}"
+    openshift:
+      jvm-dockerfile: "${paths.dockerfile.jvm-21}"
+      base-jvm-image: "${paths.base-image.jvm-21}"
+
 "%minikube":
   quarkus:
     config:
@@ -125,3 +169,11 @@ quarkus:
         parent: prod
     kubernetes:
       deployment-target: minikube
+
+"%minikube-21":
+  quarkus:
+    config:
+      profile:
+        parent: minikube
+    docker:
+      dockerfile-jvm-path: "${paths.dockerfile.jvm-21}"

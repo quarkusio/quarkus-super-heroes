@@ -162,10 +162,10 @@ do
   do
     # Keeping this if/else here for the future when we might want to build multiple java versions
     if [[ "$kind" == "native-" ]]; then
-      javaVersions=(17)
+      javaVersions=(21)
     else
-      javaVersions=(17)
-  #    javaVersions=(11 17)
+#      javaVersions=(17)
+      javaVersions=(17 21)
     fi
 
     for javaVersion in ${javaVersions[@]}

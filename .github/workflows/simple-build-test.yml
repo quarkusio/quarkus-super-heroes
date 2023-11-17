@@ -1,8 +1,5 @@
 name: Basic build and test
 
-env:
-  MANDREL_VERSION: "23.0.1.2-Final"
-
 on:
   push:
     paths-ignore:
@@ -56,6 +53,7 @@ jobs:
       matrix:
         java:
           - '17'
+          - '21'
         project:
           - event-statistics
           - rest-fights
@@ -72,7 +70,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
-          distribution: temurin
+          distribution: zulu
           cache: maven
 
       - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
@@ -89,7 +87,8 @@ jobs:
       fail-fast: false
       matrix:
         java:
-          - '17'
+          - { graal: '17.0.8', java: '17' }
+          - { graal: '21.0.0', java: '21'}
         project:
           - event-statistics
           - rest-fights
@@ -103,25 +102,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache and restore Mandrel distro
-        id: check-mandrel-cache
+      - name: Cache and restore GraalVM CE (${{ matrix.java.graal }})
+        id: check-graal-cache
         uses: actions/cache@v3
         with:
-          path: mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz
-          key: mandrel-distro-${{ env.MANDREL_VERSION }}-${{ matrix.java }}
+          path: graalvm-community-jdk-${{ matrix.java.graal }}_linux-x64_bin.tar.gz
+          key: graal-distro-${{ matrix.java.graal }}
 
-      - name: Download Mandrel
-        if: steps.check-mandrel-cache.outputs.cache-hit != 'true'
+      - name: Download GraalVM CE ${{ matrix.java.graal }}
+        if: steps.check-graal-cache.outputs.cache-hit != 'true'
         run: |
-          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${MANDREL_VERSION}/mandrel-java${{ matrix.java }}-linux-amd64-${MANDREL_VERSION}.tar.gz"
-          wget -q -O mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz $download_url
+          download_url="https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-${{ matrix.java.graal }}/graalvm-community-jdk-${{ matrix.java.graal }}_linux-x64_bin.tar.gz"
+          wget -q -O graalvm-community-jdk-${{ matrix.java.graal }}_linux-x64_bin.tar.gz $download_url
 
-      - name: Setup Maven+OpenJDK Distro
+      - name: Setup GraalVM CE ${{ matrix.java.graal }} distro
         uses: actions/setup-java@v3
         with:
           distribution: 'jdkfile'
-          jdkFile: mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz
-          java-version: ${{ matrix.java }}
+          jdkFile: graalvm-community-jdk-${{ matrix.java.graal }}_linux-x64_bin.tar.gz
+          java-version: ${{ matrix.java.java }}
           architecture: x64
           cache: maven
 

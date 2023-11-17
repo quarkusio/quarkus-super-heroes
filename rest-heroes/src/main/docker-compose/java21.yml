@@ -1,0 +1,28 @@
+
+  rest-heroes-java21:
+    image: quay.io/quarkus-super-heroes/rest-heroes:java21-latest
+    container_name: rest-heroes-java21
+    depends_on:
+      - heroes-db
+    ports:
+      - "8083:8083"
+    environment:
+      QUARKUS_DATASOURCE_REACTIVE_URL: postgresql://heroes-db:5432/heroes_database
+      QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: validate
+      QUARKUS_DATASOURCE_USERNAME: superman
+      QUARKUS_DATASOURCE_PASSWORD: superman
+      QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: no-file
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
+    restart: on-failure
+    networks:
+      default:
+        aliases:
+          - rest-heroes
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
