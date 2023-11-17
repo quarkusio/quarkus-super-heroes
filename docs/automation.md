@@ -25,7 +25,7 @@ The [Basic building and testing](../.github/workflows/simple-build-test.yml) wor
 It runs whenever code is pushed to the `main` branch as well as upon any pull requests.
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
 
-It runs `./mvnw clean verify` and `./mvnw clean verify -Pnative` on the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), and [`ui-super-heroes`](../ui-super-heroes) applications on Java 17.
+It runs `./mvnw clean verify` and `./mvnw clean verify -Pnative` on the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and [`ui-super-heroes`](../ui-super-heroes) applications on Java 17.
 
 ## Build and push container images workflow
 The [Build and push container images](../.github/workflows/build-push-container-images.yml) workflow does pretty much what it sounds like: builds and pushes container images. For JVM images, it builds both `amd64` and `arm64` images. Multi-arch native images are coming soon.
@@ -46,7 +46,7 @@ This image is a visual of what the workflow consists of:
 ![build-push-images-workflow](../images/build-push-container-images-workflow.png)
 
 ### Build JVM container images job
-This job [Builds JVM container images](https://quarkus.io/guides/container-image#building) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), and  [`ui-super-heroes`](../ui-super-heroes) applications on Java 17 (both amd64 & arm64 platforms) using the [Docker Build action](https://github.com/docker/build-push-action).
+This job [Builds JVM container images](https://quarkus.io/guides/container-image#building) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and  [`ui-super-heroes`](../ui-super-heroes) applications on Java 17 (both amd64 & arm64 platforms) using the [Docker Build action](https://github.com/docker/build-push-action).
 
 Each container image created has 4 tags:
 - `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}-amd64`
@@ -58,12 +58,15 @@ Each container image created has 4 tags:
 > - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `3.0.3.Final`).
 > - Replace `{{java-version}}` with the Java version the application was built with (i.e. `17`).
 
-There are a total of 8 images built (4 applications x 1 JVM version x 2 platforms).
+There are a total of 14 images built (7 applications x 1 JVM version x 2 platforms).
       
 ### Build native container images job
 This job runs in parallel with the [_Build JVM container images_](#build-jvm-container-images-job) job.
 
-The job [Builds native executable container images](https://quarkus.io/guides/building-native-image#using-the-container-image-extensions) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), and  [`ui-super-heroes`](../ui-super-heroes) applications using [Mandrel](https://github.com/graalvm/mandrel).
+The job [Builds native executable container images](https://quarkus.io/guides/building-native-image#using-the-container-image-extensions) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`grpc-locations`](../grpc-locations/deploy), and  [`ui-super-heroes`](../ui-super-heroes) applications using [Mandrel](https://github.com/graalvm/mandrel).
+
+> [!NOTE]
+> The [`rest-narration`](../rest-narration) application currently doesn't support native compilation
 
 Each container image created has 4 tags:
 - `{{app-version}}-quarkus-{{quarkus-version}}-native-amd64`
@@ -74,7 +77,7 @@ Each container image created has 4 tags:
 > - Replace `{{app-version}}` with the application version (i.e. `1.0`).
 > - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `3.0.3.Final`).
 
-There are a total of 10 images built (5 applications x 2 platforms).
+There are a total of 12 images built (6 applications x 2 platforms).
 
 ### Push application container images job
 Runs after successful completion of the [_Build JVM container image_](#build-jvm-container-images-job) and [_Build native container image_](#build-native-container-images-job) jobs.
@@ -92,7 +95,7 @@ The [Create deploy resources](../.github/workflows/create-deploy-resources.yml) 
 It only runs on pushes to the `main` branch after successful completion of the [_Build and push container images_](#build-and-push-container-images-workflow) workflow.
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
 
-All generated resources are subsequently pushed back into the repo by the action in a single commit.
+All generated resources are committed to a new branch and a pull request is opened, which is subsequently approved and merged automatically. The reason for the pull request is because the repository has branch protection rules enabled and can't commit directly to the branch.
 
 ## Cleanup artifacts
 The cleanup artifacts job is responsible for cleaning up and deleting all artifacts produced by all the other jobs in the workflow. Many container images are created, stored, and shared amongst all the jobs. This could result in several gigabytes of storage used by each instance of the workflow.
@@ -100,7 +103,7 @@ The cleanup artifacts job is responsible for cleaning up and deleting all artifa
 This job will always run regardless of the status of the other jobs in the workflow. It uses the [`delete-run-artifacts` GitHub action](https://github.com/marketplace/actions/delete-run-artifacts) to perform its work.
 
 # Application resource generation
-The resources and descriptors in the [root `deploy` directory](../deploy) as well as in each individual project's `deploy` directory ([`event-statistics`](../event-statistics/deploy), [`rest-fights`](../rest-fights/deploy), [`rest-heroes`](../rest-heroes/deploy), [`rest-villains`](../rest-villains/deploy), and [`ui-super-heroes`](../ui-super-heroes/deploy)) are used for deploying the entire system or subsets of it into various environments (i.e. Docker compose, OpenShift, Minikube, Kubernetes, etc).
+The resources and descriptors in the [root `deploy` directory](../deploy) as well as in each individual project's `deploy` directory ([`event-statistics`](../event-statistics/deploy), [`rest-fights`](../rest-fights/deploy), [`rest-heroes`](../rest-heroes/deploy), [`rest-villains`](../rest-villains/deploy), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and [`ui-super-heroes`](../ui-super-heroes/deploy)) are used for deploying the entire system or subsets of it into various environments (i.e. Docker compose, OpenShift, Minikube, Kubernetes, etc).
 
 Resources in these directories are generated by the [_Create deploy resources_ workflow](#create-deploy-resources-workflow) mentioned in the previous section. Any manual changes made to anything in any of those directories will be overwritten by the workflow upon its next execution.
 
@@ -108,7 +111,7 @@ Resources in these directories are generated by the [_Create deploy resources_ w
 Kubernetes resources are generated into a `deploy/k8s` directory, either in the [project root directory](../deploy/k8s) or in each individual project's directory.
 
 ### Quarkus projects
-Each Quarkus project ([`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains),  [`ui-super-heroes`](../ui-super-heroes)) uses the [Quarkus Kubernetes extension](https://quarkus.io/guides/deploying-to-kubernetes) to generate Kubernetes and Knative manifests, the [Quarkus Minikube extension](https://quarkus.io/guides/deploying-to-kubernetes#deploying-to-minikube) to generate Minikube manifests, and the [Quarkus OpenShift extension](https://quarkus.io/guides/deploying-to-openshift) to generate OpenShift manifests.
+Each Quarkus project ([`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), [`ui-super-heroes`](../ui-super-heroes)) uses the [Quarkus Kubernetes extension](https://quarkus.io/guides/deploying-to-kubernetes) to generate Kubernetes and Knative manifests, the [Quarkus Minikube extension](https://quarkus.io/guides/deploying-to-kubernetes#deploying-to-minikube) to generate Minikube manifests, and the [Quarkus OpenShift extension](https://quarkus.io/guides/deploying-to-openshift) to generate OpenShift manifests.
 
 These extensions generate the manifests needed for the application itself but not for any other services. [These extensions can also incorporate additional resources](https://quarkus.io/guides/deploying-to-kubernetes#using-existing-resources) by placing additional resources in each project's `src/main/kubernetes` directory.
 
@@ -116,7 +119,7 @@ The [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) l
 
 The [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) additionally creates the monitoring (Prometheus/Jaeger/OpenTelemetry Collector) descriptors within the [root `deploy/k8s` directory](../deploy/k8s) for each Kubernetes variant platform.
 
-In the [`rest-fights` project](../rest-fights), the [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) additionally copies in generated resources from the [`rest-heroes`](../rest-heroes) and [`rest-villains`](../rest-villains) projects into the `all-downstream.yml` files in the [`deploy/k8s` directory of the `rest-fights` project](../rest-fights/deploy/k8s).
+In the [`rest-fights` project](../rest-fights), the [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) additionally copies in generated resources from the [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration), and [`grpc-locations`](../grpc-locations) projects into the `all-downstream.yml` files in the [`deploy/k8s` directory of the `rest-fights` project](../rest-fights/deploy/k8s).
 
 ## Docker compose resource generation
 Docker compose resource generation follows a similar pattern as the [Kubernetes resource generation](#kubernetes-and-variants-resource-generation).
@@ -124,7 +127,7 @@ Docker compose resource generation follows a similar pattern as the [Kubernetes 
 Docker compose resources are generated into a `deploy/docker-compose` directory, either in the [project root directory](../deploy/docker-compose) or in each individual project's directory.
 
 ### Quarkus projects
-Each Quarkus project ([`event-statistics`](../event-statistics/src/main/docker-compose), [`rest-fights`](../rest-fights/src/main/docker-compose), [`rest-heroes`](../rest-heroes/src/main/docker-compose), [`rest-villains`](../rest-villains/src/main/docker-compose)) contains a `src/main/docker-compose` directory.
+Each Quarkus project ([`event-statistics`](../event-statistics/src/main/docker-compose), [`rest-fights`](../rest-fights/src/main/docker-compose), [`rest-heroes`](../rest-heroes/src/main/docker-compose), [`rest-villains`](../rest-villains/src/main/docker-compose), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy)) contains a `src/main/docker-compose` directory.
 
 Inside this directory are a set of yaml files with a particular naming convention: `infra.yml`, `java{{java-version}}.yml`, and `native.yml`. Each of these files contains what we are calling _Docker compose snippets_. These snippets aren't a complete Docker compose file on their own. Instead, they contain service definitions that will ultimately end up inside the `services` block in a Docker compose file.
 
