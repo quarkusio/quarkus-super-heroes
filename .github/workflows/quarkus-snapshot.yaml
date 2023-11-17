@@ -8,6 +8,8 @@ env:
   ECOSYSTEM_CI_REPO: quarkusio/quarkus-ecosystem-ci
   ECOSYSTEM_CI_REPO_FILE: context.yaml
   ECOSYSTEM_CI_REPO_PATH: quarkus-super-heroes
+  JAVA_21_DOWNLOAD_URL: https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.1%2B12/OpenJDK21U-jdk_x64_linux_hotspot_21.0.1_12.tar.gz
+  JAVA_21_PATH: jdk-21.0.1+12
 
 jobs:
   build:
@@ -23,6 +25,9 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
+
+      - name: Set up Java 21
+        run: wget -c ${{ env.JAVA_21_DOWNLOAD_URL }} -O - | tar -xz
           
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -41,3 +46,4 @@ jobs:
           ECOSYSTEM_CI_TOKEN: ${{ secrets.ECOSYSTEM_CI_TOKEN }}
           QUARKUS_VERSION_POM_PATH: rest-fights
           QUARKUS_VERSION_POM_PROPERTY: quarkus.platform.version
+          JAVA_21_PATH: ${{ env.JAVA_21_PATH }}
