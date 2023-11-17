@@ -130,7 +130,7 @@ az cognitiveservices account deployment create \
   --name "$COGNITIVE_SERVICE" \
   --resource-group "$RESOURCE_GROUP" \
   --deployment-name "$COGNITIVE_DEPLOYMENT" \
-  --model-name "$MODEL"turbo \
+  --model-name "$MODEL" \
   --model-version "$MODEL_VERSION" \
   --model-format OpenAI \
   --sku-name Standard \
