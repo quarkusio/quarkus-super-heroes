@@ -331,7 +331,8 @@ az postgres flexible-server show-connection-string \
   --output tsv
 ```
 
-> **NOTE:** These aren't the actual connection strings used, especially in the heroes service, which does not use JDBC.
+> [!IMPORTANT]
+> These aren't the actual connection strings used, especially in the heroes service, which does not use JDBC.
 > 
 > You also need to append `ssl=true&sslmode=require` to the end of each connect string to force the driver to use ssl.
 > 
@@ -399,7 +400,8 @@ az mysql flexible-server show-connection-string \
   --output tsv
 ```
 
-> **NOTE:** This isn't the actual connection string used.
+> [!IMPORTANT]
+> This isn't the actual connection string used.
 > 
 > You also need to append `?sslmode=trust&useMysqlMetadata=true` to the end of each connect string to force the driver to use ssl and to use MySQL metadata.
 > 
@@ -532,6 +534,7 @@ The Narration microservice needs to access an AI service to generate the text na
 
 The [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources. Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources.
 
+> [!WARNING]
 > Keep in mind that the service may not be free.
 
 Upon completion of the script it will output the following:
