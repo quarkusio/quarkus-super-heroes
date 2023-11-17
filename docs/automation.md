@@ -75,14 +75,14 @@ Each container image created has 4 tags:
 - `native-latest-arm64`
 
 > - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `3.0.3.Final`).
+> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `3.5.2`).
 
 There are a total of 12 images built (6 applications x 2 platforms).
 
 ### Push application container images job
 Runs after successful completion of the [_Build JVM container image_](#build-jvm-container-images-job) and [_Build native container image_](#build-native-container-images-job) jobs.
 
-All the container images created in the [_Build JVM container image_](#build-jvm-container-images-job) and [_Build native container image_](#build-native-container-images-job) jobs (24 total container images/48 tags) are pushed to https://quay.io/quarkus-super-heroes.
+All the container images created in the [_Build JVM container image_](#build-jvm-container-images-job) and [_Build native container image_](#build-native-container-images-job) jobs (26 total container images/52 tags) are pushed to https://quay.io/quarkus-super-heroes.
 
 ### Create application multi-arch manifests
 Runs after successful completion of the [_Push application container images_](#push-application-container-images-job) job and in parallel with the [_Create UI multi-arch manifests_](#create-ui-multi-arch-manifests) job.
