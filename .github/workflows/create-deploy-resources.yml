@@ -79,6 +79,7 @@ jobs:
 
       - name: Merge PR
         if: (steps.create-pr.outputs.pull-request-operation == 'created') && (steps.create-pr.outputs.pull-request-number)
+        continue-on-error: true
         run: |
           echo "${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}" | gh auth login --with-token
           gh pr review --approve ${{ steps.create-pr.outputs.pull-request-number }}
