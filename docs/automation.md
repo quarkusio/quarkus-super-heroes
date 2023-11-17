@@ -23,6 +23,7 @@ There are 3 GitHub action workflows that run when code is pushed: [Basic buildin
 The [Basic building and testing](../.github/workflows/simple-build-test.yml) workflow is a "sanity check". It is required to pass before pull requests can be merged.
 
 It runs whenever code is pushed to the `main` branch as well as upon any pull requests.
+   > [!TIP]
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
 
 It runs `./mvnw clean verify` and `./mvnw clean verify -Pnative` on the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and [`ui-super-heroes`](../ui-super-heroes) applications on Java 17.
@@ -31,6 +32,7 @@ It runs `./mvnw clean verify` and `./mvnw clean verify -Pnative` on the [`event-
 The [Build and push container images](../.github/workflows/build-push-container-images.yml) workflow does pretty much what it sounds like: builds and pushes container images. For JVM images, it builds both `amd64` and `arm64` images. Multi-arch native images are coming soon.
 
 It only runs on pushes to the `main` branch after successful completion of the above [_Basic building and testing_](#basic-building-and-testing-workflow) workflow.
+   > [!TIP]
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
 
 It consists of 4 jobs: 
@@ -54,6 +56,7 @@ Each container image created has 4 tags:
 - `java{{java-version}}-latest-amd64`
 - `java{{java-version}}-latest-arm64`
 
+> [!TIP]
 > - Replace `{{app-version}}` with the application version (i.e. `1.0`).
 > - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `3.0.3.Final`).
 > - Replace `{{java-version}}` with the Java version the application was built with (i.e. `17`).
@@ -74,6 +77,7 @@ Each container image created has 4 tags:
 - `native-latest-amd64`
 - `native-latest-arm64`
 
+> [!TIP]
 > - Replace `{{app-version}}` with the application version (i.e. `1.0`).
 > - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `3.5.2`).
 
@@ -93,6 +97,7 @@ All the application container images for each platform (amd64 & arm64) are combi
 The [Create deploy resources](../.github/workflows/create-deploy-resources.yml) workflow is responsible for [generating all of the application resources](#application-resource-generation), described in a later section of this document.
 
 It only runs on pushes to the `main` branch after successful completion of the [_Build and push container images_](#build-and-push-container-images-workflow) workflow.
+   > [!TIP]
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
 
 All generated resources are committed to a new branch and a pull request is opened, which is subsequently approved and merged automatically. The reason for the pull request is because the repository has branch protection rules enabled and can't commit directly to the branch.
