@@ -1,16 +1,4 @@
-import {useEffect, useState} from "react"
-import {getFights} from "../shared/api/fight-service"
-
-export function FightList() {
-
-
-  const [fights, setFights] = useState()
-
-  useEffect(() => {
-      getFights().then(answer => setFights(answer))
-    }, []
-  )
-
+export function FightList({fights}) {
   return (
     <table className="table table-striped">
       <thead>

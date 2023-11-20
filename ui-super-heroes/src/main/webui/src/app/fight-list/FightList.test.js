@@ -2,7 +2,6 @@ import React from "react"
 import {render, screen, within} from "@testing-library/react"
 import "@testing-library/jest-dom"
 import {FightList} from "./FightList"
-import {getFights} from "../shared/api/fight-service"
 import {act} from "react-dom/test-utils"
 
 jest.mock("../shared/api/fight-service")
@@ -27,18 +26,17 @@ const fight = {
 }
 
 describe("the fight list", () => {
-  beforeEach(() => {
-    getFights.mockResolvedValue([fight])
-  })
+  it("handles missing fights gracefully", async () => {
+    await act(async () => {
+      render(<FightList/>)
+    })
 
-  afterAll(() => {
-    jest.resetAllMocks()
+    // We don't care too much if it renders headings or shows blank, we just want there not to be an error
   })
-
 
   it("renders a table with column headings", async () => {
     await act(async () => {
-      render(<FightList/>)
+      render(<FightList fights={[fight]}/>)
     })
 
     const table = screen.getByRole("table")
@@ -58,7 +56,7 @@ describe("the fight list", () => {
 
   it("renders rows for the fights", async () => {
     await act(async () => {
-      render(<FightList/>)
+      render(<FightList fights={[fight]}/>)
     })
 
     const table = screen.getByRole("table")

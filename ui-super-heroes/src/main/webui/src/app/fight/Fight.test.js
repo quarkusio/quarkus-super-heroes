@@ -69,6 +69,8 @@ describe("the fight visualisation", () => {
   })
 
   describe("when a back end is available", () => {
+    const onFight = jest.fn()
+
     beforeEach(() => {
       getRandomFighters.mockResolvedValue(fighters)
       getRandomLocation.mockResolvedValue(location)
@@ -82,7 +84,7 @@ describe("the fight visualisation", () => {
 
     it("renders fighters", async () => {
       await act(async () => {
-        render(<Fight/>)
+        render(<Fight onFight={onFight}/>)
       })
 
       expect(screen.getByText(fighters.hero.name)).toBeInTheDocument()
@@ -93,7 +95,7 @@ describe("the fight visualisation", () => {
 
     it("renders a fight button", async () => {
       await act(async () => {
-        render(<Fight/>)
+        render(<Fight onFight={onFight}/>)
       })
       const button = screen.getByText(/FIGHT !/i)
       expect(button).toBeInTheDocument()
@@ -101,7 +103,7 @@ describe("the fight visualisation", () => {
 
     it("renders a get random location button", async() => {
       await act(async () => {
-        render(<Fight/>)
+        render(<Fight onFight={onFight}/>)
       })
       const button = screen.getByText(/NEW LOCATION/i)
       expect(button).toBeInTheDocument()
@@ -109,7 +111,7 @@ describe("the fight visualisation", () => {
 
     it("renders winners when the fight button is clicked", async () => {
       await act(async () => {
-        render(<Fight/>)
+        render(<Fight onFight={onFight}/>)
       })
 
       const nameCount = screen.getAllByText("Fake villain").length
@@ -125,7 +127,7 @@ describe("the fight visualisation", () => {
 
     it("renders location when the new location button is clicked", async () => {
       await act(async () => {
-        render(<Fight/>)
+        render(<Fight onFight={onFight}/>)
       })
 
       await act(async() => {
@@ -139,7 +141,7 @@ describe("the fight visualisation", () => {
 
     it("renders narration when the narrate button is clicked", async () => {
       await act(async () => {
-        render(<Fight/>)
+        render(<Fight onFight={onFight}/>)
       })
 
       await act(async () => {
@@ -151,6 +153,18 @@ describe("the fight visualisation", () => {
       })
       expect(narrateFight).toHaveBeenLastCalledWith(fight)
       expect(screen.getByText(narration)).toBeInTheDocument()
+    })
+
+     it("triggers the onFight callback", async () => {
+      await act(async () => {
+        render(<Fight onFight={onFight}/>)
+      })
+
+      await act(async () => {
+        fireEvent.click(screen.getByText(/FIGHT !/i))
+      })
+
+      expect(onFight).toHaveBeenCalled()
     })
   })
 })
