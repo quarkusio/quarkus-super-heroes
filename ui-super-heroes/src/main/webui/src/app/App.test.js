@@ -52,8 +52,8 @@ describe("renders the elements", () => {
 
     // To make the row-counting test work, we need the behavior of getFights to change on each call
     getFights.mockResolvedValueOnce([fight])
-    getFights.mockResolvedValueOnce([fight, fight])
-    getFights.mockResolvedValueOnce([fight, fight, fight])
+    getFights.mockResolvedValueOnce([{...fight, id: 201}, fight])
+    getFights.mockResolvedValueOnce([{...fight, id: 202}, {...fight, id: 201}, fight])
   })
 
   afterAll(() => {
