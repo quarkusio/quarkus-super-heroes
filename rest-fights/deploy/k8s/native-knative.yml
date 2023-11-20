@@ -13,8 +13,8 @@ metadata:
     system: quarkus-super-heroes
   name: rest-fights-config-creds
 data:
-  QUARKUS_MONGODB_CREDENTIALS_USERNAME: c3VwZXJmaWdodA==
-  QUARKUS_MONGODB_CREDENTIALS_PASSWORD: c3VwZXJmaWdodA==
+  quarkus.mongodb.credentials.username: c3VwZXJmaWdodA==
+  quarkus.mongodb.credentials.password: c3VwZXJmaWdodA==
 type: Opaque
 ---
 apiVersion: v1
@@ -42,22 +42,22 @@ metadata:
     system: quarkus-super-heroes
   name: rest-fights-config
 data:
-  QUARKUS_LIQUIBASE_MONGODB_MIGRATE_AT_START: "false"
-  QUARKUS_MONGODB_HOSTS: fights-db:27017
-  QUARKUS_STORK_HERO_SERVICE_SERVICE_DISCOVERY_TYPE: knative
-  QUARKUS_STORK_HERO_SERVICE_SERVICE_DISCOVERY_APPLICATION: rest-heroes
-  QUARKUS_STORK_HERO_SERVICE_SERVICE_DISCOVERY_REFRESH_PERIOD: 1M
-  QUARKUS_STORK_VILLAIN_SERVICE_SERVICE_DISCOVERY_TYPE: knative
-  QUARKUS_STORK_VILLAIN_SERVICE_SERVICE_DISCOVERY_APPLICATION: rest-villains
-  QUARKUS_STORK_VILLAIN_SERVICE_SERVICE_DISCOVERY_REFRESH_PERIOD: 1M
-  QUARKUS_STORK_NARRATION_SERVICE_SERVICE_DISCOVERY_TYPE: knative
-  QUARKUS_STORK_NARRATION_SERVICE_SERVICE_DISCOVERY_APPLICATION: rest-narration
-  QUARKUS_STORK_NARRATION_SERVICE_SERVICE_DISCOVERY_REFRESH_PERIOD: 1M
-  QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
-  QUARKUS_GRPC_CLIENTS_LOCATIONS_HOST: grpc-locations
-  QUARKUS_GRPC_CLIENTS_LOCATIONS_PORT: "80"
-  KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://fights-kafka:9092
-  MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL: http://apicurio:8080/apis/registry/v2
+  quarkus.liquibase-mongodb.migrate-at-start: "false"
+  quarkus.mongodb.hosts: fights-db:27017
+  quarkus.stork.hero-service.service-discovery.type: knative
+  quarkus.stork.hero-service.service-discovery.application: rest-heroes
+  quarkus.stork.hero-service.service-discovery.refresh-period: 1M
+  quarkus.stork.villain-service.service-discovery.type: knative
+  quarkus.stork.villain-service.service-discovery.application: rest-villains
+  quarkus.stork.villain-service.service-discovery.refresh-period: 1M
+  quarkus.stork.narration-service.service-discovery.type: knative
+  quarkus.stork.narration-service.service-discovery.application: rest-narration
+  quarkus.stork.narration-service.service-discovery.refresh-period: 1M
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
+  quarkus.grpc.clients.locations.host: grpc-locations
+  quarkus.grpc.clients.locations.port: "80"
+  kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
+  mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -78,7 +78,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-11-20 - 16:01:40 +0000
+    app.quarkus.io/build-timestamp: 2023-11-20 - 18:02:36 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -88,8 +88,8 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: fights-service
     system: quarkus-super-heroes
-    app.kubernetes.io/version: native-latest
     app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-fights
   name: rest-fights
 spec:
@@ -100,7 +100,7 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-11-20 - 16:01:40 +0000
+        app.quarkus.io/build-timestamp: 2023-11-20 - 18:02:36 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -110,16 +110,16 @@ spec:
         app.openshift.io/runtime: quarkus
         application: fights-service
         system: quarkus-super-heroes
-        app.kubernetes.io/version: native-latest
         app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/version: native-latest
         app.kubernetes.io/name: rest-fights
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
+            - secretRef:
+                name: rest-fights-config-creds
           image: quay.io/quarkus-super-heroes/rest-fights:native-latest
           imagePullPolicy: Always
           livenessProbe:

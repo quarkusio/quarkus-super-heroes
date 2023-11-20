@@ -13,8 +13,8 @@ metadata:
     system: quarkus-super-heroes
   name: grpc-locations-config-creds
 data:
-  QUARKUS_DATASOURCE_USERNAME: bG9jYXRpb25z
-  QUARKUS_DATASOURCE_PASSWORD: bG9jYXRpb25z
+  quarkus.datasource.username: bG9jYXRpb25z
+  quarkus.datasource.password: bG9jYXRpb25z
 type: Opaque
 ---
 apiVersion: v1
@@ -41,10 +41,10 @@ metadata:
     system: quarkus-super-heroes
   name: grpc-locations-config
 data:
-  QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: validate
-  QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: no-file
-  QUARKUS_DATASOURCE_JDBC_URL: jdbc:mariadb://locations-db:3306/locations_database
-  QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
+  quarkus.hibernate-orm.database.generation: validate
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.jdbc.url: jdbc:mariadb://locations-db:3306/locations_database
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -68,7 +68,7 @@ metadata:
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     serverless.openshift.io/default-enable-http2: "true"
-    app.quarkus.io/build-timestamp: 2023-11-20 - 15:57:49 +0000
+    app.quarkus.io/build-timestamp: 2023-11-20 - 17:58:43 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -79,6 +79,7 @@ metadata:
     application: locations-service
     system: quarkus-super-heroes
     app.kubernetes.io/name: grpc-locations
+    app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/part-of: locations-service
   name: grpc-locations
@@ -87,10 +88,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: grpc-locations-config
             - secretRef:
                 name: grpc-locations-config-creds
+            - configMapRef:
+                name: grpc-locations-config
           image: quay.io/quarkus-super-heroes/grpc-locations:java17-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -213,7 +214,7 @@ metadata:
     system: quarkus-super-heroes
   name: rest-narration-config
 data:
-  QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
 ---
 apiVersion: serving.knative.dev/v1
 kind: Service
@@ -222,7 +223,7 @@ metadata:
     app.openshift.io/connects-to: otel-collector
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-11-20 - 15:58:08 +0000
+    app.quarkus.io/build-timestamp: 2023-11-20 - 17:59:03 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8087"
@@ -232,9 +233,9 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: narration-service
     system: quarkus-super-heroes
+    app.kubernetes.io/part-of: narration-service
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/version: java17-latest
-    app.kubernetes.io/part-of: narration-service
   name: rest-narration
 spec:
   template:
@@ -285,8 +286,8 @@ metadata:
     system: quarkus-super-heroes
   name: rest-villains-config-creds
 data:
-  QUARKUS_DATASOURCE_USERNAME: c3VwZXJiYWQ=
-  QUARKUS_DATASOURCE_PASSWORD: c3VwZXJiYWQ=
+  quarkus.datasource.username: c3VwZXJiYWQ=
+  quarkus.datasource.password: c3VwZXJiYWQ=
 type: Opaque
 ---
 apiVersion: v1
@@ -312,10 +313,10 @@ metadata:
     system: quarkus-super-heroes
   name: rest-villains-config
 data:
-  QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: validate
-  QUARKUS_HIBERNATE_ORM_DATABASE_SQL_LOAD_SCRIPT: no-file
-  QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://villains-db:5432/villains_database
-  QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
+  quarkus.hibernate-orm.database.generation: validate
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.jdbc.url: jdbc:postgresql://villains-db:5432/villains_database
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -338,7 +339,7 @@ metadata:
     app.openshift.io/connects-to: "villains-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-11-20 - 15:58:28 +0000
+    app.quarkus.io/build-timestamp: 2023-11-20 - 17:59:23 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -348,9 +349,9 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: villains-service
     system: quarkus-super-heroes
-    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
   name: rest-villains
 spec:
   template:
@@ -480,8 +481,8 @@ metadata:
     system: quarkus-super-heroes
   name: rest-heroes-config-creds
 data:
-  QUARKUS_DATASOURCE_USERNAME: c3VwZXJtYW4=
-  QUARKUS_DATASOURCE_PASSWORD: c3VwZXJtYW4=
+  quarkus.datasource.username: c3VwZXJtYW4=
+  quarkus.datasource.password: c3VwZXJtYW4=
 type: Opaque
 ---
 apiVersion: v1
@@ -507,10 +508,10 @@ metadata:
     system: quarkus-super-heroes
   name: rest-heroes-config
 data:
-  QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: validate
-  QUARKUS_HIBERNATE_ORM_DATABASE_SQL_LOAD_SCRIPT: no-file
-  QUARKUS_DATASOURCE_REACTIVE_URL: postgresql://heroes-db:5432/heroes_database
-  QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
+  quarkus.hibernate-orm.database.generation: validate
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.reactive.url: postgresql://heroes-db:5432/heroes_database
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -533,7 +534,7 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-11-20 - 15:58:47 +0000
+    app.quarkus.io/build-timestamp: 2023-11-20 - 17:59:43 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -676,8 +677,8 @@ metadata:
     system: quarkus-super-heroes
   name: rest-fights-config-creds
 data:
-  QUARKUS_MONGODB_CREDENTIALS_USERNAME: c3VwZXJmaWdodA==
-  QUARKUS_MONGODB_CREDENTIALS_PASSWORD: c3VwZXJmaWdodA==
+  quarkus.mongodb.credentials.username: c3VwZXJmaWdodA==
+  quarkus.mongodb.credentials.password: c3VwZXJmaWdodA==
 type: Opaque
 ---
 apiVersion: v1
@@ -705,22 +706,22 @@ metadata:
     system: quarkus-super-heroes
   name: rest-fights-config
 data:
-  QUARKUS_LIQUIBASE_MONGODB_MIGRATE_AT_START: "false"
-  QUARKUS_MONGODB_HOSTS: fights-db:27017
-  QUARKUS_STORK_HERO_SERVICE_SERVICE_DISCOVERY_TYPE: knative
-  QUARKUS_STORK_HERO_SERVICE_SERVICE_DISCOVERY_APPLICATION: rest-heroes
-  QUARKUS_STORK_HERO_SERVICE_SERVICE_DISCOVERY_REFRESH_PERIOD: 1M
-  QUARKUS_STORK_VILLAIN_SERVICE_SERVICE_DISCOVERY_TYPE: knative
-  QUARKUS_STORK_VILLAIN_SERVICE_SERVICE_DISCOVERY_APPLICATION: rest-villains
-  QUARKUS_STORK_VILLAIN_SERVICE_SERVICE_DISCOVERY_REFRESH_PERIOD: 1M
-  QUARKUS_STORK_NARRATION_SERVICE_SERVICE_DISCOVERY_TYPE: knative
-  QUARKUS_STORK_NARRATION_SERVICE_SERVICE_DISCOVERY_APPLICATION: rest-narration
-  QUARKUS_STORK_NARRATION_SERVICE_SERVICE_DISCOVERY_REFRESH_PERIOD: 1M
-  QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
-  QUARKUS_GRPC_CLIENTS_LOCATIONS_HOST: grpc-locations
-  QUARKUS_GRPC_CLIENTS_LOCATIONS_PORT: "80"
-  KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://fights-kafka:9092
-  MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL: http://apicurio:8080/apis/registry/v2
+  quarkus.liquibase-mongodb.migrate-at-start: "false"
+  quarkus.mongodb.hosts: fights-db:27017
+  quarkus.stork.hero-service.service-discovery.type: knative
+  quarkus.stork.hero-service.service-discovery.application: rest-heroes
+  quarkus.stork.hero-service.service-discovery.refresh-period: 1M
+  quarkus.stork.villain-service.service-discovery.type: knative
+  quarkus.stork.villain-service.service-discovery.application: rest-villains
+  quarkus.stork.villain-service.service-discovery.refresh-period: 1M
+  quarkus.stork.narration-service.service-discovery.type: knative
+  quarkus.stork.narration-service.service-discovery.application: rest-narration
+  quarkus.stork.narration-service.service-discovery.refresh-period: 1M
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
+  quarkus.grpc.clients.locations.host: grpc-locations
+  quarkus.grpc.clients.locations.port: "80"
+  kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
+  mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -741,7 +742,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-11-20 - 15:59:14 +0000
+    app.quarkus.io/build-timestamp: 2023-11-20 - 18:00:09 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -763,7 +764,7 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-11-20 - 15:59:14 +0000
+        app.quarkus.io/build-timestamp: 2023-11-20 - 18:00:09 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -1041,9 +1042,9 @@ metadata:
     system: quarkus-super-heroes
   name: event-statistics-config
 data:
-  KAFKA_BOOTSTRAP_SERVERS: PLAINTEXT://fights-kafka:9092
-  MP_MESSAGING_CONNECTOR_SMALLRYE_KAFKA_APICURIO_REGISTRY_URL: http://apicurio:8080/apis/registry/v2
-  QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4317
+  kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
+  mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
+  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
 ---
 apiVersion: serving.knative.dev/v1
 kind: Service
@@ -1052,7 +1053,7 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-11-20 - 15:59:32 +0000
+    app.quarkus.io/build-timestamp: 2023-11-20 - 18:00:27 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -1268,7 +1269,7 @@ metadata:
     app.openshift.io/connects-to: "rest-fights,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-11-20 - 15:59:48 +0000
+    app.quarkus.io/build-timestamp: 2023-11-20 - 18:00:43 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8080"
@@ -1290,7 +1291,7 @@ spec:
         app.openshift.io/connects-to: "rest-fights,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-11-20 - 15:59:48 +0000
+        app.quarkus.io/build-timestamp: 2023-11-20 - 18:00:43 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8080"
