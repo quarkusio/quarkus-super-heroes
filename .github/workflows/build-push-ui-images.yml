@@ -4,8 +4,12 @@ name: Build and push UI image
 env:
   LATEST_IMAGE_TAG: "latest"
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
+  DEFAULT_BRANCH: rhbq-2.13
 
 on:
+  schedule:
+    # 1am every Sunday
+    - cron: '0 1 * * 0'
   workflow_dispatch:
     inputs:
       branch:
@@ -25,10 +29,13 @@ jobs:
   build-push-ui-images:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout from ${{ inputs.branch }}
+      - name: Set variable defaults
+        run: echo "BRANCH=${{ github.event.inputs.branch || env.DEFAULT_BRANCH }}" >> $GITHUB_ENV
+    
+      - name: Checkout from ${{ env.BRANCH }}
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ env.BRANCH }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -48,18 +55,18 @@ jobs:
           cache: maven
 
       - name: Calculate Tags (main branch)
-        if: inputs.branch == 'main'
+        if: env.BRANCH == 'main'
         working-directory: ui-super-heroes
         run: |
           echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Calculate Tags (other branch)
-        if: inputs.branch != 'main'
+        if: env.BRANCH != 'main'
         working-directory: ui-super-heroes
         run: |
-          echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ inputs.branch }}" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)-${{ inputs.branch }}" >> $GITHUB_ENV
+          echo "CONTAINER_TAG=${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}" >> $GITHUB_ENV &&
+          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)-${{ env.BRANCH }}" >> $GITHUB_ENV
 
       - name: Login to quay
         uses: docker/login-action@v3
