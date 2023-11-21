@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit5.virtual.ShouldNotPin;
+import io.quarkus.test.junit5.virtual.VirtualThreadUnit;
 
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Locator;
@@ -23,6 +25,8 @@ import io.quarkiverse.playwright.WithPlaywright;
 
 @QuarkusTest
 @WithPlaywright
+@VirtualThreadUnit
+@ShouldNotPin
 class UIResourceTests {
   private static final int NB_VILLAINS = 100;
   private static final Villain DARTH_VADER = getDarthVader();

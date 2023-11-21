@@ -2,16 +2,18 @@ package io.quarkus.sample.superheroes.location.grpc
 
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
-import io.smallrye.common.annotation.Blocking
 import io.quarkus.grpc.GrpcService
 import io.quarkus.logging.Log
 import io.quarkus.sample.superheroes.location.grpc.LocationsGrpc.LocationsImplBase
 import io.quarkus.sample.superheroes.location.mapping.LocationMapper
 import io.quarkus.sample.superheroes.location.service.LocationService
+import io.smallrye.common.annotation.Blocking
+import io.smallrye.common.annotation.RunOnVirtualThread
 
 @GrpcService
 class LocationGrpcService(private val locationService: LocationService) : LocationsImplBase() {
   @Blocking
+  @RunOnVirtualThread
   override fun getRandomLocation(request: RandomLocationRequest?, responseObserver: StreamObserver<Location>?) {
 		Log.debug("Requesting a random location")
 	  returnLocationOrError(this.locationService.getRandomLocation(), responseObserver)
@@ -19,6 +21,7 @@ class LocationGrpcService(private val locationService: LocationService) : Locati
   }
 
 	@Blocking
+  @RunOnVirtualThread
 	override fun getLocationByName(request: GetLocationRequest?, responseObserver: StreamObserver<Location>?) {
 		if (request != null) {
 			Log.debug("Getting location ${request.name}")
@@ -29,6 +32,7 @@ class LocationGrpcService(private val locationService: LocationService) : Locati
 	}
 
 	@Blocking
+  @RunOnVirtualThread
 	override fun replaceAllLocations(request: LocationsList?, responseObserver: StreamObserver<ReplaceAllLocationsResponse>?) {
 		if (request != null) {
 			Log.debug("Replacing all locations")
@@ -43,6 +47,7 @@ class LocationGrpcService(private val locationService: LocationService) : Locati
 	}
 
 	@Blocking
+  @RunOnVirtualThread
 	override fun getAllLocations(request: AllLocationsRequest?, responseObserver: StreamObserver<LocationsList>?) {
 		val allLocations = this.locationService.getAllLocations()
 		Log.debug("Got all locations: $allLocations")
@@ -55,6 +60,7 @@ class LocationGrpcService(private val locationService: LocationService) : Locati
 	}
 
 	@Blocking
+  @RunOnVirtualThread
 	override fun deleteAllLocations(request: DeleteAllLocationsRequest?, responseObserver: StreamObserver<DeleteAllLocationsResponse>?) {
 		Log.debug("Deleting all locations")
 
