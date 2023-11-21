@@ -274,7 +274,7 @@ jobs:
       - name: "build-test-native-container-${{ matrix.project.name }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project.name }}
         run: |
-          ./mvnw -B clean verify -Pnative \
+          ./mvnw -B verify -Pnative \
             -Dquarkus.http.host=0.0.0.0 \
             -Dmaven.compiler.release=${{ matrix.java }} \
             -Dquarkus.container-image.build=true \
@@ -325,7 +325,7 @@ jobs:
       - name: "build-native-container-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
         run: |
-          ./mvnw -B clean package -DskipTests -Pnative \
+          ./mvnw -B package -DskipTests -Pnative \
             -Dquarkus.http.host=0.0.0.0 \
             -Dmaven.compiler.release=${{ matrix.java }} \
             -Dquarkus.container-image.build=true \
