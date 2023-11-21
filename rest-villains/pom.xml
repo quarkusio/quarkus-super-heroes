@@ -114,6 +114,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>io.quarkus.junit5</groupId>
+      <artifactId>junit5-virtual-threads</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5-mockito</artifactId>
       <scope>test</scope>
@@ -184,6 +189,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire-plugin.version}</version>
         <configuration>
+          <argLine>-Djdk.tracePinnedThreads</argLine>
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <maven.home>${maven.home}</maven.home>
@@ -201,6 +207,7 @@
               <goal>verify</goal>
             </goals>
             <configuration>
+              <argLine>-Djdk.tracePinnedThreads</argLine>
               <systemPropertyVariables>
                 <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
                 <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
