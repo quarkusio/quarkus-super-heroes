@@ -1,0 +1,31 @@
+name: Cron test
+# Note: this is not used on main, but needs to be on the default branch so it can be manually triggered
+
+env:
+  LATEST_IMAGE_TAG: "latest"
+  IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
+
+on:
+  schedule:
+    - cron: '* * * * *'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: The branch to build/push
+        required: true
+        type: string
+        default: rhbq-2.13
+  workflow_call:
+    inputs:
+      branch:
+        description: The branch to build/push
+        required: true
+        type: string
+        default: rhbq-2.13
+
+jobs:
+  run-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print value
+        run: echo "branch = ${{ inputs.branch }}"
