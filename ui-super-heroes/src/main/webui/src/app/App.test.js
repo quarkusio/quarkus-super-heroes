@@ -11,20 +11,20 @@ const fighters = {
   hero: {
     name: 'Fake hero',
     level: 1,
-    picture: 'https://dummyimage.com/280x380/1e8fff/ffffff&text=Fake+Hero',
+    picture: 'https://dummyimage.com/240x320/1e8fff/ffffff&text=Fake+Hero',
     powers: 'Fake hero powers'
   },
   villain: {
     name: 'Fake villain',
     level: 42,
-    picture: 'https://dummyimage.com/280x380/b22222/ffffff&text=Fake+Villain',
+    picture: 'https://dummyimage.com/240x320/b22222/ffffff&text=Fake+Villain',
     powers: 'Fake villain powers'
   }
 }
 
 const location = {
   name: "Gotham City",
-  picture: 'https://dummyimage.com/280x380/b22222/ffffff&text=Gotham',
+  picture: 'https://dummyimage.com/240x320/b22222/ffffff&text=Gotham',
   description: "This is Gotham City"
 }
 
@@ -33,12 +33,12 @@ const fight = {
   id: 200,
   loserLevel: 1,
   loserName: "Some hero",
-  loserPicture: "https://dummyimage.com/280x380/1e8fff/ffffff&text=Mock+Hero",
+  loserPicture: "https://dummyimage.com/240x320/1e8fff/ffffff&text=Mock+Hero",
   loserPowers: "Being fake",
   loserTeam: "heroes",
   winnerLevel: 42,
   winnerName: "Some villain",
-  winnerPicture: "https://dummyimage.com/280x380/b22222/ffffff&text=Mock+Villain",
+  winnerPicture: "https://dummyimage.com/240x320/b22222/ffffff&text=Mock+Villain",
   winnerPowers: "Dissimulation",
   winnerTeam: "villains",
   location: location

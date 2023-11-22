@@ -7,13 +7,13 @@ const fightersData = {
   hero: {
     name: 'Fallback hero',
     level: 1,
-    picture: 'https://dummyimage.com/280x380/1e8fff/ffffff&text=Fallback+Hero',
+    picture: 'https://dummyimage.com/240x320/1e8fff/ffffff&text=Fallback+Hero',
     powers: 'Fallback hero powers'
   },
   villain: {
     name: 'Fallback villain',
     level: 42,
-    picture: 'https://dummyimage.com/280x380/b22222/ffffff&text=Fallback+Villain',
+    picture: 'https://dummyimage.com/240x320/b22222/ffffff&text=Fallback+Villain',
     powers: 'Fallback villain powers'
   }
 }
@@ -47,7 +47,7 @@ const fightersResponse = {
 
 const locationData = {
   name: "Mock location",
-  picture: "https://dummyimage.com/280x380/1e8fff/ffffff&text=Mock",
+  picture: "https://dummyimage.com/240x320/1e8fff/ffffff&text=Mock",
   description: "Mock location description"
 }
 
@@ -61,12 +61,12 @@ const fightData = {
   id: 200,
   loserLevel: 1,
   loserName: "Mock hero",
-  loserPicture: "https://dummyimage.com/280x380/1e8fff/ffffff&text=Mock+Hero",
+  loserPicture: "https://dummyimage.com/240x320/1e8fff/ffffff&text=Mock+Hero",
   loserPowers: "Being fake",
   loserTeam: "heroes",
   winnerLevel: 42,
   winnerName: "Mock villain",
-  winnerPicture: "https://dummyimage.com/280x380/b22222/ffffff&text=Mock+Villain",
+  winnerPicture: "https://dummyimage.com/240x320/b22222/ffffff&text=Mock+Villain",
   winnerPowers: "Dissimulation",
   winnerTeam: "villains",
   location: locationData

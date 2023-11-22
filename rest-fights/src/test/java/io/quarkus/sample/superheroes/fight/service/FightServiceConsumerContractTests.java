@@ -20,9 +20,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import io.quarkus.panache.mock.PanacheMock;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
 import io.quarkus.sample.superheroes.fight.client.LocationClient;
 import io.quarkus.sample.superheroes.fight.client.NarrationClient;
+import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.service.FightServiceConsumerContractTests.PactConsumerContractTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
@@ -69,11 +71,15 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
   private static final String VILLAIN_HELLO_URI = VILLAIN_API_BASE_URI + "/hello";
   static final String VILLAINS_MOCK_PORT = "9083";
+  private static final String VILLAIN_PICTURE = "https://somewhere.com/" + DEFAULT_VILLAIN_PICTURE;
+  private static final Villain VILLAIN = new Villain(DEFAULT_VILLAIN_NAME, DEFAULT_VILLAIN_LEVEL, VILLAIN_PICTURE, DEFAULT_VILLAIN_POWERS);
 
   private static final String HERO_API_BASE_URI = "/api/heroes";
   private static final String HERO_RANDOM_URI = HERO_API_BASE_URI + "/random";
   private static final String HERO_HELLO_URI = HERO_API_BASE_URI + "/hello";
   static final String HEROES_MOCK_PORT = "9080";
+  private static final String HERO_PICTURE = "https://somewhere.com/" + DEFAULT_HERO_PICTURE;
+  private static final Hero HERO = new Hero(DEFAULT_HERO_NAME, DEFAULT_HERO_LEVEL, HERO_PICTURE, DEFAULT_HERO_POWERS);
 
   private static final String NARRATION_API_BASE_URI = "/api/narration";
   private static final String NARRATION_NARRATE_URI = NARRATION_API_BASE_URI;
@@ -135,7 +141,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
             body
               .stringType("name", DEFAULT_VILLAIN_NAME)
               .integerType("level", DEFAULT_VILLAIN_LEVEL)
-              .stringType("picture", DEFAULT_VILLAIN_PICTURE)
+              .stringMatcher("picture", "((http|https):\\/\\/).+", VILLAIN_PICTURE)
           ).build()
         )
       .toPact(V4Pact.class);
@@ -182,7 +188,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
             body
               .stringType("name", DEFAULT_HERO_NAME)
               .integerType("level", DEFAULT_HERO_LEVEL)
-              .stringType("picture", DEFAULT_HERO_PICTURE)
+              .stringMatcher("picture", "((http|https):\\/\\/).+", HERO_PICTURE)
           ).build()
         )
       .toPact(V4Pact.class);
@@ -280,7 +286,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 			.isNotNull()
 			.usingRecursiveComparison()
       .ignoringFields("hero.powers", "villain.powers")
-			.isEqualTo(new Fighters(createFallbackHero(), createDefaultVillain()));
+			.isEqualTo(new Fighters(createFallbackHero(), VILLAIN));
 
 		verify(this.heroClient).findRandomHero();
 		verify(this.villainClient).findRandomVillain();
@@ -308,7 +314,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 			.isNotNull()
 			.usingRecursiveComparison()
       .ignoringFields("hero.powers", "villain.powers")
-			.isEqualTo(new Fighters(createDefaultHero(), createFallbackVillain()));
+			.isEqualTo(new Fighters(HERO, createFallbackVillain()));
 
 		verify(this.heroClient).findRandomHero();
 		verify(this.villainClient).findRandomVillain();
@@ -336,7 +342,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 			.isNotNull()
 			.usingRecursiveComparison()
       .ignoringFields("hero.powers", "villain.powers")
-			.isEqualTo(new Fighters(createDefaultHero(), createDefaultVillain()));
+			.isEqualTo(new Fighters(HERO, VILLAIN));
 
 		verify(this.heroClient).findRandomHero();
 		verify(this.villainClient).findRandomVillain();

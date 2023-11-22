@@ -47,8 +47,8 @@ function Fight({onFight}) {
     )
   } else
     return (
-      <div className="row" id="fight-row">
-        <div>
+      <div id="fight-row">
+        <div className="character">
           <div className={winner === fighters.hero.name ? 'hero-winner-card' : 'off'}>
             <h2 className="hero-name">
               {fighters.hero.name}
@@ -90,7 +90,7 @@ function Fight({onFight}) {
 
             {winner && (<div className="winner-text">
                 Winner is <span
-                className={winner === fighters.villain.name ? 'winner-villain' : 'winner-hero'}>{winner}</span>
+                className={winner === fighters.villain.name ? 'winner-villain' : 'winner-hero'}>{winner}</span>!
                 <button onClick={narrate} className="btn btn-secondary btn-block btn-lg">
                   <h4><FontAwesomeIcon icon={faComment}/> NARRATE THE FIGHT
                   </h4>
@@ -101,7 +101,7 @@ function Fight({onFight}) {
           </div>
         </div>
 
-        <div>
+        <div className="character">
           <div className={winner === fighters.villain.name ? 'villain-winner-card' : 'off'}>
             <h2 className="villain-name">
               {fighters.villain.name}

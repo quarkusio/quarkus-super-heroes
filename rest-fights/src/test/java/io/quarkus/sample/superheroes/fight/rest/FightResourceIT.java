@@ -125,13 +125,13 @@ public class FightResourceIT {
 	private static final int DEFAULT_VILLAIN_LEVEL = 40;
 
 	private static final String FALLBACK_HERO_NAME = "Fallback hero";
-	private static final String FALLBACK_HERO_PICTURE = "https://dummyimage.com/280x380/1e8fff/ffffff&text=Fallback+Hero";
+	private static final String FALLBACK_HERO_PICTURE = "https://dummyimage.com/240x320/1e8fff/ffffff&text=Fallback+Hero";
 	private static final String FALLBACK_HERO_POWERS = "Fallback hero powers";
 	private static final int FALLBACK_HERO_LEVEL = 1;
 
   private static final String FALLBACK_LOCATION_NAME = "Fallback location";
   private static final String FALLBACK_LOCATION_DESCRIPTION = "This is a fallback location. Not generally someplace you'd like to visit.";
-  private static final String FALLBACK_LOCATION_PICTURE = "https://dummyimage.com/280x380/b22222/ffffff&text=Fallback+Location";
+  private static final String FALLBACK_LOCATION_PICTURE = "https://dummyimage.com/240x320/b22222/ffffff&text=Fallback+Location";
   private static final FightLocation FALLBACK_LOCATION = new FightLocation(FALLBACK_LOCATION_NAME, FALLBACK_LOCATION_DESCRIPTION, FALLBACK_LOCATION_PICTURE);
 
   private static final String NARRATION_API_BASE_URI = "/api/narration";
@@ -168,7 +168,7 @@ public class FightResourceIT {
 	);
 
 	private static final String FALLBACK_VILLAIN_NAME = "Fallback villain";
-	private static final String FALLBACK_VILLAIN_PICTURE = "https://dummyimage.com/280x380/b22222/ffffff&text=Fallback+Villain";
+	private static final String FALLBACK_VILLAIN_PICTURE = "https://dummyimage.com/240x320/b22222/ffffff&text=Fallback+Villain";
 	private static final String FALLBACK_VILLAIN_POWERS = "Fallback villain powers";
 	private static final int FALLBACK_VILLAIN_LEVEL = 45;
 
