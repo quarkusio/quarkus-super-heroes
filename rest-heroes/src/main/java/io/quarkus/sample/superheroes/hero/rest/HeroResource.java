@@ -68,7 +68,7 @@ public class HeroResource {
 		content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = Hero.class, required = true),
-      examples = @ExampleObject(name = "hero", value = "{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"powers\": \"Uses light sabre, The force\"}")
+      examples = @ExampleObject(name = "hero", value = Examples.VALID_EXAMPLE_HERO)
     )
 	)
 	@APIResponse(
@@ -95,7 +95,7 @@ public class HeroResource {
 		content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = Hero.class, type = SchemaType.ARRAY),
-      examples = @ExampleObject(name = "heroes", value = "[{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"powers\": \"Uses light sabre, The force\"}]")
+      examples = @ExampleObject(name = "heroes", value = Examples.VALID_EXAMPLE_HERO_LIST)
     )
 	)
 	public Uni<List<Hero>> getAllHeroes(@Parameter(name = "name_filter", description = "An optional filter parameter to filter results by name") @QueryParam("name_filter") Optional<String> nameFilter) {
@@ -113,7 +113,7 @@ public class HeroResource {
 		description = "Gets a hero for a given id",
 		content = @Content(
       mediaType = APPLICATION_JSON, schema = @Schema(implementation = Hero.class),
-      examples = @ExampleObject(name = "hero", value = "{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"powers\": \"Uses light sabre, The force\"}")
+      examples = @ExampleObject(name = "hero", value = Examples.VALID_EXAMPLE_HERO)
     )
 	)
 	@APIResponse(
@@ -151,7 +151,7 @@ public class HeroResource {
       content = @Content(
         mediaType = APPLICATION_JSON,
         schema = @Schema(implementation = Hero.class),
-        examples = @ExampleObject(name = "valid_hero", value = "{\"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"powers\": \"Uses light sabre, The force\"}")
+        examples = @ExampleObject(name = "valid_hero", value = Examples.VALID_EXAMPLE_HERO_TO_CREATE)
       )
     )
     @Valid @NotNull Hero hero, @
@@ -180,15 +180,15 @@ public class HeroResource {
 		responseCode = "404",
 		description = "No hero found"
 	)
-	public Uni<Response> fullyUpdateHero(@
-    Parameter(name = "id", required = true) @PathParam("id") Long id,
+	public Uni<Response> fullyUpdateHero(
+		@Parameter(name = "id", required = true) @PathParam("id") Long id,
     @RequestBody(
       name = "hero",
       required = true,
       content = @Content(
         mediaType = APPLICATION_JSON,
         schema = @Schema(implementation = Hero.class),
-        examples = @ExampleObject(name = "valid_hero", value = "{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"powers\": \"Uses light sabre, The force\"}")
+        examples = @ExampleObject(name = "valid_hero", value = Examples.VALID_EXAMPLE_HERO)
       )
     )
     @Valid @NotNull Hero hero) {
@@ -226,7 +226,7 @@ public class HeroResource {
       content = @Content(
         mediaType = APPLICATION_JSON,
         schema = @Schema(implementation = Hero.class, type = SchemaType.ARRAY),
-        examples = @ExampleObject(name = "heroes", value = "[{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"powers\": \"Uses light sabre, The force\"}]")
+        examples = @ExampleObject(name = "heroes", value = Examples.VALID_EXAMPLE_HERO_LIST)
       )
     )
     @NotNull List<Hero> heroes,
@@ -249,7 +249,7 @@ public class HeroResource {
 		content = @Content(
       mediaType = APPLICATION_JSON,
       schema = @Schema(implementation = Hero.class),
-      examples = @ExampleObject(name = "hero", value = "{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"powers\": \"Uses light sabre, The force\"}")
+      examples = @ExampleObject(name = "hero", value = Examples.VALID_EXAMPLE_HERO)
     )
 	)
 	@APIResponse(
@@ -267,7 +267,7 @@ public class HeroResource {
       required = true,
       content = @Content(
         schema = @Schema(implementation = Hero.class),
-        examples = @ExampleObject(name = "valid_hero", value = "{\"id\": 1, \"name\": \"Luke Skywalker\", \"level\": 10, \"picture\": \"https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg\", \"powers\": \"Uses light sabre, The force\"}")
+        examples = @ExampleObject(name = "valid_hero", value = Examples.VALID_EXAMPLE_HERO)
       )
     )
     @NotNull Hero hero) {
