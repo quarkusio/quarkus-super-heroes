@@ -75,12 +75,24 @@ jobs:
           distribution: temurin
           cache: maven
 
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+
       - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./mvnw -B clean verify \
+          ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dquarkus.http.host=0.0.0.0 \
-            -Dmaven.compiler.release=${{ matrix.java }} 
+            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dsonar.projectKey=quarkus-super-heroes_quarkus-super-heroes \
+            -Dsonar.organization=quarkus-super-heroes \
+            -Dsonar.host.url=https://sonarcloud.io
 
   native-build-test:
     runs-on: ubuntu-latest
