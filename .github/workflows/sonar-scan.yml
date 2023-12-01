@@ -7,12 +7,22 @@ on:
         description: The name of the project
         required: true
         type: string
+      java_version:
+        description: The java version
+        required: true
+        type: number
+        default: 17
   workflow_dispatch:
     inputs:
       project_name:
         description: The name of the project
         required: true
         type: string
+      java_version:
+        description: The java version
+        required: true
+        type: number
+        default: 17
 
 jobs:
   sonar-scan:
@@ -24,6 +34,15 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java ${{ inputs.java_version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java_version }}
+          distribution: temurin
+          cache: maven
+      
       - name: Sonar scan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -31,10 +50,10 @@ jobs:
         run: |
           ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dquarkus.http.host=0.0.0.0 \
-            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dmaven.compiler.release=${{ inputs.java_version }} \
             -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
             -Dsonar.organization=quarkusio-quarkus-super-heroes \
-            -Dsonar.projectKey=quarkusio-quarkus-super-heroes_${{ matrix.project }} \
+            -Dsonar.projectKey=quarkusio-quarkus-super-heroes_${{ inputs.project_name }} \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.junit.reportPaths=target/surefire-reports
