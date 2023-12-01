@@ -1,12 +1,23 @@
 name: Sonar scan
 
 on:
-  workflow_call:
+  workflow_run:
+    workflows:
+      - "Basic build and test"
+    branches:
+      - main
+    types:
+      - completed
   workflow_dispatch:
+
+concurrency:
+  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}, pr = ${{ github.event.pull_request.id }}"
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   sonar-scan:
-    if: github.repository == 'quarkusio/quarkus-super-heroes'
+    if: (github.repository == 'quarkusio/quarkus-super-heroes') && (github.event.workflow_run.conclusion == 'success')
+    name: "scan-${{ matrix.project }}-${{ matrix.java }}"
     strategy:
       fail-fast: false
       matrix:
@@ -21,10 +32,6 @@ jobs:
           - grpc-locations
           - ui-super-heroes
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -37,7 +44,7 @@ jobs:
       
       - name: Sonar scan
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secworjrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         working-directory: ${{ matrix.project }}
         run: |

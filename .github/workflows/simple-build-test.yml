@@ -50,9 +50,37 @@ concurrency:
 jobs:
   jvm-build-test:
     if: github.repository == 'quarkusio/quarkus-super-heroes'
-    name: "build-test-${{ matrix.project }}-${{ matrix.java }}"
-    uses: ./.github/workflows/sonar-scan.yml
-    secrets: inherit
+    name: "build-test-scan-${{ matrix.project }}-${{ matrix.java }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '17'
+        project:
+          - event-statistics
+          - rest-fights
+          - rest-heroes
+          - rest-villains
+          - rest-narration
+          - grpc-locations
+          - ui-super-heroes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: temurin
+          cache: maven
+
+      - name: Sonar scan
+        working-directory: ${{ matrix.project }}
+        run: |
+          ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }}
 
   native-build-test:
     runs-on: ubuntu-latest
