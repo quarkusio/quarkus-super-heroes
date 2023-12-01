@@ -1,0 +1,41 @@
+name: Sonar scan
+
+on:
+  workflow_call:
+    inputs:
+      project_name:
+        description: The name of the project
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: The name of the project
+        required: true
+        type: string
+
+jobs:
+  sonar-scan:
+    if: github.repository == 'quarkusio/quarkus-super-heroes'
+    runs-on: ubuntu-latest
+    working-directory: ${{ inputs.project_name }}
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Sonar scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          run: |
+            ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+              -Dquarkus.http.host=0.0.0.0 \
+              -Dmaven.compiler.release=${{ matrix.java }} \
+              -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
+              -Dsonar.organization=quarkusio-quarkus-super-heroes \
+              -Dsonar.projectKey=quarkusio-quarkus-super-heroes_${{ matrix.project }} \
+              -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.junit.reportPaths=target/surefire-reports
+        #            -Dsonar.branch.name=main
