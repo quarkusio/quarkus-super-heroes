@@ -51,6 +51,7 @@ jobs:
   jvm-build-test:
     runs-on: ubuntu-latest
     if: github.repository == 'quarkusio/quarkus-super-heroes'
+    secrets: inherit
     strategy:
       fail-fast: false
       matrix:
@@ -77,7 +78,6 @@ jobs:
 
       - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
         uses: ./.github/workflows/sonar-scan.yml
-        secrets: inherit
         with:
           project_name: ${{ matrix.project }}
 
