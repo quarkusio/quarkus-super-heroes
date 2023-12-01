@@ -1,5 +1,8 @@
 name: Sonar scan
 
+env:
+  BASE_JAVA_VERSION: '${{ env.BASE_JAVA_VERSION }}'
+
 on:
   workflow_run:
     workflows:
@@ -16,13 +19,11 @@ concurrency:
 
 jobs:
   sonar-scan:
-    if: (github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.event == 'pull_request')))
-    name: "scan-${{ matrix.project }}-${{ matrix.java }}"
+    if: (github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success')))
+    name: "scan-${{ matrix.project }}"
     strategy:
       fail-fast: false
       matrix:
-        java:
-          - '17'
         project:
           - event-statistics
           - rest-fights
@@ -35,10 +36,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Java ${{ matrix.java }}
+      - name: Setup Java ${{ env.BASE_JAVA_VERSION }}
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java }}
+          java-version: ${{ env.BASE_JAVA_VERSION }}
           distribution: temurin
           cache: maven
       
@@ -50,7 +51,7 @@ jobs:
         run: |
           ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dquarkus.http.host=0.0.0.0 \
-            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dmaven.compiler.release=${{ env.BASE_JAVA_VERSION }} \
             -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
             -Dsonar.organization=quarkusio-quarkus-super-heroes \
             -Dsonar.projectKey=quarkusio-quarkus-super-heroes_${{ matrix.project }} \

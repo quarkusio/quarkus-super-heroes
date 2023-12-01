@@ -77,30 +77,11 @@ jobs:
           cache: maven
 
       - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
-        if: github.event_name == 'pull_request'
         working-directory: ${{ matrix.project }}
         run: |
           ./mvnw -B clean verify \
             -Dquarkus.http.host=0.0.0.0 \
             -Dmaven.compiler.release=${{ matrix.java }}
-
-      - name: "build-test-scan-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
-        if: github.event_name == 'push'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        working-directory: ${{ matrix.project }}
-        run: |
-          ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dquarkus.http.host=0.0.0.0 \
-            -Dmaven.compiler.release=${{ matrix.java }} \
-            -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
-            -Dsonar.organization=quarkusio-quarkus-super-heroes \
-            -Dsonar.projectKey=quarkusio-quarkus-super-heroes_${{ matrix.project }} \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.junit.reportPaths=target/surefire-reports
-      #            -Dsonar.branch.name=main
 
   native-build-test:
     runs-on: ubuntu-latest
