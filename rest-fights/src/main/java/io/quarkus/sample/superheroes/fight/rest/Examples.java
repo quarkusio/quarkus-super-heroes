@@ -1,6 +1,10 @@
 package io.quarkus.sample.superheroes.fight.rest;
 
 final class Examples {
+  private Examples() {
+
+  }
+
 	static final String VALID_EXAMPLE_FIGHT = """
     {
       "id": "653bea9d188984908cd12429",

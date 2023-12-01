@@ -34,7 +34,6 @@ import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
-import io.quarkus.sample.superheroes.fight.mapping.LocationMapper;
 
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
@@ -56,10 +55,9 @@ public class FightService {
 	private final MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter;
 	private final FightConfig fightConfig;
   private final FightMapper fightMapper;
-  private final LocationMapper locationMapper;
 	private final Random random = new Random();
 
-	public FightService(HeroClient heroClient, VillainClient villainClient, @RestClient NarrationClient narrationClient, LocationClient locationClient, @Channel("fights") MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter, FightConfig fightConfig, FightMapper fightMapper, LocationMapper locationMapper) {
+	public FightService(HeroClient heroClient, VillainClient villainClient, @RestClient NarrationClient narrationClient, LocationClient locationClient, @Channel("fights") MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter, FightConfig fightConfig, FightMapper fightMapper) {
 		this.heroClient = heroClient;
 		this.villainClient = villainClient;
     this.narrationClient = narrationClient;
@@ -67,7 +65,6 @@ public class FightService {
 		this.emitter = emitter;
 		this.fightConfig = fightConfig;
     this.fightMapper = fightMapper;
-    this.locationMapper = locationMapper;
   }
 
 	/**
