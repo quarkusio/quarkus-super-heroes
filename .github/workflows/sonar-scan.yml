@@ -11,12 +11,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}, pr = ${{ github.event.pull_request.id }}"
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.workflow_run.head_branch || github.event.ref || github.ref }}"
+  cancel-in-progress: false
 
 jobs:
   sonar-scan:
-    if: (github.repository == 'quarkusio/quarkus-super-heroes') && (github.event.workflow_run.conclusion == 'success')
+    if: (github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.event == 'pull_request')))
     name: "scan-${{ matrix.project }}-${{ matrix.java }}"
     strategy:
       fail-fast: false
