@@ -1,0 +1,60 @@
+name: Sonar scan
+
+on:
+  workflow_run:
+    workflows:
+      - "Basic build and test"
+    branches:
+      - main
+    types:
+      - completed
+  workflow_dispatch:
+
+concurrency:
+  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.workflow_run.head_branch || github.event.ref || github.ref }}"
+  cancel-in-progress: false
+
+jobs:
+  sonar-scan:
+    if: (github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.event == 'pull_request')))
+    name: "scan-${{ matrix.project }}-${{ matrix.java }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '17'
+        project:
+          - event-statistics
+          - rest-fights
+          - rest-heroes
+          - rest-villains
+          - rest-narration
+          - grpc-locations
+          - ui-super-heroes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: temurin
+          cache: maven
+      
+      - name: Sonar scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        working-directory: ${{ matrix.project }}
+        run: |
+          ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
+            -Dsonar.organization=quarkusio-quarkus-super-heroes \
+            -Dsonar.projectKey=quarkusio-quarkus-super-heroes_${{ matrix.project }} \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.junit.reportPaths=target/surefire-reports
+      #            -Dsonar.branch.name=main
