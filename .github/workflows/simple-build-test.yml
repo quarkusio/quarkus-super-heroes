@@ -49,7 +49,6 @@ concurrency:
 
 jobs:
   jvm-build-test:
-    runs-on: ubuntu-latest
     if: github.repository == 'quarkusio/quarkus-super-heroes'
     strategy:
       fail-fast: false
@@ -66,6 +65,7 @@ jobs:
           - ui-super-heroes
     name: "build-test-${{ matrix.project }}-${{ matrix.java }}"
     uses: ./.github/workflows/sonar-scan.yml
+    secrets: inherit
     with:
       project_name: ${{ matrix.project }}
       java_version: ${{ matrix.java }}
