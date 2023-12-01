@@ -77,25 +77,19 @@ jobs:
 
       - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project }}
-        run: |
-          ./mvnw -B clean verify \
-            -Dquarkus.http.host=0.0.0.0 \
-            -Dmaven.compiler.release=${{ matrix.java }} \
-            -Dquarkus.package.write-transformed-bytecode-to-build-output=true
-
-      - name: "Analyze ${{ matrix.project }} with SonarCloud"
-        uses: sonarsource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: ${{ matrix.project }}
-          args: >
-            -Dsonar.organization=quarkusio-quarkus-super-heroes
-            -Dsonar.projectKey=quarkusio-quarkus-super-heroes_${{ matrix.project }}
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.junit.reportPaths=target/surefire-reports
+        run: |
+          ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
+            -Dsonar.organization=quarkusio-quarkus-super-heroes \
+            -Dsonar.projectKey=quarkusio-quarkus-super-heroes_${{ matrix.project }} \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.junit.reportPaths=target/surefire-reports \
             -Dsonar.branch.name=main
 
   native-build-test:
