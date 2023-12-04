@@ -91,6 +91,7 @@ describe("the fight visualisation", () => {
       expect(screen.getByText(fighters.villain.name)).toBeInTheDocument()
       expect(screen.getByText(/NEW FIGHTERS/i)).toBeInTheDocument()
       expect(screen.getByText(/NEW LOCATION/i)).toBeInTheDocument()
+      expect(screen.queryByText(/NARRATE THE FIGHT/i)).not.toBeInTheDocument()
     })
 
     it("renders a fight button", async () => {
@@ -123,6 +124,7 @@ describe("the fight visualisation", () => {
       expect(screen.getByText(/Winner is/i)).toBeInTheDocument()
       // The winner name is in a span by itself but there should be more occurrences of the name count
       expect(screen.getAllByText("Fake villain")).toHaveLength(nameCount + 1)
+      expect(screen.queryByText(/NARRATE THE FIGHT/i)).toBeInTheDocument()
     })
 
     it("renders location when the new location button is clicked", async () => {
@@ -137,6 +139,7 @@ describe("the fight visualisation", () => {
       expect(screen.queryByTestId("location-name").innerHTML).toEqual(location.name + ": ")
       expect(screen.getByAltText("Location")).toHaveAttribute("src", location.picture)
       expect(screen.getByText(location.description)).toBeInTheDocument()
+      expect(screen.queryByText(/NARRATE THE FIGHT/i)).not.toBeInTheDocument()
     })
 
     it("renders narration when the narrate button is clicked", async () => {

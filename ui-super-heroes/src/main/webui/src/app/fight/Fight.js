@@ -13,7 +13,10 @@ function Fight({onFight}) {
   const [showHeroPowers, setShowHeroPowers] = useState()
 
   const newFighters = () => {
-    getRandomFighters().then(answer => setFighters(answer))
+    getRandomFighters().then(answer => {
+      setFighters(answer)
+      clearPreviousFight()
+    })
   }
 
   const narrate = () => {
@@ -21,7 +24,15 @@ function Fight({onFight}) {
   }
 
   const newLocation = () => {
-    getRandomLocation().then(answer => setLocation(answer))
+    getRandomLocation().then(answer => {
+      setLocation(answer)
+      clearPreviousFight()
+    })
+  }
+
+  const clearPreviousFight = () => {
+    setNarration(undefined)
+    setFightResult(undefined)
   }
 
   const fight = () => {
