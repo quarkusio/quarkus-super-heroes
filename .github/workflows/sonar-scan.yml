@@ -43,7 +43,7 @@ jobs:
           distribution: temurin
           cache: maven
       
-      - name: Sonar scan
+      - name: Sonar scan (Quarkus projects)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -53,9 +53,27 @@ jobs:
             -Dquarkus.http.host=0.0.0.0 \
             -Dmaven.compiler.release=${{ env.BASE_JAVA_VERSION }} \
             -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
+            -Dquarkus.quinoa.package-manager-command.test="run coverage" \
             -Dsonar.organization=quarkusio-quarkus-super-heroes \
             -Dsonar.projectKey=quarkusio-quarkus-super-heroes_${{ matrix.project }} \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.junit.reportPaths=target/surefire-reports
       #            -Dsonar.branch.name=main
+
+      - name: Sonar scan (UI frontend)
+        if: matrix.project == 'ui-super-heroes'
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: ${{ matrix.project }}/src/main/webui
+          args: >
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.organization=quarkusio-quarkus-super-heroes
+            -Dsonar.projectKey=quarkusio-quarkus-super-heroes_ui-super-heroes-frontend
+            -Dsonar.sources=src
+            -Dsonar.test.inclusions="**/*.test.js"
+            -Dsonar.exclusions="**/*.test.js"
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
