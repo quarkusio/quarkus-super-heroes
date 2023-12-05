@@ -14,7 +14,7 @@ import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 @TestTransaction
-class VillainTests {
+class ConfigUtilsVillainTests {
 	private static final String DEFAULT_NAME = "Super Chocolatine";
 	private static final String DEFAULT_OTHER_NAME = "Super Chocolatine chocolate in";
 	private static final String DEFAULT_PICTURE = "super_chocolatine.png";
@@ -25,7 +25,7 @@ class VillainTests {
 	public void findRandomNotFound() {
 		Villain.deleteAll();
 		assertThat(Villain.count())
-			.isEqualTo(0);
+			.isZero();
 
 		assertThat(Villain.findRandom())
 			.isNotNull()
