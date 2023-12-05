@@ -1,6 +1,9 @@
 package io.quarkus.sample.superheroes.hero.rest;
 
 final class Examples {
+  private Examples() {
+
+  }
 	static final String VALID_EXAMPLE_HERO = """
 		{
 			"id": 1,

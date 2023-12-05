@@ -1,6 +1,10 @@
 package io.quarkus.sample.superheroes.villain.rest;
 
 final class Examples {
+  private Examples() {
+
+  }
+
 	static final String VALID_EXAMPLE_VILLAIN = """
     {
       "id": 1,

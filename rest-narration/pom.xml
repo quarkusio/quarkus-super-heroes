@@ -1,15 +1,17 @@
 <?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.quarkus.sample.super-heroes</groupId>
   <artifactId>rest-narration</artifactId>
   <version>1.0</version>
   <name>Quarkus Sample :: Super-Heroes :: Narration Microservice</name>
+  <description>The narration RESTful microservice</description>
   <properties>
     <assertj.version>3.24.2</assertj.version>
     <compiler-plugin.version>3.11.0</compiler-plugin.version>
     <maven.compiler.release>17</maven.compiler.release>
+    <jacoco.version>0.8.11</jacoco.version>
     <pact.version>1.1.0</pact.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -76,10 +78,6 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jacoco</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
     </dependency>
     <dependency>
@@ -109,6 +107,11 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-info</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-jacoco</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -188,7 +191,58 @@
                 <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
                 <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                 <maven.home>${maven.home}</maven.home>
+                <quarkus.test.arg-line>${argLine}</quarkus.test.arg-line>
               </systemPropertyVariables>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco.version}</version>
+        <executions>
+          <execution>
+            <id>default-prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+            <configuration>
+              <exclClassLoaders>*QuarkusClassLoader</exclClassLoaders>
+              <destFile>${project.build.directory}/jacoco-quarkus.exec</destFile>
+              <append>true</append>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unit-report</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <configuration>
+              <dataFile>${project.build.directory}/jacoco-quarkus.exec</dataFile>
+              <outputDirectory>${project.build.directory}/jacoco-report</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>default-prepare-agent-integration</id>
+            <goals>
+              <goal>prepare-agent-integration</goal>
+            </goals>
+            <configuration>
+              <destFile>${project.build.directory}/jacoco-quarkus-it.exec</destFile>
+              <append>true</append>
+            </configuration>
+          </execution>
+          <execution>
+            <id>integration-report</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <configuration>
+              <dataFile>${project.build.directory}/jacoco-quarkus-it.exec</dataFile>
+              <outputDirectory>${project.build.directory}/jacoco-it-report</outputDirectory>
             </configuration>
           </execution>
         </executions>
@@ -215,4 +269,21 @@
       </dependencies>
     </profile>
   </profiles>
+  <organization>
+    <name>Quarkus</name>
+    <url>https://quarkus.io</url>
+  </organization>
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/quarkusio/quarkus-super-heroes/issues</url>
+  </issueManagement>
+  <ciManagement>
+    <system>GitHub</system>
+    <url>https://github.com/quarkusio/quarkus-super-heroes/actions/workflows/simple-build-test.yml</url>
+  </ciManagement>
+  <scm>
+    <url>https://github.com/quarkusio/quarkus-super-heroes</url>
+    <connection>scm:git:git://github.com/quarkusio/quarkus-super-heroes.git</connection>
+    <developerConnection>scm:git:git://github.com/quarkusio/quarkus-super-heroes.git</developerConnection>
+  </scm>
 </project>

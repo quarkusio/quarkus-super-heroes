@@ -59,7 +59,7 @@ public class LocationClient {
 
 	private boolean isNotFoundFailure(Throwable throwable) {
 		return Optional.ofNullable(throwable)
-			.filter(t -> t instanceof StatusRuntimeException)
+			.filter(StatusRuntimeException.class::isInstance)
 			.map(StatusRuntimeException.class::cast)
 			.map(StatusRuntimeException::getStatus)
 			.map(Status::getCode)

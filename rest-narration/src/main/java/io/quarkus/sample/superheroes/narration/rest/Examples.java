@@ -1,6 +1,10 @@
 package io.quarkus.sample.superheroes.narration.rest;
 
 final class Examples {
+  private Examples() {
+
+  }
+
 	static final String EXAMPLE_FIGHT = """
     {
       "winnerName": "Chewbacca",
