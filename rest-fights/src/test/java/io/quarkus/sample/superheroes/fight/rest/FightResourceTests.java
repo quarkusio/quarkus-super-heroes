@@ -347,7 +347,6 @@ public class FightResourceTests {
 
 	private static Stream<Fighters> invalidFighters() {
 		return Stream.of(
-      new Fighters(),
 			new Fighters(createDefaultHero(), null),
 			new Fighters(null, createDefaultVillain()),
 			new Fighters(new Hero(null, DEFAULT_HERO_LEVEL, DEFAULT_HERO_PICTURE, DEFAULT_HERO_POWERS), createDefaultVillain()),

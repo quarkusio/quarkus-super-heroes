@@ -1529,7 +1529,6 @@ public class FightResourceIT {
 
 	private static Stream<Fighters> invalidFighters() {
 		return Stream.of(
-			new Fighters(),
 			new Fighters(DEFAULT_HERO, null),
 			new Fighters(null, DEFAULT_VILLAIN),
 			new Fighters(new Hero(null, DEFAULT_HERO_LEVEL, DEFAULT_HERO_PICTURE, DEFAULT_HERO_POWERS), DEFAULT_VILLAIN),

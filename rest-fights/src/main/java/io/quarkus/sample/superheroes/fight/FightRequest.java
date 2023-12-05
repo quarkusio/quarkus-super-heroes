@@ -13,8 +13,4 @@ public record FightRequest(@NotNull @Valid Hero hero, @NotNull @Valid Villain vi
   public FightRequest(FightRequest fightRequest) {
     this(fightRequest.hero(), fightRequest.villain(), fightRequest.location());
   }
-
-  public FightRequest() {
-    this(null, null, null);
-  }
 }

@@ -16,8 +16,4 @@ public record Fighters(@NotNull @Valid Hero hero, @NotNull @Valid Villain villai
   public Fighters(Fighters fighters) {
     this(fighters.hero(), fighters.villain());
   }
-
-  public Fighters() {
-    this(null, null);
-  }
 }
