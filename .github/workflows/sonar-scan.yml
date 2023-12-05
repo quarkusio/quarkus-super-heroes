@@ -20,7 +20,7 @@ concurrency:
 jobs:
   sonar-scan:
     if: (github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && (github.event.workflow_run.conclusion == 'success')))
-    name: "scan-${{ matrix.project }}"
+    name: "sonar-scan-${{ matrix.project }}"
     strategy:
       fail-fast: false
       matrix:
@@ -59,7 +59,6 @@ jobs:
             -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.junit.reportPaths=target/surefire-reports
-      #            -Dsonar.branch.name=main
 
       - name: Sonar scan (UI frontend)
         if: matrix.project == 'ui-super-heroes'
