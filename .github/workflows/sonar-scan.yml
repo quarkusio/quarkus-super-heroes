@@ -45,7 +45,25 @@ jobs:
           distribution: temurin
           cache: maven
       
-      - name: Sonar scan (Quarkus project)
+      - name: Sonar scan (Non-ui project)
+        if: matrix.project != 'ui-super-heroes'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        working-directory: ${{ matrix.project }}
+        run: |
+          ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ env.BASE_JAVA_VERSION }} \
+            -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
+            -Dsonar.host.url=${{ env.SONAR_HOST_URL }} \
+            -Dsonar.organization=${{ env.SONAR_ORG }} \
+            -Dsonar.projectKey=${{ env.SONAR_ORG }}_${{ matrix.project }} \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
+            -Dsonar.junit.reportPaths=target/surefire-reports
+
+      - name: Sonar scan (ui project)
+        if: matrix.project == 'ui-super-heroes'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -60,21 +78,8 @@ jobs:
             -Dsonar.organization=${{ env.SONAR_ORG }} \
             -Dsonar.projectKey=${{ env.SONAR_ORG }}_${{ matrix.project }} \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
-            -Dsonar.junit.reportPaths=target/surefire-reports
-
-      - name: Sonar scan (UI frontend)
-        if: matrix.project == 'ui-super-heroes'
-        uses: sonarsource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: ${{ matrix.project }}/src/main/webui
-          args: >
-            -Dsonar.host.url=${{ env.SONAR_HOST_URL }}
-            -Dsonar.organization=${{ env.SONAR_ORG }}
-            -Dsonar.projectKey=${{ env.SONAR_ORG }}_${{ matrix.project }}-frontend
-            -Dsonar.sources=src
-            -Dsonar.test.inclusions="**/*.test.js"
-            -Dsonar.exclusions="**/*.test.js"
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.junit.reportPaths=target/surefire-reports \
+            -Dsonar.test.inclusions="**/*.test.js" \
+            -Dsonar.exclusions="**/*.test.js" \
+            -Dsonar.javascript.lcov.reportPaths=src/main/webui/coverage/lcov.info \
+            -Dsonar.sources=src/main/java,src/test/java,src/main/webui/src
