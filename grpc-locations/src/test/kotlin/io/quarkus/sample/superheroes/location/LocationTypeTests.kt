@@ -19,9 +19,7 @@ class LocationTypeTests {
     )
 
     @JvmStatic
-    fun fromGrpcLocationTypes() = toGrpcLocationTypes() + listOf(
-      Arguments.of(LocationType.OTHER, null)
-    )
+    fun fromGrpcLocationTypes() = toGrpcLocationTypes() + listOf(Arguments.of(LocationType.OTHER, null))
   }
 
   @ParameterizedTest
