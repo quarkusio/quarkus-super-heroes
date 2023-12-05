@@ -2,6 +2,8 @@ name: Sonar scan
 
 env:
   BASE_JAVA_VERSION: '17'
+  SONAR_ORG: quarkusio-quarkus-super-heroes
+  SONAR_HOST_URL: https://sonarcloud.io
 
 on:
   workflow_run:
@@ -54,10 +56,10 @@ jobs:
             -Dmaven.compiler.release=${{ env.BASE_JAVA_VERSION }} \
             -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
             -Dquarkus.quinoa.package-manager-command.test="run coverage" \
-            -Dsonar.organization=quarkusio-quarkus-super-heroes \
-            -Dsonar.projectKey=quarkusio-quarkus-super-heroes_${{ matrix.project }} \
+            -Dsonar.host.url=${{ env.SONAR_HOST_URL }} \
+            -Dsonar.organization=${{ env.SONAR_ORG }} \
+            -Dsonar.projectKey=${{ env.SONAR_ORG }}_${{ matrix.project }} \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
-            -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.junit.reportPaths=target/surefire-reports
 
       - name: Sonar scan (UI frontend)
@@ -69,9 +71,9 @@ jobs:
         with:
           projectBaseDir: ${{ matrix.project }}/src/main/webui
           args: >
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.organization=quarkusio-quarkus-super-heroes
-            -Dsonar.projectKey=quarkusio-quarkus-super-heroes_ui-super-heroes-frontend
+            -Dsonar.host.url=${{ env.SONAR_HOST_URL }}
+            -Dsonar.organization=${{ env.SONAR_ORG }}
+            -Dsonar.projectKey=${{ env.SONAR_ORG }}_${{ matrix.project }}-frontend
             -Dsonar.sources=src
             -Dsonar.test.inclusions="**/*.test.js"
             -Dsonar.exclusions="**/*.test.js"
