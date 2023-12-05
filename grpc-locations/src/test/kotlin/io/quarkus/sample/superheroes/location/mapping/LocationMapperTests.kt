@@ -34,12 +34,27 @@ class LocationMapperTests {
 
 	@Test
 	fun `mapper works correctly for null (model to gRPC)`() {
+		assertThat(LocationMapper.toGrpcLocationMaybeNull(createDefaultLocation()))
+			.isNotNull
+			.extracting(
+				"name",
+				"description",
+				"picture",
+				"type"
+			)
+			.containsExactly(
+				DEFAULT_NAME,
+				DEFAULT_DESCRIPTION,
+				DEFAULT_PICTURE,
+				io.quarkus.sample.superheroes.location.grpc.LocationType.CITY
+			)
+
 		assertThat(LocationMapper.toGrpcLocationMaybeNull(null))
 			.isNull()
 	}
 
 	@Test
-	fun `mapper works correctly for non-null (model to gRPC)`() {
+	fun `mapper works correctly for non-null(model to gRPC)`() {
 		assertThat(LocationMapper.toGrpcLocation(createDefaultLocation()))
 			.isNotNull
 			.extracting(
