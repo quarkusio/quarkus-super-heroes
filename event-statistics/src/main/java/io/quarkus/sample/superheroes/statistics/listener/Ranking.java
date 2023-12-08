@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.jboss.logging.Logger;
 
@@ -43,7 +42,7 @@ class Ranking {
 		var sortedScores = this.topScores.stream()
 			.sorted(SCORE_COMPARATOR)
 			.limit(this.max)
-			.collect(Collectors.toUnmodifiableList());
+			.toList();
 
 		// Rebuild the list
 		this.topScores.clear();

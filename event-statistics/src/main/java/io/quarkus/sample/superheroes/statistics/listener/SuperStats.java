@@ -170,7 +170,7 @@ public class SuperStats {
       .spanBuilder(spanName)
       .setAttribute("arg.fight", fight.toString());
 
-    parent.ifPresent(c -> spanBuilder.setParent(c));
+    parent.ifPresent(spanBuilder::setParent);
 
     return spanBuilder.startSpan();
   }
