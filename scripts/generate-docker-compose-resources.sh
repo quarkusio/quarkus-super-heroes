@@ -151,12 +151,7 @@ for project in "grpc-locations" "rest-narration" "rest-villains" "rest-heroes" "
 do
   rm -rf $project/$OUTPUT_DIR/*.yml
 
-  # Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
-  if [[ "$project" == "rest-narration" ]]; then
-    kinds=("")
-  else
-    kinds=("" "native-")
-  fi
+  kinds=("" "native-")
 
   for kind in "${kinds[@]}"
   do

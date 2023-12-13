@@ -23,9 +23,9 @@ public class PactConsumerContractTestResource implements QuarkusTestResourceLife
     // Make an assumption and hard-code the Pact MockServer to be running on ports 8083 & 8080
     // I don't like it but couldn't figure out any other way
     return Map.of(
-      "quarkus.rest-client.hero-client.url", String.format("http://localhost:%s", FightServiceConsumerContractTests.HEROES_MOCK_PORT),
-      "fight.villain.client-base-url", String.format("http://localhost:%s", FightServiceConsumerContractTests.VILLAINS_MOCK_PORT),
-      "quarkus.rest-client.narration-client.url", String.format("http://localhost:%s", FightServiceConsumerContractTests.NARRATION_MOCK_PORT)
+      "quarkus.rest-client.hero-client.url", "http://localhost:%s".formatted(FightServiceConsumerContractTests.HEROES_MOCK_PORT),
+      "fight.villain.client-base-url", "http://localhost:%s".formatted(FightServiceConsumerContractTests.VILLAINS_MOCK_PORT),
+      "quarkus.rest-client.narration-client.url", "http://localhost:%s".formatted(FightServiceConsumerContractTests.NARRATION_MOCK_PORT)
     );
   }
 

@@ -1,6 +1,5 @@
 package io.quarkus.sample.superheroes.narration.rest;
 
-import jakarta.enterprise.inject.Instance;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -19,9 +18,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.narration.Fight;
-import io.quarkus.sample.superheroes.narration.service.NarrationService;
-
-import io.smallrye.mutiny.Uni;
+import io.quarkus.sample.superheroes.narration.service.NarrationProcessor;
 
 /**
  * JAX-RS API endpoints with <code>/api/narration</code> as the base URI for all endpoints
@@ -30,13 +27,13 @@ import io.smallrye.mutiny.Uni;
 @Produces(MediaType.TEXT_PLAIN)
 @Tag(name = "narration")
 public class NarrationResource {
-  private final NarrationService narrationService;
+  private final NarrationProcessor narrationProcessor;
 
-  public NarrationResource(Instance<NarrationService> narrationService) {
-    this.narrationService = narrationService.get();
-  }
+	public NarrationResource(NarrationProcessor narrationProcessor) {
+		this.narrationProcessor = narrationProcessor;
+	}
 
-  @POST
+	@POST
   @Consumes(MediaType.APPLICATION_JSON)
   @Operation(summary = "Creates a narration for the fight")
   @APIResponse(
@@ -51,7 +48,7 @@ public class NarrationResource {
     responseCode = "400",
     description = "Invalid (or missing) fight"
   )
-  public Uni<String> narrate(
+  public String narrate(
     @RequestBody(
       name = "fight",
       required = true,
@@ -61,8 +58,10 @@ public class NarrationResource {
       )
     )
     @NotNull Fight fight) {
-    return this.narrationService.narrate(fight)
-      .invoke(narration -> Log.debugf("Narration for fight %s = \"%s\"", fight, narration));
+    var narration = this.narrationProcessor.narrate(fight);
+    Log.debugf("Narration for fight %s = \"%s\"", fight, narration);
+
+    return narration;
   }
 
   @GET

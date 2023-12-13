@@ -5,7 +5,8 @@
     - [Exposed Endpoints](#exposed-endpoints)
 - [Contract testing with Pact](#contract-testing-with-pact)
 - [Running the Application](#running-the-application)
-    - [Integration with OpenAI Providers](#integration-with-openai-providers) 
+    - [Integration with OpenAI Providers](#integration-with-openai-providers)
+        - [Making live calls to OpenAI Providers](#making-live-calls-to-openai-providers) 
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
 - [Deploying to Kubernetes](#deploying-to-kubernetes)
     - [Using pre-built images](#using-pre-built-images)
@@ -14,11 +15,14 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=coverage)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration)
 
 ## Introduction
-This is the Narration REST API microservice. It is a reactive HTTP microservice using the [Microsoft Semantic Kernel for Java](https://devblogs.microsoft.com/semantic-kernel/introducing-semantic-kernel-for-java/) to integrate with an AI service to generate text narrating a given fight.
+This is the Narration REST API microservice. It is a blocking HTTP microservice using the [Quarkus LangChain4J extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/index.html) to integrate with an AI service to generate text narrating a given fight.
 
-The Narration microservice needs to access an AI service to generate the text narrating the fight. You can choose between [OpenAI](https://openai.com/) or [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service). Azure OpenAI, or "OpenAI on Azure" is a service that provides REST API access to OpenAI’s models, including the GPT-4, GPT-3, Codex and Embeddings series. The difference between OpenAI and Azure OpenAI is that it runs on Azure global infrastructure, which meets your production needs for critical enterprise security, compliance, and regional availability.
+The Narration microservice needs to access an AI service to generate the text narrating the fight. The default codebase uses [OpenAI](https://openai.com/) (via the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html)). This extension could be swapped for the [`quarkus-langchain4j-azure-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html#_azure_openai) with little to no code changes to connect to [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service).
 
-This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with reactive endpoints. Additionally, this application favors constructor injection of beans over field injection (i.e. `@Inject` annotation).
+> [!NOTE]
+> Azure OpenAI, or "OpenAI on Azure" is a service that provides REST API access to OpenAI’s models, including the GPT-4, GPT-3, Codex and Embeddings series. The difference between OpenAI and Azure OpenAI is that it runs on Azure global infrastructure, which meets your production needs for critical enterprise security, compliance, and regional availability.
+
+This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with blocking endpoints. Additionally, this application favors constructor injection of beans over field injection (i.e. `@Inject` annotation).
 
 ![rest-narration](images/rest-narration.png)
 
@@ -52,43 +56,72 @@ The application runs on port `8087` (defined by `quarkus.http.port` in [`applica
 
 From the `quarkus-super-heroes/rest-narration` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application will be exposed at http://localhost:8087 and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at http://localhost:8087/q/dev.
 
-> [!IMPORTANT]
-> This app currently does **NOT** support running in native mode due to incompatibilities in the Microsoft Semantic Kernel library and native compilation. Once that is resolved then native support will be enabled for this application.
->
-> See https://github.com/microsoft/semantic-kernel/issues/2885 for details.
-
 ### Integration with OpenAI Providers
-Currently the only supported OpenAI providers are the [Microsoft Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service) and [OpenAI](https://openai.com/) using the [Microsoft Semantic Kernel for Java](https://devblogs.microsoft.com/semantic-kernel/introducing-semantic-kernel-for-java/). This integration requires creating resources, either on OpenAI or Azure, in order to work properly.
+Currently, the only supported OpenAI providers are the [Microsoft Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service) and [OpenAI](https://openai.com/). The application uses [OpenAI](https://openai.com/) via the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html) as its default. This integration requires creating resources, either on OpenAI or Azure, in order to work properly.
 
-For Azure, the [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources. Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources.
+To use Azure OpenAI, set `quarkus.langchain4j.openai.chat-model.enabled=false` and `quarkus.langchain4j.azure-openai.chat-model.enabled=true` and update the [application configuration](#azure-openai-properties) accordingly. You do not need to make any code changes.
+
+For Azure, the [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources. It will provide you all the [necessary configuration](#azure-openai-properties). Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources.
 
 > [!CAUTION]
 > Using Azure OpenAI or OpenAI may not be a free resource for you, so please understand this! Unless configured otherwise, this application does **NOT** communicate with any external service. Instead, by default, it just returns a default narration.
+> 
 
-The skill definition(s) can be found in the [`src/main/resources/skills` directory](src/main/resources/skills).
+#### Making live calls to OpenAI Providers
+Because of this integration and our goal to keep this application working at all times, all the OpenAI integration is disabled by default. A default narration will be provided. In dev mode, the [Quarkus WireMock extension](https://docs.quarkiverse.io/quarkus-wiremock/dev/index.html) serves a default response.
 
-Because of this integration and our goal to keep this application working at all times, all the OpenAI integration is disabled by default. A default narration will be provided instead.
+If you'd like to make live calls to an OpenAI provider, set the `narration.make-live-calls` property to `true`. You will also need to specify your api key as a property (see the [OpenAI properties](#openai-properties) or [Azure OpenAI properties](#azure-openai-properties) below for property details).
+
+If you'd like to make live calls to an OpenAI provider, set the `-Dquarkus.profile=openai` or `-Dquarkus.profile=azure-openai` property. This will turn off the [Quarkus WireMock](https://docs.quarkiverse.io/quarkus-wiremock/dev/index.html) functionality and set the application back up to talk to the OpenAI provider. You still need to specify your provider-specific properties, though.
+
+##### OpenAI 
+
+**Dev Mode:**
+```bash
+quarkus dev --clean -Dquarkus.profile=openai -Dquarkus.langchain4j.openai.api-key=my-key
+```
+
+**Running via `java -jar`**:
+```bash
+./mvnw clean package -DskipTests
+
+java -Dquarkus.profile=openai -Dquarkus.langchain4j.openai.api-key=my-key -jar target/quarkus-app/quarkus-run.jar
+```
+
+##### Azure OpenAI
+
+**Dev Mode:**
+```bash
+quarkus dev --clean -Dquarkus.profile=azure-openai -Dquarkus.langchain4j.azure-openai.api-key=my-key -Dquarkus.langchain4j.azure-openai.resource-name=my-resource-name -Dquarkus.langchain4j.azure-openai.deployment-id=my-deployment-id
+```
+
+**Running via `java -jar`**:
+```bash
+./mvnw clean package -DskipTests -Dquarkus.profile=azure-openai
+
+java -Dquarkus.profile=azure-openai -Dquarkus.langchain4j.azure-openai.api-key=my-key -Dquarkus.langchain4j.azure-openai.resource-name=my-resource-name -Dquarkus.langchain4j.azure-openai.deployment-id=my0deployment-id -jar target/quarkus-app/quarkus-run.jar
+```
+ 
+> [!NOTE]
+> The application still has resiliency built-in in case of failures.
 
 To enable the OpenAI integration the following properties must be set, either in [`application.properties`](src/main/resources/application.properties) or as environment variables:
 
-#### Azure OpenAI properties
-
-| Description                                                                                    | Environment Variable                              | Java Property                                     | Value                                                                   |
-|------------------------------------------------------------------------------------------------|---------------------------------------------------|---------------------------------------------------|-------------------------------------------------------------------------|
-| Enable Azure OpenAI integration                                                                | `NARRATION_AZURE_OPEN_AI_ENABLED`                 | `narration.azure-open-ai.enabled`                 | `true`                                                                  |
-| Azure cognitive services account key                                                           | `NARRATION_AZURE_OPEN_AI_KEY`                     | `narration.azure-open-ai.key`                     | `Your azure openai key`                                                 |
-| The Azure OpenAI endpoint                                                                      | `NARRATION_AZURE_OPEN_AI_ENDPOINT`                | `narration.azure-open-ai.endpoint`                | `Your azure openai endpoint`                                            |
-| Azure cognitive services deployment name                                                       | `NARRATION_AZURE_OPEN_AI_DEPLOYMENT_NAME`         | `narration.azure-open-ai.deployment-name`         | `csdeploy-super-heroes`                                                 |
-| Any additional properties to be passed to the Microsoft Semantic Kernel `OpenAIClientProvider` | `NARRATION_AZURE_OPEN_AI_ADDITIONAL_PROPERTIES_*` | `narration.azure-open-ai.additional-properties.*` | Any set of key/value pairs to be passed into the `OpenAIClientProvider` |
-
 #### OpenAI properties
 
-| Description                                                                                    | Environment Variable                        | Java Property                               | Value                                                                   |
-|------------------------------------------------------------------------------------------------|---------------------------------------------|---------------------------------------------|-------------------------------------------------------------------------|
-| Enable OpenAI integration                                                                      | `NARRATION_OPEN_AI_ENABLED`                 | `narration.open-ai.enabled`                 | `true`                                                                  |
-| OpenAI API Key                                                                                 | `NARRATION_OPEN_AI_API_KEY`                 | `narration.open-ai.api-key`                 | `Your OpenAI API Key`                                                   |
-| OpenAI Organization ID                                                                         | `NARRATION_OPEN_AI_ORGANIZATION_ID`         | `narration.open-ai.organization-id`         | `Your OpenAI Organization ID`                                           |
-| Any additional properties to be passed to the Microsoft Semantic Kernel `OpenAIClientProvider` | `NARRATION_OPEN_AI_ADDITIONAL_PROPERTIES_*` | `narration.open-ai.additional-properties.*` | Any set of key/value pairs to be passed into the `OpenAIClientProvider` |
+| Description    | Environment Variable                 | Java Property                        | Value                 |
+|----------------|--------------------------------------|--------------------------------------|-----------------------|
+| OpenAI API Key | `QUARKUS_LANGCHAIN4J_OPENAI_API_KEY` | `quarkus.langchain4j.openai.api-key` | `Your OpenAI API Key` |
+
+#### Azure OpenAI properties
+
+In addition to these properties, you also need to use the [`quarkus-langchain4j-azure-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html#_azure_openai) instead of the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html).
+
+| Description                            | Environment Variable                             | Java Property                                    | Value                                  |
+|----------------------------------------|--------------------------------------------------|--------------------------------------------------|----------------------------------------|
+| Azure cognitive services account key   | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY`       | `quarkus.langchain4j.azure-openai.api-key`       | `Your azure openai key`                |
+| The Azure OpenAI resource name         | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME` | `quarkus.langchain4j.azure-openai.resource-name` | `Your azure openai resource name`      |
+| Azure cognitive services deployment id | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_ID` | `quarkus.langchain4j.azure-openai.deployment-id` | `Your azure openai deployment id/name` |
 
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-narration`](https://quay.io/repository/quarkus-super-heroes/rest-narration?tab=tags). 
@@ -98,8 +131,7 @@ Pick one of the versions of the application from the table below and execute the
 | Description | Image Tag       | Docker Compose Run Command                                               |
 |-------------|-----------------|--------------------------------------------------------------------------|
 | JVM Java 17 | `java17-latest` | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans` |
-
-[//]: # (| Native      | `native-latest` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |)
+| Native      | `native-latest` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
 
 These Docker Compose files are meant for standing up this application only. If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
@@ -121,8 +153,7 @@ Pick one of the versions of the application from the table below and deploy the 
 | Description | Image Tag       | OpenShift Descriptor                                      | Minikube Descriptor                                     | Kubernetes Descriptor                                       | Knative Descriptor                                    |
 |-------------|-----------------|-----------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------------------|
 | JVM Java 17 | `java17-latest` | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml) | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml) | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml) | [`java17-knative.yml`](deploy/k8s/java17-knative.yml) |
-
-[//]: # (| Native      | `native-latest` | [`native-openshift.yml`]&#40;deploy/k8s/native-openshift.yml&#41; | [`native-minikube.yml`]&#40;deploy/k8s/native-minikube.yml&#41; | [`native-kubernetes.yml`]&#40;deploy/k8s/native-kubernetes.yml&#41; | [`native-knative.yml`]&#40;deploy/k8s/native-knative.yml&#41; |)
+| Native      | `native-latest` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
 
 The application is exposed outside of the cluster on port `80`.
 

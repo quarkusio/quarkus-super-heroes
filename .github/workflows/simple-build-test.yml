@@ -1,7 +1,7 @@
 name: Basic build and test
 
 env:
-  MANDREL_VERSION: "23.0.1.2-Final"
+  MANDREL_VERSION: "23.0.2.1"
 
 on:
   push:
@@ -84,6 +84,17 @@ jobs:
             -Dquarkus.http.host=0.0.0.0 \
             -Dmaven.compiler.release=${{ matrix.java }}
 
+      - name: Build/test with Azure OpenAI
+        if: matrix.project == 'rest-narration'
+        working-directory: ${{ matrix.project }}
+        env:
+          QUARKUS_PROFILE: azure-openai
+          QUARKUS_TEST_INTEGRATION_TEST_PROFILE: azure-openai
+        run: |
+          ./mvnw -B clean verify \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }}
+
   native-build-test:
     runs-on: ubuntu-latest
     if: github.repository == 'quarkusio/quarkus-super-heroes'
@@ -97,32 +108,34 @@ jobs:
           - rest-fights
           - rest-heroes
           - rest-villains
-# Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
-#          - rest-narration
+          - rest-narration
           - grpc-locations
           - ui-super-heroes
     name: "native-build-test-${{ matrix.project }}"
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get Mandrel file name
+        run: echo "MANDREL_FILE=mandrel-java${{ matrix.java }}-linux-amd64-${{ env.MANDREL_VERSION }}-Final.tar.gz" >> $GITHUB_ENV
+
       - name: Cache and restore Mandrel distro
         id: check-mandrel-cache
         uses: actions/cache@v3
         with:
-          path: mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz
-          key: mandrel-distro-${{ env.MANDREL_VERSION }}-${{ matrix.java }}
+          path: ${{ env.MANDREL_FILE }}
+          key: mandrel-distro-${{ env.MANDREL_VERSION }}
 
       - name: Download Mandrel
         if: steps.check-mandrel-cache.outputs.cache-hit != 'true'
         run: |
-          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${MANDREL_VERSION}/mandrel-java${{ matrix.java }}-linux-amd64-${MANDREL_VERSION}.tar.gz"
-          wget -q -O mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz $download_url
+          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${{ env.MANDREL_VERSION }}-Final/${{ env.MANDREL_FILE }}"
+          wget -q -O ${{ env.MANDREL_FILE }} $download_url
 
       - name: Setup Maven+OpenJDK Distro
         uses: actions/setup-java@v4
         with:
           distribution: 'jdkfile'
-          jdkFile: mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz
+          jdkFile: ${{ env.MANDREL_FILE }}
           java-version: ${{ matrix.java }}
           architecture: x64
           cache: maven
@@ -133,4 +146,14 @@ jobs:
           ./mvnw -B clean verify -Pnative \
             -Dquarkus.http.host=0.0.0.0 \
             -Dmaven.compiler.release=${{ matrix.java }} 
-  
+
+      - name: Build/test with Azure OpenAI
+        if: matrix.project == 'rest-narration'
+        working-directory: ${{ matrix.project }}
+        env:
+          QUARKUS_PROFILE: azure-openai
+          QUARKUS_TEST_INTEGRATION_TEST_PROFILE: azure-openai
+        run: |
+          ./mvnw -B clean verify -Pnative \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }}

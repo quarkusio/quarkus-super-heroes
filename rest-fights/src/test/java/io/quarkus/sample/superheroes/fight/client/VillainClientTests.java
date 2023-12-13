@@ -160,7 +160,7 @@ class VillainClientTests {
     assertThat(ex)
       .isNotNull()
       .isExactlyInstanceOf(CircuitBreakerOpenException.class)
-      .hasMessageContainingAll(String.format("%s#findRandomVillain", VillainClient.class.getName()), "circuit breaker is open");
+      .hasMessageContainingAll("%s#findRandomVillain".formatted(VillainClient.class.getName()), "circuit breaker is open");
 
     // Verify that the breaker is open
     assertThat(this.circuitBreakerMaintenance.currentState("findRandomVillain"))
