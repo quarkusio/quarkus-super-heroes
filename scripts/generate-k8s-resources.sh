@@ -62,6 +62,8 @@ do_build() {
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-ref\"=$github_ref_name \
     -Dquarkus.openshift.version=$container_tag \
     -Dquarkus.openshift.route.expose=true \
+    -Dquarkus.openshift.route.tls.termination=edge \
+    -Dquarkus.openshift.route.tls.insecure-edge-termination-policy=Redirect \
     -Dquarkus.openshift.resources.limits.memory=$mem_limit \
     -Dquarkus.openshift.resources.requests.memory=$mem_request \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
