@@ -2,6 +2,7 @@ import {getRandomFighters, getRandomLocation, narrateFight, startFight} from "..
 import {useEffect, useState} from "react"
 import {faComment} from "@fortawesome/free-solid-svg-icons"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
+import {trackPromise} from "react-promise-tracker";
 
 
 function Fight({onFight}) {
@@ -13,21 +14,27 @@ function Fight({onFight}) {
   const [showHeroPowers, setShowHeroPowers] = useState()
 
   const newFighters = () => {
-    getRandomFighters().then(answer => {
-      setFighters(answer)
-      clearPreviousFight()
-    })
+    trackPromise(
+        getRandomFighters().then(answer => {
+          setFighters(answer)
+          clearPreviousFight()
+        })
+    )
   }
 
   const narrate = () => {
-    narrateFight(fightResult).then(answer => setNarration(answer))
+    trackPromise(
+        narrateFight(fightResult).then(answer => setNarration(answer))
+    )
   }
 
   const newLocation = () => {
-    getRandomLocation().then(answer => {
-      setLocation(answer)
-      clearPreviousFight()
-    })
+    trackPromise(
+        getRandomLocation().then(answer => {
+          setLocation(answer)
+          clearPreviousFight()
+        })
+    )
   }
 
   const clearPreviousFight = () => {
@@ -40,10 +47,12 @@ function Fight({onFight}) {
     const fightToPerform = fighters
     fightToPerform.location = location
 
-    startFight(fightToPerform).then(response => {
-      setFightResult(response)
-      onFight()
-    })
+    trackPromise(
+        startFight(fightToPerform).then(response => {
+          setFightResult(response)
+          onFight()
+        })
+    )
   }
 
   // This initialises the component on its initial load with a call to get fighters
