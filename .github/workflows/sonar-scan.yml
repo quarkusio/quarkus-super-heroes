@@ -62,7 +62,7 @@ jobs:
             -Dsonar.organization=${{ env.SONAR_ORG }} \
             -Dsonar.projectKey=${{ env.SONAR_ORG }}_${{ matrix.project }} \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
-            -Dsonar.junit.reportPaths=target/surefire-reports
+            -Dsonar.junit.reportPaths=target/surefire-reports,target/failsafe-reports
 
       - name: Sonar scan (ui project)
         if: matrix.project == 'ui-super-heroes'
@@ -80,7 +80,7 @@ jobs:
             -Dsonar.organization=${{ env.SONAR_ORG }} \
             -Dsonar.projectKey=${{ env.SONAR_ORG }}_${{ matrix.project }} \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
-            -Dsonar.junit.reportPaths=target/surefire-reports \
+            -Dsonar.junit.reportPaths=target/surefire-reports,target/failsafe-reports \
             -Dsonar.test.inclusions="**/*.test.js" \
             -Dsonar.exclusions="**/*.test.js" \
             -Dsonar.coverage.exclusions="src/test/java/**/*" \
