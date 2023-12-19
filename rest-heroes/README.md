@@ -4,6 +4,7 @@
 - [Introduction](#introduction)
     - [Exposed Endpoints](#exposed-endpoints)
 - [Contract testing with Pact](#contract-testing-with-pact)
+- [End-to-End UI testing with Playwright](#end-to-end-ui-testing-with-playwright)
 - [Benchmarking with Hyperfoil](#benchmarking-with-hyperfoil)
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
@@ -59,6 +60,11 @@ Therefore, the [Pact contract](src/test/resources/pacts/rest-heroes-rest-heroes.
 scenario, if a broker wasn't used, the consumer's CI/CD would commit the contracts into this repository's source control.
 
 The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility.
+
+## End-to-End UI testing with Playwright
+The [application UI](#running-the-application) is tested using [Playwright](https://playwright.dev/java). We are using the [Quarkus Playwright extension](https://docs.quarkiverse.io/quarkus-playwright/dev) for this.
+
+During tests, the UI is loaded in a headless browser and interactions are tested during unit and integration tests. See [`UIResourceTests`](src/test/java/io/quarkus/sample/superheroes/hero/rest/UIResourceTests.java) and [`UIResourceIT`](src/test/java/io/quarkus/sample/superheroes/hero/rest/UIResourceIT.java) for details.
 
 ## Benchmarking with Hyperfoil
 There are some [Hyperfoil benchmarks](https://hyperfoil.io) in [this directory](hyperfoil). See [the README](hyperfoil/README.md) for more details.
