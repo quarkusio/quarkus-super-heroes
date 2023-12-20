@@ -68,8 +68,6 @@ For Azure, the [`create-azure-openai-resources.sh` script](../scripts/create-azu
 #### Making live calls to OpenAI Providers
 Because of this integration and our goal to keep this application working at all times, all the OpenAI integration is disabled by default. A default narration will be provided. In dev mode, the [Quarkus WireMock extension](https://docs.quarkiverse.io/quarkus-wiremock/dev/index.html) serves a default response.
 
-If you'd like to make live calls to an OpenAI provider, set the `narration.make-live-calls` property to `true`. You will also need to specify your api key as a property (see the [OpenAI properties](#openai-properties) or [Azure OpenAI properties](#azure-openai-properties) below for property details).
-
 If you'd like to make live calls to an OpenAI provider, set the `-Dquarkus.profile=openai` or `-Dquarkus.profile=azure-openai` property. This will turn off the [Quarkus WireMock](https://docs.quarkiverse.io/quarkus-wiremock/dev/index.html) functionality and set the application back up to talk to the OpenAI provider. You still need to specify your provider-specific properties, though.
 
 ##### OpenAI 
