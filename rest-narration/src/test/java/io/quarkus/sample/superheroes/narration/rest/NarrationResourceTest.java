@@ -20,7 +20,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 
 @QuarkusTest
-public class NarrationResourceTest {
+class NarrationResourceTest {
   private static final String HERO_NAME = "Super Baguette";
   private static final int HERO_LEVEL = 42;
   private static final String HERO_POWERS = "Eats baguette in less than a second";
@@ -54,7 +54,7 @@ public class NarrationResourceTest {
 
   @BeforeEach
   public void setup() {
-    when(this.narrationProcessor.narrate(eq(FIGHT)))
+    when(this.narrationProcessor.narrate(FIGHT))
       .thenReturn(NARRATION);
   }
 
@@ -70,7 +70,7 @@ public class NarrationResourceTest {
   }
 
   @Test
-  public void helloEndpoint() {
+  void helloEndpoint() {
     get("/api/narration/hello").then()
       .statusCode(OK.getStatusCode())
       .contentType(TEXT)
@@ -90,12 +90,12 @@ public class NarrationResourceTest {
         .contentType(TEXT)
         .body(is(NARRATION));
 
-    verify(this.narrationProcessor).narrate(eq(FIGHT));
+    verify(this.narrationProcessor).narrate(FIGHT);
     verifyNoMoreInteractions(this.narrationProcessor);
   }
 
   @Test
-  public void invalidFightToNarrate() {
+  void invalidFightToNarrate() {
     given()
       .contentType(JSON)
       .accept(TEXT)
