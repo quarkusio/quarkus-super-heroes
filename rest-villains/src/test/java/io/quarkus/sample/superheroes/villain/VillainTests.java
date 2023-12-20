@@ -14,7 +14,7 @@ import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 @TestTransaction
-class ConfigUtilsVillainTests {
+class VillainTests {
 	private static final String DEFAULT_NAME = "Super Chocolatine";
 	private static final String DEFAULT_OTHER_NAME = "Super Chocolatine chocolate in";
 	private static final String DEFAULT_PICTURE = "super_chocolatine.png";
