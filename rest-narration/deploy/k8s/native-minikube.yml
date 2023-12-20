@@ -19,12 +19,11 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/vcs-uri: <<unknown>>
     app.openshift.io/connects-to: otel-collector
-    app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-12-20 - 19:43:40 +0000
+    app.quarkus.io/build-timestamp: 2023-12-20 - 19:46:36 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8087"
@@ -32,85 +31,83 @@ metadata:
   labels:
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
-    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/version: native-latest
     app: rest-narration
     application: narration-service
     system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-    app.openshift.io/runtime: quarkus
   name: rest-narration
 spec:
   ports:
     - name: http
+      nodePort: 31286
       port: 80
       protocol: TCP
       targetPort: 8087
   selector:
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
-    app.kubernetes.io/version: java17-latest
-  type: ClusterIP
+    app.kubernetes.io/version: native-latest
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.openshift.io/vcs-uri: <<unknown>>
     app.openshift.io/connects-to: otel-collector
-    app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-12-20 - 19:43:40 +0000
+    app.quarkus.io/build-timestamp: 2023-12-20 - 19:46:36 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8087"
     prometheus.io/scheme: http
   labels:
+    app.kubernetes.io/name: rest-narration
+    app.kubernetes.io/part-of: narration-service
+    app.kubernetes.io/version: native-latest
     app: rest-narration
     application: narration-service
     system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-    app.openshift.io/runtime: quarkus
-    app.kubernetes.io/name: rest-narration
-    app.kubernetes.io/version: java17-latest
-    app.kubernetes.io/part-of: narration-service
   name: rest-narration
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: rest-narration
-      app.kubernetes.io/version: java17-latest
       app.kubernetes.io/part-of: narration-service
+      app.kubernetes.io/version: native-latest
   template:
     metadata:
       annotations:
-        app.openshift.io/vcs-uri: <<unknown>>
         app.openshift.io/connects-to: otel-collector
-        app.openshift.io/vcs-ref: main
-        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2023-12-20 - 19:43:40 +0000
+        app.quarkus.io/build-timestamp: 2023-12-20 - 19:46:36 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8087"
         prometheus.io/scheme: http
       labels:
+        app.kubernetes.io/name: rest-narration
+        app.kubernetes.io/part-of: narration-service
+        app.kubernetes.io/version: native-latest
         app: rest-narration
         application: narration-service
         system: quarkus-super-heroes
-        app.kubernetes.io/managed-by: quarkus
-        app.openshift.io/runtime: quarkus
-        app.kubernetes.io/name: rest-narration
-        app.kubernetes.io/version: java17-latest
-        app.kubernetes.io/part-of: narration-service
     spec:
       containers:
-        - envFrom:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
             - configMapRef:
                 name: rest-narration-config
-          image: quay.io/quarkus-super-heroes/rest-narration:java17-latest
-          imagePullPolicy: Always
+          image: quay.io/quarkus-super-heroes/rest-narration:native-latest
+          imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -138,9 +135,9 @@ spec:
             timeoutSeconds: 10
           resources:
             limits:
-              memory: 768Mi
+              memory: 128Mi
             requests:
-              memory: 256Mi
+              memory: 32Mi
           startupProbe:
             failureThreshold: 3
             httpGet:
@@ -151,33 +148,3 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
----
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  annotations:
-    app.openshift.io/vcs-uri: <<unknown>>
-    app.openshift.io/connects-to: otel-collector
-    app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2023-12-20 - 19:43:40 +0000
-  labels:
-    app.kubernetes.io/name: rest-narration
-    app.kubernetes.io/part-of: narration-service
-    app.kubernetes.io/version: java17-latest
-    app: rest-narration
-    application: narration-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-    app.openshift.io/runtime: quarkus
-  name: rest-narration
-spec:
-  port:
-    targetPort: http
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-  to:
-    kind: Service
-    name: rest-narration
