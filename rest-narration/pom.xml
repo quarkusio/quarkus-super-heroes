@@ -15,11 +15,12 @@
     <pact.version>1.1.0</pact.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <quarkus.langchain4j.version>0.5.0</quarkus.langchain4j.version>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>3.6.4</quarkus.platform.version>
-    <semantic-kernel.version>0.2.13-alpha</semantic-kernel.version>
     <surefire-plugin.version>3.2.3</surefire-plugin.version>
+    <wiremock.version>1.0.0</wiremock.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -30,27 +31,18 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>com.microsoft.semantic-kernel</groupId>
-        <artifactId>semantickernel-bom</artifactId>
-        <version>${semantic-kernel.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>com.microsoft.semantic-kernel</groupId>
-      <artifactId>semantickernel-core</artifactId>
+      <groupId>io.quarkiverse.langchain4j</groupId>
+      <artifactId>quarkus-langchain4j-openai</artifactId>
+      <version>${quarkus.langchain4j.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.microsoft.semantic-kernel</groupId>
-      <artifactId>semantickernel-connectors-ai-openai</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.microsoft.semantic-kernel</groupId>
-      <artifactId>semantickernel-settings-loader</artifactId>
+      <groupId>io.quarkiverse.langchain4j</groupId>
+      <artifactId>quarkus-langchain4j-azure-openai</artifactId>
+      <version>${quarkus.langchain4j.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -71,10 +63,6 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-hibernate-validator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.smallrye.reactive</groupId>
-      <artifactId>mutiny-reactor</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -135,6 +123,18 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>io.quarkiverse.wiremock</groupId>
+      <artifactId>quarkus-wiremock</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkiverse.wiremock</groupId>
+      <artifactId>quarkus-wiremock-test</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.quarkiverse.pact</groupId>
       <artifactId>quarkus-pact-provider</artifactId>
       <version>${pact.version}</version>
@@ -174,6 +174,7 @@
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <maven.home>${maven.home}</maven.home>
+            <pact_do_not_track>true</pact_do_not_track>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -260,13 +261,6 @@
       <properties>
         <quarkus.package.type>native</quarkus.package.type>
       </properties>
-      <dependencies>
-        <!--  Required by com.microsoft.semantic-kernel:semantickernel-core  -->
-        <dependency>
-          <groupId>com.fasterxml.jackson.dataformat</groupId>
-          <artifactId>jackson-dataformat-xml</artifactId>
-        </dependency>
-      </dependencies>
     </profile>
   </profiles>
   <organization>

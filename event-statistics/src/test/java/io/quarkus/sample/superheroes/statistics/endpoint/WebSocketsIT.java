@@ -263,7 +263,7 @@ public class WebSocketsIT {
   }
 
 	private static String createScoreJsonString(String name, int score) {
-		return String.format("{\"name\":\"%s\",\"score\":%d}", name, score);
+		return "{\"name\":\"%s\",\"score\":%d}".formatted(name, score);
 	}
 
 	private static List<Fight> createSampleFights() {

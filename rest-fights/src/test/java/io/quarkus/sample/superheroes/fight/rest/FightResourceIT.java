@@ -572,7 +572,7 @@ public class FightResourceIT {
   public void getNarrationDelay() {
     resetNarrationCircuitBreakersToClosedState();
 
-		var delay = 11_000;
+		var delay = 31_000;
 
     this.wireMockServer.stubFor(
       WireMock.post(urlEqualTo(NARRATION_API_BASE_URI))

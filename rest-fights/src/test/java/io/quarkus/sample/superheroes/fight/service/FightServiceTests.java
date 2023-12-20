@@ -526,18 +526,18 @@ class FightServiceTests extends FightServiceTestsBase {
   @Test
   public void narrateFightNarrationTimesOut() {
     var fightToNarrate = createFightToNarrateHeroWon();
+    var timeout = Duration.ofSeconds(31);
 
     when(this.narrationClient.narrate(eq(fightToNarrate)))
       .thenReturn(
         Uni.createFrom().item(DEFAULT_NARRATION)
-          .onItem().delayIt().by(Duration.ofSeconds(11)
-          )
+          .onItem().delayIt().by(timeout)
       );
 
     var narration = this.fightService.narrateFight(fightToNarrate)
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
 			.assertSubscribed()
-			.awaitItem(Duration.ofSeconds(45))
+			.awaitItem(timeout.multipliedBy(4))
 			.getItem();
 
     assertThat(narration)

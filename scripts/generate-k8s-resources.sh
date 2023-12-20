@@ -161,16 +161,8 @@ rm -rf $OUTPUT_DIR/*.yml
 
 for kind in "" "native-"
 do
-  # Keeping this if/else here for the future when we might want to build multiple java versions
-  if [[ "$kind" == "native-" ]]; then
-    javaVersions=(17)
-    # Until https://github.com/microsoft/semantic-kernel/issues/2885 is resolved
-    projects=("grpc-locations" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
-  else
-    javaVersions=(17)
-    projects=("grpc-locations" "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
-#    javaVersions=(11 17)
-  fi
+  javaVersions=(17)
+  projects=("grpc-locations" "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
 
   for javaVersion in "${javaVersions[@]}"
   do

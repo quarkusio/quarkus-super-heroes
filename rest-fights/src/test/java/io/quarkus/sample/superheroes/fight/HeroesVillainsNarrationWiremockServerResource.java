@@ -21,8 +21,7 @@ public class HeroesVillainsNarrationWiremockServerResource implements QuarkusTes
   public Map<String, String> start() {
     this.wireMockServer.start();
 
-    var url = String.format(
-      "localhost:%d",
+    var url = "localhost:%d".formatted(
       this.wireMockServer.isHttpsEnabled() ? this.wireMockServer.httpsPort() : this.wireMockServer.port()
     );
 

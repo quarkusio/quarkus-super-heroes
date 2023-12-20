@@ -178,7 +178,7 @@ public class LocationClientTests {
 		assertThat(ex)
 			.isNotNull()
 			.isExactlyInstanceOf(CircuitBreakerOpenException.class)
-			.hasMessageContainingAll(String.format("%s#findRandomLocation", LocationClient.class.getName()), "circuit breaker is open");
+			.hasMessageContainingAll("%s#findRandomLocation".formatted(LocationClient.class.getName()), "circuit breaker is open");
 
 		// Verify that the breaker is open
     assertThat(this.circuitBreakerMaintenance.currentState("findRandomLocation"))

@@ -436,9 +436,9 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 		@Override
 		public Map<String, String> getConfigOverrides() {
 			return Map.of(
-      "quarkus.rest-client.hero-client.url", String.format("http://localhost:%s", HEROES_MOCK_PORT),
-      "fight.villain.client-base-url", String.format("http://localhost:%s", VILLAINS_MOCK_PORT),
-      "quarkus.rest-client.narration-client.url", String.format("http://localhost:%s", NARRATION_MOCK_PORT)
+      "quarkus.rest-client.hero-client.url", "http://localhost:%s".formatted(HEROES_MOCK_PORT),
+      "fight.villain.client-base-url", "http://localhost:%s".formatted(VILLAINS_MOCK_PORT),
+      "quarkus.rest-client.narration-client.url", "http://localhost:%s".formatted(NARRATION_MOCK_PORT)
 			);
 		}
 	}

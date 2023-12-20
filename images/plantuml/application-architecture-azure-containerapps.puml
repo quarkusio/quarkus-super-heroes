@@ -6,7 +6,7 @@
 !includeurl AzurePuml/Databases/AzureDatabaseForMariaDB.puml
 !includeurl AzurePuml/Analytics/AzureEventHub.puml
 !includeurl AzurePuml/AIMachineLearning/AzureCognitiveServices.puml
-!include <logos/angular>
+!include <logos/react>
 !include <logos/prometheus>
 !include style.puml
 
@@ -17,9 +17,9 @@ left to right direction
 
 together {
     node "Super Hero UI" as ui {
-      agent "<$angular>" <<frontend>> as angularUi
+      agent "<$react>" <<frontend>> as reactUi
       agent "Quarkus" <<application>> as uiQuarkus
-      angularUi .up> uiQuarkus
+      reactUi .up> uiQuarkus
     }
 
     node "<$prometheus>" as prometheus {
@@ -33,9 +33,9 @@ node "Fight" <<AzureContainerApp>> as fight {
 }
 
 node "Narration" <<AzureContainerApp>> as narration {
-  agent "Quarkus (reactive)" <<application>> as narrationQuarkus
-  hexagon "Microsoft\nSemantic Kernel" as sk
-  narrationQuarkus .up> sk
+  agent "Quarkus (imperative)" <<application>> as narrationQuarkus
+  hexagon "Langchain4J" as langchain
+  narrationQuarkus .up> langchain
 }
 
 AzureCognitiveServices(openai, "OpenAI\nAzure OpenAI", "")
@@ -77,13 +77,13 @@ package "stats" <<AzureContainerApp>> {
     }
 }
 
-angularUi --> fightQuarkus : HTTP
+reactUi --> fightQuarkus : HTTP
 fightQuarkus --> narrationQuarkus : HTTP
 fightQuarkus --> villainQuarkus : HTTP
 fightQuarkus --> heroQuarkus : HTTP
 fightQuarkus -[dotted]-> locationQuarkus: gRPC
 
-sk --> openai : HTTP
+langchain --> openai : HTTP
 
 fightQuarkus ..> kafka : Message
 fightQuarkus -[dotted]-> apicurio : HTTP

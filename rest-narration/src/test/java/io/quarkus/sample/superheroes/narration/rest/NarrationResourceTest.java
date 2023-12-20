@@ -7,21 +7,17 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
-import io.quarkus.sample.superheroes.narration.service.NarrationService;
-import io.quarkus.test.junit.QuarkusMock;
+import io.quarkus.sample.superheroes.narration.service.NarrationProcessor;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 
 import io.restassured.RestAssured;
-import io.smallrye.mutiny.Uni;
 
 @QuarkusTest
 public class NarrationResourceTest {
@@ -48,10 +44,8 @@ public class NarrationResourceTest {
     new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION)
   );
 
-  @Inject
-  Instance<NarrationService> narrationServiceInstance;
-
-  NarrationService narrationService;
+  @InjectMock
+  NarrationProcessor narrationProcessor;
 
   @BeforeAll
 	static void beforeAll() {
@@ -60,11 +54,8 @@ public class NarrationResourceTest {
 
   @BeforeEach
   public void setup() {
-    this.narrationService = mock((Class<NarrationService>) this.narrationServiceInstance.getHandle().getBean().getBeanClass());
-    QuarkusMock.installMockForInstance(narrationService, this.narrationServiceInstance.get());
-
-    when(this.narrationService.narrate(eq(FIGHT)))
-      .thenReturn(Uni.createFrom().item(NARRATION));
+    when(this.narrationProcessor.narrate(eq(FIGHT)))
+      .thenReturn(NARRATION);
   }
 
   @Test
@@ -75,7 +66,7 @@ public class NarrationResourceTest {
       .statusCode(OK.getStatusCode())
       .contentType(JSON);
 
-    verifyNoInteractions(this.narrationService);
+    verifyNoInteractions(this.narrationProcessor);
   }
 
   @Test
@@ -85,7 +76,7 @@ public class NarrationResourceTest {
       .contentType(TEXT)
       .body(is("Hello Narration Resource"));
 
-    verifyNoInteractions(this.narrationService);
+    verifyNoInteractions(this.narrationProcessor);
   }
 
   @Test
@@ -99,8 +90,8 @@ public class NarrationResourceTest {
         .contentType(TEXT)
         .body(is(NARRATION));
 
-    verify(this.narrationService).narrate(eq(FIGHT));
-    verifyNoMoreInteractions(this.narrationService);
+    verify(this.narrationProcessor).narrate(eq(FIGHT));
+    verifyNoMoreInteractions(this.narrationProcessor);
   }
 
   @Test
@@ -111,6 +102,6 @@ public class NarrationResourceTest {
       .when().post("/api/narration").then()
         .statusCode(400);
 
-    verifyNoInteractions(this.narrationService);
+    verifyNoInteractions(this.narrationProcessor);
   }
 }

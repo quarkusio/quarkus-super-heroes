@@ -23,8 +23,6 @@ import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder;
 //@PactBroker(url = "https://quarkus-super-heroes.pactflow.io")
 //@EnabledIfSystemProperty(named = "pactbroker.auth.token", matches = ".+", disabledReason = "pactbroker.auth.token system property not set")
 public class ContractVerificationTests {
-  private static final String NO_RANDOM_VILLAIN_FOUND_STATE = "No random villain found";
-
   @ConfigProperty(name = "quarkus.http.test-port")
   int quarkusPort;
 
