@@ -59,8 +59,6 @@ From the `quarkus-super-heroes/rest-narration` directory, simply run `./mvnw qua
 ### Integration with OpenAI Providers
 Currently, the only supported OpenAI providers are the [Microsoft Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service) and [OpenAI](https://openai.com/). The application uses [OpenAI](https://openai.com/) via the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html) as its default. This integration requires creating resources, either on OpenAI or Azure, in order to work properly.
 
-To use Azure OpenAI, set `quarkus.langchain4j.openai.chat-model.enabled=false` and `quarkus.langchain4j.azure-openai.chat-model.enabled=true` and update the [application configuration](#azure-openai-properties) accordingly. You do not need to make any code changes.
-
 For Azure, the [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources. It will provide you all the [necessary configuration](#azure-openai-properties). Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources.
 
 > [!CAUTION]
