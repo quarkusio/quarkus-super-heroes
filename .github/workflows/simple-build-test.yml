@@ -59,14 +59,15 @@ jobs:
         java:
           - '17'
         project:
-          - event-statistics
-          - rest-fights
-          - rest-heroes
-          - rest-villains
-          - rest-narration
-          - grpc-locations
-          - ui-super-heroes
-    name: "build-test-${{ matrix.project }}-${{ matrix.java }}"
+          - { name: event-statistics }
+          - { name: rest-fights }
+          - { name: rest-heroes }
+          - { name: rest-villains }
+          - { name: rest-narration }
+          - { name: rest-narration, openai-type: azure-openai }
+          - { name: grpc-locations }
+          - { name: ui-super-heroes }
+    name: "build-test-${{ matrix.project.name }}-${{ matrix.java }}-${{ matrix.project.openai-type }}"
     steps:
       - uses: actions/checkout@v4
 
@@ -77,19 +78,15 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
-        working-directory: ${{ matrix.project }}
+      - name: Create env vars
+        if: matrix.project.openai-type
+        working-directory: ${{ matrix.project.name }}
         run: |
-          ./mvnw -B clean verify \
-            -Dquarkus.http.host=0.0.0.0 \
-            -Dmaven.compiler.release=${{ matrix.java }}
+          echo "QUARKUS_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV && \
+          echo "QUARKUS_TEST_INTEGRATION_TEST_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV
 
-      - name: Build/test with Azure OpenAI
-        if: matrix.project == 'rest-narration'
-        working-directory: ${{ matrix.project }}
-        env:
-          QUARKUS_PROFILE: azure-openai
-          QUARKUS_TEST_INTEGRATION_TEST_PROFILE: azure-openai
+      - name: "build-test-jvm-${{ matrix.project.name }}-java-${{ matrix.java }}-${{ matrix.project.openai-type }}"
+        working-directory: ${{ matrix.project.name }}
         run: |
           ./mvnw -B clean verify \
             -Dquarkus.http.host=0.0.0.0 \
@@ -104,14 +101,15 @@ jobs:
         java:
           - '17'
         project:
-          - event-statistics
-          - rest-fights
-          - rest-heroes
-          - rest-villains
-          - rest-narration
-          - grpc-locations
-          - ui-super-heroes
-    name: "native-build-test-${{ matrix.project }}"
+          - { name: event-statistics }
+          - { name: rest-fights }
+          - { name: rest-heroes }
+          - { name: rest-villains }
+          - { name: rest-narration }
+          - { name: rest-narration, openai-type: azure-openai }
+          - { name: grpc-locations }
+          - { name: ui-super-heroes }
+    name: "native-build-test-${{ matrix.project.name }}-${{ matrix.project.openai-type }}"
     steps:
       - uses: actions/checkout@v4
 
@@ -140,19 +138,15 @@ jobs:
           architecture: x64
           cache: maven
 
-      - name: "build-test-native-${{ matrix.project }}-java-${{ matrix.java }}"
-        working-directory: ${{ matrix.project }}
+      - name: Create env vars
+        if: matrix.project.openai-type
+        working-directory: ${{ matrix.project.name }}
         run: |
-          ./mvnw -B clean verify -Pnative \
-            -Dquarkus.http.host=0.0.0.0 \
-            -Dmaven.compiler.release=${{ matrix.java }} 
+          echo "QUARKUS_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV && \
+          echo "QUARKUS_TEST_INTEGRATION_TEST_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV
 
-      - name: Build/test with Azure OpenAI
-        if: matrix.project == 'rest-narration'
-        working-directory: ${{ matrix.project }}
-        env:
-          QUARKUS_PROFILE: azure-openai
-          QUARKUS_TEST_INTEGRATION_TEST_PROFILE: azure-openai
+      - name: "build-test-native-${{ matrix.project.name }}-java-${{ matrix.java }}-${{ matrix.project.openai-type }}"
+        working-directory: ${{ matrix.project.name }}
         run: |
           ./mvnw -B clean verify -Pnative \
             -Dquarkus.http.host=0.0.0.0 \
