@@ -16,7 +16,7 @@ help() {
   echo "Syntax: deploy-to-azure-containerapps.sh [options]"
   echo "options:"
   echo "  -a                                     Create Azure OpenAI resources and bind to the narration service"
-  echo "                                             By default this is not created and the narration service will server a default narration on all requests."
+  echo "                                             By default this is not created and the narration service will serve a default narration on all requests."
   echo "  -g <resource_group_name>               Name of the Azure resource group to use to deploy resources"
   echo "                                             Default: 'super-heroes'"
   echo "  -h                                     Prints this help message"
@@ -316,16 +316,16 @@ create_narration_app() {
     az containerapp create \
       --resource-group "$RESOURCE_GROUP" \
       --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
-      --image "$NARRATION_IMAGE" \
+      --image "${NARRATION_IMAGE}-azure-openai" \
       --name "$NARRATION_APP" \
       --environment "$CONTAINERAPPS_ENVIRONMENT" \
       --ingress external \
       --target-port 8087 \
       --min-replicas 1 \
-      --env-vars NARRATION_AZURE_OPEN_AI_ENABLED=true \
-                 NARRATION_AZURE_OPEN_AI_KEY="$AZURE_OPENAI_KEY" \
-                 NARRATION_AZURE_OPEN_AI_ENDPOINT="$AZURE_OPENAI_ENDPOINT" \
-                 NARRATION_AZURE_OPEN_AI_DEPLOYMENT_NAME="$NARRATION_COGNITIVE_SERVICE_DEPLOYMENT_NAME"
+      --env-vars QUARKUS_PROFILE=azure-openai \
+                 QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY="$AZURE_OPENAI_KEY" \
+                 QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME="$NARRATION_COGNITIVE_SERVICE" \
+                 QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_ID="$NARRATION_COGNITIVE_SERVICE_DEPLOYMENT_NAME"
   else
     az containerapp create \
       --resource-group "$RESOURCE_GROUP" \
@@ -434,13 +434,6 @@ create_azure_openai_resources() {
       --name "$NARRATION_COGNITIVE_SERVICE" \
       --resource-group "$RESOURCE_GROUP" \
         | jq -r .key1
-  )
-
-  AZURE_OPENAI_ENDPOINT=$(
-    az cognitiveservices account show \
-      --name "$NARRATION_COGNITIVE_SERVICE" \
-      --resource-group "$RESOURCE_GROUP" \
-      | jq -r .properties.endpoint
   )
 }
 

@@ -43,7 +43,7 @@ RESOURCE_GROUP="rg-super-heroes"
 LOCATION="eastus"
 TAG="super-heroes"
 MODEL="gpt-35-turbo"
-MODEL_VERSION="0301"
+MODEL_VERSION="0613"
 UNIQUE_IDENTIFIER=$(whoami)
 
 # Process the input options
@@ -147,13 +147,6 @@ AZURE_OPENAI_KEY=$(
     | jq -r .key1
 )
 
-AZURE_OPENAI_ENDPOINT=$(
-  az cognitiveservices account show \
-    --name "$COGNITIVE_SERVICE" \
-    --resource-group "$RESOURCE_GROUP" \
-    | jq -r .properties.endpoint
-)
-
 echo
 echo "Deployment took $SECONDS seconds to complete."
 echo
@@ -162,7 +155,6 @@ echo "[$(date +"%m/%d/%Y %T")]: All services have been deployed"
 echo "-----------------------------------------"
 echo "Here are some key values you may need to use in your application's configuration:"
 echo
-echo "API key (quarkus.langchain4j.azure-openai.api-key: $AZURE_OPENAI_KEY"
-echo "Endpoint: $AZURE_OPENAI_ENDPOINT"
+echo "API key (quarkus.langchain4j.azure-openai.api-key): $AZURE_OPENAI_KEY"
 echo "Resource Name (quarkus.langchain4j.azure-openai.resource-name): $COGNITIVE_SERVICE"
 echo "Deployment Name/Id (quarkus.langchain4j.azure-openai.deployment-id): $COGNITIVE_DEPLOYMENT"
