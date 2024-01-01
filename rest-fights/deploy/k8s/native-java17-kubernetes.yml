@@ -91,7 +91,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.quarkus.io/vcs-ref: rhbq-2.7
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-01-01 - 14:57:56 +0000
+    app.quarkus.io/build-timestamp: 2024-01-01 - 15:36:27 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -288,7 +288,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
     app.quarkus.io/vcs-ref: rhbq-2.7
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-01-01 - 14:57:56 +0000
+    app.quarkus.io/build-timestamp: 2024-01-01 - 15:36:27 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -297,24 +297,24 @@ metadata:
     app: rest-fights
     application: fights-service
     system: quarkus-super-heroes
+    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: native-java17-latest-rhbq-2.7
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/name: rest-fights
   name: rest-fights
 spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/name: rest-fights
       app.kubernetes.io/version: native-java17-latest-rhbq-2.7
       app.kubernetes.io/part-of: fights-service
-      app.kubernetes.io/name: rest-fights
   template:
     metadata:
       annotations:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes"
         app.quarkus.io/vcs-ref: rhbq-2.7
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2024-01-01 - 14:57:56 +0000
+        app.quarkus.io/build-timestamp: 2024-01-01 - 15:36:27 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -323,9 +323,9 @@ spec:
         app: rest-fights
         application: fights-service
         system: quarkus-super-heroes
+        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: native-java17-latest-rhbq-2.7
         app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/name: rest-fights
     spec:
       containers:
         - env:
@@ -334,10 +334,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:native-java17-latest-rhbq-2.7
           imagePullPolicy: Always
           livenessProbe:
