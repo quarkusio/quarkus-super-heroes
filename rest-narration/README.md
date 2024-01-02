@@ -111,10 +111,9 @@ To enable the OpenAI integration the following properties must be set, either in
 
 #### Azure OpenAI properties
 
-In addition to these properties, you also need to use the [`quarkus-langchain4j-azure-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html#_azure_openai) instead of the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html).
-
 | Description                            | Environment Variable                             | Java Property                                    | Value                                  |
 |----------------------------------------|--------------------------------------------------|--------------------------------------------------|----------------------------------------|
+| Set the Azure OpenAI profile           | `QUARKUS_PROFILE`                                | `quarkus.profile`                                | `azure-openai`                         | 
 | Azure cognitive services account key   | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY`       | `quarkus.langchain4j.azure-openai.api-key`       | `Your azure openai key`                |
 | The Azure OpenAI resource name         | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME` | `quarkus.langchain4j.azure-openai.resource-name` | `Your azure openai resource name`      |
 | Azure cognitive services deployment id | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_ID` | `quarkus.langchain4j.azure-openai.deployment-id` | `Your azure openai deployment id/name` |
@@ -124,10 +123,17 @@ Pre-built images for this application can be found at [`quay.io/quarkus-super-he
 
 Pick one of the versions of the application from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-narration` directory.
 
-| Description | Image Tag       | Docker Compose Run Command                                               |
-|-------------|-----------------|--------------------------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans` |
-| Native      | `native-latest` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
+| Description                | Image Tag                    | Docker Compose Run Command                                                                                                                                              |
+|----------------------------|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| JVM Java 17                | `java17-latest`              | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans`                                                                                                |
+| JVM Java 17 (Azure OpenAI) | `java17-latest-azure-openai` | Modify the image in `deploy/docker-compose/java17.yml`, update environment variables, then run `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans` |
+| Native                     | `native-latest`              | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans`                                                                                                |
+| Native (Azure OpenAI)      | `native-latest-azure-openai` | Modify the image in `deploy/docker-compose/native.yml`, update environment variables, then run `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
+
+> [!IMPORTANT]
+> The running application will **NOT** make live calls to an OpenAI provider. You will need to [modify the descriptors accordingly](#making-live-calls-to-openai-providers) to have the application make live calls to an OpenAI provider.
+> 
+> For the Azure OpenAI variants listed above, you first need to modify the appropriate Docker Compose descriptor image with the `-azure-openai` tag. Then you need to update the environment variables according to the [Azure OpenAI properties](#azure-openai-properties).
 
 These Docker Compose files are meant for standing up this application only. If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
@@ -150,6 +156,13 @@ Pick one of the versions of the application from the table below and deploy the 
 |-------------|-----------------|-----------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------------------|
 | JVM Java 17 | `java17-latest` | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml) | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml) | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml) | [`java17-knative.yml`](deploy/k8s/java17-knative.yml) |
 | Native      | `native-latest` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
+
+> [!IMPORTANT]
+> As with the [Docker compose descriptors above](#running-locally-via-docker-compose), the running application will **NOT** make live calls to an OpenAI provider. You will need to [modify the descriptors accordingly](#making-live-calls-to-openai-providers) to have the application make live calls to an OpenAI provider.
+> 
+> Additionally, there are also `java17-latest-azure-openai` and `native-latest-azure-openai` image tags available. You would need to modify the Kubernetes descriptor manually before deploying.
+> 
+> You would first need to modify the image with the appropriate image tag, then update the environment variables according to the [Azure OpenAI properties](#azure-openai-properties).
 
 The application is exposed outside of the cluster on port `80`.
 
