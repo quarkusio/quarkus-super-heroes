@@ -11,10 +11,16 @@ on:
       - 'docs/**'
       - '**/images/**'
       - '.github/dependabot.yml'
+      - '.github/quarkus-ecosystem-test'
+      - '.github/workflows/quarkus-snapshot.yaml'
+      - '.github/workflows/build-push-ui-images.yml'
+      - '.github/workflows/dependabot-automerge.yml'
+      - '.github/workflows/sonar-scan.yml'
       - 'scripts/deploy-to-azure-containerapps.sh'
       - 'scripts/watch-services.sh'
+      - '**/hyperfoil/**'
     branches:
-      - 2.13.Final
+      - main
   pull_request:
     types:
       - opened
@@ -22,15 +28,21 @@ on:
       - reopened
       - ready_for_review
     branches:
-      - 2.13.Final
+      - main
     paths-ignore:
       - '**/deploy/**'
       - '**/*.md'
       - 'docs/**'
       - '**/images/**'
       - '.github/dependabot.yml'
-      - 'scripts/deploy-to-azure-containerapps.sh'
-      - 'scripts/watch-services.sh'
+      - '.github/build-push-container-images*.yml'
+      - '.github/quarkus-ecosystem-test'
+      - '.github/workflows/quarkus-snapshot.yaml'
+      - '.github/workflows/build-push-ui-images.yml'
+      - '.github/workflows/dependabot-automerge.yml'
+      - '.github/workflows/sonar-scan.yml'
+      - 'scripts/*.sh'
+      - '**/hyperfoil/**'
   workflow_dispatch:
 
 concurrency:
