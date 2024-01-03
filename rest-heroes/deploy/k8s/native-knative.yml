@@ -50,7 +50,7 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: 2.13.Final
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-01-01 - 14:56:55 +0000
+    app.quarkus.io/build-timestamp: 2024-01-03 - 13:22:16 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -60,8 +60,8 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: heroes-service
     system: quarkus-super-heroes
-    app.kubernetes.io/version: native-latest-2.13.Final
     app.kubernetes.io/part-of: heroes-service
+    app.kubernetes.io/version: native-latest-2.13.Final
     app.kubernetes.io/name: rest-heroes
   name: rest-heroes
 spec:
@@ -71,7 +71,7 @@ spec:
         app.openshift.io/connects-to: "heroes-db,otel-collector"
         app.openshift.io/vcs-ref: 2.13.Final
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2024-01-01 - 14:56:55 +0000
+        app.quarkus.io/build-timestamp: 2024-01-03 - 13:22:16 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -81,16 +81,16 @@ spec:
         app.openshift.io/runtime: quarkus
         application: heroes-service
         system: quarkus-super-heroes
-        app.kubernetes.io/version: native-latest-2.13.Final
         app.kubernetes.io/part-of: heroes-service
+        app.kubernetes.io/version: native-latest-2.13.Final
         app.kubernetes.io/name: rest-heroes
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-heroes-config
             - secretRef:
                 name: rest-heroes-config-creds
+            - configMapRef:
+                name: rest-heroes-config
           image: quay.io/quarkus-super-heroes/rest-heroes:native-latest-2.13.Final
           livenessProbe:
             failureThreshold: 3
