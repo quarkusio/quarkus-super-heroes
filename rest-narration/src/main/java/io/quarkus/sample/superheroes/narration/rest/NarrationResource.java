@@ -20,6 +20,8 @@ import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.service.NarrationProcessor;
 
+import io.smallrye.common.annotation.NonBlocking;
+
 /**
  * JAX-RS API endpoints with <code>/api/narration</code> as the base URI for all endpoints
  */
@@ -76,6 +78,7 @@ public class NarrationResource {
       examples = @ExampleObject(name = "hello_success", value = "Hello Narration Resource")
     )
 	)
+  @NonBlocking
   public String hello() {
     Log.debug("Hello Narration Resource");
     return "Hello Narration Resource";
