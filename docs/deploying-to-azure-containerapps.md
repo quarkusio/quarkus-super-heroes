@@ -161,6 +161,13 @@ STATISTICS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${STATISTICS_APP}:${IMAGES_TAG}"
 # UI
 UI_APP="ui-super-heroes"
 UI_IMAGE="${SUPERHEROES_IMAGES_BASE}/${UI_APP}:latest"
+
+# Cognitive Services
+COGNITIVE_SERVICE="cs-super-heroes-$UNIQUE_IDENTIFIER"
+COGNITIVE_DEPLOYMENT="csdeploy-super-heroes-$UNIQUE_IDENTIFIER"
+MODEL="gpt-35-turbo"
+MODEL_VERSION="0613"
+
 ```
 
 ## Create a resource group
@@ -532,20 +539,73 @@ open $APICURIO_URL
 ```
 
 ## Create the Azure OpenAI resources
-The Narration microservice needs to access an AI service to generate the text narrating the fight. [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service), or "OpenAI on Azure" is a service that provides REST API access to OpenAI’s models, including the GPT-4, GPT-3, Codex and Embeddings series. Azure OpenAI runs on Azure global infrastructure, which meets your production needs for critical enterprise security, compliance, and regional availability.
 
-The [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources. Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources.
+The Narration microservice needs to access an AI service to generate the text narrating the fight.
+[Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service), or "OpenAI on Azure" is a service that provides REST API access to OpenAI’s models, including the GPT-4, GPT-3, Codex and Embeddings series.
+Azure OpenAI runs on Azure global infrastructure, which meets your production needs for critical enterprise security, compliance, and regional availability.
+
+The [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources.
+Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources.
 
 > [!WARNING]
 > Keep in mind that the service may not be free.
 
-Upon completion of the script it will output the following:
+First, create an Azure Cognitive Services using the following command:
 
+```shell
+az cognitiveservices account create \
+  --name "$COGNITIVE_SERVICE" \
+  --resource-group "$RESOURCE_GROUP" \
+  --location "$LOCATION" \
+  --custom-domain "$COGNITIVE_SERVICE" \
+  --tags system="$TAG" \
+  --kind OpenAI \
+  --sku S0 \
+  --yes
 ```
-Or they can be injected via environment variables:
-  NARRATION_AZURE_OPEN_AI_ENABLED=true
-  NARRATION_AZURE_OPEN_AI_KEY=<azure_openai_key>
-  NARRATION_AZURE_OPEN_AI_ENDPOINT=<azure_openai_endpoint>
+
+Then you need to deploy a GPT model to the Cognitive Services with the following command:
+
+```shell
+az cognitiveservices account deployment create \
+  --name "$COGNITIVE_SERVICE" \
+  --resource-group "$RESOURCE_GROUP" \
+  --deployment-name "$COGNITIVE_DEPLOYMENT" \
+  --model-name "$MODEL" \
+  --model-version "$MODEL_VERSION" \
+  --model-format OpenAI \
+  --sku-name Standard \
+  --sku-capacity 1
+```
+
+Then you need to get the Azure OpenAI key with the following command:
+
+```shell
+AZURE_OPENAI_KEY=$(
+  az cognitiveservices account keys list \
+    --name "$COGNITIVE_SERVICE" \
+    --resource-group "$RESOURCE_GROUP" \
+    | jq -r .key1
+)
+    
+echo $AZURE_OPENAI_KEY
+
+AZURE_OPENAI_ENDPOINT=$(
+  az cognitiveservices account show \
+    --name "$COGNITIVE_SERVICE" \
+    --resource-group "$RESOURCE_GROUP" \
+    | jq -r .properties.endpoint
+)
+
+echo $AZURE_OPENAI_ENDPOINT
+```
+
+For the Narration service to be able to contact the Azure OpenAI service, you need to set the following environment variables:
+
+```shell
+NARRATION_AZURE_OPEN_AI_ENABLED=true
+NARRATION_AZURE_OPEN_AI_KEY=$AZURE_OPENAI_KEY
+NARRATION_AZURE_OPEN_AI_ENDPOINT=$AZURE_OPENAI_ENDPOINT
 ```
 
 Take note of the `NARRATION_AZURE_OPEN_AI_KEY` and `NARRATION_AZURE_OPEN_AI_ENDPOINT` values for use in the step for [deploying the narration microservice](#narration-microservice).
