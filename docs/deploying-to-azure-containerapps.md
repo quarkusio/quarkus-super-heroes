@@ -107,6 +107,8 @@ POSTGRES_TIER="Burstable"
 # MariaDB
 MARIADB_ADMIN_USER="$POSTGRES_DB_ADMIN"
 MARIADB_ADMIN_PWD="$POSTGRES_DB_PWD"
+MARIADB_SKU="$POSTGRES_SKU"
+MARIADB_TIER="$POSTGRES_TIER"
 MARIADB_VERSION="5.7"
 
 # MongoDB
@@ -236,7 +238,7 @@ az postgres flexible-server create \
   --public all \
   --sku-name "Standard_$POSTGRES_SKU" \
   --tier "$POSTGRES_TIER" \
-  --storage-size 256 \
+  --storage-size 32 \
   --version "$POSTGRES_DB_VERSION"
 ```
 
@@ -251,7 +253,7 @@ az postgres flexible-server create \
   --public all \
   --sku-name "Standard_$POSTGRES_SKU" \
   --tier "$POSTGRES_TIER" \
-  --storage-size 256 \
+  --storage-size 32 \
   --version "$POSTGRES_DB_VERSION"
 ```
 
@@ -355,7 +357,7 @@ az mysql flexible-server create \
   --public all \
   --sku-name "Standard_$MARIADB_SKU" \
   --tier "$MARIADB_TIER" \
-  --storage-size 256 \
+  --storage-size 32 \
   --version "$MARIADB_VERSION"
 ````
   
