@@ -646,7 +646,7 @@ echo
 echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: Creating the $LOCATIONS_DB MariaDB database"
 echo "-----------------------------------------"
-create_maria_db "$LOCATIONS_APP" "$LOCATIONS_DB" "$LOCATIONS_DB_SCHEMA" "$LOCATIONS_DB_SCHEMA"
+create_maria_db "$LOCATIONS_APP" "$LOCATIONS_DB" "$LOCATIONS_DB_SCHEMA" "$LOCATIONS_DB_SQL"
 echo
 
 # Create the Fights MongoDB db
