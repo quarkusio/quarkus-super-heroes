@@ -148,7 +148,7 @@ AZURE_OPENAI_KEY=$(
 )
 
 echo
-echo "Deployment took $SECONDS seconds to complete."
+echo "Azure OpenAI deployment took $SECONDS seconds to complete."
 echo
 echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: All services have been deployed"
