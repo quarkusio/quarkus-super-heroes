@@ -565,7 +565,7 @@ STATISTICS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${STATISTICS_APP}:${IMAGES_TAG}"
 
 # UI
 UI_APP="ui-super-heroes"
-UI_IMAGE="${SUPERHEROES_IMAGES_BASE}/${UI_APP}:latest"
+UI_IMAGE="${SUPERHEROES_IMAGES_BASE}/${UI_APP}:${IMAGES_TAG}"
 
 # Now run the script
 echo "Deploying Quarkus Superheroes to Azure Container Apps with the following configuration:"
@@ -646,7 +646,7 @@ echo
 echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: Creating the $LOCATIONS_DB MariaDB database"
 echo "-----------------------------------------"
-create_maria_db "$LOCATIONS_APP" "$LOCATIONS_DB" "$LOCATIONS_DB_SCHEMA" "$LOCATIONS_DB_SCHEMA"
+create_maria_db "$LOCATIONS_APP" "$LOCATIONS_DB" "$LOCATIONS_DB_SCHEMA" "$LOCATIONS_DB_SQL"
 echo
 
 # Create the Fights MongoDB db

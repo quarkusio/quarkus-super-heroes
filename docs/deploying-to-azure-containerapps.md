@@ -160,14 +160,13 @@ STATISTICS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${STATISTICS_APP}:${IMAGES_TAG}"
 
 # UI
 UI_APP="ui-super-heroes"
-UI_IMAGE="${SUPERHEROES_IMAGES_BASE}/${UI_APP}:latest"
+UI_IMAGE="${SUPERHEROES_IMAGES_BASE}/${UI_APP}:${IMAGES_TAG}"
 
 # Cognitive Services
 COGNITIVE_SERVICE="cs-super-heroes-$UNIQUE_IDENTIFIER"
 COGNITIVE_DEPLOYMENT="csdeploy-super-heroes-$UNIQUE_IDENTIFIER"
 MODEL="gpt-35-turbo"
 MODEL_VERSION="0613"
-
 ```
 
 ## Create a resource group
@@ -342,9 +341,9 @@ az postgres flexible-server show-connection-string \
 
 > [!IMPORTANT]
 > These aren't the actual connection strings used, especially in the heroes service, which does not use JDBC.
-> 
+>
 > You also need to append `ssl=true&sslmode=require` to the end of each connect string to force the driver to use ssl.
-> 
+>
 > These commands are just here for your own examination purposes.
 
 ## Create the managed MariaDB database
@@ -367,7 +366,7 @@ az mysql flexible-server create \
   --storage-size 32 \
   --version "$MARIADB_VERSION"
 ````
-  
+
 Then, we create the database schema:
 
 ```shell
@@ -411,9 +410,9 @@ az mysql flexible-server show-connection-string \
 
 > [!IMPORTANT]
 > This isn't the actual connection string used.
-> 
+>
 > You also need to append `?sslmode=trust&useMysqlMetadata=true` to the end of each connect string to force the driver to use ssl and to use MySQL metadata.
-> 
+>
 > This command is just here for your own examination purposes.
 
 ## Create the managed MongoDB Database
@@ -738,19 +737,19 @@ az containerapp logs show \
 
 ### Narration Microservice
 
-The narration microservice communicates with the [Azure OpenAI service](#create-the-azure-openai-resources). 
+The narration microservice communicates with the [Azure OpenAI service](#create-the-azure-openai-resources).
 You'll need the `AZURE_OPENAI_KEY` value from the [Create the Azure OpenAI resources](#create-the-azure-openai-resources) step.
 
 ```shell
     az containerapp create \
-      --resource-group "$RESOURCE_GROUP" \
-      --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
+  --resource-group "$RESOURCE_GROUP" \
+  --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
       --image "${NARRATION_IMAGE}-azure-openai" \
-      --name "$NARRATION_APP" \
-      --environment "$CONTAINERAPPS_ENVIRONMENT" \
-      --ingress external \
-      --target-port 8087 \
-      --min-replicas 1 \
+  --name "$NARRATION_APP" \
+  --environment "$CONTAINERAPPS_ENVIRONMENT" \
+  --ingress external \
+  --target-port 8087 \
+  --min-replicas 1 \
       --env-vars QUARKUS_PROFILE=azure-openai \
                  QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY="$AZURE_OPENAI_KEY" \
                  QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME="$NARRATION_COGNITIVE_SERVICE" \
@@ -875,7 +874,7 @@ echo $FIGHTS_URL
 Use the following curl commands to access the Fight microservice.
 Remember that we've set the minimum replicas to 0.
 That means that pinging the Hero and Villain microservices might fallback (you will get a _That means that pinging the Hero and Villain microservices might fallback (you will get a That means that pinging the Hero and Villain microservices might fallback (you will get a _Could not invoke the Villains microservice_ message).
-Execute several times the same curl commands so Azure Containers Apps has time to instantiate one replica and process the requests: 
+Execute several times the same curl commands so Azure Containers Apps has time to instantiate one replica and process the requests:
 
 ```shell
 curl "$FIGHTS_URL/api/fights/hello"
@@ -937,7 +936,7 @@ node version
 export NODE_OPTIONS=--openssl-legacy-provider
 ```
 
-Then, to execute the app locally, set `API_BASE_URL` with the same value of the Fight microservice URL (so it accesses the remote Fight microservice): 
+Then, to execute the app locally, set `API_BASE_URL` with the same value of the Fight microservice URL (so it accesses the remote Fight microservice):
 
 ```shell
 export API_BASE_URL=https://${FIGHT_URL}/api
@@ -981,7 +980,7 @@ This way, we will be able to see the auto-scaling in Azure Container Apps.
 To add some load to an application, you can do it locally using [JMeter](https://jmeter.apache.org), but you can also do it remotely on Azure using [Azure Load Testing](https://azure.microsoft.com/services/load-testing) and JMeter.
 Azure Load Testing is a fully managed load-testing service built for Azure that makes it easy to generate high-scale load and identify app performance bottlenecks.
 It is available on the [Azure Marketplace](https://azuremarketplace.microsoft.com).
-For that, we need to go the 
+For that, we need to go the
 
 To use Azure Load Testing, go to the [Azure Portal](https://portal.azure.com), search for the Marketplace and look for "_Azure Load Testing_"  in the Marketplace.
 Click on "_Create_":
@@ -994,7 +993,7 @@ Click on "Create":
 ![load-testing-2-create](../images/load-testing-2-create.png)
 
 Creating a load testing resource can take a few moment.
-Once created, you should see the Azure Load Testing available in your resource group: 
+Once created, you should see the Azure Load Testing available in your resource group:
 
 ![load-testing-3-list](../images/load-testing-3-list.png)
 
@@ -1004,7 +1003,7 @@ Choose this second option:
 
 ![load-testing-4-upload-jmeter](../images/load-testing-4-upload-jmeter.png)
 
-Before uploading a JMeter script, create a load test by entering a name (eg. "_Make them fight_"), a description and click "_Next: Test plan >_: 
+Before uploading a JMeter script, create a load test by entering a name (eg. "_Make them fight_"), a description and click "_Next: Test plan >_:
 
 ![load-testing-5-create-test-1](../images/load-testing-5-create-test-1.png)
 

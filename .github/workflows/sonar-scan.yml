@@ -54,14 +54,14 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         working-directory: ${{ matrix.project }}
         run: |
-          ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Pit-coverage \
             -Dquarkus.http.host=0.0.0.0 \
             -Dmaven.compiler.release=${{ env.BASE_JAVA_VERSION }} \
             -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
             -Dsonar.host.url=${{ env.SONAR_HOST_URL }} \
             -Dsonar.organization=${{ env.SONAR_ORG }} \
             -Dsonar.projectKey=${{ env.SONAR_ORG }}_${{ matrix.project }} \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml \
             -Dsonar.junit.reportPaths=target/surefire-reports,target/failsafe-reports
 
       - name: Sonar scan (ui project)
@@ -71,7 +71,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         working-directory: ${{ matrix.project }}
         run: |
-          ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Pit-coverage \
             -Dquarkus.http.host=0.0.0.0 \
             -Dmaven.compiler.release=${{ env.BASE_JAVA_VERSION }} \
             -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
@@ -79,7 +79,7 @@ jobs:
             -Dsonar.host.url=${{ env.SONAR_HOST_URL }} \
             -Dsonar.organization=${{ env.SONAR_ORG }} \
             -Dsonar.projectKey=${{ env.SONAR_ORG }}_${{ matrix.project }} \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml,target/jacoco-it-report/jacoco.xml \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml \
             -Dsonar.junit.reportPaths=target/surefire-reports,target/failsafe-reports \
             -Dsonar.test.inclusions="**/*.test.js" \
             -Dsonar.exclusions="**/*.test.js" \
