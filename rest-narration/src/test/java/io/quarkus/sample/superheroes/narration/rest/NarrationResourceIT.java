@@ -179,10 +179,15 @@ class NarrationResourceIT {
   public static class WiremockOpenAITestProfile implements QuarkusTestProfile {
     @Override
     public Map<String, String> getConfigOverrides() {
+	    var hostname = Boolean.getBoolean("quarkus.container-image.build") ? "host.docker.internal" : "localhost";
+      var sysPropKey = "%%dev,test.%s.%s".formatted(WireMockDevServiceConfig.PREFIX, WireMockDevServiceConfig.PORT);
+      var envPropKey = "_DEV_TEST_%s.%s".formatted(WireMockDevServiceConfig.PREFIX, WireMockDevServiceConfig.PORT).toUpperCase().replace(".", "_");
+      var propPlaceholder = "${%s:${%s}}".formatted(envPropKey, sysPropKey);
+
       var openAiProps = Map.of(
         "quarkus.langchain4j.openai.log-requests", "true",
         "quarkus.langchain4j.openai.log-responses", "true",
-        "quarkus.langchain4j.openai.base-url", "http://localhost:${%%dev,test.%s.%s}/v1/".formatted(WireMockDevServiceConfig.PREFIX, WireMockDevServiceConfig.PORT),
+        "quarkus.langchain4j.openai.base-url", "http://%s:%s/v1/".formatted(hostname, propPlaceholder),
         "quarkus.langchain4j.openai.max-retries", "2",
         "quarkus.langchain4j.openai.timeout", "3s"
       );
