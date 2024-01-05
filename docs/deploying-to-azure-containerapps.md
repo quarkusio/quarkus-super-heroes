@@ -706,6 +706,7 @@ az containerapp create \
   --name "$LOCATIONS_APP" \
   --environment "$CONTAINERAPPS_ENVIRONMENT" \
   --ingress external \
+  --transport http2 \
   --target-port 8089 \
   --min-replicas 1 \
   --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
@@ -857,6 +858,8 @@ az containerapp create \
              QUARKUS_REST_CLIENT_HERO_CLIENT_URL="$HEROES_URL" \
              QUARKUS_REST_CLIENT_NARRATION_CLIENT_URL="$NARRATION_URL" \
              QUARKUS_GRPC_CLIENTS_LOCATIONS_HOST="$LOCATIONS_HOST" \
+             QUARKUS_GRPC_CLIENTS_LOCATIONS_PORT=443 \
+             QUARKUS_GRPC_CLIENTS_LOCATIONS_PLAIN_TEXT=false \
              FIGHT_VILLAIN_CLIENT_BASE_URL="$VILLAINS_URL"
 ```
 

@@ -293,6 +293,7 @@ create_locations_app() {
     --name "$LOCATIONS_APP" \
     --environment "$CONTAINERAPPS_ENVIRONMENT" \
     --ingress external \
+    --transport http2 \
     --target-port 8089 \
     --min-replicas 1 \
     --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
@@ -300,7 +301,6 @@ create_locations_app() {
                QUARKUS_DATASOURCE_USERNAME="$MARIADB_ADMIN_USER" \
                QUARKUS_DATASOURCE_PASSWORD="$MARIADB_ADMIN_PWD" \
                QUARKUS_DATASOURCE_JDBC_URL="$LOCATIONS_DB_CONNECT_STRING"
-
 
   echo "Getting URL to locations app"
   LOCATIONS_HOST="$(az containerapp ingress show \
@@ -390,6 +390,8 @@ create_fights_app() {
                QUARKUS_REST_CLIENT_HERO_CLIENT_URL="$HEROES_URL" \
                QUARKUS_REST_CLIENT_NARRATION_CLIENT_URL="$NARRATION_URL" \
                QUARKUS_GRPC_CLIENTS_LOCATIONS_HOST="$LOCATIONS_HOST" \
+               QUARKUS_GRPC_CLIENTS_LOCATIONS_PORT=443 \
+               QUARKUS_GRPC_CLIENTS_LOCATIONS_PLAIN_TEXT=false \
                FIGHT_VILLAIN_CLIENT_BASE_URL="$VILLAINS_URL"
 
   echo "Getting URL to event fights app"
@@ -778,7 +780,7 @@ echo "  Fights URL: $FIGHTS_URL"
 echo "  Heroes URL: $HEROES_URL"
 echo "  Villains URL: $VILLAINS_URL"
 echo "  Narration URL: $NARRATION_URL"
-echo "  Locations URL: grpc://$LOCATIONS_HOST"
+echo "  Locations URL: grpc://$LOCATIONS_HOST:443"
 echo "  Apicurio Schema Registry: $APICURIO_URL"
 
 if "$CREATE_CONTAINER_REGISTRY"; then
