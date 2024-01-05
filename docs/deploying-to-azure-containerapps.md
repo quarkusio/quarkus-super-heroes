@@ -741,28 +741,28 @@ The narration microservice communicates with the [Azure OpenAI service](#create-
 You'll need the `AZURE_OPENAI_KEY` value from the [Create the Azure OpenAI resources](#create-the-azure-openai-resources) step.
 
 ```shell
-    az containerapp create \
+az containerapp create \
   --resource-group "$RESOURCE_GROUP" \
   --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
-      --image "${NARRATION_IMAGE}-azure-openai" \
+  --image "${NARRATION_IMAGE}-azure-openai" \
   --name "$NARRATION_APP" \
   --environment "$CONTAINERAPPS_ENVIRONMENT" \
   --ingress external \
   --target-port 8087 \
   --min-replicas 1 \
-      --env-vars QUARKUS_PROFILE=azure-openai \
-                 QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY="$AZURE_OPENAI_KEY" \
-                 QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME="$NARRATION_COGNITIVE_SERVICE" \
-                 QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_ID="$NARRATION_COGNITIVE_SERVICE_DEPLOYMENT_NAME"
+  --env-vars QUARKUS_PROFILE=azure-openai \
+             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY="$AZURE_OPENAI_KEY" \
+             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME="$NARRATION_COGNITIVE_SERVICE" \
+             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_ID="$NARRATION_COGNITIVE_SERVICE_DEPLOYMENT_NAME"
 ```
 
 The following command sets the URL of the deployed application to the `NARRATION_URL` variable:
 
 ```shell
 NARRATION_URL="https://$(az containerapp ingress show \
-    --resource-group $RESOURCE_GROUP \
-    --name $NARRATION_APP \
-    --output json | jq -r .fqdn)"
+  --resource-group $RESOURCE_GROUP \
+  --name $NARRATION_APP \
+  --output json | jq -r .fqdn)"
   
 echo NARRATION_URL
 ```
