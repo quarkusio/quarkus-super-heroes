@@ -271,6 +271,13 @@ jobs:
           architecture: x64
           cache: maven
 
+      - name: Create env vars
+        if: matrix.project.openai-type
+        working-directory: ${{ matrix.project.name }}
+        run: |
+          echo "QUARKUS_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV && \
+          echo "QUARKUS_TEST_INTEGRATION_TEST_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV
+
       - name: "build-test-native-container-${{ matrix.project.name }}-java-${{ matrix.java }}"
         working-directory: ${{ matrix.project.name }}
         run: |
