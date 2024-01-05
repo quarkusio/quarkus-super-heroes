@@ -589,15 +589,6 @@ AZURE_OPENAI_KEY=$(
 )
     
 echo $AZURE_OPENAI_KEY
-
-AZURE_OPENAI_ENDPOINT=$(
-  az cognitiveservices account show \
-    --name "$COGNITIVE_SERVICE" \
-    --resource-group "$RESOURCE_GROUP" \
-    | jq -r .properties.endpoint
-)
-
-echo $AZURE_OPENAI_ENDPOINT
 ```
 
 For the Narration service to be able to contact the Azure OpenAI service, you need to set the following environment variables:
@@ -605,7 +596,6 @@ For the Narration service to be able to contact the Azure OpenAI service, you ne
 ```shell
 NARRATION_AZURE_OPEN_AI_ENABLED=true
 NARRATION_AZURE_OPEN_AI_KEY=$AZURE_OPENAI_KEY
-NARRATION_AZURE_OPEN_AI_ENDPOINT=$AZURE_OPENAI_ENDPOINT
 ```
 
 Take note of the `NARRATION_AZURE_OPEN_AI_KEY` and `NARRATION_AZURE_OPEN_AI_ENDPOINT` values for use in the step for [deploying the narration microservice](#narration-microservice).
@@ -767,8 +757,7 @@ az containerapp create \
   --target-port 8087 \
   --min-replicas 1 \
   --env-vars NARRATION_AZURE_OPEN_AI_ENABLED=true \
-             NARRATION_AZURE_OPEN_AI_KEY="$AZURE_OPENAI_KEY" \
-             NARRATION_AZURE_OPEN_AI_ENDPOINT="$AZURE_OPENAI_ENDPOINT"
+             NARRATION_AZURE_OPEN_AI_KEY="$AZURE_OPENAI_KEY"
 ```
 
 The following command sets the URL of the deployed application to the `NARRATION_URL` variable:

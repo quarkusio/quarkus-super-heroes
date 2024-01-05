@@ -147,16 +147,6 @@ AZURE_OPENAI_KEY=$(
     | jq -r .key1
 )
 
-# Get endpoint
-echo "-----------------------------------------"
-echo "[$(date +"%m/%d/%Y %T")]: Getting endpoint"
-echo "-----------------------------------------"
-AZURE_OPENAI_ENDPOINT=$(
-  az cognitiveservices account show \
-    --name "$COGNITIVE_SERVICE" \
-    --resource-group "$RESOURCE_GROUP" \
-    | jq -r .properties.endpoint
-)
 
 echo
 echo "Deployment took $SECONDS seconds to complete."
@@ -167,6 +157,5 @@ echo "-----------------------------------------"
 echo "Here are some key values you may need to use in your application's configuration:"
 echo
 echo "API key (quarkus.langchain4j.azure-openai.api-key): $AZURE_OPENAI_KEY"
-echo "API endpoint: $AZURE_OPENAI_ENDPOINT"
 echo "Resource Name (quarkus.langchain4j.azure-openai.resource-name): $COGNITIVE_SERVICE"
 echo "Deployment Name/Id (quarkus.langchain4j.azure-openai.deployment-id): $COGNITIVE_DEPLOYMENT"
