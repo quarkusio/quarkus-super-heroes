@@ -161,6 +161,12 @@ STATISTICS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${STATISTICS_APP}:${IMAGES_TAG}"
 # UI
 UI_APP="ui-super-heroes"
 UI_IMAGE="${SUPERHEROES_IMAGES_BASE}/${UI_APP}:${IMAGES_TAG}"
+
+# Cognitive Services
+COGNITIVE_SERVICE="cs-super-heroes-$UNIQUE_IDENTIFIER"
+COGNITIVE_DEPLOYMENT="csdeploy-super-heroes-$UNIQUE_IDENTIFIER"
+MODEL="gpt-35-turbo"
+MODEL_VERSION="0613"
 ```
 
 ## Create a resource group
@@ -335,9 +341,9 @@ az postgres flexible-server show-connection-string \
 
 > [!IMPORTANT]
 > These aren't the actual connection strings used, especially in the heroes service, which does not use JDBC.
-> 
+>
 > You also need to append `ssl=true&sslmode=require` to the end of each connect string to force the driver to use ssl.
-> 
+>
 > These commands are just here for your own examination purposes.
 
 ## Create the managed MariaDB database
@@ -360,7 +366,7 @@ az mysql flexible-server create \
   --storage-size 32 \
   --version "$MARIADB_VERSION"
 ````
-  
+
 Then, we create the database schema:
 
 ```shell
@@ -404,9 +410,9 @@ az mysql flexible-server show-connection-string \
 
 > [!IMPORTANT]
 > This isn't the actual connection string used.
-> 
+>
 > You also need to append `?sslmode=trust&useMysqlMetadata=true` to the end of each connect string to force the driver to use ssl and to use MySQL metadata.
-> 
+>
 > This command is just here for your own examination purposes.
 
 ## Create the managed MongoDB Database
@@ -532,23 +538,59 @@ open $APICURIO_URL
 ```
 
 ## Create the Azure OpenAI resources
-The Narration microservice needs to access an AI service to generate the text narrating the fight. [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service), or "OpenAI on Azure" is a service that provides REST API access to OpenAI’s models, including the GPT-4, GPT-3, Codex and Embeddings series. Azure OpenAI runs on Azure global infrastructure, which meets your production needs for critical enterprise security, compliance, and regional availability.
 
-The [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources. Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources.
+The Narration microservice needs to access an AI service to generate the text narrating the fight.
+[Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service), or "OpenAI on Azure" is a service that provides REST API access to OpenAI’s models, including the GPT-4, GPT-3, Codex and Embeddings series.
+Azure OpenAI runs on Azure global infrastructure, which meets your production needs for critical enterprise security, compliance, and regional availability.
+
+The [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources.
+Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources.
 
 > [!WARNING]
 > Keep in mind that the service may not be free.
 
-Upon completion of the script it will output the following:
+First, create an Azure Cognitive Services using the following command:
 
-```
-Or they can be injected via environment variables:
-  NARRATION_AZURE_OPEN_AI_ENABLED=true
-  NARRATION_AZURE_OPEN_AI_KEY=<azure_openai_key>
-  NARRATION_AZURE_OPEN_AI_ENDPOINT=<azure_openai_endpoint>
+```shell
+az cognitiveservices account create \
+  --name "$COGNITIVE_SERVICE" \
+  --resource-group "$RESOURCE_GROUP" \
+  --location "$LOCATION" \
+  --custom-domain "$COGNITIVE_SERVICE" \
+  --tags system="$TAG" \
+  --kind OpenAI \
+  --sku S0 \
+  --yes
 ```
 
-Take note of the `NARRATION_AZURE_OPEN_AI_KEY` and `NARRATION_AZURE_OPEN_AI_ENDPOINT` values for use in the step for [deploying the narration microservice](#narration-microservice).
+Then you need to deploy a GPT model to the Cognitive Services with the following command:
+
+```shell
+az cognitiveservices account deployment create \
+  --name "$COGNITIVE_SERVICE" \
+  --resource-group "$RESOURCE_GROUP" \
+  --deployment-name "$COGNITIVE_DEPLOYMENT" \
+  --model-name "$MODEL" \
+  --model-version "$MODEL_VERSION" \
+  --model-format OpenAI \
+  --sku-name Standard \
+  --sku-capacity 1
+```
+
+Then you need to get the Azure OpenAI key with the following command:
+
+```shell
+AZURE_OPENAI_KEY=$(
+  az cognitiveservices account keys list \
+    --name "$COGNITIVE_SERVICE" \
+    --resource-group "$RESOURCE_GROUP" \
+    | jq -r .key1
+)
+    
+echo $AZURE_OPENAI_KEY
+```
+
+Take note of the `AZURE_OPENAI_KEY` value for use in the step for [deploying the narration microservice](#narration-microservice).
 
 ## Deploying the Applications
 
@@ -694,30 +736,33 @@ az containerapp logs show \
 ````
 
 ### Narration Microservice
-The narration microservice communicates with the [Azure OpenAI service](#create-the-azure-openai-resources). You'll need the `NARRATION_AZURE_OPEN_AI_KEY` and the  `NARRATION_AZURE_OPEN_AI_ENDPOINT` values from the [Create the Azure OpenAI resources](#create-the-azure-openai-resources) step.
+
+The narration microservice communicates with the [Azure OpenAI service](#create-the-azure-openai-resources).
+You'll need the `AZURE_OPENAI_KEY` value from the [Create the Azure OpenAI resources](#create-the-azure-openai-resources) step.
 
 ```shell
 az containerapp create \
   --resource-group "$RESOURCE_GROUP" \
   --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
-  --image "$NARRATION_IMAGE" \
+  --image "${NARRATION_IMAGE}-azure-openai" \
   --name "$NARRATION_APP" \
   --environment "$CONTAINERAPPS_ENVIRONMENT" \
   --ingress external \
   --target-port 8087 \
   --min-replicas 1 \
-  --env-vars NARRATION_AZURE_OPEN_AI_ENABLED=true \
-             NARRATION_AZURE_OPEN_AI_KEY="$AZURE_OPENAI_KEY" \
-             NARRATION_AZURE_OPEN_AI_ENDPOINT="$AZURE_OPENAI_ENDPOINT"
+  --env-vars QUARKUS_PROFILE=azure-openai \
+             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY="$AZURE_OPENAI_KEY" \
+             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME="$NARRATION_COGNITIVE_SERVICE" \
+             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_ID="$NARRATION_COGNITIVE_SERVICE_DEPLOYMENT_NAME"
 ```
 
 The following command sets the URL of the deployed application to the `NARRATION_URL` variable:
 
 ```shell
 NARRATION_URL="https://$(az containerapp ingress show \
-    --resource-group $RESOURCE_GROUP \
-    --name $NARRATION_APP \
-    --output json | jq -r .fqdn)"
+  --resource-group $RESOURCE_GROUP \
+  --name $NARRATION_APP \
+  --output json | jq -r .fqdn)"
   
 echo NARRATION_URL
 ```
@@ -829,7 +874,7 @@ echo $FIGHTS_URL
 Use the following curl commands to access the Fight microservice.
 Remember that we've set the minimum replicas to 0.
 That means that pinging the Hero and Villain microservices might fallback (you will get a _That means that pinging the Hero and Villain microservices might fallback (you will get a That means that pinging the Hero and Villain microservices might fallback (you will get a _Could not invoke the Villains microservice_ message).
-Execute several times the same curl commands so Azure Containers Apps has time to instantiate one replica and process the requests: 
+Execute several times the same curl commands so Azure Containers Apps has time to instantiate one replica and process the requests:
 
 ```shell
 curl "$FIGHTS_URL/api/fights/hello"
@@ -891,7 +936,7 @@ node version
 export NODE_OPTIONS=--openssl-legacy-provider
 ```
 
-Then, to execute the app locally, set `API_BASE_URL` with the same value of the Fight microservice URL (so it accesses the remote Fight microservice): 
+Then, to execute the app locally, set `API_BASE_URL` with the same value of the Fight microservice URL (so it accesses the remote Fight microservice):
 
 ```shell
 export API_BASE_URL=https://${FIGHT_URL}/api
@@ -935,7 +980,7 @@ This way, we will be able to see the auto-scaling in Azure Container Apps.
 To add some load to an application, you can do it locally using [JMeter](https://jmeter.apache.org), but you can also do it remotely on Azure using [Azure Load Testing](https://azure.microsoft.com/services/load-testing) and JMeter.
 Azure Load Testing is a fully managed load-testing service built for Azure that makes it easy to generate high-scale load and identify app performance bottlenecks.
 It is available on the [Azure Marketplace](https://azuremarketplace.microsoft.com).
-For that, we need to go the 
+For that, we need to go the
 
 To use Azure Load Testing, go to the [Azure Portal](https://portal.azure.com), search for the Marketplace and look for "_Azure Load Testing_"  in the Marketplace.
 Click on "_Create_":
@@ -948,7 +993,7 @@ Click on "Create":
 ![load-testing-2-create](../images/load-testing-2-create.png)
 
 Creating a load testing resource can take a few moment.
-Once created, you should see the Azure Load Testing available in your resource group: 
+Once created, you should see the Azure Load Testing available in your resource group:
 
 ![load-testing-3-list](../images/load-testing-3-list.png)
 
@@ -958,7 +1003,7 @@ Choose this second option:
 
 ![load-testing-4-upload-jmeter](../images/load-testing-4-upload-jmeter.png)
 
-Before uploading a JMeter script, create a load test by entering a name (eg. "_Make them fight_"), a description and click "_Next: Test plan >_: 
+Before uploading a JMeter script, create a load test by entering a name (eg. "_Make them fight_"), a description and click "_Next: Test plan >_:
 
 ![load-testing-5-create-test-1](../images/load-testing-5-create-test-1.png)
 

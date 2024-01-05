@@ -147,6 +147,7 @@ AZURE_OPENAI_KEY=$(
     | jq -r .key1
 )
 
+
 echo
 echo "Azure OpenAI deployment took $SECONDS seconds to complete."
 echo
