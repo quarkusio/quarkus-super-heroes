@@ -536,7 +536,7 @@ LOCATIONS_DB="locations-db-$UNIQUE_IDENTIFIER"
 LOCATIONS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${LOCATIONS_APP}:${IMAGES_TAG}"
 LOCATIONS_DB_SCHEMA="locations"
 LOCATIONS_DB_SQL="$GITHUB_RAW_BASE_URL/$LOCATIONS_APP/deploy/db-init/initialize-tables.sql"
-LOCATIONS_DB_CONNECT_STRING="jdbc:mariadb://${LOCATIONS_APP}.mysql.database.azure.com:3306/${LOCATIONS_DB_SCHEMA}?sslmode=trust&useMysqlMetadata=true"
+LOCATIONS_DB_CONNECT_STRING="jdbc:mariadb://${LOCATIONS_DB}.mysql.database.azure.com:3306/${LOCATIONS_DB_SCHEMA}?sslmode=trust&useMysqlMetadata=true"
 
 # Heroes
 HEROES_APP="rest-heroes"

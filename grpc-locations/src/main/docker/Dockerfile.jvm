@@ -75,7 +75,14 @@
 #   accessed directly. (example: "foo.example.com,bar.example.com")
 #
 ###
-FROM registry.access.redhat.com/ubi9/openjdk-17:1.16
+FROM registry.access.redhat.com/ubi9/openjdk-17:1.17
+
+# This is here because of
+# https://www.redhat.com/en/blog/rhel-security-sha-1-package-signatures-distrusted-rhel-9
+#
+# https://access.redhat.com/solutions/6992400 provides the solution to add SHA1 back
+USER root
+RUN update-crypto-policies --set DEFAULT:SHA1
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en'
 
