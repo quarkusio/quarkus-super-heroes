@@ -165,7 +165,7 @@ By default, the application is configured with the following:
 
 | Description              | Environment Variable                                          | Java Property                                                 | Value                                    |
 |--------------------------|---------------------------------------------------------------|---------------------------------------------------------------|------------------------------------------|
-| Database Host            | `QUARKUS_MONGODB_HOSTS`                                       | `quarkus.mongodb.hosts`                                       | `localhost:27017`                        |
+| Database Host            | `QUARKUS_MONGODB_HOSTS`                                       | `quarkus.mongodb.hosts`                                       | `localhost:27021`                        |
 | Database username        | `QUARKUS_MONGODB_CREDENTIALS_USERNAME`                        | `quarkus.mongodb.credentials.username`                        | `superfight`                             |
 | Database password        | `QUARKUS_MONGODB_CREDENTIALS_PASSWORD`                        | `quarkus.mongodb.credentials.password`                        | `superfight`                             |
 | Kafka Bootstrap servers  | `KAFKA_BOOTSTRAP_SERVERS`                                     | `kafka.bootstrap.servers`                                     | `PLAINTEXT://localhost:9092`             |
@@ -187,7 +187,7 @@ Pick one of the versions of the application from the table below and execute the
 
 | Description | Image Tag       | Docker Compose Run Command                                               |
 |-------------|-----------------|--------------------------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans` |
+| JVM Java 21 | `java21-latest` | `docker compose -f deploy/docker-compose/java21.yml up --remove-orphans` |
 | Native      | `native-latest` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
 
 ### Fights Service and all Downstream Dependencies
@@ -198,7 +198,7 @@ The above Docker Compose files are meant for standing up this application and th
 
 | Description | Image Tag       | Docker Compose Run Command                                                              |
 |-------------|-----------------|-----------------------------------------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | `docker compose -f deploy/docker-compose/java17-all-downstream.yml up --remove-orphans` |
+| JVM Java 21 | `java21-latest` | `docker compose -f deploy/docker-compose/java21-all-downstream.yml up --remove-orphans` |
 | Native      | `native-latest` | `docker compose -f deploy/docker-compose/native-all-downstream.yml up --remove-orphans` |
 
 ### Only Downstream Dependencies
@@ -209,8 +209,8 @@ If you want to develop the Fights service (i.e. via [Quarkus Dev Mode](https://q
 
 | Description | Image Tag       | Docker Compose Run Command                                                                                                                                                                                                                   |
 |-------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | `docker compose -f rest-heroes/deploy/docker-compose/java17.yml -f rest-villains/deploy/docker-compose/java17.yml -f rest-narration/deploy/docker-compose/java17.yml -f grpc-locations/deploy/docker-compose/java17.yml up --remove-orphans` |
-| Native      | `native-latest` | `docker compose -f rest-heroes/deploy/docker-compose/native.yml -f rest-villains/deploy/docker-compose/native.yml -f rest-narration/deploy/docker-compose/native.yml -f grpc-locations/deploy/docker-compose/java17.yml up --remove-orphans` |
+| JVM Java 21 | `java21-latest` | `docker compose -f rest-heroes/deploy/docker-compose/java21.yml -f rest-villains/deploy/docker-compose/java21.yml -f rest-narration/deploy/docker-compose/java21.yml -f grpc-locations/deploy/docker-compose/java21.yml up --remove-orphans` |
+| Native      | `native-latest` | `docker compose -f rest-heroes/deploy/docker-compose/native.yml -f rest-villains/deploy/docker-compose/native.yml -f rest-narration/deploy/docker-compose/native.yml -f grpc-locations/deploy/docker-compose/java21.yml up --remove-orphans` |
 
 If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
@@ -231,7 +231,7 @@ Pick one of the versions of the application from the table below and deploy the 
 
 | Description | Image Tag       | OpenShift Descriptor                                      | Minikube Descriptor                                     | Kubernetes Descriptor                                       | Knative Descriptor                                    |
 |-------------|-----------------|-----------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml) | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml) | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml) | [`java17-knative.yml`](deploy/k8s/java17-knative.yml) |
+| JVM Java 21 | `java21-latest` | [`java21-openshift.yml`](deploy/k8s/java21-openshift.yml) | [`java21-minikube.yml`](deploy/k8s/java21-minikube.yml) | [`java21-kubernetes.yml`](deploy/k8s/java21-kubernetes.yml) | [`java21-knative.yml`](deploy/k8s/java21-knative.yml) |
 | Native      | `native-latest` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
 
 The application is exposed outside of the cluster on port `80`.
@@ -240,7 +240,7 @@ These are only the descriptors for this application and the required database, K
 
 | Description | Image Tag       | OpenShift Descriptor                                                                    | Minikube Descriptor                                                                   | Kubernetes Descriptor                                                                     | Knative Descriptor                                                                  |
 |-------------|-----------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | [`java17-openshift-all-downstream.yml`](deploy/k8s/java17-openshift-all-downstream.yml) | [`java17-minikube-all-downstream.yml`](deploy/k8s/java17-minikube-all-downstream.yml) | [`java17-kubernetes-all-downstream.yml`](deploy/k8s/java17-kubernetes-all-downstream.yml) | [`java17-knative-all-downstream.yml`](deploy/k8s/java17-knative-all-downstream.yml) |
+| JVM Java 21 | `java21-latest` | [`java21-openshift-all-downstream.yml`](deploy/k8s/java21-openshift-all-downstream.yml) | [`java21-minikube-all-downstream.yml`](deploy/k8s/java21-minikube-all-downstream.yml) | [`java21-kubernetes-all-downstream.yml`](deploy/k8s/java21-kubernetes-all-downstream.yml) | [`java21-knative-all-downstream.yml`](deploy/k8s/java21-knative-all-downstream.yml) |
 | Native      | `native-latest` | [`native-openshift-all-downstream.yml`](deploy/k8s/native-openshift-all-downstream.yml) | [`native-minikube-all-downstream.yml`](deploy/k8s/native-minikube-all-downstream.yml) | [`native-kubernetes-all-downstream.yml`](deploy/k8s/native-kubernetes-all-downstream.yml) | [`native-knative-all-downstream.yml`](deploy/k8s/native-knative-all-downstream.yml) |
 
 Each application is exposed outside of the cluster on port `80`.
@@ -255,11 +255,11 @@ Following the [deployment section](https://quarkus.io/guides/deploying-to-kubern
 
 | Target Platform        | Java Version | Command                                                                                                                                                                                                                                      |
 |------------------------|:------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Kubernetes             |      17      | `./mvnw clean package -Dquarkus.profile=kubernetes -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                             |
-| OpenShift              |      17      | `./mvnw clean package -Dquarkus.profile=openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests`         |
-| Minikube               |      17      | `./mvnw clean package -Dquarkus.profile=minikube -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                               |
-| Knative                |      17      | `./mvnw clean package -Dquarkus.profile=knative -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                                |
-| Knative (on OpenShift) |      17      | `./mvnw clean package -Dquarkus.profile=knative-openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests` |
+| Kubernetes             |      21      | `./mvnw clean package -Dquarkus.profile=kubernetes -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                             |
+| OpenShift              |      21      | `./mvnw clean package -Dquarkus.profile=openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests`         |
+| Minikube               |      21      | `./mvnw clean package -Dquarkus.profile=minikube -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                               |
+| Knative                |      21      | `./mvnw clean package -Dquarkus.profile=knative -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                                |
+| Knative (on OpenShift) |      21      | `./mvnw clean package -Dquarkus.profile=knative-openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests` |
 
 You may need to adjust other configuration options as well (see [Quarkus Kubernetes Extension configuration options](https://quarkus.io/guides/deploying-to-kubernetes#configuration-options) and [Quarkus OpenShift Extension configuration options](https://quarkus.io/guides/deploying-to-openshift#configuration-reference)).
 

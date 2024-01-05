@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         java:
-          - '17'
+          - '21'
         project:
           - { name: event-statistics }
           - { name: rest-fights }
@@ -70,7 +70,7 @@ jobs:
         run: |
           echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          if [[ ${{ matrix.java }} == '17' ]]; then
+          if [[ ${{ matrix.java }} == '21' ]]; then
             echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV"
           else
             echo "JVM_DOCKERFILE=Dockerfile.jvm${{ matrix.java }}" >> "$GITHUB_ENV"
@@ -121,7 +121,7 @@ jobs:
       fail-fast: false
       matrix:
         java:
-          - '17'
+          - '21'
         project:
           - { name: event-statistics }
           - { name: rest-fights }
@@ -215,7 +215,7 @@ jobs:
     strategy:
       matrix:
         java:
-          - '17'
+          - '21'
         kind:
           - ""
           - "native-"
@@ -267,7 +267,7 @@ jobs:
         working-directory: .github/workflows/scripts
         shell: bash
         run: echo "CONTAINER_TAG=$(./compute-container-tag.sh ${{ env.APP_VERSION }} ${{ env.QUARKUS_VERSION }} "${{ matrix.kind }}" ${{ matrix.java }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
-        
+
       - name: Create ADDITIONAL_TAG
         working-directory: .github/workflows/scripts
         shell: bash
@@ -300,7 +300,7 @@ jobs:
     strategy:
       matrix:
         java:
-          - '17'
+          - '21'
         kind:
           - ""
           - "native-"
