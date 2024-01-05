@@ -591,14 +591,7 @@ AZURE_OPENAI_KEY=$(
 echo $AZURE_OPENAI_KEY
 ```
 
-For the Narration service to be able to contact the Azure OpenAI service, you need to set the following environment variables:
-
-```shell
-NARRATION_AZURE_OPEN_AI_ENABLED=true
-NARRATION_AZURE_OPEN_AI_KEY=$AZURE_OPENAI_KEY
-```
-
-Take note of the `NARRATION_AZURE_OPEN_AI_KEY` and `NARRATION_AZURE_OPEN_AI_ENDPOINT` values for use in the step for [deploying the narration microservice](#narration-microservice).
+Take note of the `AZURE_OPENAI_KEY` value for use in the step for [deploying the narration microservice](#narration-microservice).
 
 ## Deploying the Applications
 
