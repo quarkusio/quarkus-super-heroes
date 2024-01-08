@@ -59,6 +59,7 @@ create_container_registry() {
   echo "Allowing anonymous pull access to the $CONTAINER_REGISTRY_NAME container registry"
   az acr update \
     --name "$CONTAINER_REGISTRY_NAME" \
+    --resource-group "$RESOURCE_GROUP" \
     --anonymous-pull-enabled
 
   echo "Getting the URL for the $CONTAINER_REGISTRY_NAME container registry"
