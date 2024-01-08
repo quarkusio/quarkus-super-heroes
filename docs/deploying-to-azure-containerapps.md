@@ -738,7 +738,7 @@ To access the logs of the Location microservice, you can write the following que
 
 ````shell
 az containerapp logs show \
-  --name "$LOCATION_APP" \
+  --name "$LOCATIONS_APP" \
   --resource-group "$RESOURCE_GROUP" \
   --output table
 ````
