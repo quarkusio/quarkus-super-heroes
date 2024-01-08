@@ -760,8 +760,8 @@ az containerapp create \
   --min-replicas 1 \
   --env-vars QUARKUS_PROFILE=azure-openai \
              QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY="$AZURE_OPENAI_KEY" \
-             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME="$NARRATION_COGNITIVE_SERVICE" \
-             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_ID="$NARRATION_COGNITIVE_SERVICE_DEPLOYMENT_NAME"
+             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME="$COGNITIVE_SERVICE" \
+             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_ID="$COGNITIVE_DEPLOYMENT"
 ```
 
 The following command sets the URL of the deployed application to the `NARRATION_URL` variable:
@@ -772,12 +772,13 @@ NARRATION_URL="https://$(az containerapp ingress show \
   --name $NARRATION_APP \
   --output json | jq -r .fqdn)"
   
-echo NARRATION_URL
+echo $NARRATION_URL
 ```
 You can now invoke the Narration microservice APIs with:
 
 ```shell
-curl "$NARRATION_URL/api/narration/hello"
+curl "$NARRATION_URL/api/narration/hello" 
+curl -X POST -d  '{"winnerName" : "Super winner", "winnerLevel" : 42, "winnerPowers" : "jumping", "loserName" : "Super loser", "loserLevel" : 2, "loserPowers" : "leaping", "winnerTeam" : "heroes", "loserTeam" : "villains", "location" : {"name" : "Tatooine", "description" : "desert planet"}}'  -H "Content-Type: application/json" "$NARRATION_URL/api/narration"
 ```
 
 To access the logs of the Narration microservice, you can write the following query:
