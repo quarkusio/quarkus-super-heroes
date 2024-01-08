@@ -727,11 +727,18 @@ LOCATIONS_HOST="$(az containerapp ingress show \
 echo $LOCATIONS_HOST
 ```
 
+You can now invoke the Location microservice APIs with:
+
+```shell
+grpcurl "$LOCATIONS_HOST:443" list
+grpcurl "$LOCATIONS_HOST:443" io.quarkus.sample.superheroes.location.v1.Locations.GetRandomLocation | jq
+```
+
 To access the logs of the Location microservice, you can write the following query:
 
 ````shell
 az containerapp logs show \
-  --name "$LOCATION_APP" \
+  --name "$LOCATIONS_APP" \
   --resource-group "$RESOURCE_GROUP" \
   --output table
 ````
