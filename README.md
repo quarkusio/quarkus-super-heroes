@@ -12,7 +12,6 @@
     - [Monitoring](#monitoring)
     - [Jaeger](#jaeger)
 - [Deploying to Azure Container Apps](docs/deploying-to-azure-containerapps.md)
-- [Contributors](#contributors)
 
 ## Introduction
 
@@ -182,14 +181,3 @@ six spans in the `rest-fights` application, four spans in the `rest-heroes` appl
 Each trace also provides the total round-trip time of the request into the `/api/fights/randomfighters` endpoint within the `rest-fights` application and the total time spent within each unit of work.
 
 ![Jaeger Filters](images/jaeger-3-trace.png)
-
-## Contributors
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
