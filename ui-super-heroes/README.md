@@ -4,6 +4,7 @@
 - [Introduction](#introduction)
 - [Building the Application](#building-the-application)
 - [Local Development](#local-development)
+- [Integration with Microcks](#integration-with-microcks)
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
 - [Deploying to Kubernetes](#deploying-to-kubernetes)
@@ -52,14 +53,28 @@ This starts both Quarkus and the React hot reloading server at http://localhost:
 
 The Quarkus server port can be changed in the usual way, with `application.properties`. 
 
+## Integration with Microcks
+[Microcks](https://microcks.io) is an open source tool for API mocking and testing. It allows developers to turn an API contract or [Postman Collection](https://learning.postman.com/docs/getting-started/first-steps/creating-the-first-collection) into live mocks.
+
+This can be especially useful while developing applications that have downstream dependencies, like the `ui-super-heroes` application does. The `ui-super-heroes` application depends on [`rest-fights`](../rest-fights).
+
+This problem is what the [Microcks Quarkus extension](https://github.com/microcks/microcks-quarkus) solves. This extension has been integrated into `ui-super-heroes` so that when live coding in dev mode, mock responses from [`rest-fights`](../rest-fights) will automatically get served.
+
+Furthermore, the [Microcks user interface](https://microcks.io/documentation/using/mocks) is accessible from the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui):
+
+![Microcks user interface](images/microcks-dev-ui.png)
+
+If you wish to disable this functionality, simply add `-Dquarkus.profile=no-microcks` when you run Quarkus dev mode (via [Maven](https://quarkus.io/guides/maven-tooling#dev-mode), [Gradle](https://quarkus.io/guides/gradle-tooling#dev-mode), or the [Quarkus CLI](https://quarkus.io/guides/cli-tooling#development-mode)). In this case, the Microcks dev service will be disabled and the `ui-super-heroes` application will attempt to make live calls to the downstream services.
+
 ## Running the Application
-1. First you need to start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), [Location Service](../grpc-locations), and [Fights Service](../rest-fights)). 
+As discussed in the [Integration with Microcks](#integration-with-microcks) section, simply running this application in dev mode will get you up and running with default mock responses.
+
+If you want _real_ backend services, follow these instructions:
+
+1. Start up all of the downstream services ([Heroes Service](../rest-heroes), [Villains Service](../rest-villains), [Location Service](../grpc-locations), and [Fights Service](../rest-fights)). 
     - The [Event Statistics Service](../event-statistics) is optional.
 2. Follow the steps above section, *Building the Application*.
-3. Set the `API_BASE_URL` environment variable with the appropriate [Fights Service](../rest-fights) hostname and port.
-   > [!TIP]
-   > By default, the [`rest-fights`](../rest-fights) service runs on port `8082`, so setting `API_BASE_URL=http://localhost:8082` will do.
-4. Start the service using the command `quarkus dev`.
+3. Start the service using the command `quarkus dev -Dquarkus.profile=no-microcks`.
     - You can also set the environment variable `CALCULATE_API_BASE_URL=true` to have it compute the base URL. Only use this option if the UI url is in the form of `ui-super-heroes.somewhere.com`. In this instance, setting `CALCULATE_API_BASE_URL=true` will replace `ui-super-heroes` in the URL with `rest-fights`.
 
 There is also a container image available that you can use instead:
