@@ -138,7 +138,12 @@ describe("the fight visualisation", () => {
 
       expect(screen.queryByTestId("location-name").innerHTML).toEqual(location.name + ": ")
       expect(screen.getByAltText("Location")).toHaveAttribute("src", location.picture)
-      expect(screen.getByText(location.description)).toBeInTheDocument()
+
+      const locationDescs = screen.getAllByText(location.description)
+      expect(locationDescs).toHaveLength(3)
+
+      locationDescs.forEach(locationDesc => expect(locationDesc).toBeInTheDocument())
+
       expect(screen.queryByText(/NARRATE THE FIGHT/i)).not.toBeInTheDocument()
     })
 

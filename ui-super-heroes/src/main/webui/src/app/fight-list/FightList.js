@@ -1,17 +1,16 @@
 export function FightList({fights}) {
   return (
-    <table className="table table-striped">
+    <table className="fights-table table-striped">
       <thead>
-      <tr>
-        <th className="fight-list-header thead-dark">Id</th>
-        <th className="fight-list-header thead-dark">Fight Date</th>
-        <th className="fight-list-header thead-dark">Winner</th>
-        <th className="fight-list-header thead-dark">Loser</th>
-        <th className="fight-list-header thead-dark">Location</th>
-      </tr>
+        <tr>
+          <th className="fight-list-header thead-dark">Id</th>
+          <th className="fight-list-header thead-dark">Fight Date</th>
+          <th className="fight-list-header thead-dark">Winner</th>
+          <th className="fight-list-header thead-dark">Loser</th>
+          <th className="fight-list-header thead-dark">Location</th>
+        </tr>
       </thead>
       <tbody>
-
 
       {fights && fights.map(element => (
         <tr key={element.id}>
