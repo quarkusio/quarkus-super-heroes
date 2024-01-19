@@ -138,7 +138,7 @@ function Fight({onFight}) {
                   <div className="space-eater">
                     {/* This div is a major hack just to take up visible space since the cards use absolute positioning */}
                     <div className="narration-text"><strong><span>{location.name}: </span></strong>{location.description}</div>
-                    <div><img className="squared" src={location.picture}></img></div>
+                    <div><img className="squared" src={location.picture} alt="space eater"></img></div>
                   </div>
               )}
               <button onClick={fight} className="btn btn-danger btn-block btn-lg">
@@ -187,7 +187,7 @@ function Fight({onFight}) {
             </div>
             <div className="card-pf-body space-eater">
               {/* This div is a major hack just to take up visible space since the cards use absolute positioning */}
-              <img className="rounded" src={fighters?.villain?.picture} alt="the villain"/>
+              <img className="rounded" src={fighters?.villain?.picture} alt="space eater"/>
             </div>
           </div>
         </div>
