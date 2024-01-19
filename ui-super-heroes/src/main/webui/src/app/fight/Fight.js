@@ -3,6 +3,7 @@ import {useEffect, useState} from "react"
 import {faComment} from "@fortawesome/free-solid-svg-icons"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
 import {trackPromise} from "react-promise-tracker";
+import {flipCard} from "../shared/card-flip";
 
 function Fight({onFight}) {
   const [fighters, setFighters] = useState()
@@ -67,19 +68,19 @@ function Fight({onFight}) {
   } else
     return (
       <div id="fight-row">
-        <div className="character flip-card">
+        <div className="character flip-card-container" onClick={() => flipCard('hero-flip-card')}>
           <div className={heroWinnerCss}>
             <h2 className="hero-name">
               {fighters?.hero?.name}<br/>
-              <span style={{fontSize: "small"}}>(Hover over for more info)</span>
+              <span style={{fontSize: "small"}}>(Click for more info)</span>
             </h2>
-            <div className="card-pf-body flip-card-inner">
-              <div className={heroWinnerCss + ' card-pf-body flip-card-front'}>
+            <div id="hero-flip-card" className="card-pf-body flip-card-inner">
+              <div className={heroWinnerCss + ' card-pf-body flip-card flip-card-front'}>
                 <img className="rounded" src={fighters?.hero?.picture} alt="the hero"/>
               </div>
-              <div className={heroWinnerCss + ' card-pf-body flip-card-back'}>
+              <div className={heroWinnerCss + ' card-pf-body flip-card flip-card-back'}>
                 <h4><strong>Hero Details</strong></h4>
-                <table>
+                <table data-testid="hero-details-table">
                   <tbody>
                   <tr>
                     <td className="flipcard-row-header">Level:</td>
@@ -95,7 +96,7 @@ function Fight({onFight}) {
             </div>
             <div className="card-pf-body space-eater">
               {/* This div is a major hack just to take up visible space since the cards use absolute positioning */}
-              <img className="rounded" src={fighters?.hero?.picture} alt="the hero"/>
+              <img className="rounded" src={fighters?.hero?.picture} alt="space-eater"/>
             </div>
           </div>
         </div>
@@ -110,13 +111,13 @@ function Fight({onFight}) {
                 <h4><i className="fas fa-random"></i> NEW LOCATION </h4>
               </button>
               {location && (
-              <div className="flip-card">
-                <div className="flip-card-inner">
-                  <div className="flip-card-front">
+              <div className="flip-card-container" onClick={() => flipCard('location-flip-card')}>
+                <div id="location-flip-card" className="flip-card-inner">
+                  <div className="flip-card flip-card-front">
                     <div className="narration-text"><strong><span data-testid="location-name">{location.name}: </span></strong>{location.description}</div>
                     <div><img alt="Location" className="squared" src={location.picture}></img></div>
                   </div>
-                  <div className="flip-card-back">
+                  <div className="flip-card flip-card-back">
                     <h4><strong>Location Details</strong></h4>
                     <table>
                       <tbody>
@@ -159,17 +160,17 @@ function Fight({onFight}) {
           </div>
         </div>
 
-        <div className="character flip-card">
+        <div className="character flip-card-container" onClick={() => flipCard('villain-flip-card')}>
           <div className={villainWinnerCss}>
             <h2 className="villain-name">
               {fighters?.villain?.name}<br/>
-              <span style={{fontSize: "small"}}>(Hover over for more info)</span>
+              <span style={{fontSize: "small"}}>(Click for more info)</span>
             </h2>
-            <div className="flip-card-inner">
-              <div className={villainWinnerCss + ' card-pf-body flip-card-front'}>
+            <div id="villain-flip-card" className="card-pf-body flip-card-inner">
+              <div className={villainWinnerCss + ' card-pf-body flip-card flip-card-front'}>
                 <img className="rounded" src={fighters?.villain?.picture} alt="the villain"/>
               </div>
-              <div className={villainWinnerCss + ' card-pf-body flip-card-back'}>
+              <div className={villainWinnerCss + ' card-pf-body flip-card flip-card-back'}>
                 <h4><strong>Villain Details</strong></h4>
                 <table>
                   <tbody>
@@ -186,7 +187,7 @@ function Fight({onFight}) {
               </div>
             </div>
             <div className="card-pf-body space-eater">
-              {/* This div is a major hack just to take up visible space since the cards use absolute positioning */}
+            {/* This div is a major hack just to take up visible space since the cards use absolute positioning */}
               <img className="rounded" src={fighters?.villain?.picture} alt="space eater"/>
             </div>
           </div>
