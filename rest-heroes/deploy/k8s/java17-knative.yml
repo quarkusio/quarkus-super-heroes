@@ -50,7 +50,7 @@ metadata:
     app.openshift.io/connects-to: heroes-db
     app.openshift.io/vcs-ref: rhbq-2.7
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-01-18 - 15:08:48 +0000
+    app.quarkus.io/build-timestamp: 2024-01-25 - 13:27:46 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -61,8 +61,8 @@ metadata:
     application: heroes-service
     system: quarkus-super-heroes
     app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/version: java17-latest-rhbq-2.7
+    app.kubernetes.io/name: rest-heroes
   name: rest-heroes
 spec:
   template:
@@ -71,7 +71,7 @@ spec:
         app.openshift.io/connects-to: heroes-db
         app.openshift.io/vcs-ref: rhbq-2.7
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2024-01-18 - 15:08:48 +0000
+        app.quarkus.io/build-timestamp: 2024-01-25 - 13:27:46 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -82,16 +82,16 @@ spec:
         application: heroes-service
         system: quarkus-super-heroes
         app.kubernetes.io/part-of: heroes-service
-        app.kubernetes.io/name: rest-heroes
         app.kubernetes.io/version: java17-latest-rhbq-2.7
+        app.kubernetes.io/name: rest-heroes
     spec:
       containerConcurrency: 0
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-heroes-config-creds
             - configMapRef:
                 name: rest-heroes-config
+            - secretRef:
+                name: rest-heroes-config-creds
           image: quay.io/quarkus-super-heroes/rest-heroes:java17-latest-rhbq-2.7
           livenessProbe:
             failureThreshold: 3
