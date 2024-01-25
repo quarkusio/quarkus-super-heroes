@@ -36,6 +36,7 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 5px;
 }
 
 .btn-block {
@@ -43,7 +44,7 @@ h1 {
   padding-right: 4rem;
 }
 
-.table {
+.fights-table {
   margin-left: 6rem;
   margin-right: 6rem;
   width: 80%;
@@ -135,8 +136,8 @@ td {
   grid-template-columns: 1.2fr 1fr 1.2fr;
   grid-auto-flow: column;
   justify-content: center;
-  margin-left: 2rem;
-  margin-right: 2rem;
+  margin-left: 1rem;
+  margin-right: 5rem;
   margin-bottom: 30px;
   gap: 2rem;
 }
@@ -214,4 +215,63 @@ td {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
+}
+
+table .flipcard-row-header {
+  width: auto;
+  text-align: start;
+  vertical-align: top;
+  font-weight: bold;
+  font-size: small;
+  white-space: pre-wrap;
+  padding-top: 5px;
+}
+
+table .flipcard-row-value {
+  width: 100%;
+  text-align: start;
+  font-size: small;
+  white-space: pre-wrap;
+}
+
+.space-eater {
+  /* This is a hack just so something can eat up space in the document */
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+}
+
+.flip-card-container {
+  background-color: transparent;
+  width: 100%;
+  height: 100%;
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card {
+  position: absolute;
+  width: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flip-card-front {
+
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+.is-flipped {
+  transform: rotateY(180deg);
 }
