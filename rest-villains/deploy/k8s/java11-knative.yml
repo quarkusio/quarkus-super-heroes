@@ -33,7 +33,7 @@ metadata:
     app.openshift.io/connects-to: "villains-db,otel-collector"
     app.openshift.io/vcs-ref: 2.13.Final
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-01-18 - 15:01:15 +0000
+    app.quarkus.io/build-timestamp: 2024-01-25 - 13:37:40 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -44,8 +44,8 @@ metadata:
     application: villains-service
     system: quarkus-super-heroes
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java11-latest-2.13.Final
     app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/version: java11-latest-2.13.Final
   name: rest-villains
 spec:
   template:
@@ -54,7 +54,7 @@ spec:
         app.openshift.io/connects-to: "villains-db,otel-collector"
         app.openshift.io/vcs-ref: 2.13.Final
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2024-01-18 - 15:01:15 +0000
+        app.quarkus.io/build-timestamp: 2024-01-25 - 13:37:40 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -65,15 +65,15 @@ spec:
         application: villains-service
         system: quarkus-super-heroes
         app.kubernetes.io/part-of: villains-service
-        app.kubernetes.io/version: java11-latest-2.13.Final
         app.kubernetes.io/name: rest-villains
+        app.kubernetes.io/version: java11-latest-2.13.Final
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:java11-latest-2.13.Final
           livenessProbe:
             failureThreshold: 3
