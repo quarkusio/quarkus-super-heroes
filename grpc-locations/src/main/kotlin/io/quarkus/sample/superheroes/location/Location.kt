@@ -31,7 +31,5 @@ class Location {
 	@Column(nullable = false)
 	lateinit var type: LocationType
 
-	override fun toString(): String {
-		return "Location(id=$id, name='$name', description='$description', picture='$picture', type='$type')"
-	}
+	override fun toString() = "Location(id=$id, name='$name', description='$description', picture='$picture', type='$type')"
 }
