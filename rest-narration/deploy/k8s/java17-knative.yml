@@ -22,8 +22,9 @@ metadata:
     app.openshift.io/connects-to: otel-collector
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/quarkus-version: 3.7.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-02-01 - 12:19:15 +0000
+    app.quarkus.io/build-timestamp: 2024-02-01 - 13:33:48 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8087"
@@ -35,6 +36,7 @@ metadata:
     system: quarkus-super-heroes
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-narration
+    app.kubernetes.io/version: java17-latest
     app.kubernetes.io/part-of: narration-service
   name: rest-narration
 spec:
@@ -76,3 +78,31 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  annotations:
+    app.openshift.io/connects-to: otel-collector
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/quarkus-version: 3.7.1
+    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/build-timestamp: 2024-02-01 - 13:33:48 +0000
+  labels:
+    app: rest-narration
+    app.openshift.io/runtime: quarkus
+    application: narration-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/name: rest-narration
+    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/part-of: narration-service
+  name: rest-narration
+spec:
+  selector: {}
+  endpoints:
+    - scheme: http
+      targetPort: 8087
+      path: /q/metrics
+      interval: 10s
+      honorLabels: true
