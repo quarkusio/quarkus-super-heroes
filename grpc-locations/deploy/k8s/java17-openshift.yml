@@ -85,8 +85,9 @@ metadata:
     app.openshift.io/connects-to: "locations-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/quarkus-version: 3.7.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-02-01 - 12:18:55 +0000
+    app.quarkus.io/build-timestamp: 2024-02-01 - 13:33:26 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -130,6 +131,8 @@ spec:
       name: locations-db
   template:
     metadata:
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
       labels:
         application: locations-service
         name: locations-db
@@ -184,8 +187,9 @@ metadata:
     app.openshift.io/connects-to: "locations-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/quarkus-version: 3.7.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-02-01 - 12:18:55 +0000
+    app.quarkus.io/build-timestamp: 2024-02-01 - 13:33:26 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -210,12 +214,14 @@ spec:
   template:
     metadata:
       annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
         app.openshift.io/vcs-uri: <<unknown>>
         app.openshift.io/connects-to: "locations-db,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/quarkus-version: 3.7.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2024-02-01 - 12:18:55 +0000
+        app.quarkus.io/build-timestamp: 2024-02-01 - 13:33:26 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8089"
@@ -287,8 +293,9 @@ metadata:
     app.openshift.io/connects-to: "locations-db,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/quarkus-version: 3.7.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-02-01 - 12:18:55 +0000
+    app.quarkus.io/build-timestamp: 2024-02-01 - 13:33:26 +0000
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
@@ -308,3 +315,37 @@ spec:
   to:
     kind: Service
     name: grpc-locations
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  annotations:
+    app.openshift.io/vcs-uri: <<unknown>>
+    app.openshift.io/connects-to: "locations-db,otel-collector"
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/quarkus-version: 3.7.1
+    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/build-timestamp: 2024-02-01 - 13:33:26 +0000
+  labels:
+    app.kubernetes.io/name: grpc-locations
+    app.kubernetes.io/part-of: locations-service
+    app.kubernetes.io/version: java17-latest
+    app: grpc-locations
+    application: locations-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/managed-by: quarkus
+    app.openshift.io/runtime: quarkus
+  name: grpc-locations
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: grpc-locations
+      app.kubernetes.io/part-of: locations-service
+      app.kubernetes.io/version: java17-latest
+  endpoints:
+    - scheme: http
+      targetPort: 8089
+      path: /q/metrics
+      interval: 10s
+      honorLabels: true

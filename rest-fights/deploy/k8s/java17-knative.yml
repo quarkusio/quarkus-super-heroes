@@ -78,8 +78,9 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
     app.openshift.io/vcs-ref: main
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/quarkus-version: 3.7.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-02-01 - 12:20:24 +0000
+    app.quarkus.io/build-timestamp: 2024-02-01 - 13:34:57 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -89,6 +90,8 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: fights-service
     system: quarkus-super-heroes
+    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-fights
@@ -101,8 +104,9 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
         app.openshift.io/vcs-ref: main
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/quarkus-version: 3.7.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2024-02-01 - 12:20:24 +0000
+        app.quarkus.io/build-timestamp: 2024-02-01 - 13:34:57 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -112,6 +116,8 @@ spec:
         app.openshift.io/runtime: quarkus
         application: fights-service
         system: quarkus-super-heroes
+        app.kubernetes.io/version: java17-latest
+        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: rest-fights
@@ -228,6 +234,8 @@ spec:
       name: fights-db
   template:
     metadata:
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
       labels:
         application: fights-service
         name: fights-db
@@ -264,6 +272,8 @@ spec:
       name: fights-kafka
   template:
     metadata:
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
       labels:
         application: fights-service
         name: fights-kafka
@@ -320,6 +330,7 @@ spec:
         prometheus.io/path: /metrics
         prometheus.io/port: "8080"
         prometheus.io/scheme: http
+        alpha.image.policy.openshift.io/resolve-names: '*'
       labels:
         application: fights-service
         name: apicurio
@@ -360,3 +371,31 @@ spec:
               memory: 768Mi
             requests:
               memory: 128Mi
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  annotations:
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/quarkus-version: 3.7.1
+    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/build-timestamp: 2024-02-01 - 13:34:57 +0000
+  labels:
+    app: rest-fights
+    app.openshift.io/runtime: quarkus
+    application: fights-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+  name: rest-fights
+spec:
+  selector: {}
+  endpoints:
+    - scheme: http
+      targetPort: 8082
+      path: /q/metrics
+      interval: 10s
+      honorLabels: true
