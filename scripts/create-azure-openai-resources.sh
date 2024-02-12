@@ -158,4 +158,4 @@ echo "Here are some key values you may need to use in your application's configu
 echo
 echo "API key (quarkus.langchain4j.azure-openai.api-key): $AZURE_OPENAI_KEY"
 echo "Resource Name (quarkus.langchain4j.azure-openai.resource-name): $COGNITIVE_SERVICE"
-echo "Deployment Name/Id (quarkus.langchain4j.azure-openai.deployment-id): $COGNITIVE_DEPLOYMENT"
+echo "Deployment Name/Id (quarkus.langchain4j.azure-openai.deployment-name): $COGNITIVE_DEPLOYMENT"
