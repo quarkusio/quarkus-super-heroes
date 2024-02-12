@@ -1,18 +1,9 @@
 package io.quarkus.sample.superheroes.narration.rest;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.*;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.Matchers.is;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,20 +11,13 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
-import io.quarkus.sample.superheroes.narration.rest.NarrationResourceIT.WiremockOpenAITestProfile;
-import io.quarkus.test.junit.QuarkusIntegrationTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
-import io.quarkus.test.junit.TestProfile;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.quarkiverse.wiremock.devservice.ConnectWireMock;
-import io.quarkiverse.wiremock.devservice.WireMockConfigKey;
 import io.restassured.RestAssured;
 
-@QuarkusIntegrationTest
-@TestProfile(WiremockOpenAITestProfile.class)
 @ConnectWireMock
-class NarrationResourceIT {
+abstract class NarrationResourceIT {
   private static final String HERO_NAME = "Super Baguette";
   private static final int HERO_LEVEL = 42;
   private static final String HERO_POWERS = "Eats baguette in less than a second";
@@ -54,7 +38,7 @@ class NarrationResourceIT {
   private static final String DEFAULT_LOCATION_NAME = "Gotham City";
   private static final String DEFAULT_LOCATION_DESCRIPTION = "An American city rife with corruption and crime, the home of its iconic protector Batman.";
   private static final Fight FIGHT = new Fight(VILLAIN_NAME, VILLAIN_LEVEL, VILLAIN_POWERS, HERO_NAME, HERO_LEVEL, HERO_POWERS, VILLAIN_TEAM_NAME, HERO_TEAM_NAME, new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION));
-  private static final String REQUEST_JSON = """
+  protected static final String REQUEST_JSON = """
     {
       "model": "gpt-3.5-turbo",
       "messages": [
@@ -99,6 +83,11 @@ class NarrationResourceIT {
     this.wireMock.resetToDefaultMappings();
   }
 
+  static boolean azureOpenAiEnabled() {
+    return "azure-openai".equals(System.getenv("QUARKUS_TEST_INTEGRATION_TEST_PROFILE")) ||
+      "azure-openai".equals(System.getProperty("quarkus.test.integration-test-profile"));
+  }
+
   @Test
   void shouldPingOpenAPI() {
     given()
@@ -126,28 +115,10 @@ class NarrationResourceIT {
         .statusCode(OK.getStatusCode())
         .contentType(TEXT)
         .body(is(EXPECTED_NARRATION));
-
-    this.wireMock.verifyThat(
-      1,
-      postRequestedFor(urlPathMatching("/v1/chat/completions(\\?api-version=.+)?"))
-        .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
-        .withHeader(HttpHeaders.CONTENT_TYPE, equalToIgnoreCase(MediaType.APPLICATION_JSON))
-        .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer change-me"))
-        .withRequestBody(equalToJson(REQUEST_JSON, true, false))
-    );
   }
 
   @Test
   void shouldGetAFallbackOnError() {
-    this.wireMock.register(
-      post(urlPathMatching("/v1/chat/completions(\\?api-version=.+)?"))
-        .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
-        .withHeader(HttpHeaders.CONTENT_TYPE, equalToIgnoreCase(MediaType.APPLICATION_JSON))
-        .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer change-me"))
-        .withRequestBody(equalToJson(REQUEST_JSON, true, false))
-        .willReturn(serverError())
-    );
-
     given()
       .body(FIGHT)
       .contentType(JSON)
@@ -156,15 +127,6 @@ class NarrationResourceIT {
         .statusCode(OK.getStatusCode())
         .contentType(TEXT)
         .body(is(FALLBACK_NARRATION));
-
-    this.wireMock.verifyThat(
-      2,
-      postRequestedFor(urlPathMatching("/v1/chat/completions(\\?api-version=.+)?"))
-        .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
-        .withHeader(HttpHeaders.CONTENT_TYPE, equalToIgnoreCase(MediaType.APPLICATION_JSON))
-        .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer change-me"))
-        .withRequestBody(equalToJson(REQUEST_JSON, true, false))
-    );
   }
 
   @Test
@@ -174,30 +136,5 @@ class NarrationResourceIT {
       .accept(TEXT)
       .when().post("/api/narration").then()
         .statusCode(400);
-  }
-
-  public static class WiremockOpenAITestProfile implements QuarkusTestProfile {
-    @Override
-    public Map<String, String> getConfigOverrides() {
-	    var hostname = Boolean.getBoolean("quarkus.container-image.build") ? "host.docker.internal" : "localhost";
-
-      var openAiProps = Map.of(
-        "quarkus.langchain4j.openai.log-requests", "true",
-        "quarkus.langchain4j.openai.log-responses", "true",
-        "quarkus.langchain4j.openai.base-url", "http://%s:${%s}/v1/".formatted(hostname, WireMockConfigKey.PORT),
-        "quarkus.langchain4j.openai.max-retries", "2",
-        "quarkus.langchain4j.openai.timeout", "3s"
-      );
-
-      var azureOpenAiProps = openAiProps.entrySet().stream()
-        .map(entry -> Map.entry(entry.getKey().replace(".openai.", ".azure-openai."), entry.getValue()))
-        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-
-      var props = new HashMap<>(Map.of("narration.make-live-calls", "true"));
-      props.putAll(azureOpenAiProps);
-      props.putAll(openAiProps);
-
-      return props;
-    }
   }
 }

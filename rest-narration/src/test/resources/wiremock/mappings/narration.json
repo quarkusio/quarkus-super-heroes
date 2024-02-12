@@ -1,62 +1,129 @@
 {
-  "request": {
-    "urlPathPattern": "/v1/chat/completions(\\?api-version=.+)?",
-    "method": "POST",
-    "headers": {
-      "Accept": {
-        "equalTo": "application/json",
-        "caseInsensitive": true
+  "mappings": [
+    {
+      "request": {
+        "urlPath": "/v1/chat/completions",
+        "method": "POST",
+        "headers": {
+          "Accept": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Content-Type": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Authorization": {
+            "matches": "Bearer .+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.model",
+              "matches": "gpt-.+"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.messages.size() == 2)]"
+          },
+          {
+            "matchesJsonPath": "$.messages[?((@.role == 'system') && (@.content == 'You are a marvel comics writer, expert in all sorts of super heroes and super villains.'))]"
+          },
+          {
+            "matchesJsonPath": {
+              "expression": "$.messages[?(@.role == 'user')].content",
+              "contains": "Narrate the fight between a super hero and a super villain.\n\nDuring the narration, don't repeat \"super hero\" or \"super villain\".\n\nWrite 4 paragraphs maximum. Be creative.\n\nThe narration must be:\n- G rated\n- Workplace/family safe\n- No sexism, racism, or other bias/bigotry\n\nHere is the data you will use for the winner:"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.temperature == 0.7)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.top_p == 0.5)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.presence_penalty == 0)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.frequency_penalty == 0)]"
+          }
+        ]
       },
-      "Content-Type": {
-        "equalTo": "application/json",
-        "caseInsensitive": true
-      },
-      "Authorization": {
-        "matches": "Bearer .+"
+      "response": {
+        "status": 200,
+        "body": "{\n  \"id\": \"chatcmpl-8Uy1UC7ZFUXtjhYcY5VFj7eYGu6jX\",\n  \"object\": \"chat.completion\",\n  \"created\": 1702391260,\n  \"model\": \"gpt-3.5-turbo-0613\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"In the gritty streets of Gotham City, a clash of epic proportions unfolded. Han Solo, a hero known for his sharpshooting skills and unwavering skepticism towards the force, faced off against Storm Trooper, a villain armed with nothing more than a small gun. The odds seemed stacked against the Storm Trooper, but he was determined to prove his worth.\\n\\nAs the battle commenced, Han Solo swiftly dodged the Storm Trooper's feeble shots, his agility and experience shining through. With a smirk on his face, Han Solo aimed his big gun with precision, firing shots that echoed through the city. The Storm Trooper, though outmatched, refused to back down, his determination fueling his every move.\\n\\nWith each passing moment, Han Solo's level of expertise became more apparent. His shots were calculated and deadly, while the Storm Trooper struggled to keep up. The hero's confidence grew, his movements becoming more fluid and effortless. It was clear that the Storm Trooper's small gun was no match for Han Solo's superior firepower.\\n\\nIn a final, decisive moment, Han Solo's shot found its mark, incapacitating the Storm Trooper. The hero emerged victorious, his unwavering resolve prevailing over the villain's futile attempts. As the city rejoiced in the triumph of justice, Han Solo stood tall, a symbol of hope and resilience in the face of adversity.\"\n      },\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 232,\n    \"completion_tokens\": 280,\n    \"total_tokens\": 512\n  },\n  \"system_fingerprint\": null\n}\n",
+        "headers": {
+          "Content-Type": "application/json",
+          "openai-model": "gpt-3.5-turbo-0613",
+          "openai-organization": "my-org-1234",
+          "openai-version": "2020-10-01",
+          "openai-processing-ms": "15000"
+        }
       }
     },
-    "bodyPatterns": [
-      {
-        "matchesJsonPath": {
-          "expression": "$.model",
-          "matches": "gpt-.+"
+    {
+      "request": {
+        "urlPath": "/v1/chat/completions",
+        "queryParameters": {
+          "api-version": {
+            "matches": ".+"
+          }
+        },
+        "method": "POST",
+        "headers": {
+          "Accept": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Content-Type": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "api-key": {
+            "matches": ".+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.model",
+              "matches": "gpt-.+"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.messages.size() == 2)]"
+          },
+          {
+            "matchesJsonPath": "$.messages[?((@.role == 'system') && (@.content == 'You are a marvel comics writer, expert in all sorts of super heroes and super villains.'))]"
+          },
+          {
+            "matchesJsonPath": {
+              "expression": "$.messages[?(@.role == 'user')].content",
+              "contains": "Narrate the fight between a super hero and a super villain.\n\nDuring the narration, don't repeat \"super hero\" or \"super villain\".\n\nWrite 4 paragraphs maximum. Be creative.\n\nThe narration must be:\n- G rated\n- Workplace/family safe\n- No sexism, racism, or other bias/bigotry\n\nHere is the data you will use for the winner:"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.temperature == 0.7)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.top_p == 0.5)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.presence_penalty == 0)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.frequency_penalty == 0)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"id\": \"chatcmpl-8Uy1UC7ZFUXtjhYcY5VFj7eYGu6jX\",\n  \"object\": \"chat.completion\",\n  \"created\": 1702391260,\n  \"model\": \"gpt-3.5-turbo-0613\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"In the gritty streets of Gotham City, a clash of epic proportions unfolded. Han Solo, a hero known for his sharpshooting skills and unwavering skepticism towards the force, faced off against Storm Trooper, a villain armed with nothing more than a small gun. The odds seemed stacked against the Storm Trooper, but he was determined to prove his worth.\\n\\nAs the battle commenced, Han Solo swiftly dodged the Storm Trooper's feeble shots, his agility and experience shining through. With a smirk on his face, Han Solo aimed his big gun with precision, firing shots that echoed through the city. The Storm Trooper, though outmatched, refused to back down, his determination fueling his every move.\\n\\nWith each passing moment, Han Solo's level of expertise became more apparent. His shots were calculated and deadly, while the Storm Trooper struggled to keep up. The hero's confidence grew, his movements becoming more fluid and effortless. It was clear that the Storm Trooper's small gun was no match for Han Solo's superior firepower.\\n\\nIn a final, decisive moment, Han Solo's shot found its mark, incapacitating the Storm Trooper. The hero emerged victorious, his unwavering resolve prevailing over the villain's futile attempts. As the city rejoiced in the triumph of justice, Han Solo stood tall, a symbol of hope and resilience in the face of adversity.\"\n      },\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 232,\n    \"completion_tokens\": 280,\n    \"total_tokens\": 512\n  },\n  \"system_fingerprint\": null\n}\n",
+        "headers": {
+          "Content-Type": "application/json"
         }
-      },
-      {
-        "matchesJsonPath": "$[?(@.messages.size() == 2)]"
-      },
-      {
-        "matchesJsonPath": "$.messages[?((@.role == 'system') && (@.content == 'You are a marvel comics writer, expert in all sorts of super heroes and super villains.'))]"
-      },
-      {
-        "matchesJsonPath": {
-          "expression": "$.messages[?(@.role == 'user')].content",
-          "contains": "Narrate the fight between a super hero and a super villain.\n\nDuring the narration, don't repeat \"super hero\" or \"super villain\".\n\nWrite 4 paragraphs maximum. Be creative.\n\nThe narration must be:\n- G rated\n- Workplace/family safe\n- No sexism, racism, or other bias/bigotry\n\nHere is the data you will use for the winner:"
-        }
-      },
-      {
-        "matchesJsonPath": "$[?(@.temperature == 0.7)]"
-      },
-      {
-        "matchesJsonPath": "$[?(@.top_p == 0.5)]"
-      },
-      {
-        "matchesJsonPath": "$[?(@.presence_penalty == 0)]"
-      },
-      {
-        "matchesJsonPath": "$[?(@.frequency_penalty == 0)]"
       }
-    ]
-  },
-  "response": {
-    "status": 200,
-    "body": "{\n  \"id\": \"chatcmpl-8Uy1UC7ZFUXtjhYcY5VFj7eYGu6jX\",\n  \"object\": \"chat.completion\",\n  \"created\": 1702391260,\n  \"model\": \"gpt-3.5-turbo-0613\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"In the gritty streets of Gotham City, a clash of epic proportions unfolded. Han Solo, a hero known for his sharpshooting skills and unwavering skepticism towards the force, faced off against Storm Trooper, a villain armed with nothing more than a small gun. The odds seemed stacked against the Storm Trooper, but he was determined to prove his worth.\\n\\nAs the battle commenced, Han Solo swiftly dodged the Storm Trooper's feeble shots, his agility and experience shining through. With a smirk on his face, Han Solo aimed his big gun with precision, firing shots that echoed through the city. The Storm Trooper, though outmatched, refused to back down, his determination fueling his every move.\\n\\nWith each passing moment, Han Solo's level of expertise became more apparent. His shots were calculated and deadly, while the Storm Trooper struggled to keep up. The hero's confidence grew, his movements becoming more fluid and effortless. It was clear that the Storm Trooper's small gun was no match for Han Solo's superior firepower.\\n\\nIn a final, decisive moment, Han Solo's shot found its mark, incapacitating the Storm Trooper. The hero emerged victorious, his unwavering resolve prevailing over the villain's futile attempts. As the city rejoiced in the triumph of justice, Han Solo stood tall, a symbol of hope and resilience in the face of adversity.\"\n      },\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 232,\n    \"completion_tokens\": 280,\n    \"total_tokens\": 512\n  },\n  \"system_fingerprint\": null\n}\n",
-    "headers": {
-      "Content-Type": "application/json",
-      "openai-model": "gpt-3.5-turbo-0613",
-      "openai-organization": "my-org-1234",
-      "openai-version": "2020-10-01",
-      "openai-processing-ms": "15000"
     }
-  }
+  ]
 }

@@ -88,14 +88,14 @@ java -Dquarkus.profile=openai -Dquarkus.langchain4j.openai.api-key=my-key -jar t
 
 **Dev Mode:**
 ```bash
-quarkus dev --clean -Dquarkus.profile=azure-openai -Dquarkus.langchain4j.azure-openai.api-key=my-key -Dquarkus.langchain4j.azure-openai.resource-name=my-resource-name -Dquarkus.langchain4j.azure-openai.deployment-id=my-deployment-id
+quarkus dev --clean -Dquarkus.profile=azure-openai -Dquarkus.langchain4j.azure-openai.api-key=my-key -Dquarkus.langchain4j.azure-openai.resource-name=my-resource-name -Dquarkus.langchain4j.azure-openai.deployment-name=my-deployment-name
 ```
 
 **Running via `java -jar`**:
 ```bash
 ./mvnw clean package -DskipTests -Dquarkus.profile=azure-openai
 
-java -Dquarkus.profile=azure-openai -Dquarkus.langchain4j.azure-openai.api-key=my-key -Dquarkus.langchain4j.azure-openai.resource-name=my-resource-name -Dquarkus.langchain4j.azure-openai.deployment-id=my0deployment-id -jar target/quarkus-app/quarkus-run.jar
+java -Dquarkus.profile=azure-openai -Dquarkus.langchain4j.azure-openai.api-key=my-key -Dquarkus.langchain4j.azure-openai.resource-name=my-resource-name -Dquarkus.langchain4j.azure-openai.deployment-name=my-deployment-name -jar target/quarkus-app/quarkus-run.jar
 ```
  
 > [!NOTE]
@@ -111,12 +111,12 @@ To enable the OpenAI integration the following properties must be set, either in
 
 #### Azure OpenAI properties
 
-| Description                            | Environment Variable                             | Java Property                                    | Value                                  |
-|----------------------------------------|--------------------------------------------------|--------------------------------------------------|----------------------------------------|
-| Set the Azure OpenAI profile           | `QUARKUS_PROFILE`                                | `quarkus.profile`                                | `azure-openai`                         | 
-| Azure cognitive services account key   | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY`       | `quarkus.langchain4j.azure-openai.api-key`       | `Your azure openai key`                |
-| The Azure OpenAI resource name         | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME` | `quarkus.langchain4j.azure-openai.resource-name` | `Your azure openai resource name`      |
-| Azure cognitive services deployment id | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_ID` | `quarkus.langchain4j.azure-openai.deployment-id` | `Your azure openai deployment id/name` |
+| Description                              | Environment Variable                               | Java Property                                      | Value                                  |
+|------------------------------------------|----------------------------------------------------|----------------------------------------------------|----------------------------------------|
+| Set the Azure OpenAI profile             | `QUARKUS_PROFILE`                                  | `quarkus.profile`                                  | `azure-openai`                         | 
+| Azure cognitive services account key     | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY`         | `quarkus.langchain4j.azure-openai.api-key`         | `Your azure openai key`                |
+| The Azure OpenAI resource name           | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME`   | `quarkus.langchain4j.azure-openai.resource-name`   | `Your azure openai resource name`      |
+| Azure cognitive services deployment name | `QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_NAME` | `quarkus.langchain4j.azure-openai.deployment-name` | `Your azure openai deployment id/name` |
 
 ## Running Locally via Docker Compose
 Pre-built images for this application can be found at [`quay.io/quarkus-super-heroes/rest-narration`](https://quay.io/repository/quarkus-super-heroes/rest-narration?tab=tags). 
