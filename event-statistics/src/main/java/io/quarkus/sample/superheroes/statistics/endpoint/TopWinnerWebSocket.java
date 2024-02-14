@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.server.ServerEndpoint;
 
 import io.quarkus.sample.superheroes.statistics.domain.Score;
+import io.quarkus.scheduler.Scheduled;
 
 import io.smallrye.mutiny.Multi;
 
@@ -26,5 +27,12 @@ public class TopWinnerWebSocket extends EventStatsWebSocket<Iterable<Score>> {
   @Override
   protected Multi<Iterable<Score>> getStream() {
     return this.topWinnerStatsChannelHolder.getWinners();
+  }
+
+  @Scheduled(every = "${pingInterval.topWinners:1m}", delayed = "${pingInterval.topWinners:1m}")
+  @Override
+  void sendPings() {
+    // This is overridden here because of https://github.com/quarkusio/quarkus/issues/38781
+    super.sendPings();
   }
 }
