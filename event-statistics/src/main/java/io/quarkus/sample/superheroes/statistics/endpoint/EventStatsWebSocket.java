@@ -1,18 +1,23 @@
 package io.quarkus.sample.superheroes.statistics.endpoint;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.inject.Inject;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.CloseReason.CloseCodes;
 import jakarta.websocket.OnClose;
+import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
+import jakarta.websocket.PongMessage;
 import jakarta.websocket.Session;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
+
 import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +44,11 @@ public abstract class EventStatsWebSocket<V> {
   public void onOpen(Session session) {
     this.logger.debugf("Opening session with id %s", session.getId());
     this.sessions.put(session, createSubscription(session));
+  }
+
+  @OnMessage
+  public void onPongMessage(Session session, PongMessage pongMessage) {
+    this.logger.debugf("Got pong message (%s) from session %s", new String(pongMessage.getApplicationData().array(), StandardCharsets.UTF_8), session.getId());
   }
 
   @OnClose
@@ -69,6 +79,24 @@ public abstract class EventStatsWebSocket<V> {
         }
       }
     });
+  }
+
+  void sendPings() {
+    this.sessions.keySet()
+      .stream()
+      .filter(Session::isOpen)
+      .forEach(this::sendPing);
+  }
+
+  private void sendPing(Session session) {
+    this.logger.debugf("Sending ping to session %s", session.getId());
+
+    try {
+      session.getAsyncRemote().sendPing(ByteBuffer.wrap("PING".getBytes(StandardCharsets.UTF_8)));
+    }
+    catch (IOException e) {
+      this.logger.errorf(e, "Got error sending ping: %s", e.getMessage());
+    }
   }
 
   private Cancellable createSubscription(Session session) {
