@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
-import io.quarkus.sample.superheroes.narration.service.NarrationProcessor;
+import io.quarkus.sample.superheroes.narration.service.NarrationService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -45,7 +45,7 @@ class NarrationResourceTest {
   );
 
   @InjectMock
-  NarrationProcessor narrationProcessor;
+  NarrationService narrationService;
 
   @BeforeAll
 	static void beforeAll() {
@@ -54,7 +54,7 @@ class NarrationResourceTest {
 
   @BeforeEach
   public void setup() {
-    when(this.narrationProcessor.narrate(FIGHT))
+    when(this.narrationService.narrate(FIGHT))
       .thenReturn(NARRATION);
   }
 
@@ -66,7 +66,7 @@ class NarrationResourceTest {
       .statusCode(OK.getStatusCode())
       .contentType(JSON);
 
-    verifyNoInteractions(this.narrationProcessor);
+    verifyNoInteractions(this.narrationService);
   }
 
   @Test
@@ -76,7 +76,7 @@ class NarrationResourceTest {
       .contentType(TEXT)
       .body(is("Hello Narration Resource"));
 
-    verifyNoInteractions(this.narrationProcessor);
+    verifyNoInteractions(this.narrationService);
   }
 
   @Test
@@ -90,8 +90,8 @@ class NarrationResourceTest {
         .contentType(TEXT)
         .body(is(NARRATION));
 
-    verify(this.narrationProcessor).narrate(FIGHT);
-    verifyNoMoreInteractions(this.narrationProcessor);
+    verify(this.narrationService).narrate(FIGHT);
+    verifyNoMoreInteractions(this.narrationService);
   }
 
   @Test
@@ -102,6 +102,6 @@ class NarrationResourceTest {
       .when().post("/api/narration").then()
         .statusCode(400);
 
-    verifyNoInteractions(this.narrationProcessor);
+    verifyNoInteractions(this.narrationService);
   }
 }

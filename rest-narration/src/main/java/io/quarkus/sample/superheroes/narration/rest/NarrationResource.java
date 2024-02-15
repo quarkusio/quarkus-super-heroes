@@ -18,7 +18,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.narration.Fight;
-import io.quarkus.sample.superheroes.narration.service.NarrationProcessor;
+import io.quarkus.sample.superheroes.narration.service.NarrationService;
 
 import io.smallrye.common.annotation.NonBlocking;
 
@@ -29,13 +29,13 @@ import io.smallrye.common.annotation.NonBlocking;
 @Produces(MediaType.TEXT_PLAIN)
 @Tag(name = "narration")
 public class NarrationResource {
-  private final NarrationProcessor narrationProcessor;
+  private final NarrationService narrationService;
 
-	public NarrationResource(NarrationProcessor narrationProcessor) {
-		this.narrationProcessor = narrationProcessor;
-	}
+    public NarrationResource(NarrationService narrationService) {
+        this.narrationService = narrationService;
+    }
 
-	@POST
+    @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @Operation(summary = "Creates a narration for the fight")
   @APIResponse(
@@ -60,7 +60,7 @@ public class NarrationResource {
       )
     )
     @NotNull Fight fight) {
-    var narration = this.narrationProcessor.narrate(fight);
+    var narration = this.narrationService.narrate(fight);
     Log.debugf("Narration for fight %s = \"%s\"", fight, narration);
 
     return narration;

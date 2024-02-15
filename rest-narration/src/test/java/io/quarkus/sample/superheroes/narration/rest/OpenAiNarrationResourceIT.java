@@ -7,6 +7,7 @@ import java.util.Map;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
 
 import io.quarkus.sample.superheroes.narration.rest.OpenAiNarrationResourceIT.WiremockOpenAITestProfile;
@@ -20,6 +21,7 @@ import io.quarkiverse.wiremock.devservice.WireMockConfigKey;
 @TestProfile(WiremockOpenAITestProfile.class)
 @DisabledIf(value = "azureOpenAiEnabled", disabledReason = "Azure OpenAI profile is enabled")
 public class OpenAiNarrationResourceIT extends NarrationResourceIT {
+  @Test
 	@Override
 	void shouldNarrateAFight() {
 		super.shouldNarrateAFight();
@@ -34,6 +36,7 @@ public class OpenAiNarrationResourceIT extends NarrationResourceIT {
     );
 	}
 
+  @Test
 	@Override
 	void shouldGetAFallbackOnError() {
 		this.wireMock.register(
@@ -63,7 +66,7 @@ public class OpenAiNarrationResourceIT extends NarrationResourceIT {
 	    var hostname = Boolean.getBoolean("quarkus.container-image.build") ? "host.docker.internal" : "localhost";
 
       return Map.of(
-				"narration.make-live-calls", "true",
+				"quarkus.langchain4j.openai.enable-integration", "true",
         "quarkus.langchain4j.openai.log-requests", "true",
         "quarkus.langchain4j.openai.log-responses", "true",
         "quarkus.langchain4j.openai.base-url", "http://%s:${%s}/v1/".formatted(hostname, WireMockConfigKey.PORT),
