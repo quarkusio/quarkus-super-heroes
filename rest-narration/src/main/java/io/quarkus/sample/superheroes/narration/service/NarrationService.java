@@ -2,13 +2,10 @@ package io.quarkus.sample.superheroes.narration.service;
 
 import java.time.temporal.ChronoUnit;
 
-import jakarta.enterprise.inject.spi.CDI;
-
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 
 import io.quarkus.sample.superheroes.narration.Fight;
-import io.quarkus.sample.superheroes.narration.config.NarrationConfig;
 
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
@@ -17,6 +14,15 @@ import io.quarkiverse.langchain4j.RegisterAiService;
 
 @RegisterAiService
 public interface NarrationService {
+  String FALLBACK_NARRATION = """
+    High above a bustling city, a symbol of hope and justice soared through the sky, while chaos reigned below, with malevolent laughter echoing through the streets.
+    With unwavering determination, the figure swiftly descended, effortlessly evading explosive attacks, closing the gap, and delivering a decisive blow that silenced the wicked laughter.
+    
+    In the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.
+    The people knew that their protector had once again ensured their safety.
+    
+    """;
+
   @SystemMessage("You are a marvel comics writer, expert in all sorts of super heroes and super villains.")
   @UserMessage("""
     Narrate the fight between a super hero and a super villain.
@@ -59,6 +65,6 @@ public interface NarrationService {
   String narrate(@SpanAttribute("arg.fight") Fight fight);
 
   default String narrateFallback(@SpanAttribute("arg.fight") Fight fight) {
-    return CDI.current().select(NarrationConfig.class).get().fallbackNarration();
+    return FALLBACK_NARRATION;
   }
 }

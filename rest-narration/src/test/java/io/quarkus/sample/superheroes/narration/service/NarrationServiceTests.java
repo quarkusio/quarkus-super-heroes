@@ -8,7 +8,6 @@ import static org.mockito.Mockito.*;
 
 import java.time.Duration;
 
-import jakarta.inject.Inject;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
-import io.quarkus.sample.superheroes.narration.config.NarrationConfig;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectSpy;
 
@@ -93,9 +91,6 @@ class NarrationServiceTests {
   @InjectSpy
   NarrationService narrationService;
 
-  @Inject
-  NarrationConfig narrationConfig;
-
   @ConfigProperty(name = "quarkus.langchain4j.openai.timeout")
   Duration timeout;
 
@@ -141,7 +136,7 @@ class NarrationServiceTests {
   @Test
   void narrateFallback() {
     assertThat(this.narrationService.narrateFallback(FIGHT))
-      .isEqualTo(this.narrationConfig.fallbackNarration());
+      .isEqualTo(NarrationService.FALLBACK_NARRATION);
   }
 
   @Test
@@ -162,7 +157,7 @@ class NarrationServiceTests {
     );
 
     assertThat(this.narrationService.narrate(FIGHT))
-      .isEqualTo(this.narrationConfig.fallbackNarration());
+      .isEqualTo(NarrationService.FALLBACK_NARRATION);
 
     this.wireMock.verifyThat(
       2,
@@ -184,7 +179,7 @@ class NarrationServiceTests {
     );
 
     assertThat(this.narrationService.narrate(FIGHT))
-      .isEqualTo(this.narrationConfig.fallbackNarration());
+      .isEqualTo(NarrationService.FALLBACK_NARRATION);
 
     this.wireMock.verifyThat(
       2,
