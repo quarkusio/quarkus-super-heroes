@@ -8,9 +8,9 @@ import static jakarta.ws.rs.core.HttpHeaders.*;
 import static jakarta.ws.rs.core.MediaType.*;
 import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.grpcmock.GrpcMock.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.ParameterizedTest.*;
+import static org.wiremock.grpc.dsl.WireMockGrpc.*;
 
 import java.time.Duration;
 import java.util.List;
@@ -24,7 +24,6 @@ import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.bson.types.ObjectId;
-import org.grpcmock.GrpcMock;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,16 +34,17 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.wiremock.grpc.dsl.WireMockGrpcService;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
-import io.quarkus.sample.superheroes.fight.GrpcMockServerResource;
 import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
-import io.quarkus.sample.superheroes.fight.InjectGrpcMock;
+import io.quarkus.sample.superheroes.fight.InjectGrpcWireMock;
 import io.quarkus.sample.superheroes.fight.InjectWireMock;
+import io.quarkus.sample.superheroes.fight.LocationsWiremockGrpcServerResource;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate.FightToNarrateLocation;
 import io.quarkus.sample.superheroes.fight.client.Hero;
@@ -53,7 +53,6 @@ import io.quarkus.sample.superheroes.location.grpc.HelloReply;
 import io.quarkus.sample.superheroes.location.grpc.HelloRequest;
 import io.quarkus.sample.superheroes.location.grpc.Location;
 import io.quarkus.sample.superheroes.location.grpc.LocationType;
-import io.quarkus.sample.superheroes.location.grpc.LocationsGrpc;
 import io.quarkus.sample.superheroes.location.grpc.RandomLocationRequest;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
@@ -71,7 +70,6 @@ import io.apicurio.registry.serde.avro.AvroKafkaSerdeConfig;
 import io.apicurio.registry.serde.avro.AvroKafkaSerializer;
 import io.apicurio.registry.serde.avro.ReflectAvroDatumProvider;
 import io.apicurio.rest.client.VertxHttpClientProvider;
-import io.grpc.Status;
 import io.restassured.RestAssured;
 import io.restassured.config.HttpClientConfig;
 import io.smallrye.reactive.messaging.kafka.companion.KafkaCompanion;
@@ -83,21 +81,21 @@ import io.vertx.core.Vertx;
  *   Uses wiremock to stub responses and verify interactions with the hero, villain, and narration services.
  * </p>
  * <p>
- *   Uses grpcmock to stub responses and verify interactions with the location service
+ *   Uses Wiremock gRPC to stub responses and verify interactions with the location service
  * </p>
  * <p>
  *   Uses an external container image for Kafka
  * </p>
  * @see HeroesVillainsNarrationWiremockServerResource
- * @see GrpcMockServerResource
+ * @see LocationsWiremockGrpcServerResource
  * @see KafkaCompanionResource
  */
 @QuarkusIntegrationTest
 @QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
 @QuarkusTestResource(value = KafkaCompanionResource.class, restrictToAnnotatedClass = true)
-@QuarkusTestResource(value = GrpcMockServerResource.class, restrictToAnnotatedClass = true)
+@QuarkusTestResource(value = LocationsWiremockGrpcServerResource.class, restrictToAnnotatedClass = true)
 @TestMethodOrder(OrderAnnotation.class)
-public class FightResourceIT {
+class FightResourceIT {
 	private static final int DEFAULT_ORDER = 0;
   private static final String HERO_API_BASE_URI = "/api/heroes";
 	private static final String HERO_API_URI = HERO_API_BASE_URI + "/random";
@@ -199,8 +197,11 @@ public class FightResourceIT {
 	@InjectWireMock
 	WireMockServer wireMockServer;
 
-  @InjectGrpcMock
-  GrpcMock grpcMock;
+  @InjectGrpcWireMock
+  WireMockServer wireMockGrpcServer;
+
+  @InjectGrpcWireMock
+  WireMockGrpcService wireMockGrpc;
 
 	@InjectKafkaCompanion
   KafkaCompanion companion;
@@ -224,12 +225,10 @@ public class FightResourceIT {
   }
 
 	@BeforeEach
-	public void beforeEach() {
+	void beforeEach() {
 		// Reset WireMock
 		this.wireMockServer.resetAll();
-
-    // Reset GrpcMock
-    this.grpcMock.resetAll();
+    this.wireMockGrpcServer.resetAll();
 
     // Configure Avro Serde for Fight
     companion.setCommonClientConfig(Map.of(AvroKafkaSerdeConfig.AVRO_DATUM_PROVIDER, ReflectAvroDatumProvider.class.getName()));
@@ -240,7 +239,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void helloEndpoint() {
+	void helloEndpoint() {
 		get("/api/fights/hello")
 			.then()
 				.statusCode(OK.getStatusCode())
@@ -250,14 +249,14 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void pingOpenAPI() {
+	void pingOpenAPI() {
 		get("/q/openapi")
 			.then().statusCode(OK.getStatusCode());
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void getRandomFightersHeroFallback() {
+	void getRandomFightersHeroFallback() {
 		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
@@ -294,7 +293,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void getRandomFightersHeroDelay() {
+	void getRandomFightersHeroDelay() {
 		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
@@ -334,7 +333,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void getRandomFightersVillainFallback() {
+	void getRandomFightersVillainFallback() {
 		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
@@ -371,7 +370,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void getRandomFightersVillainDelay() {
+	void getRandomFightersVillainDelay() {
 		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
@@ -411,7 +410,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void getRandomFightersHeroNotFound() {
+	void getRandomFightersHeroNotFound() {
 		this.wireMockServer.stubFor(
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(notFound())
@@ -446,7 +445,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void getRandomFightersVillainNotFound() {
+	void getRandomFightersVillainNotFound() {
 		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
@@ -483,7 +482,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void getRandomFightersHeroAndVillainNotFound() {
+	void getRandomFightersHeroAndVillainNotFound() {
 		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
@@ -520,7 +519,7 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER)
-  public void shouldGetNarration() {
+  void shouldGetNarration() {
     this.wireMockServer.stubFor(
       WireMock.post(urlEqualTo(NARRATION_API_BASE_URI))
         .withHeader(ACCEPT, containing(TEXT_PLAIN))
@@ -544,7 +543,7 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER + 1)
-  public void getNarrationFallback() {
+  void getNarrationFallback() {
     resetNarrationCircuitBreakersToClosedState();
 
     this.wireMockServer.stubFor(
@@ -569,7 +568,7 @@ public class FightResourceIT {
 
 	@Test
   @Order(DEFAULT_ORDER + 1)
-  public void getNarrationDelay() {
+  void getNarrationDelay() {
     resetNarrationCircuitBreakersToClosedState();
 
 		var delay = 31_000;
@@ -608,7 +607,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void getRandomFightersHeroAndVillainFallback() {
+	void getRandomFightersHeroAndVillainFallback() {
 		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
@@ -645,7 +644,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void getRandomFightersHeroAndVillainDelay() {
+	void getRandomFightersHeroAndVillainDelay() {
 		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
@@ -688,12 +687,12 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER + 1)
-  public void getRandomLocationOk() {
+  void getRandomLocationOk() {
     resetLocationCircuitBreakerToClosedState();
 
-    this.grpcMock.register(
-      unaryMethod(LocationsGrpc.getGetRandomLocationMethod())
-        .willReturn(DEFAULT_GRPC_LOCATION)
+    this.wireMockGrpc.stubFor(
+      method("GetRandomLocation")
+        .willReturn(message(DEFAULT_GRPC_LOCATION))
     );
 
     var randomLocation = get("/api/fights/randomlocation")
@@ -707,25 +706,19 @@ public class FightResourceIT {
       .usingRecursiveComparison()
       .isEqualTo(DEFAULT_LOCATION);
 
-    this.grpcMock.verifyThat(
-      calledMethod(LocationsGrpc.getGetRandomLocationMethod())
-        .withRequest(RandomLocationRequest.newBuilder().build())
-        .build(),
-      GrpcMock.times(1)
-    );
+   this.wireMockGrpc.verify(1, "GetRandomLocation")
+      .withRequestMessage(equalToMessage(RandomLocationRequest.newBuilder()));
   }
 
 	@Test
   @Order(DEFAULT_ORDER + 1)
-  public void getRandomLocationDelay() {
+  void getRandomLocationDelay() {
     resetLocationCircuitBreakerToClosedState();
 
-    this.grpcMock.register(
-      unaryMethod(LocationsGrpc.getGetRandomLocationMethod())
-        .willReturn(
-					response(DEFAULT_GRPC_LOCATION)
-						.withFixedDelay(Duration.ofSeconds(3))
-        )
+    this.wireMockGrpc.stubFor(
+      method("GetRandomLocation")
+        .willReturn(message(DEFAULT_GRPC_LOCATION))
+        .withFixedDelay(Duration.ofSeconds(3).toMillis())
     );
 
     var randomLocation = get("/api/fights/randomlocation")
@@ -739,23 +732,19 @@ public class FightResourceIT {
       .usingRecursiveComparison()
       .isEqualTo(FALLBACK_LOCATION);
 
-    this.grpcMock.verifyThat(
-      calledMethod(LocationsGrpc.getGetRandomLocationMethod())
-        .withRequest(RandomLocationRequest.newBuilder().build())
-        .build(),
-      GrpcMock.times(1)
-    );
+    this.wireMockGrpc.verify(1, "GetRandomLocation")
+      .withRequestMessage(equalToMessage(RandomLocationRequest.newBuilder()));
   }
 
   @ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
   @MethodSource("randomLocationFailReasons")
   @Order(DEFAULT_ORDER + 1)
-  public void getRandomLocationFail(Status status, int expectedNumberOfCalls) {
+  void getRandomLocationFail(Status status, String statusReason, int expectedNumberOfCalls) {
     resetLocationCircuitBreakerToClosedState();
 
-    this.grpcMock.register(
-      unaryMethod(LocationsGrpc.getGetRandomLocationMethod())
-        .willReturn(status)
+    this.wireMockGrpc.stubFor(
+      method("GetRandomLocation")
+        .willReturn(status, statusReason)
     );
 
     var randomLocation = get("/api/fights/randomlocation")
@@ -769,24 +758,20 @@ public class FightResourceIT {
       .usingRecursiveComparison()
       .isEqualTo(FALLBACK_LOCATION);
 
-    this.grpcMock.verifyThat(
-      calledMethod(LocationsGrpc.getGetRandomLocationMethod())
-        .withRequest(RandomLocationRequest.newBuilder().build())
-        .build(),
-      GrpcMock.times(expectedNumberOfCalls)
-    );
+    this.wireMockGrpc.verify(expectedNumberOfCalls, "GetRandomLocation")
+      .withRequestMessage(equalToMessage(RandomLocationRequest.newBuilder()));
   }
 
   static Stream<Arguments> randomLocationFailReasons() {
     return Stream.of(
-      Arguments.of(Status.UNAVAILABLE.withDescription("Service isn't there"), 4),
-      Arguments.of(Status.NOT_FOUND.withDescription("A location was not found"), 1)
+      Arguments.of(Status.UNAVAILABLE, "Service isn't there", 4),
+      Arguments.of(Status.NOT_FOUND, "A location was not found", 1)
     );
   }
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void getRandomFightersAllOk() {
+	void getRandomFightersAllOk() {
 		resetHeroVillainCircuitBreakersToClosedState();
 
 		this.wireMockServer.stubFor(
@@ -823,7 +808,7 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER)
-  public void helloHeroesOk() {
+  void helloHeroesOk() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(HERO_API_HELLO_URI))
         .willReturn(okForContentType(TEXT_PLAIN, "Hello heroes!"))
@@ -843,7 +828,7 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER + 1)
-  public void helloHeroesFallback() {
+  void helloHeroesFallback() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(HERO_API_HELLO_URI))
         .willReturn(
@@ -866,7 +851,7 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER + 1)
-  public void helloHeroesFail() {
+  void helloHeroesFail() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(HERO_API_HELLO_URI))
         .willReturn(serverError())
@@ -886,7 +871,7 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER)
-  public void helloVillainsOk() {
+  void helloVillainsOk() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(VILLAIN_API_HELLO_URI))
         .willReturn(okForContentType(TEXT_PLAIN, "Hello villains!"))
@@ -906,7 +891,7 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER + 1)
-  public void helloVillainsFallback() {
+  void helloVillainsFallback() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(VILLAIN_API_HELLO_URI))
         .willReturn(
@@ -929,7 +914,7 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER + 1)
-  public void helloVillainsFail() {
+  void helloVillainsFail() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(VILLAIN_API_HELLO_URI))
         .willReturn(serverError())
@@ -949,7 +934,7 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER)
-  public void helloNarrationOk() {
+  void helloNarrationOk() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(NARRATION_API_HELLO_URI))
         .willReturn(okForContentType(TEXT_PLAIN, "Hello narration!"))
@@ -969,11 +954,11 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER)
-  public void helloLocationsOk() {
-    this.grpcMock.register(
-			unaryMethod(LocationsGrpc.getHelloMethod())
-				.willReturn(HelloReply.newBuilder().setMessage("Hello location!").build())
-		);
+  void helloLocationsOk() {
+    this.wireMockGrpc.stubFor(
+      method("Hello")
+        .willReturn(message(HelloReply.newBuilder().setMessage("Hello location!")))
+    );
 
     get("/api/fights/hello/locations")
       .then()
@@ -981,23 +966,17 @@ public class FightResourceIT {
       .contentType(TEXT)
       .body(is("Hello location!"));
 
-    this.grpcMock.verifyThat(
-			calledMethod(LocationsGrpc.getHelloMethod())
-				.withRequest(HelloRequest.newBuilder().build())
-				.build(),
-			times(1)
-    );
+    this.wireMockGrpc.verify(1, "Hello")
+      .withRequestMessage(equalToMessage(HelloRequest.newBuilder()));
   }
 
   @Test
   @Order(DEFAULT_ORDER + 1)
-  public void helloLocationsFallback() {
-    this.grpcMock.register(
-      unaryMethod(LocationsGrpc.getHelloMethod())
-        .willReturn(
-          response(HelloReply.newBuilder().setMessage("Hello location!").build())
-            .withFixedDelay(Duration.ofSeconds(6))
-        )
+  void helloLocationsFallback() {
+    this.wireMockGrpc.stubFor(
+      method("Hello")
+        .willReturn(message(HelloReply.newBuilder().setMessage("Hello location!")))
+        .withFixedDelay(6_000)
     );
 
     get("/api/fights/hello/locations")
@@ -1006,21 +985,17 @@ public class FightResourceIT {
       .contentType(TEXT)
       .body(is("Could not invoke the Locations microservice"));
 
-    this.grpcMock.verifyThat(
-			calledMethod(LocationsGrpc.getHelloMethod())
-				.withRequest(HelloRequest.newBuilder().build())
-				.build(),
-			times(1)
-    );
+    this.wireMockGrpc.verify(1, "Hello")
+      .withRequestMessage(equalToMessage(HelloRequest.newBuilder()));
   }
 
   @Test
   @Order(DEFAULT_ORDER + 1)
-  public void helloLocationsFail() {
-    this.grpcMock.register(
-			unaryMethod(LocationsGrpc.getHelloMethod())
-				.willReturn(Status.UNAVAILABLE.withDescription("Service isn't there"))
-		);
+  void helloLocationsFail() {
+    this.wireMockGrpc.stubFor(
+      method("Hello")
+        .willReturn(Status.UNAVAILABLE, "Service isn't there")
+    );
 
     get("/api/fights/hello/locations")
       .then()
@@ -1028,17 +1003,13 @@ public class FightResourceIT {
       .contentType(TEXT)
       .body(is("Could not invoke the Locations microservice"));
 
-   this.grpcMock.verifyThat(
-			calledMethod(LocationsGrpc.getHelloMethod())
-				.withRequest(HelloRequest.newBuilder().build())
-				.build(),
-			times(1)
-    );
+   this.wireMockGrpc.verify(1, "Hello")
+      .withRequestMessage(equalToMessage(HelloRequest.newBuilder()));
   }
 
   @Test
   @Order(DEFAULT_ORDER + 1)
-  public void helloNarrationFallback() {
+  void helloNarrationFallback() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(NARRATION_API_HELLO_URI))
         .willReturn(
@@ -1061,7 +1032,7 @@ public class FightResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER + 1)
-  public void helloNarrationFail() {
+  void helloNarrationFail() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(NARRATION_API_HELLO_URI))
         .willReturn(serverError())
@@ -1081,20 +1052,20 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void getAllFights() {
+	void getAllFights() {
 		getAndVerifyAllFights();
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void getFightNotFound() {
+	void getFightNotFound() {
 		get("/api/fights/{id}", new ObjectId().toString())
 			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void getFoundFight() {
+	void getFoundFight() {
     var expectedFight = new Fight();
     expectedFight.winnerName = "Chewbacca";
     expectedFight.winnerLevel = 5;
@@ -1123,7 +1094,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void performFightNullFighters() {
+	void performFightNullFighters() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -1135,7 +1106,7 @@ public class FightResourceIT {
 
 	@Test
   @Order(DEFAULT_ORDER)
-	public void performFightInvalidFighters() {
+	void performFightInvalidFighters() {
     invalidFighters().forEach(fighters ->
       given()
         .when()
@@ -1152,7 +1123,7 @@ public class FightResourceIT {
   // because @MethodSource does not like java records for some reason
   @Test
   @Order(DEFAULT_ORDER)
-  public void shouldNotGetNarrationBecauseInvalidFight() {
+  void shouldNotGetNarrationBecauseInvalidFight() {
     invalidFightsToNarrate().forEach(fight -> {
       given()
         .accept(TEXT)
@@ -1165,7 +1136,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 2)
-	public void performFightHeroWins() {
+	void performFightHeroWins() {
     var fights = companion.consume(io.quarkus.sample.superheroes.fight.schema.Fight.class)
       .withOffsetReset(OffsetResetStrategy.EARLIEST)
       .withGroupId("fights")
@@ -1238,7 +1209,7 @@ public class FightResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 3)
-	public void performFightVillainWins() {
+	void performFightVillainWins() {
     var fights = companion.consume(io.quarkus.sample.superheroes.fight.schema.Fight.class)
       .withOffsetReset(OffsetResetStrategy.EARLIEST)
       .withGroupId("fights")
@@ -1443,12 +1414,12 @@ public class FightResourceIT {
 		}
 
 		// Reset all the mocks on the GrpcMock
-		this.grpcMock.resetAll();
+		this.wireMockGrpcServer.resetAll();
 
 		// Stub successful requests
-    this.grpcMock.register(
-      unaryMethod(LocationsGrpc.getGetRandomLocationMethod())
-        .willReturn(DEFAULT_GRPC_LOCATION)
+    this.wireMockGrpc.stubFor(
+      method("GetRandomLocation")
+        .willReturn(message(DEFAULT_GRPC_LOCATION))
     );
 
 		// The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
@@ -1467,15 +1438,11 @@ public class FightResourceIT {
 			);
 
 		// Verify successful requests
-    this.grpcMock.verifyThat(
-      calledMethod(LocationsGrpc.getGetRandomLocationMethod())
-        .withRequest(RandomLocationRequest.newBuilder().build())
-        .build(),
-      GrpcMock.times(9)
-    );
+    this.wireMockGrpc.verify(9, "GetRandomLocation")
+      .withRequestMessage(equalToMessage(RandomLocationRequest.newBuilder()));
 
-		// Reset all the mocks on the GrpcMock
-		this.grpcMock.resetAll();
+		// Reset all the mocks on the WireMockGrpcServer
+		this.wireMockGrpcServer.resetAll();
 	}
 
   private void resetNarrationCircuitBreakersToClosedState() {
