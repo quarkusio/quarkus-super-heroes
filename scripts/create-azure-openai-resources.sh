@@ -27,7 +27,7 @@ help() {
   echo "  -u <unique_identifier>                 A unique identifier to append to some resources. Some Azure services require unique names within a region (across users)."
   echo "                                             Default is to use the output of the 'whoami' command."
   echo "  -v <model_version>                     The model version to use"
-  echo "                                             Default: '0301'"
+  echo "                                             Default: '0613'"
 }
 
 exit_abnormal() {
