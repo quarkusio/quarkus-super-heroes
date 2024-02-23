@@ -108,7 +108,32 @@ export async function narrateFight(body) {
   const response = await axios.post(`${basePath}/api/fights/narrate`,
     body,
     {
+      crossDomain: true,
       responseType: 'text',
+      headers,
+    }
+  )
+
+  return response.data
+}
+
+/**
+ * Generates an image from a narration
+ *
+ * @param narration the narration
+ */
+export async function generateImage(narration) {
+
+  if (narration === null || narration === undefined) {
+    throw new Error('Required parameter narration was null or undefined when calling generateImage.')
+  }
+
+  const headers = {...defaultHeaders, 'Accept': 'application/json', 'Content-Type': 'text/plain'}
+
+  const response = await axios.post(`${basePath}/api/fights/narrate/image`,
+    narration,
+    {
+      crossDomain: true,
       headers,
     }
   )

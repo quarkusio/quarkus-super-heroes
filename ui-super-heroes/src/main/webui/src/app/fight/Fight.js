@@ -1,4 +1,4 @@
-import {getRandomFighters, getRandomLocation, narrateFight, startFight} from "../shared/api/fight-service"
+import {generateImage, getRandomFighters, getRandomLocation, narrateFight, startFight} from "../shared/api/fight-service"
 import {useEffect, useState} from "react"
 import {faComment} from "@fortawesome/free-solid-svg-icons"
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
@@ -10,6 +10,7 @@ function Fight({onFight}) {
   const [fightResult, setFightResult] = useState()
   const [narration, setNarration] = useState()
   const [location, setLocation] = useState()
+  const [generatedImage, setGeneratedImage] = useState()
 
   const newFighters = () => {
     trackPromise(
@@ -23,6 +24,14 @@ function Fight({onFight}) {
   const narrate = () => {
     trackPromise(
         narrateFight(fightResult).then(answer => setNarration(answer))
+    )
+  }
+
+  const createImage = () => {
+    trackPromise(
+        generateImage(narration)
+            .then(answer => setGeneratedImage(answer))
+            .then(answer => flipCard('narration-flip-card'))
     )
   }
 
@@ -154,8 +163,21 @@ function Fight({onFight}) {
                   <h4><FontAwesomeIcon icon={faComment}/> NARRATE THE FIGHT
                   </h4>
                 </button>
-                {narration && (<div className="narration-text">{narration}</div>)}
-              </div>
+                  {narration && (<div>
+                    <button onClick={createImage} className="btn btn-secondary btn-block btn-lg">
+                      <h4><FontAwesomeIcon icon={faComment}/> GENERATE NARRATION IMAGE </h4>
+                    </button>
+                    <div className="narration-text flip-card-container" onClick={() => flipCard('narration-flip-card')}>
+                      <div id="narration-flip-card" className="card-pf-body flip-card-inner">
+                        <div className="narration-text flip-card flip-card-front">{narration}</div>
+                        <div className="narration-text flip-card flip-card-back">
+                          <div><img alt="Generated fight" className="squared" src={generatedImage?.imageUrl}></img></div>
+                          <div className="narration-text"><strong><span data-testid="generated-image-caption">Generated Image Caption: </span></strong>{generatedImage?.imageNarration}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>)}
+                </div>
             )}
           </div>
         </div>

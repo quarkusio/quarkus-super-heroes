@@ -124,6 +124,127 @@
           "Content-Type": "application/json"
         }
       }
+    },
+    {
+      "request": {
+        "urlPath": "/v1/images/generations",
+        "method": "POST",
+        "headers": {
+          "Accept": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Content-Type": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Authorization": {
+            "matches": "Bearer .+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.model",
+              "matches": "dall-e-.+"
+            }
+          },
+          {
+            "matchesJsonPath": {
+              "expression": "$.prompt",
+              "matches": ".+"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.n == 1)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.size == '1024x1024')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.quality == 'standard')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.style == 'vivid')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.response_format == 'url')]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"created\": 1708633271,\n  \"data\": [\n    {\n      \"revised_prompt\": \"In a city reminiscent of a dark, gritty metropolitan at night, two characters are caught in a confrontation of epic proportions. One figure, a heroic roguish character, renowned for his agile precision and disbelief in mystic powers, is engaged in a standoff against a menacing adversary, outfitted in futuristic armor and armed with a modest energy weapon. The hero, quick on his feet, evades his opponent's inadequate shots while retorting with his more formidable blaster causing loud reverberations throughout the urban landscape. Despite being outgunned, the villain continues the fight, showing a relentless spirit. With each passing second, the hero's superior skill and command over his weapon become increasingly visible. His counter-attacks are perfectly timed and lethal, overwhelming the adversary struggling to match him. Displaying a growing confidence, the hero's movements transition to being more seamless. A final, pinpoint shot from the hero incapacitates the villain, signaling a decisive victory for the hero, much to the city's relief. The hero's unwavering resilience standing victorious brings hope and strength to a city under duress.\",\n      \"url\": \"https://somewhere.com/someImage.png\"\n    }\n   ]\n  }\n",
+        "headers": {
+          "Content-Type": "application/json",
+          "openai-organization": "my-org-1234",
+          "openai-version": "2020-10-01",
+          "openai-processing-ms": "15000"
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPath": "/v1/images/generations",
+        "queryParameters": {
+          "api-version": {
+            "matches": ".+"
+          }
+        },
+        "method": "POST",
+        "headers": {
+          "Accept": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Content-Type": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "api-key": {
+            "matches": ".+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.model",
+              "matches": "dall-e-.+"
+            }
+          },
+          {
+            "matchesJsonPath": {
+              "expression": "$.prompt",
+              "matches": ".+"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.n == 1)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.size == '1024x1024')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.quality == 'standard')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.style == 'vivid')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.response_format == 'url')]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"created\": 1708633271,\n  \"data\": [\n    {\n      \"revised_prompt\": \"In a city reminiscent of a dark, gritty metropolitan at night, two characters are caught in a confrontation of epic proportions. One figure, a heroic roguish character, renowned for his agile precision and disbelief in mystic powers, is engaged in a standoff against a menacing adversary, outfitted in futuristic armor and armed with a modest energy weapon. The hero, quick on his feet, evades his opponent's inadequate shots while retorting with his more formidable blaster causing loud reverberations throughout the urban landscape. Despite being outgunned, the villain continues the fight, showing a relentless spirit. With each passing second, the hero's superior skill and command over his weapon become increasingly visible. His counter-attacks are perfectly timed and lethal, overwhelming the adversary struggling to match him. Displaying a growing confidence, the hero's movements transition to being more seamless. A final, pinpoint shot from the hero incapacitates the villain, signaling a decisive victory for the hero, much to the city's relief. The hero's unwavering resilience standing victorious brings hope and strength to a city under duress.\",\n      \"url\": \"https://somewhere.com/someImage.png\"\n    }\n   ]\n  }\n",
+        "headers": {
+          "Content-Type": "application/json",
+          "openai-organization": "my-org-1234",
+          "openai-version": "2020-10-01",
+          "openai-processing-ms": "15000"
+        }
+      }
     }
   ]
 }

@@ -11,6 +11,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.FightImage;
 
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
@@ -34,6 +35,13 @@ public interface NarrationClient {
   @POST
   @WithSpan(kind = SpanKind.CLIENT, value = "NarrationClient.narrateFight")
   Uni<String> narrate(@SpanAttribute("arg.fight") FightToNarrate fight);
+
+  @POST
+  @Path("/image")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.TEXT_PLAIN)
+  @WithSpan(kind = SpanKind.CLIENT, value = "NarrationClient.generateImageFromNarration")
+  Uni<FightImage> generateImageFromNarration(@SpanAttribute("arg.narration") String narration);
 
   /**
    * HTTP <code>GET</code> call to {@code /api/narration/hello} on the Narration service

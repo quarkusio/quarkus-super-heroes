@@ -13,11 +13,13 @@ help() {
   echo "options:"
   echo "  -c <cognitive_service_name>            Name of the Azure Cognitive service"
   echo "                                             Default: 'cs-super-heroes'"
-  echo "  -d <cognitive_service_deployment_name> Name of the Azure Cognitive service deployment"
+  echo "  -d <cognitive_service_deployment_name> Name of the Azure Cognitive service deployment for the chat model"
   echo "                                             Default: 'csdeploy-super-heroes'"
   echo "  -g <resource_group_name>               Name of the Azure resource group to use to deploy resources"
   echo "                                             Default: 'rg-super-heroes'"
   echo "  -h                                     Prints this help message"
+  echo "  -i <image_model>                       The image model to use"
+  echo "                                             Default: dall-e-3"
   echo "  -l <location>                          The location (region) to deploy resources into"
   echo "                                             Default: 'eastus'"
   echo "  -m <model>                             The model to use"
@@ -42,12 +44,14 @@ COGNITIVE_DEPLOYMENT="csdeploy-super-heroes"
 RESOURCE_GROUP="rg-super-heroes"
 LOCATION="eastus"
 TAG="super-heroes"
-MODEL="gpt-35-turbo"
-MODEL_VERSION="0613"
+CHAT_MODEL="gpt-35-turbo"
+CHAT_MODEL_VERSION="0613"
+IMAGE_MODEL="dall-e-3"
+IMAGE_MODEL_VERSION="3.0"
 UNIQUE_IDENTIFIER=$(whoami)
 
 # Process the input options
-while getopts "c:d:g:hm:l:t:u:v:" option; do
+while getopts "c:d:g:hi:m:l:t:u:v:" option; do
   case $option in
     c) COGNITIVE_SERVICE=$OPTARG
        ;;
@@ -62,13 +66,16 @@ while getopts "c:d:g:hm:l:t:u:v:" option; do
        exit
        ;;
 
+    i) IMAGE_MODEL=$OPTARG
+       ;;
+
     l) LOCATION=$OPTARG
        ;;
 
-    m) MODEL=$OPTARG
+    m) CHAT_MODEL=$OPTARG
        ;;
 
-    v) MODEL_VERSION=$OPTARG
+    v) CHAT_MODEL_VERSION=$OPTARG
        ;;
 
     t) TAG=$OPTARG
@@ -86,10 +93,11 @@ done
 echo "Creating Azure OpenAI Resources with the following configuration:"
 echo "  Cognitive Service Name: $COGNITIVE_SERVICE"
 echo "  Cognitive Service Deployment: $COGNITIVE_DEPLOYMENT"
+echo "  Image Model: $IMAGE_MODEL"
 echo "  Resource Group: $RESOURCE_GROUP"
 echo "  Location: $LOCATION"
-echo "  Model: $MODEL"
-echo "  Model Version: $MODEL_VERSION"
+echo "  Chat Model: $CHAT_MODEL"
+echo "  Chat Model Version: $CHAT_MODEL_VERSION"
 echo "  Tag: $TAG"
 echo "  Unique Identifier: $UNIQUE_IDENTIFIER"
 echo
@@ -97,6 +105,7 @@ echo "Please be patient. This may take several minutes."
 
 COGNITIVE_SERVICE="${COGNITIVE_SERVICE}-${UNIQUE_IDENTIFIER}"
 COGNITIVE_DEPLOYMENT="${COGNITIVE_DEPLOYMENT}-${UNIQUE_IDENTIFIER}"
+IMAGE_MODEL_DEPLOYMENT="${IMAGE_MODEL}-${UNIQUE_IDENTIFIER}"
 
 # Create resource group
 echo "-----------------------------------------"
@@ -122,7 +131,7 @@ az cognitiveservices account create \
   --sku S0 \
   --yes
 
-# Deploy the model
+# Deploy the models
 echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: Deploying the $COGNITIVE_DEPLOYMENT model"
 echo "-----------------------------------------"
@@ -130,8 +139,21 @@ az cognitiveservices account deployment create \
   --name "$COGNITIVE_SERVICE" \
   --resource-group "$RESOURCE_GROUP" \
   --deployment-name "$COGNITIVE_DEPLOYMENT" \
-  --model-name "$MODEL" \
-  --model-version "$MODEL_VERSION" \
+  --model-name "$CHAT_MODEL" \
+  --model-version "$CHAT_MODEL_VERSION" \
+  --model-format OpenAI \
+  --sku-name Standard \
+  --sku-capacity 1
+
+echo "-----------------------------------------"
+echo "[$(date +"%m/%d/%Y %T")]: Deploying the $IMAGE_MODEL_DEPLOYMENT model"
+echo "-----------------------------------------"
+az cognitiveservices account deployment create \
+  --name "$COGNITIVE_SERVICE" \
+  --resource-group "$RESOURCE_GROUP" \
+  --deployment-name "$IMAGE_MODEL_DEPLOYMENT" \
+  --model-name "$IMAGE_MODEL" \
+  --model-version "$IMAGE_MODEL_VERSION" \
   --model-format OpenAI \
   --sku-name Standard \
   --sku-capacity 1
@@ -159,3 +181,4 @@ echo
 echo "API key (quarkus.langchain4j.azure-openai.api-key): $AZURE_OPENAI_KEY"
 echo "Resource Name (quarkus.langchain4j.azure-openai.resource-name): $COGNITIVE_SERVICE"
 echo "Deployment Name/Id (quarkus.langchain4j.azure-openai.deployment-name): $COGNITIVE_DEPLOYMENT"
+echo "Image Model (quarkus.langchain4j.azure-openai.dalle3.deployment-name): $IMAGE_MODEL_DEPLOYMENT"

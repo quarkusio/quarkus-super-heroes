@@ -19,6 +19,8 @@ This is the Narration REST API microservice. It is a blocking HTTP microservice 
 
 The Narration microservice needs to access an AI service to generate the text narrating the fight. The default codebase uses [OpenAI](https://openai.com/) (via the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html)). This extension could be swapped for the [`quarkus-langchain4j-azure-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html#_azure_openai) with little to no code changes to connect to [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service).
 
+Additionally, the service can generate images and image captions from a narration using [DALL-E](https://openai.com/research/dall-e).
+
 > [!NOTE]
 > Azure OpenAI, or "OpenAI on Azure" is a service that provides REST API access to OpenAI’s models, including the GPT-4, GPT-3, Codex and Embeddings series. The difference between OpenAI and Azure OpenAI is that it runs on Azure global infrastructure, which meets your production needs for critical enterprise security, compliance, and regional availability.
 
@@ -29,11 +31,13 @@ This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/
 ### Exposed Endpoints
 The following table lists the available REST endpoints. The [OpenAPI document](openapi-schema.yml) for the REST endpoints is also available.
 
-| Path                   | HTTP method | Response Status | Response Object | Description                                                                                                                     |
-|------------------------|-------------|-----------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------|
-| `/api/narration`       | `POST`      | `200`           | `String`        | Creates a narration for the passed in [`Fight`](src/main/java/io/quarkus/sample/superheroes/narration/Fight.java) request body. |
-| `/api/narration`       | `POST`      | `400`           |                 | Invalid [`Fight`](src/main/java/io/quarkus/sample/superheroes/narration/Fight.java)                                             |
-| `/api/narration/hello` | `GET`       | `200`           | `String`        | Ping "hello" endpoint                                                                                                           |
+| Path                   | HTTP method | Response Status | Response Object                                                                       | Description                                                                                                                     |
+|------------------------|-------------|-----------------|---------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| `/api/narration`       | `POST`      | `200`           | `String`                                                                              | Creates a narration for the passed in [`Fight`](src/main/java/io/quarkus/sample/superheroes/narration/Fight.java) request body. |
+| `/api/narration`       | `POST`      | `400`           |                                                                                       | Invalid [`Fight`](src/main/java/io/quarkus/sample/superheroes/narration/Fight.java)                                             |
+| `/api/narration/image` | `POST`      | `200`           | [`FightImage`](src/main/java/io/quarkus/sample/superheroes/narration/FightImage.java) | Generate an image and caption using DALL-E for a narration                                                                      |
+| `/api/narration/image` | `POST`      | `400`           |                                                                                       | Invalid narration passed in                                                                                                     |
+| `/api/narration/hello` | `GET`       | `200`           | `String`                                                                              | Ping "hello" endpoint                                                                                                           |
 
 ## Contract testing with Pact
 [Pact](https://pact.io) is a code-first tool for testing HTTP and message integrations using `contract tests`. Contract tests assert that inter-application messages conform to a shared understanding that is documented in a contract. Without contract testing, the only way to ensure that applications will work correctly together is by using expensive and brittle integration tests.

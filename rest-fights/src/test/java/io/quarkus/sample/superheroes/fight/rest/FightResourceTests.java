@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
@@ -63,6 +64,9 @@ public class FightResourceTests {
   private static final String DEFAULT_LOCATION_NAME = "Gotham City";
   private static final String DEFAULT_LOCATION_DESCRIPTION = "An American city rife with corruption and crime, the home of its iconic protector Batman.";
   private static final String DEFAULT_LOCATION_PICTURE = "gotham_city.png";
+
+  private static final String DEFAULT_IMAGE_URL = "https://somewhere.com/someImage.png";
+  private static final String DEFAULT_IMAGE_NARRATION = "Alternate image narration";
 
 	@InjectMock
 	FightService fightService;
@@ -177,6 +181,42 @@ public class FightResourceTests {
 
       verifyNoInteractions(this.fightService);
     });
+  }
+
+  @Test
+  void shouldGenerateAnImageFromNarration() {
+    var image = new FightImage(DEFAULT_IMAGE_URL, DEFAULT_IMAGE_NARRATION);
+
+    when(this.fightService.generateImageFromNarration(DEFAULT_NARRATION))
+      .thenReturn(Uni.createFrom().item(image));
+
+    var generatedImage = given()
+      .body(DEFAULT_NARRATION)
+      .contentType(TEXT)
+      .accept(JSON)
+      .when().post("/api/fights/narrate/image").then()
+        .statusCode(OK.getStatusCode())
+        .contentType(JSON)
+        .extract().as(FightImage.class);
+
+    assertThat(generatedImage)
+      .isNotNull()
+      .usingRecursiveAssertion()
+      .isEqualTo(image);
+
+    verify(this.fightService).generateImageFromNarration(DEFAULT_NARRATION);
+    verifyNoMoreInteractions(this.fightService);
+  }
+
+  @Test
+  void shouldNotGetGeneratedImageForNarrationBecauseInvalidNarration() {
+    given()
+      .contentType(TEXT)
+      .accept(JSON)
+      .when().post("/api/fights/narrate/image").then()
+      .statusCode(BAD_REQUEST.getStatusCode());
+
+    verifyNoInteractions(this.fightService);
   }
 
   @Test
