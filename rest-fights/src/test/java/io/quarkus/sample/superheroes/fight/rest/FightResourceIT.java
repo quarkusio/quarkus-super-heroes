@@ -46,7 +46,7 @@ import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServer
 import io.quarkus.sample.superheroes.fight.InjectGrpcWireMock;
 import io.quarkus.sample.superheroes.fight.InjectWireMock;
 import io.quarkus.sample.superheroes.fight.LocationsWiremockGrpcServerResource;
-import io.quarkus.sample.superheroes.fight.NarrationShorterTimeoutsProfile;
+import io.quarkus.sample.superheroes.fight.ShorterTimeoutsProfile;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate.FightToNarrateLocation;
 import io.quarkus.sample.superheroes.fight.client.Hero;
@@ -94,7 +94,7 @@ import io.vertx.core.Vertx;
  * @see KafkaCompanionResource
  */
 @QuarkusIntegrationTest
-@TestProfile(NarrationShorterTimeoutsProfile.class)
+@TestProfile(ShorterTimeoutsProfile.class)
 @QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
 @QuarkusTestResource(value = KafkaCompanionResource.class, restrictToAnnotatedClass = true)
 @QuarkusTestResource(value = LocationsWiremockGrpcServerResource.class, restrictToAnnotatedClass = true)
@@ -308,7 +308,7 @@ class FightResourceIT {
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(
 					okForContentType(APPLICATION_JSON, getDefaultHeroJson())
-						.withFixedDelay(3_000)
+						.withFixedDelay(1050)
 				)
 		);
 
@@ -390,7 +390,7 @@ class FightResourceIT {
 			WireMock.get(urlEqualTo(VILLAIN_API_URI))
 				.willReturn(
 					okForContentType(APPLICATION_JSON, getDefaultVillainJson())
-					.withFixedDelay(3_000)
+					.withFixedDelay(1050)
 				)
 		);
 
@@ -579,7 +579,7 @@ class FightResourceIT {
   void getNarrationDelay() {
     resetNarrationCircuitBreakersToClosedState();
 
-		var delay = (NarrationShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1) * 1000;
+		var delay = (ShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1) * 1000;
 
     this.wireMockServer.stubFor(
       WireMock.post(urlEqualTo(NARRATION_API_BASE_URI))
@@ -677,7 +677,7 @@ class FightResourceIT {
   void getImageGenerationForNarrationDelay() {
     resetNarrationCircuitBreakersToClosedState();
 
-		var delay = (NarrationShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1) * 1000;
+		var delay = (ShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1) * 1000;
 
     this.wireMockServer.stubFor(
       WireMock.post(urlEqualTo(NARRATION_API_IMAGE_GEN_URI))
@@ -762,7 +762,7 @@ class FightResourceIT {
 			WireMock.get(urlEqualTo(HERO_API_URI))
 				.willReturn(
 					okForContentType(APPLICATION_JSON, getDefaultHeroJson())
-						.withFixedDelay(3_000)
+						.withFixedDelay((int) Duration.ofSeconds(ShorterTimeoutsProfile.FIND_RANDOM_OVERRIDDEN_TIMEOUT + 1).toMillis())
 				)
 		);
 
@@ -770,7 +770,7 @@ class FightResourceIT {
 			WireMock.get(urlEqualTo(VILLAIN_API_URI))
 				.willReturn(
 					okForContentType(APPLICATION_JSON, getDefaultVillainJson())
-					.withFixedDelay(3_000)
+					.withFixedDelay((int) Duration.ofSeconds(ShorterTimeoutsProfile.FIND_RANDOM_OVERRIDDEN_TIMEOUT + 1).toMillis())
 				)
 		);
 
@@ -829,7 +829,7 @@ class FightResourceIT {
     this.wireMockGrpc.stubFor(
       method("GetRandomLocation")
         .willReturn(message(DEFAULT_GRPC_LOCATION))
-        .withFixedDelay(Duration.ofSeconds(3).toMillis())
+        .withFixedDelay(Duration.ofSeconds(ShorterTimeoutsProfile.FIND_RANDOM_OVERRIDDEN_TIMEOUT + 1).toMillis())
     );
 
     var randomLocation = get("/api/fights/randomlocation")
@@ -944,7 +944,7 @@ class FightResourceIT {
       WireMock.get(urlEqualTo(HERO_API_HELLO_URI))
         .willReturn(
           okForContentType(TEXT_PLAIN, "Hello heroes!")
-            .withFixedDelay(6 * 1000)
+            .withFixedDelay((int) Duration.ofSeconds(ShorterTimeoutsProfile.HELLO_OVERRIDDEN_TIMEOUT + 1).toMillis())
         )
     );
 
@@ -1007,7 +1007,7 @@ class FightResourceIT {
       WireMock.get(urlEqualTo(VILLAIN_API_HELLO_URI))
         .willReturn(
           okForContentType(TEXT_PLAIN, "Hello villains!")
-            .withFixedDelay(6 * 1000)
+            .withFixedDelay((int) Duration.ofSeconds(ShorterTimeoutsProfile.HELLO_OVERRIDDEN_TIMEOUT + 1).toMillis())
         )
     );
 
@@ -1087,7 +1087,7 @@ class FightResourceIT {
     this.wireMockGrpc.stubFor(
       method("Hello")
         .willReturn(message(HelloReply.newBuilder().setMessage("Hello location!")))
-        .withFixedDelay(6_000)
+        .withFixedDelay(Duration.ofSeconds(ShorterTimeoutsProfile.HELLO_OVERRIDDEN_TIMEOUT + 1).toMillis())
     );
 
     get("/api/fights/hello/locations")
@@ -1125,7 +1125,7 @@ class FightResourceIT {
       WireMock.get(urlEqualTo(NARRATION_API_HELLO_URI))
         .willReturn(
           okForContentType(TEXT_PLAIN, "Hello narration!")
-            .withFixedDelay(6 * 1000)
+            .withFixedDelay((int) Duration.ofSeconds(ShorterTimeoutsProfile.HELLO_OVERRIDDEN_TIMEOUT + 1).toMillis())
         )
     );
 
@@ -1465,7 +1465,7 @@ class FightResourceIT {
 	private void resetHeroVillainCircuitBreakersToClosedState() {
 		try {
 			// Sleep the necessary delay duration for the breaker to moved into the half-open position
-			TimeUnit.SECONDS.sleep(2);
+			TimeUnit.SECONDS.sleep(ShorterTimeoutsProfile.CIRCUIT_BREAKER_OVERRIDDEN_DELAY);
 		}
 		catch (InterruptedException ex) {
 			Log.error(ex.getMessage(), ex);
@@ -1518,7 +1518,7 @@ class FightResourceIT {
   private void resetLocationCircuitBreakerToClosedState() {
 		try {
 			// Sleep the necessary delay duration for the breaker to moved into the half-open position
-			TimeUnit.SECONDS.sleep(2);
+			TimeUnit.SECONDS.sleep(ShorterTimeoutsProfile.CIRCUIT_BREAKER_OVERRIDDEN_DELAY);
 		}
 		catch (InterruptedException ex) {
 			Log.error(ex.getMessage(), ex);
@@ -1559,7 +1559,7 @@ class FightResourceIT {
   private void resetNarrationCircuitBreakersToClosedState() {
 		try {
 			// Sleep the necessary delay duration for the breaker to moved into the half-open position
-			TimeUnit.SECONDS.sleep(10);
+			TimeUnit.SECONDS.sleep(ShorterTimeoutsProfile.CIRCUIT_BREAKER_OVERRIDDEN_DELAY);
 		}
 		catch (InterruptedException ex) {
 			Log.error(ex.getMessage(), ex);

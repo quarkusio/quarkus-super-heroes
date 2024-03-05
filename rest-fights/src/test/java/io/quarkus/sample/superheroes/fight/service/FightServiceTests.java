@@ -22,7 +22,7 @@ import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
-import io.quarkus.sample.superheroes.fight.NarrationShorterTimeoutsProfile;
+import io.quarkus.sample.superheroes.fight.ShorterTimeoutsProfile;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
@@ -49,7 +49,7 @@ import io.smallrye.reactive.messaging.memory.InMemoryConnector;
  * </p>
  */
 @QuarkusTest
-@TestProfile(NarrationShorterTimeoutsProfile.class)
+@TestProfile(ShorterTimeoutsProfile.class)
 class FightServiceTests extends FightServiceTestsBase {
   private static final String FIGHTS_CHANNEL_NAME = "fights";
   private static final String FALLBACK_NARRATION = """
@@ -293,7 +293,7 @@ class FightServiceTests extends FightServiceTestsBase {
       .thenReturn(
         Uni.createFrom().item(createDefaultFightLocation())
           .onItem()
-          .delayIt().by(Duration.ofSeconds(3))
+          .delayIt().by(Duration.ofSeconds(ShorterTimeoutsProfile.FIND_RANDOM_OVERRIDDEN_TIMEOUT + 1))
       );
 
     var location = this.fightService.findRandomLocation()
@@ -341,7 +341,7 @@ class FightServiceTests extends FightServiceTestsBase {
 			.thenReturn(
 				Uni.createFrom().item(createDefaultHero())
 					.onItem()
-					.delayIt().by(Duration.ofSeconds(3))
+					.delayIt().by(Duration.ofSeconds(ShorterTimeoutsProfile.FIND_RANDOM_OVERRIDDEN_TIMEOUT + 1))
 			);
 
 		var hero = this.fightService.findRandomHero()
@@ -367,7 +367,7 @@ class FightServiceTests extends FightServiceTestsBase {
 			.thenReturn(
 				Uni.createFrom().item(createDefaultVillain())
 					.onItem()
-					.delayIt().by(Duration.ofSeconds(3))
+					.delayIt().by(Duration.ofSeconds(ShorterTimeoutsProfile.FIND_RANDOM_OVERRIDDEN_TIMEOUT + 1))
 			);
 
 		var villain = this.fightService.findRandomVillain()
@@ -392,7 +392,7 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		// Mock the addDelay method so it returns a 5 second delay on whatever argument (a Uni<Fighters>) was passed into it
 		// This should trigger the timeout on findRandomFighters
-		doAnswer(invocation -> ((Uni<Fighters>) invocation.getArgument(0)).onItem().delayIt().by(Duration.ofSeconds(5)))
+		doAnswer(invocation -> ((Uni<Fighters>) invocation.getArgument(0)).onItem().delayIt().by(Duration.ofSeconds(ShorterTimeoutsProfile.FIND_RANDOM_FIGHTERS_OVERRIDDEN_TIMEOUT + 1)))
 			.when(this.fightService)
 			.addDelay(any(Uni.class));
 
@@ -421,12 +421,12 @@ class FightServiceTests extends FightServiceTestsBase {
 		PanacheMock.mock(Fight.class);
 
 		// Add a delay to the call to findRandomHero()
-		doReturn(Uni.createFrom().item(createDefaultHero()).onItem().delayIt().by(Duration.ofSeconds(5)))
+		doReturn(Uni.createFrom().item(createDefaultHero()).onItem().delayIt().by(Duration.ofSeconds(ShorterTimeoutsProfile.FIND_RANDOM_FIGHTERS_OVERRIDDEN_TIMEOUT + 1)))
 			.when(this.fightService)
 			.findRandomHero();
 
 		// Add a delay to the call to findRandomVillain
-		doReturn(Uni.createFrom().item(createDefaultVillain()).onItem().delayIt().by(Duration.ofSeconds(5)))
+		doReturn(Uni.createFrom().item(createDefaultVillain()).onItem().delayIt().by(Duration.ofSeconds(ShorterTimeoutsProfile.FIND_RANDOM_FIGHTERS_OVERRIDDEN_TIMEOUT + 1)))
 			.when(this.fightService)
 			.findRandomVillain();
 
@@ -534,8 +534,8 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
   @Test
-  void generateFightFromNarrationTimesOut() {
-    var timeout = Duration.ofSeconds(NarrationShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1);
+  void generateFightImageFromNarrationTimesOut() {
+    var timeout = Duration.ofSeconds(ShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1);
 
     when(this.narrationClient.generateImageFromNarration(DEFAULT_NARRATION))
       .thenReturn(
@@ -567,7 +567,7 @@ class FightServiceTests extends FightServiceTestsBase {
     var image = this.fightService.generateImageFromNarration(DEFAULT_NARRATION)
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
 			.assertSubscribed()
-			.awaitItem(Duration.ofSeconds(NarrationShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1).multipliedBy(4))
+			.awaitItem(Duration.ofSeconds(ShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1).multipliedBy(4))
 			.getItem();
 
     assertThat(image)
@@ -582,7 +582,7 @@ class FightServiceTests extends FightServiceTestsBase {
   @Test
   public void narrateFightNarrationTimesOut() {
     var fightToNarrate = createFightToNarrateHeroWon();
-    var timeout = Duration.ofSeconds(NarrationShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1);
+    var timeout = Duration.ofSeconds(ShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1);
 
     when(this.narrationClient.narrate(eq(fightToNarrate)))
       .thenReturn(
@@ -820,7 +820,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	    .thenReturn(
 				Uni.createFrom().item("hello")
 					.onItem()
-					.delayIt().by(Duration.ofSeconds(6))
+					.delayIt().by(Duration.ofSeconds(ShorterTimeoutsProfile.HELLO_OVERRIDDEN_TIMEOUT + 1))
 	    );
 
     var message = this.fightService.helloHeroes()
@@ -894,7 +894,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	    .thenReturn(
 				Uni.createFrom().item("hello")
 					.onItem()
-					.delayIt().by(Duration.ofSeconds(6))
+					.delayIt().by(Duration.ofSeconds(ShorterTimeoutsProfile.HELLO_OVERRIDDEN_TIMEOUT + 1))
 	    );
 
     var message = this.fightService.helloLocations()
@@ -946,7 +946,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	    .thenReturn(
 				Uni.createFrom().item("hello")
 					.onItem()
-					.delayIt().by(Duration.ofSeconds(6))
+					.delayIt().by(Duration.ofSeconds(ShorterTimeoutsProfile.HELLO_OVERRIDDEN_TIMEOUT + 1))
 	    );
 
     var message = this.fightService.helloVillains()
@@ -1000,7 +1000,7 @@ class FightServiceTests extends FightServiceTestsBase {
       .thenReturn(
         Uni.createFrom().item("hello")
           .onItem()
-          .delayIt().by(Duration.ofSeconds(6))
+          .delayIt().by(Duration.ofSeconds(ShorterTimeoutsProfile.HELLO_OVERRIDDEN_TIMEOUT + 1))
       );
 
     var message = this.fightService.helloNarration()
