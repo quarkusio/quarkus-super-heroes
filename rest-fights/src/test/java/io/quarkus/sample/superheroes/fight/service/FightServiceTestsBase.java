@@ -49,6 +49,9 @@ public abstract class FightServiceTestsBase {
   static final String DEFAULT_LOCATION_DESCRIPTION = "An American city rife with corruption and crime, the home of its iconic protector Batman.";
   static final String DEFAULT_LOCATION_PICTURE = "gotham_city.png";
 
+  static final String DEFAULT_NARRATION_IMAGE_URL = "https://dummyimage.com/240x320/1e8fff/ffffff&text=Fallback+Image+Caption";
+  static final String DEFAULT_NARRATION_IMAGE_NARRATION = "Fallback image caption (something happened while generating the image)";
+
   @Inject
   FightConfig fightConfig;
 

@@ -2,7 +2,8 @@ package io.quarkus.sample.superheroes.narration.rest;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.*;
-import static jakarta.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.Response.Status.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
+import io.quarkus.sample.superheroes.narration.FightImage;
+import io.quarkus.sample.superheroes.narration.service.ImageGenerationService;
 import io.quarkus.sample.superheroes.narration.service.NarrationService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -43,9 +46,14 @@ class NarrationResourceTest {
     HERO_TEAM_NAME,
     new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION)
   );
+  private static final String DEFAULT_IMAGE_URL = "https://somewhere.com/someImage.png";
+  private static final String DEFAULT_IMAGE_NARRATION = "Alternate image narration";
 
   @InjectMock
   NarrationService narrationService;
+
+  @InjectMock
+  ImageGenerationService imageGenerationService;
 
   @BeforeAll
 	static void beforeAll() {
@@ -66,7 +74,7 @@ class NarrationResourceTest {
       .statusCode(OK.getStatusCode())
       .contentType(JSON);
 
-    verifyNoInteractions(this.narrationService);
+    verifyNoInteractions(this.narrationService, this.imageGenerationService);
   }
 
   @Test
@@ -76,7 +84,7 @@ class NarrationResourceTest {
       .contentType(TEXT)
       .body(is("Hello Narration Resource"));
 
-    verifyNoInteractions(this.narrationService);
+    verifyNoInteractions(this.narrationService, this.imageGenerationService);
   }
 
   @Test
@@ -92,6 +100,33 @@ class NarrationResourceTest {
 
     verify(this.narrationService).narrate(FIGHT);
     verifyNoMoreInteractions(this.narrationService);
+    verifyNoInteractions(this.imageGenerationService);
+  }
+
+  @Test
+  void shouldGenerateAnImageFromNarration() {
+    var image = new FightImage(DEFAULT_IMAGE_URL, DEFAULT_IMAGE_NARRATION);
+
+    when(this.imageGenerationService.generateImageForNarration(NARRATION))
+      .thenReturn(image);
+
+    var generatedImage = given()
+      .body(NARRATION)
+      .contentType(TEXT)
+      .accept(JSON)
+      .when().post("/api/narration/image").then()
+        .statusCode(OK.getStatusCode())
+        .contentType(JSON)
+        .extract().as(FightImage.class);
+
+    assertThat(generatedImage)
+      .isNotNull()
+      .usingRecursiveAssertion()
+      .isEqualTo(image);
+
+    verify(this.imageGenerationService).generateImageForNarration(NARRATION);
+    verifyNoMoreInteractions(this.imageGenerationService);
+    verifyNoInteractions(this.narrationService);
   }
 
   @Test
@@ -100,8 +135,19 @@ class NarrationResourceTest {
       .contentType(JSON)
       .accept(TEXT)
       .when().post("/api/narration").then()
-        .statusCode(400);
+        .statusCode(BAD_REQUEST.getStatusCode());
 
-    verifyNoInteractions(this.narrationService);
+    verifyNoInteractions(this.narrationService, this.imageGenerationService);
+  }
+
+  @Test
+  void invalidNarrationToFetchImage() {
+    given()
+      .contentType(TEXT)
+      .accept(JSON)
+      .when().post("/api/narration/image").then()
+      .statusCode(BAD_REQUEST.getStatusCode());
+
+    verifyNoInteractions(this.narrationService, this.imageGenerationService);
   }
 }

@@ -2,6 +2,7 @@ package io.quarkus.sample.superheroes.narration.rest;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import jakarta.ws.rs.core.HttpHeaders;
@@ -20,7 +21,7 @@ import io.quarkiverse.wiremock.devservice.WireMockConfigKey;
 @QuarkusIntegrationTest
 @TestProfile(WiremockOpenAITestProfile.class)
 @DisabledIf(value = "azureOpenAiEnabled", disabledReason = "Azure OpenAI profile is enabled")
-public class OpenAiNarrationResourceIT extends NarrationResourceIT {
+class OpenAiNarrationResourceIT extends NarrationResourceIT {
   @Test
 	@Override
 	void shouldNarrateAFight() {
@@ -32,9 +33,24 @@ public class OpenAiNarrationResourceIT extends NarrationResourceIT {
         .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
         .withHeader(HttpHeaders.CONTENT_TYPE, equalToIgnoreCase(MediaType.APPLICATION_JSON))
         .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer change-me"))
-        .withRequestBody(equalToJson(REQUEST_JSON, true, false))
+        .withRequestBody(equalToJson(NARRATION_REQUEST_JSON, true, false))
     );
 	}
+
+  @Test
+  @Override
+  void shouldGenerateAnImageFromNarration() {
+    super.shouldGenerateAnImageFromNarration();
+
+    this.wireMock.verifyThat(
+      1,
+      postRequestedFor(urlPathEqualTo("/v1/images/generations"))
+        .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
+        .withHeader(HttpHeaders.CONTENT_TYPE, equalToIgnoreCase(MediaType.APPLICATION_JSON))
+        .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer change-me"))
+        .withRequestBody(equalToJson(IMAGE_REQUEST_JSON, true, false))
+    );
+  }
 
   @Test
 	@Override
@@ -44,7 +60,7 @@ public class OpenAiNarrationResourceIT extends NarrationResourceIT {
         .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
         .withHeader(HttpHeaders.CONTENT_TYPE, equalToIgnoreCase(MediaType.APPLICATION_JSON))
         .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer change-me"))
-        .withRequestBody(equalToJson(REQUEST_JSON, true, false))
+        .withRequestBody(equalToJson(NARRATION_REQUEST_JSON, true, false))
         .willReturn(serverError())
     );
 
@@ -56,7 +72,7 @@ public class OpenAiNarrationResourceIT extends NarrationResourceIT {
         .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
         .withHeader(HttpHeaders.CONTENT_TYPE, equalToIgnoreCase(MediaType.APPLICATION_JSON))
         .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer change-me"))
-        .withRequestBody(equalToJson(REQUEST_JSON, true, false))
+        .withRequestBody(equalToJson(NARRATION_REQUEST_JSON, true, false))
     );
 	}
 
@@ -65,14 +81,23 @@ public class OpenAiNarrationResourceIT extends NarrationResourceIT {
     public Map<String, String> getConfigOverrides() {
 	    var hostname = Boolean.getBoolean("quarkus.container-image.build") ? "host.docker.internal" : "localhost";
 
-      return Map.of(
+      var vals =  new HashMap<>(Map.of(
 				"quarkus.langchain4j.openai.enable-integration", "true",
         "quarkus.langchain4j.openai.log-requests", "true",
         "quarkus.langchain4j.openai.log-responses", "true",
         "quarkus.langchain4j.openai.base-url", "http://%s:${%s}/v1/".formatted(hostname, WireMockConfigKey.PORT),
         "quarkus.langchain4j.openai.max-retries", "2",
         "quarkus.langchain4j.openai.timeout", "3s"
-      );
+      ));
+
+      vals.put("quarkus.langchain4j.openai.dalle3.enable-integration", vals.get("quarkus.langchain4j.openai.enable-integration"));
+      vals.put("quarkus.langchain4j.openai.dalle3.log-requests", vals.get("quarkus.langchain4j.openai.log-requests"));
+      vals.put("quarkus.langchain4j.openai.dalle3.log-responses", vals.get("quarkus.langchain4j.openai.log-responses"));
+      vals.put("quarkus.langchain4j.openai.dalle3.base-url", vals.get("quarkus.langchain4j.openai.base-url"));
+      vals.put("quarkus.langchain4j.openai.dalle3.max-retries", vals.get("quarkus.langchain4j.openai.max-retries"));
+      vals.put("quarkus.langchain4j.openai.dalle3.timeout", vals.get("quarkus.langchain4j.openai.timeout"));
+
+      return vals;
     }
   }
 }

@@ -19,8 +19,10 @@ import org.junit.jupiter.api.Test;
 
 import io.quarkus.panache.mock.PanacheMock;
 import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.NarrationShorterTimeoutsProfile;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
@@ -28,9 +30,11 @@ import io.quarkus.sample.superheroes.fight.client.LocationClient;
 import io.quarkus.sample.superheroes.fight.client.NarrationClient;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
+import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -45,6 +49,7 @@ import io.smallrye.reactive.messaging.memory.InMemoryConnector;
  * </p>
  */
 @QuarkusTest
+@TestProfile(NarrationShorterTimeoutsProfile.class)
 class FightServiceTests extends FightServiceTestsBase {
   private static final String FIGHTS_CHANNEL_NAME = "fights";
   private static final String FALLBACK_NARRATION = """
@@ -54,6 +59,8 @@ class FightServiceTests extends FightServiceTestsBase {
                                                    In the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.
                                                    The people knew that their protector had once again ensured their safety.
                                                    """;
+
+  private static final FightImage IMAGE = new FightImage("https://somewhere.com/someImage.png", "Fallback image");
 
   @InjectMock
   HeroClient heroClient;
@@ -74,6 +81,9 @@ class FightServiceTests extends FightServiceTestsBase {
 
   @Inject
   FightMapper fightMapper;
+
+  @Inject
+  FightConfig fightConfig;
 
   @BeforeEach
   public void beforeEach() {
@@ -524,9 +534,55 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
   @Test
+  void generateFightFromNarrationTimesOut() {
+    var timeout = Duration.ofSeconds(NarrationShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1);
+
+    when(this.narrationClient.generateImageFromNarration(DEFAULT_NARRATION))
+      .thenReturn(
+        Uni.createFrom().item(IMAGE)
+          .onItem().delayIt().by(timeout)
+      );
+
+    var image = this.fightService.generateImageFromNarration(DEFAULT_NARRATION)
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.assertSubscribed()
+			.awaitItem(timeout.multipliedBy(4))
+			.getItem();
+
+    assertThat(image)
+      .isNotNull()
+      .usingRecursiveAssertion()
+      .isEqualTo(getFallbackImage());
+
+    verify(this.fightService).generateImageFromNarration(DEFAULT_NARRATION);
+    verify(this.fightService).fallbackGenerateImageFromNarration(DEFAULT_NARRATION);
+  }
+
+  @Test
+  void generateFightFromNarrationError() {
+    doThrow(new RuntimeException())
+      .when(this.narrationClient)
+      .generateImageFromNarration(DEFAULT_NARRATION);
+
+    var image = this.fightService.generateImageFromNarration(DEFAULT_NARRATION)
+			.subscribe().withSubscriber(UniAssertSubscriber.create())
+			.assertSubscribed()
+			.awaitItem(Duration.ofSeconds(NarrationShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1).multipliedBy(4))
+			.getItem();
+
+    assertThat(image)
+      .isNotNull()
+      .usingRecursiveAssertion()
+      .isEqualTo(getFallbackImage());
+
+    verify(this.fightService).generateImageFromNarration(DEFAULT_NARRATION);
+    verify(this.fightService).fallbackGenerateImageFromNarration(DEFAULT_NARRATION);
+  }
+
+  @Test
   public void narrateFightNarrationTimesOut() {
     var fightToNarrate = createFightToNarrateHeroWon();
-    var timeout = Duration.ofSeconds(31);
+    var timeout = Duration.ofSeconds(NarrationShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1);
 
     when(this.narrationClient.narrate(eq(fightToNarrate)))
       .thenReturn(
@@ -668,15 +724,15 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		doReturn(false)
       .when(this.fightService)
-      .shouldHeroWin(eq(defaultFightRequest));
+      .shouldHeroWin(defaultFightRequest);
 
 		doReturn(false)
       .when(this.fightService)
-      .shouldVillainWin(eq(defaultFightRequest));
+      .shouldVillainWin(defaultFightRequest);
 
 		doReturn(fightOutcome)
       .when(this.fightService)
-      .getRandomWinner(eq(defaultFightRequest));
+      .getRandomWinner(defaultFightRequest);
 
 		var fight = this.fightService.performFight(createDefaultFightRequest())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -700,9 +756,9 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		verify(this.fightService).determineWinner(eq(defaultFightRequest));
 		verify(this.fightService).persistFight(argThat(fightMatcher));
-		verify(this.fightService).shouldVillainWin(eq(defaultFightRequest));
-		verify(this.fightService).shouldHeroWin(eq(defaultFightRequest));
-		verify(this.fightService).getRandomWinner(eq(defaultFightRequest));
+		verify(this.fightService).shouldVillainWin(defaultFightRequest);
+		verify(this.fightService).shouldHeroWin(defaultFightRequest);
+		verify(this.fightService).getRandomWinner(defaultFightRequest);
 		verify(this.fightService, never()).villainWonFight(any(FightRequest.class));
 		verify(this.fightService, never()).heroWonFight(any(FightRequest.class));
     verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
@@ -712,7 +768,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void didHeroWinTrue() {
+	void didHeroWinTrue() {
 		var f = createDefaultFightRequest();
     var h = new Hero(f.hero().name(), (Integer.MAX_VALUE - this.fightConfig.hero().adjustBound()), f.hero().picture(), f.hero().powers());
     var v = new Villain(f.villain().name(), Integer.MIN_VALUE, f.villain().picture(), f.villain().powers());
@@ -989,6 +1045,11 @@ class FightServiceTests extends FightServiceTestsBase {
 
   private Fighters createFallbackFighters() {
     return new Fighters(createFallbackHero(), createFallbackVillain());
+  }
+
+  private FightImage getFallbackImage() {
+    var image = this.fightConfig.narration().fallbackImageGeneration();
+    return new FightImage(image.imageUrl(), image.imageNarration());
   }
 
   private static Fight createFightHeroWon() {

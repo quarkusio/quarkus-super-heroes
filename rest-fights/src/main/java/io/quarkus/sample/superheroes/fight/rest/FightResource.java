@@ -6,6 +6,7 @@ import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRA
 import java.util.List;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -13,6 +14,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
@@ -27,6 +29,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
@@ -188,6 +191,37 @@ public class FightResource {
     @NotNull @Valid FightToNarrate fight) {
 		return this.service.narrateFight(fight);
 	}
+
+  @POST
+  @Path("/narrate/image")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.TEXT_PLAIN)
+  @Operation(summary = "Generate an image from a narration")
+  @APIResponse(
+    responseCode = "200",
+    description = "An image from a narration",
+    content = @Content(
+      schema = @Schema(implementation = FightImage.class),
+      examples = @ExampleObject(name = "image", value = Examples.EXAMPLE_FIGHT_IMAGE)
+    )
+  )
+  @APIResponse(
+    responseCode = "400",
+    description = "Invalid (or missing) narration"
+  )
+  public Uni<FightImage> generateImageFromNarration(
+    @RequestBody(
+      name = "narration",
+      required = true,
+      content = @Content(
+        schema = @Schema(implementation = String.class),
+        examples = @ExampleObject(name = "narration", value = "This is your fight narration!")
+      )
+    )
+    @NotBlank String narration) {
+    return this.service.generateImageFromNarration(narration)
+      .invoke(image -> Log.debugf("Image (%s) generated from narration: %s", image, narration));
+  }
 
 	@GET
 	@Produces(TEXT_PLAIN)

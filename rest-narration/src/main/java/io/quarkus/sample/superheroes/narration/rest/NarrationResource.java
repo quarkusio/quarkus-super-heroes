@@ -1,5 +1,6 @@
 package io.quarkus.sample.superheroes.narration.rest;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -18,6 +19,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.narration.Fight;
+import io.quarkus.sample.superheroes.narration.FightImage;
+import io.quarkus.sample.superheroes.narration.service.ImageGenerationService;
 import io.quarkus.sample.superheroes.narration.service.NarrationService;
 
 import io.smallrye.common.annotation.NonBlocking;
@@ -30,12 +33,14 @@ import io.smallrye.common.annotation.NonBlocking;
 @Tag(name = "narration")
 public class NarrationResource {
   private final NarrationService narrationService;
+  private final ImageGenerationService imageGenerationService;
 
-    public NarrationResource(NarrationService narrationService) {
-        this.narrationService = narrationService;
-    }
+  public NarrationResource(NarrationService narrationService, ImageGenerationService imageGenerationService) {
+    this.narrationService = narrationService;
+    this.imageGenerationService = imageGenerationService;
+  }
 
-    @POST
+  @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @Operation(summary = "Creates a narration for the fight")
   @APIResponse(
@@ -66,18 +71,52 @@ public class NarrationResource {
     return narration;
   }
 
+  @POST
+  @Path("/image")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.TEXT_PLAIN)
+  @Operation(summary = "Generate an image from a narration")
+  @APIResponse(
+    responseCode = "200",
+    description = "An image from a narration",
+    content = @Content(
+      schema = @Schema(implementation = FightImage.class),
+      examples = @ExampleObject(name = "image", value = Examples.EXAMPLE_FIGHT_IMAGE)
+    )
+  )
+  @APIResponse(
+    responseCode = "400",
+    description = "Invalid (or missing) narration"
+  )
+  public FightImage generateImageFromNarration(
+    @RequestBody(
+      name = "narration",
+      required = true,
+      content = @Content(
+        schema = @Schema(implementation = String.class),
+        examples = @ExampleObject(name = "narration", value = "This is your fight narration!")
+      )
+    )
+    @NotBlank String narration) {
+
+    var image = this.imageGenerationService.generateImageForNarration(narration);
+    Log.debugf("Image (%s) generated from narration: %s", image, narration);
+
+    return image;
+  }
+
   @GET
   @Path("/hello")
   @Tag(name = "hello")
-	@Operation(summary = "Ping hello")
-	@APIResponse(
-		responseCode = "200",
-		description = "Ping hello",
+  @Operation(summary = "Ping hello")
+  @APIResponse(
+    responseCode = "200",
+    description = "Ping hello",
     content = @Content(
       schema = @Schema(implementation = String.class),
       examples = @ExampleObject(name = "hello_success", value = "Hello Narration Resource")
     )
-	)
+  )
   @NonBlocking
   public String hello() {
     Log.debug("Hello Narration Resource");

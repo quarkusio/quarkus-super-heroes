@@ -29,10 +29,9 @@ public interface FightConfig {
   Location location();
 
   /**
-   * Fallback narration
+   * Narration configuration
    */
-  @WithDefault("Connection to the narration service could not be established.")
-  String fallbackNarration();
+  Narration narration();
 
 	interface Process {
 		/**
@@ -44,6 +43,31 @@ public interface FightConfig {
 		@WithDefault("0")
 		long delayMillis();
 	}
+
+  interface Narration {
+    /**
+   * Fallback narration
+   */
+    @WithDefault("Connection to the narration service could not be established.")
+    String fallbackNarration();
+
+    /**
+     * The fallback settings for image generation
+     */
+    NarrationImageFallback fallbackImageGeneration();
+
+    interface NarrationImageFallback {
+      /**
+       * The fallback narration
+       */
+      String imageNarration();
+
+      /**
+       * The URL to the fallback image for the narration
+       */
+      String imageUrl();
+    }
+  }
 
 	interface Hero {
 		/**

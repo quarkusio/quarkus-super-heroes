@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.quarkus.panache.mock.PanacheMock;
 import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.Fighters;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
@@ -84,6 +85,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String NARRATION_API_BASE_URI = "/api/narration";
   private static final String NARRATION_NARRATE_URI = NARRATION_API_BASE_URI;
   private static final String NARRATION_HELLO_URI = NARRATION_NARRATE_URI + "/hello";
+  private static final String NARRATION_IMAGE_GEN_URI = NARRATION_NARRATE_URI + "/image";
   static final String NARRATION_MOCK_PORT = "9085";
 
 
@@ -241,6 +243,30 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
         .headers(Map.of(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN))
         .status(Status.OK.getStatusCode())
         .body(PactDslRootValue.stringMatcher("[.\\s\\S]+", DEFAULT_NARRATION))
+      .toPact(V4Pact.class);
+  }
+
+  @Pact(consumer = "rest-fights", provider = "rest-narration")
+  public V4Pact generateImageFromNarrationPact(PactDslWithProvider builder) {
+    var imageGenBody = newJsonBody(body ->
+      body
+        .stringType("imageUrl", DEFAULT_NARRATION_IMAGE_URL)
+        .stringType("imageNarration", DEFAULT_NARRATION_IMAGE_NARRATION)
+    ).build();
+
+    return builder
+      .uponReceiving("A request to generate an image from a narration")
+        .path(NARRATION_IMAGE_GEN_URI)
+        .method(HttpMethod.POST)
+        .headers(
+          HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON,
+          HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN
+        )
+        .body(PactDslRootValue.stringMatcher("[.\\s\\S]+", DEFAULT_NARRATION))
+      .willRespondWith()
+        .headers(Map.of(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        .status(Status.OK.getStatusCode())
+        .body(imageGenBody)
       .toPact(V4Pact.class);
   }
 
@@ -428,6 +454,28 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 
     verify(this.narrationClient).narrate(eq(fightToNarrate));
 		verify(this.fightService, never()).fallbackNarrateFight(eq(fightToNarrate));
+    verifyNoInteractions(this.heroClient, this.villainClient, this.locationClient);
+		PanacheMock.verifyNoInteractions(Fight.class);
+  }
+
+  @Test
+  @PactTestFor(pactMethods = "generateImageFromNarrationPact")
+  void generateImageFromNarrationSuccess() {
+    PanacheMock.mock(Fight.class);
+
+    var fightImage = this.fightService.generateImageFromNarration(DEFAULT_NARRATION)
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .getItem();
+
+    assertThat(fightImage)
+      .isNotNull()
+      .usingRecursiveAssertion()
+      .isEqualTo(new FightImage(DEFAULT_NARRATION_IMAGE_URL, DEFAULT_NARRATION_IMAGE_NARRATION));
+
+    verify(this.narrationClient).generateImageFromNarration(DEFAULT_NARRATION);
+    verify(this.fightService, never()).fallbackGenerateImageFromNarration(DEFAULT_NARRATION);
     verifyNoInteractions(this.heroClient, this.villainClient, this.locationClient);
 		PanacheMock.verifyNoInteractions(Fight.class);
   }

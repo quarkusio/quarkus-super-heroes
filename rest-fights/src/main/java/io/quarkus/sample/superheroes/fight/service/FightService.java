@@ -22,6 +22,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.quarkus.logging.Log;
 import io.quarkus.sample.superheroes.fight.Fight;
+import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
@@ -232,8 +233,15 @@ public class FightService {
   }
 
   Uni<String> fallbackNarrateFight(FightToNarrate fight) {
-    return Uni.createFrom().item(this.fightConfig.fallbackNarration())
+    return Uni.createFrom().item(this.fightConfig.narration().fallbackNarration())
       .invoke(n -> Log.warn("Falling back on Narration"));
+  }
+
+  Uni<FightImage> fallbackGenerateImageFromNarration(String narration) {
+    var fallbackImageGeneration = this.fightConfig.narration().fallbackImageGeneration();
+
+    return Uni.createFrom().item(new FightImage(fallbackImageGeneration.imageUrl(), fallbackImageGeneration.imageNarration()))
+      .invoke(i -> Log.warn("Falling back on narration image generation"));
   }
 
 	private Villain createFallbackVillain() {
@@ -261,6 +269,17 @@ public class FightService {
   public Uni<String> narrateFight(@SpanAttribute("arg.fight") FightToNarrate fight) {
     Log.debugf("Narrating fight: %s", fight);
     return this.narrationClient.narrate(fight);
+  }
+
+  @CircuitBreaker(requestVolumeThreshold = 8, failureRatio = 0.5, delay = 2, delayUnit = ChronoUnit.SECONDS)
+  @CircuitBreakerName("generateImageFromNarration")
+  @Timeout(value = 30, unit = ChronoUnit.SECONDS)
+  @Retry(maxRetries = 3, delay = 200, delayUnit = ChronoUnit.MILLIS)
+	@Fallback(fallbackMethod = "fallbackGenerateImageFromNarration")
+  @WithSpan("FightService.generateImageFromNarration")
+  public Uni<FightImage> generateImageFromNarration(@SpanAttribute("arg.narration") String narration) {
+    Log.debugf("Generating image for narration: %s", narration);
+    return this.narrationClient.generateImageFromNarration(narration);
   }
 
   @WithSpan("FightService.persistFight")
