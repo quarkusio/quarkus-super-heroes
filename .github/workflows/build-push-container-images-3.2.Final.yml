@@ -97,7 +97,7 @@ jobs:
             -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
 
       - name: Save JVM Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
-        uses: ishworkh/docker-image-artifact-upload@v1
+        uses: ishworkh/container-image-artifact-upload@v1.0.0
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
@@ -170,7 +170,7 @@ jobs:
             -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
 
       - name: Save native Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
-        uses: ishworkh/docker-image-artifact-upload@v1
+        uses: ishworkh/container-image-artifact-upload@v1.0.0
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 
@@ -229,7 +229,7 @@ jobs:
         run: echo "CONTAINER_TAG=native-${{ env.LATEST_IMAGE_TAG }}-${{ env.BRANCH }}-${{ matrix.arch }}" >> $GITHUB_ENV
 
       - name: Get saved images (${{ matrix.project }}:${{ env.CONTAINER_TAG }})
-        uses: ishworkh/docker-image-artifact-download@v1
+        uses: ishworkh/container-image-artifact-download@v1.0.0
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}"
 

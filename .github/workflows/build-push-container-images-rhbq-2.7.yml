@@ -104,7 +104,7 @@ jobs:
           tags: ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}
 
       - name: Save JVM Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
-        uses: ishworkh/docker-image-artifact-upload@v1
+        uses: ishworkh/container-image-artifact-upload@v1.0.0
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
@@ -174,7 +174,7 @@ jobs:
             -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}-${{ matrix.arch }}
 
       - name: Save native Image (${{ matrix.project }}-java${{ matrix.java }}-${{ matrix.arch }})
-        uses: ishworkh/docker-image-artifact-upload@v1
+        uses: ishworkh/container-image-artifact-upload@v1.0.0
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
@@ -233,7 +233,7 @@ jobs:
           tags: ${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.CONTAINER_TAG }}
 
       - name: Save UI image (${{ matrix.arch }})
-        uses: ishworkh/docker-image-artifact-upload@v1
+        uses: ishworkh/container-image-artifact-upload@v1.0.0
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.CONTAINER_TAG }}"
 
@@ -311,7 +311,7 @@ jobs:
 
       - name: Get saved images (${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }}-${{ matrix.arch }})
         if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
-        uses: ishworkh/docker-image-artifact-download@v1
+        uses: ishworkh/container-image-artifact-download@v1.0.0
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
@@ -392,7 +392,7 @@ jobs:
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)-${{ env.BRANCH }}" >> $GITHUB_ENV
 
       - name: Get Saved UI Image (${{ matrix.arch }})
-        uses: ishworkh/docker-image-artifact-download@v1
+        uses: ishworkh/container-image-artifact-download@v1.0.0
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.CONTAINER_TAG }}"
 
