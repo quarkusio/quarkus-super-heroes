@@ -4,21 +4,25 @@
 # Create the CONTAINER_TAG that should be used
 
 if [[ $# -lt 4 ]]; then
-  echo "$0: Should have at least 4 arguments: [app_version quarkus_version kind java_version]"
+  echo "$0: Should have at least 4 arguments: [kind java_version latest_image_tag branch]"
   exit 1
 fi
 
-app_version=$1
-quarkus_version=$2
-kind=$3
-java_version=$4
+kind=$1
+java_version=$2
+latest_image_tag=$3
+branch=$4
 
-container_tag="${app_version}-quarkus-${quarkus_version}"
+container_tag="${kind}"
 
 if [[ "$kind" == "native-" ]]; then
-  container_tag="${container_tag}-native"
+  container_tag="${container_tag}${latest_image_tag}"
 else
-  container_tag="${container_tag}-${kind}java${java_version}"
+  container_tag="${container_tag}java${java_version}-${latest_image_tag}"
+fi
+
+if [[ "$branch" != "main" ]]; then
+  container_tag="${container_tag}-${branch}"
 fi
 
 if [[ $# -eq 5 && $5 != "" ]]; then

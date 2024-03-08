@@ -50,15 +50,11 @@ This image is a visual of what the workflow consists of:
 ### Build JVM container images job
 This job [Builds JVM container images](https://quarkus.io/guides/container-image#building) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and  [`ui-super-heroes`](../ui-super-heroes) applications on Java 17 (both amd64 & arm64 platforms) using the [Docker Build action](https://github.com/docker/build-push-action).
 
-Each container image created has 4 tags:
-- `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}-amd64`
-- `{{app-version}}-quarkus-{{quarkus-version}}-java{{java-version}}-arm64`
+Each container image created has 2 tags:
 - `java{{java-version}}-latest-amd64`
 - `java{{java-version}}-latest-arm64`
 
 > [!TIP]
-> - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `3.0.3.Final`).
 > - Replace `{{java-version}}` with the Java version the application was built with (i.e. `17`).
 
 There are a total of 14 images built (7 applications x 1 JVM version x 2 platforms).
@@ -71,22 +67,16 @@ The job [Builds native executable container images](https://quarkus.io/guides/bu
 > [!NOTE]
 > The [`rest-narration`](../rest-narration) application currently doesn't support native compilation
 
-Each container image created has 4 tags:
-- `{{app-version}}-quarkus-{{quarkus-version}}-native-amd64`
-- `{{app-version}}-quarkus-{{quarkus-version}}-native-arm64`
+Each container image created has 2 tags:
 - `native-latest-amd64`
 - `native-latest-arm64`
 
-> [!TIP]
-> - Replace `{{app-version}}` with the application version (i.e. `1.0`).
-> - Replace `{{quarkus-version}}` with Quarkus version the application uses (i.e. `3.5.2`).
-
-There are a total of 12 images built (6 applications x 2 platforms).
+There are a total of 14 images built (7 applications x 2 platforms).
 
 ### Push application container images job
 Runs after successful completion of the [_Build JVM container image_](#build-jvm-container-images-job) and [_Build native container image_](#build-native-container-images-job) jobs.
 
-All the container images created in the [_Build JVM container image_](#build-jvm-container-images-job) and [_Build native container image_](#build-native-container-images-job) jobs (26 total container images/52 tags) are pushed to https://quay.io/quarkus-super-heroes.
+All the container images created in the [_Build JVM container image_](#build-jvm-container-images-job) and [_Build native container image_](#build-native-container-images-job) jobs (28 total container images/tags) are pushed to https://quay.io/quarkus-super-heroes.
 
 ### Create application multi-arch manifests
 Runs after successful completion of the [_Push application container images_](#push-application-container-images-job) job and in parallel with the [_Create UI multi-arch manifests_](#create-ui-multi-arch-manifests) job.

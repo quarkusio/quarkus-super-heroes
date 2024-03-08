@@ -68,8 +68,6 @@ jobs:
       - name: Create env vars
         working-directory: ${{ matrix.project.name }}
         run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV &&
           if [[ ${{ matrix.java }} == '17' ]]; then
             echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV"
           else
@@ -84,7 +82,7 @@ jobs:
       - name: Create CONTAINER_TAG
         working-directory: .github/workflows/scripts
         shell: bash
-        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh ${{ env.APP_VERSION }} ${{ env.QUARKUS_VERSION }} "" ${{ matrix.java }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
 
       - name: Set up QEMU
         if: matrix.arch == 'arm64'
@@ -160,12 +158,6 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Create env vars
-        working-directory: ${{ matrix.project.name }}
-        run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV && \
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-
       - name: Create OpenAI env vars
         if: matrix.project.openai-type
         working-directory: ${{ matrix.project.name }}
@@ -174,7 +166,7 @@ jobs:
       - name: Create CONTAINER_TAG
         working-directory: .github/workflows/scripts
         shell: bash
-        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh ${{ env.APP_VERSION }} ${{ env.QUARKUS_VERSION }} "native-" ${{ matrix.java }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "native-" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
 
       - name: Set up QEMU
         if: matrix.arch == 'arm64'
@@ -257,21 +249,10 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Create env vars
-        working-directory: ${{ matrix.project.name }}
-        run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-
       - name: Create CONTAINER_TAG
         working-directory: .github/workflows/scripts
         shell: bash
-        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh ${{ env.APP_VERSION }} ${{ env.QUARKUS_VERSION }} "${{ matrix.kind }}" ${{ matrix.java }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
-        
-      - name: Create ADDITIONAL_TAG
-        working-directory: .github/workflows/scripts
-        shell: bash
-        run: echo "ADDITIONAL_TAG=$(./compute-additional-tag.sh "${{ matrix.kind }}" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "${{ matrix.kind }}" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
 
       - name: Get saved images (${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }})
         uses: ishworkh/container-image-artifact-download@v1.0.0
@@ -284,10 +265,6 @@ jobs:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
           password: ${{ secrets.QUAY_REPO_TOKEN }}
-
-      - name: Tag image
-        working-directory: ${{ matrix.project.name }}
-        run: "docker tag ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }} ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.ADDITIONAL_TAG }}-${{ matrix.arch }}"
 
       - name: Push images
         working-directory: ${{ matrix.project.name }}
@@ -339,21 +316,10 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Create env vars
-        working-directory: ${{ matrix.project.name }}
-        run: |
-          echo "QUARKUS_VERSION=$(./mvnw help:evaluate -Dexpression=quarkus.platform.version -q -DforceStdout)" >> $GITHUB_ENV &&
-          echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-
       - name: Create CONTAINER_TAG
         working-directory: .github/workflows/scripts
         shell: bash
-        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh ${{ env.APP_VERSION }} ${{ env.QUARKUS_VERSION }} "${{ matrix.kind }}" ${{ matrix.java }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
-
-      - name: Create ADDITIONAL_TAG
-        working-directory: .github/workflows/scripts
-        shell: bash
-        run: echo "ADDITIONAL_TAG=$(./compute-additional-tag.sh "${{ matrix.kind }}" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "${{ matrix.kind }}" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
 
       - name: Login to quay
         uses: docker/login-action@v3
@@ -369,10 +335,6 @@ jobs:
             -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-amd64 \
             -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-arm64
           docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}
-          docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.ADDITIONAL_TAG }} \
-            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.ADDITIONAL_TAG }}-amd64 \
-            -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.ADDITIONAL_TAG }}-arm64
-          docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.ADDITIONAL_TAG }}
 
   deploy-resources-workflow-run:
     if: ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.event.workflow_run.head_branch == 'main'))
