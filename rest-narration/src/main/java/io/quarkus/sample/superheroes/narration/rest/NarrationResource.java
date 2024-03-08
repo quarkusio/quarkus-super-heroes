@@ -48,7 +48,7 @@ public class NarrationResource {
     description = "The narration",
     content = @Content(
       schema = @Schema(implementation = String.class),
-      examples = @ExampleObject(name = "narration_success", value = "This is your fight narration!")
+      examples = @ExampleObject(name = "narration_success", value = Examples.EXAMPLE_NARRATION)
     )
   )
   @APIResponse(
@@ -94,7 +94,7 @@ public class NarrationResource {
       required = true,
       content = @Content(
         schema = @Schema(implementation = String.class),
-        examples = @ExampleObject(name = "narration", value = "This is your fight narration!")
+        examples = @ExampleObject(name = "narration", value = Examples.EXAMPLE_NARRATION)
       )
     )
     @NotBlank String narration) {
