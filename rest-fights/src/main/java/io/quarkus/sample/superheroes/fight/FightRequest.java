@@ -9,8 +9,4 @@ import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 
 @Schema(description = "A request to perform a fight between one hero and one villain in a location")
-public record FightRequest(@NotNull @Valid Hero hero, @NotNull @Valid Villain villain, FightLocation location) {
-  public FightRequest(FightRequest fightRequest) {
-    this(fightRequest.hero(), fightRequest.villain(), fightRequest.location());
-  }
-}
+public record FightRequest(@NotNull @Valid Hero hero, @NotNull @Valid Villain villain, FightLocation location) { }

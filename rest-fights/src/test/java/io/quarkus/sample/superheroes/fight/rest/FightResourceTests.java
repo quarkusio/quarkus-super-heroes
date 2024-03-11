@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.bson.types.ObjectId;
@@ -383,6 +384,34 @@ public class FightResourceTests {
 	public void shouldPingOpenAPI() {
 		get("/q/openapi")
 			.then().statusCode(OK.getStatusCode());
+	}
+
+	@Test
+	void shouldPingHealthCheck() {
+		var expected = Map.of(
+			"name", "Ping Fight REST Endpoint",
+			"status", "UP",
+			"data", Map.of("Response", "Hello Fight Resource")
+		);
+
+		var health = get("/q/health/live").then()
+			.statusCode(OK.getStatusCode())
+			.contentType(JSON)
+			.extract().as(Map.class);
+
+		assertThat(health)
+			.isNotNull()
+			.containsKey("checks");
+
+		var pingElement = ((List<Map<String, Object>>) health.get("checks")).stream()
+			.filter(map -> "Ping Fight REST Endpoint".equals(map.get("name")))
+			.findFirst();
+
+		assertThat(pingElement)
+			.isPresent();
+
+		assertThat(pingElement.get())
+			.containsAllEntriesOf(expected);
 	}
 
 	private static Stream<Fighters> invalidFighters() {

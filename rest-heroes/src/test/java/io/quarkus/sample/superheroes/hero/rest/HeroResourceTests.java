@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import jakarta.validation.ConstraintViolationException;
@@ -591,6 +592,34 @@ public class HeroResourceTests {
 	public void shouldPingOpenAPI() {
 		get("/q/openapi")
 			.then().statusCode(OK.getStatusCode());
+	}
+
+	@Test
+	void shouldPingHealthCheck() {
+		var expected = Map.of(
+			"name", "Ping Hero REST Endpoint",
+			"status", "UP",
+			"data", Map.of("Response", "Hello Hero Resource")
+		);
+
+		var health = get("/q/health/live").then()
+			.statusCode(OK.getStatusCode())
+			.contentType(JSON)
+			.extract().as(Map.class);
+
+		assertThat(health)
+			.isNotNull()
+			.containsKey("checks");
+
+		var pingElement = ((List<Map<String, Object>>) health.get("checks")).stream()
+			.filter(map -> "Ping Hero REST Endpoint".equals(map.get("name")))
+			.findFirst();
+
+		assertThat(pingElement)
+			.isPresent();
+
+		assertThat(pingElement.get())
+			.containsAllEntriesOf(expected);
 	}
 
 	private static Hero createDefaultHero() {

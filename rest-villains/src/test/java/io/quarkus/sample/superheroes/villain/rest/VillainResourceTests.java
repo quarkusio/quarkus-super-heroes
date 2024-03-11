@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -573,12 +574,36 @@ public class VillainResourceTests {
 
 	@Test
 	public void shouldPingOpenAPI() {
-		given()
-			.when()
-				.accept(JSON)
-				.get("/q/openapi")
-			.then()
-				.statusCode(OK.getStatusCode());
+		get("/q/openapi").then()
+			.statusCode(OK.getStatusCode());
+	}
+
+	@Test
+	void shouldPingHealthCheck() {
+		var expected = Map.of(
+			"name", "Ping Villain REST Endpoint",
+			"status", "UP",
+			"data", Map.of("Response", "Hello Villain Resource")
+		);
+
+		var health = get("/q/health/live").then()
+			.statusCode(OK.getStatusCode())
+			.contentType(JSON)
+			.extract().as(Map.class);
+
+		assertThat(health)
+			.isNotNull()
+			.containsKey("checks");
+
+		var pingElement = ((List<Map<String, Object>>) health.get("checks")).stream()
+			.filter(map -> "Ping Villain REST Endpoint".equals(map.get("name")))
+			.findFirst();
+
+		assertThat(pingElement)
+			.isPresent();
+
+		assertThat(pingElement.get())
+			.containsAllEntriesOf(expected);
 	}
 
 	private static Villain createDefaultVillian() {
