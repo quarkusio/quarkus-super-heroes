@@ -1556,7 +1556,7 @@ class FightResourceIT {
 		this.wireMockGrpcServer.resetAll();
 
 	  try {
-		  TimeUnit.SECONDS.sleep(2);
+		  TimeUnit.SECONDS.sleep(5);
 	  }
 	  catch (InterruptedException ex) {
 		  Log.error(ex.getMessage(), ex);
