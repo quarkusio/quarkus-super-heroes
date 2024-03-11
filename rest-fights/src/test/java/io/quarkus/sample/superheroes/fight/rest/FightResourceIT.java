@@ -37,6 +37,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
 import io.quarkus.logging.Log;
+import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
+import io.quarkus.test.junit.TestProfile;
+import io.quarkus.test.kafka.InjectKafkaCompanion;
+import io.quarkus.test.kafka.KafkaCompanionResource;
+
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightLocation;
@@ -56,11 +62,6 @@ import io.quarkus.sample.superheroes.location.grpc.HelloRequest;
 import io.quarkus.sample.superheroes.location.grpc.Location;
 import io.quarkus.sample.superheroes.location.grpc.LocationType;
 import io.quarkus.sample.superheroes.location.grpc.RandomLocationRequest;
-import io.quarkus.test.common.QuarkusTestResource;
-import io.quarkus.test.junit.QuarkusIntegrationTest;
-import io.quarkus.test.junit.TestProfile;
-import io.quarkus.test.kafka.InjectKafkaCompanion;
-import io.quarkus.test.kafka.KafkaCompanionResource;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -1551,6 +1552,8 @@ class FightResourceIT {
 		// Verify successful requests
     this.wireMockGrpc.verify(9, "GetRandomLocation")
       .withRequestMessage(equalToMessage(RandomLocationRequest.newBuilder()));
+
+		this.wireMockGrpcServer.resetAll();
   }
 
   private void resetNarrationCircuitBreakersToClosedState() {
