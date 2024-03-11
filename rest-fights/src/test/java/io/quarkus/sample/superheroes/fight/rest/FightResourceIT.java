@@ -851,9 +851,7 @@ class FightResourceIT {
   @MethodSource("randomLocationFailReasons")
   @Order(DEFAULT_ORDER + 1)
   void getRandomLocationFail(Status status, String statusReason, int expectedNumberOfCalls) {
-	  System.out.println("getRandomLocationFail(status = " + status + ", statusReason=\"" + statusReason + "\")");
     resetLocationCircuitBreakerToClosedState();
-	  System.out.println("Circuit breakers closed");
 
     this.wireMockGrpc.stubFor(
       method("GetRandomLocation")
