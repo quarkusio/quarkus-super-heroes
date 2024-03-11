@@ -3,8 +3,9 @@ package io.quarkus.sample.superheroes.statistics.endpoint;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.server.ServerEndpoint;
 
-import io.quarkus.sample.superheroes.statistics.domain.Score;
 import io.quarkus.scheduler.Scheduled;
+
+import io.quarkus.sample.superheroes.statistics.domain.Score;
 
 import io.smallrye.mutiny.Multi;
 

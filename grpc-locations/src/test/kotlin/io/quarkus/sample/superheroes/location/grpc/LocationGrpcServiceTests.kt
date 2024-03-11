@@ -8,12 +8,12 @@ import io.mockk.justRun
 import io.mockk.verify
 import io.quarkiverse.test.junit.mockk.InjectMock
 import io.quarkus.grpc.GrpcClient
+import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.sample.superheroes.location.Location
 import io.quarkus.sample.superheroes.location.LocationType
 import io.quarkus.sample.superheroes.location.grpc.LocationsGrpc.LocationsBlockingStub
 import io.quarkus.sample.superheroes.location.mapping.LocationMapper
 import io.quarkus.sample.superheroes.location.service.LocationService
-import io.quarkus.test.junit.QuarkusTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test

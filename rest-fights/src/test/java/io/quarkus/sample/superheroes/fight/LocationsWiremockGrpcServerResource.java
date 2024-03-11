@@ -7,9 +7,10 @@ import java.util.Map;
 import org.wiremock.grpc.GrpcExtensionFactory;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
-import io.quarkus.sample.superheroes.location.grpc.LocationsGrpc;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager.TestInjector.AnnotatedAndMatchesType;
+
+import io.quarkus.sample.superheroes.location.grpc.LocationsGrpc;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;

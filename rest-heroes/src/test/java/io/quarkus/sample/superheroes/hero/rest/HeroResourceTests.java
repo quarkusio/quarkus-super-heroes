@@ -5,7 +5,7 @@ import static io.restassured.http.ContentType.JSON;
 import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 
@@ -21,10 +21,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 
-import io.quarkus.sample.superheroes.hero.Hero;
-import io.quarkus.sample.superheroes.hero.service.HeroService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+
+import io.quarkus.sample.superheroes.hero.Hero;
+import io.quarkus.sample.superheroes.hero.service.HeroService;
 
 import io.restassured.RestAssured;
 import io.smallrye.mutiny.Uni;
@@ -52,7 +53,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void helloEndpoint() {
+	void helloEndpoint() {
 		get("/api/heroes/hello")
 			.then()
 				.statusCode(200)
@@ -62,20 +63,20 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldNotGetUnknownHero() {
-		when(this.heroService.findHeroById(eq(DEFAULT_ID)))
+	void shouldNotGetUnknownHero() {
+		when(this.heroService.findHeroById(DEFAULT_ID))
 			.thenReturn(Uni.createFrom().nullItem());
 
 		get("/api/heroes/{id}", DEFAULT_ID)
 			.then()
 			.statusCode(NOT_FOUND.getStatusCode());
 
-		verify(this.heroService).findHeroById(eq(DEFAULT_ID));
+		verify(this.heroService).findHeroById(DEFAULT_ID);
 		verifyNoMoreInteractions(this.heroService);
 	}
 
 	@Test
-	public void shouldGetRandomHeroNotFound() {
+	void shouldGetRandomHeroNotFound() {
 		when(this.heroService.findRandomHero())
 			.thenReturn(Uni.createFrom().nullItem());
 
@@ -88,7 +89,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldGetRandomHeroFound() {
+	void shouldGetRandomHeroFound() {
 		when(this.heroService.findRandomHero())
 			.thenReturn(Uni.createFrom().item(createDefaultHero()));
 
@@ -122,7 +123,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldNotAddInvalidItem() {
+	void shouldNotAddInvalidItem() {
 		var hero = new Hero();
 		hero.setName(null);
 		hero.setOtherName(DEFAULT_OTHER_NAME);
@@ -143,7 +144,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldNotAddNullItem() {
+	void shouldNotAddNullItem() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -156,7 +157,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldNotFullyUpdateNullItem() {
+	void shouldNotFullyUpdateNullItem() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -170,7 +171,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldNotFullyUpdateInvalidItem() {
+	void shouldNotFullyUpdateInvalidItem() {
 		var hero = createFullyUpdatedHero();
 		hero.setName(null);
 		hero.setOtherName(UPDATED_OTHER_NAME);
@@ -191,7 +192,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldNotPartiallyUpdateInvalidItem() {
+	void shouldNotPartiallyUpdateInvalidItem() {
 		ArgumentMatcher<Hero> heroMatcher = h ->
 			(h.getId() == DEFAULT_ID) &&
 				(h.getName() == null) &&
@@ -222,7 +223,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldNotPartiallyUpdateNullItem() {
+	void shouldNotPartiallyUpdateNullItem() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -236,7 +237,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldGetItems() {
+	void shouldGetItems() {
 		when(this.heroService.findAllHeroes())
 			.thenReturn(Uni.createFrom().item(List.of(createDefaultHero())));
 
@@ -271,7 +272,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldGetEmptyItems() {
+	void shouldGetEmptyItems() {
 		when(this.heroService.findAllHeroes())
 			.thenReturn(Uni.createFrom().item(List.of()));
 
@@ -285,8 +286,8 @@ public class HeroResourceTests {
 	}
 
   @Test
-  public void shouldGetItemsWithNameFilter() {
-    when(this.heroService.findAllHeroesHavingName(eq("name")))
+  void shouldGetItemsWithNameFilter() {
+    when(this.heroService.findAllHeroesHavingName("name"))
       .thenReturn(Uni.createFrom().item(List.of(createDefaultHero())));
 
     var heroes = given()
@@ -318,13 +319,13 @@ public class HeroResourceTests {
         DEFAULT_POWERS
       );
 
-    verify(this.heroService).findAllHeroesHavingName(eq("name"));
+    verify(this.heroService).findAllHeroesHavingName("name");
     verifyNoMoreInteractions(this.heroService);
   }
 
   @Test
-  public void shouldGetEmptyItemsWithNameFilter() {
-    when(this.heroService.findAllHeroesHavingName(eq("name")))
+  void shouldGetEmptyItemsWithNameFilter() {
+    when(this.heroService.findAllHeroesHavingName("name"))
       .thenReturn(Uni.createFrom().item(List.of()));
 
     given()
@@ -335,12 +336,12 @@ public class HeroResourceTests {
         .statusCode(OK.getStatusCode())
         .body("$.size()", is(0));
 
-    verify(this.heroService).findAllHeroesHavingName(eq("name"));
+    verify(this.heroService).findAllHeroesHavingName("name");
     verifyNoMoreInteractions(this.heroService);
   }
 
 	@Test
-	public void shouldGetNullItems() {
+	void shouldGetNullItems() {
 		when(this.heroService.findAllHeroes())
 			.thenReturn(Uni.createFrom().item(List.of()));
 
@@ -354,7 +355,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldAddAnItem() {
+	void shouldAddAnItem() {
 		ArgumentMatcher<Hero> heroMatcher = h ->
 			(h.getId() == null) &&
 				h.getName().equals(DEFAULT_NAME) &&
@@ -388,7 +389,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldNotFullyUpdateNotFoundItem() {
+	void shouldNotFullyUpdateNotFoundItem() {
 		var hero = createFullyUpdatedHero();
 		ArgumentMatcher<Hero> heroMatcher = h ->
 			(h.getId() == DEFAULT_ID) &&
@@ -416,7 +417,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldFullyUpdateAnItem() {
+	void shouldFullyUpdateAnItem() {
 		var hero = createFullyUpdatedHero();
 		ArgumentMatcher<Hero> heroMatcher = h ->
 			(h.getId() == DEFAULT_ID) &&
@@ -444,7 +445,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldNotPartiallyUpdateNotFoundItem() {
+	void shouldNotPartiallyUpdateNotFoundItem() {
 		ArgumentMatcher<Hero> heroMatcher = h ->
 			(h.getId() == DEFAULT_ID) &&
 				(h.getName() == null) &&
@@ -475,7 +476,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldPartiallyUpdateAnItem() {
+	void shouldPartiallyUpdateAnItem() {
 		ArgumentMatcher<Hero> heroMatcher = h ->
 			(h.getId() == DEFAULT_ID) &&
 				(h.getName() == null) &&
@@ -526,20 +527,21 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldDeleteHero() {
-		when(this.heroService.deleteHero(eq(DEFAULT_ID))).thenReturn(Uni.createFrom().voidItem());
+	void shouldDeleteHero() {
+		when(this.heroService.deleteHero(DEFAULT_ID))
+			.thenReturn(Uni.createFrom().voidItem());
 
 		delete("/api/heroes/{id}", DEFAULT_ID)
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
 
-		verify(this.heroService).deleteHero(eq(DEFAULT_ID));
+		verify(this.heroService).deleteHero(DEFAULT_ID);
 		verifyNoMoreInteractions(this.heroService);
 	}
 
   @Test
-  public void shouldReplaceAllHeroes() {
+  void shouldReplaceAllHeroes() {
     var heroes = List.of(createDefaultHero(), createFullyUpdatedHero());
     heroes.forEach(h -> h.setId(null));
 
@@ -576,7 +578,7 @@ public class HeroResourceTests {
   }
 
 	@Test
-	public void shouldDeleteAllHeros() {
+	void shouldDeleteAllHeros() {
 		when(this.heroService.deleteAllHeroes()).thenReturn(Uni.createFrom().voidItem());
 
 		delete("/api/heroes")
@@ -589,7 +591,7 @@ public class HeroResourceTests {
 	}
 
 	@Test
-	public void shouldPingOpenAPI() {
+	void shouldPingOpenAPI() {
 		get("/q/openapi")
 			.then().statusCode(OK.getStatusCode());
 	}

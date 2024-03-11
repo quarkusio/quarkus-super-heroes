@@ -9,9 +9,10 @@ import jakarta.ws.rs.core.Response.Status;
 
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
+
+import io.quarkus.sample.superheroes.villain.Villain;
 
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Locator;
@@ -34,7 +35,7 @@ class UIResourceTests {
   URL index;
 
   @Test
-  public void indexLoads() {
+  void indexLoads() {
     var page = loadPage();
 
     assertThat(page.title())
@@ -43,7 +44,7 @@ class UIResourceTests {
   }
 
   @Test
-  public void correctTable() {
+  void correctTable() {
     var table = getAndVerifyTable(NB_VILLAINS);
 
     assertThat(table)
@@ -65,7 +66,7 @@ class UIResourceTests {
   }
 
   @Test
-  public void tableFilters() {
+  void tableFilters() {
     var page = loadPage();
     getAndVerifyTable(page, NB_VILLAINS);
 

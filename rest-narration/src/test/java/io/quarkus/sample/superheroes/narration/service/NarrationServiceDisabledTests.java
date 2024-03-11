@@ -8,12 +8,13 @@ import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.sample.superheroes.narration.Fight;
-import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
-import io.quarkus.sample.superheroes.narration.service.NarrationServiceDisabledTests.DisabledTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
+
+import io.quarkus.sample.superheroes.narration.Fight;
+import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
+import io.quarkus.sample.superheroes.narration.service.NarrationServiceDisabledTests.DisabledTestProfile;
 
 @QuarkusTest
 @TestProfile(DisabledTestProfile.class)

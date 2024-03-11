@@ -12,13 +12,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
+
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
 import io.quarkus.sample.superheroes.narration.FightImage;
 import io.quarkus.sample.superheroes.narration.service.ImageGenerationService;
 import io.quarkus.sample.superheroes.narration.service.NarrationService;
-import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
 
 import io.restassured.RestAssured;
 

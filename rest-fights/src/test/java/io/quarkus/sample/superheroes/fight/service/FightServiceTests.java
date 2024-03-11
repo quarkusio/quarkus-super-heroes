@@ -18,6 +18,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.panache.mock.PanacheMock;
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightRequest;
@@ -32,9 +36,6 @@ import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
-import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -86,13 +87,13 @@ class FightServiceTests extends FightServiceTestsBase {
   FightConfig fightConfig;
 
   @BeforeEach
-  public void beforeEach() {
+  void beforeEach() {
     // Clear the emitter sink between tests
     this.emitterConnector.sink(FIGHTS_CHANNEL_NAME).clear();
   }
 
 	@Test
-	public void findAllFightsNoneFound() {
+	void findAllFightsNoneFound() {
 		PanacheMock.mock(Fight.class);
 		when(Fight.listAll())
 			.thenReturn(Uni.createFrom().item(List.of()));
@@ -112,7 +113,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void findAllFights() {
+	void findAllFights() {
 		PanacheMock.mock(Fight.class);
 		when(Fight.listAll())
 			.thenReturn(Uni.createFrom().item(List.of(createFightHeroWon())));
@@ -135,9 +136,9 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void findFightByIdFound() {
+	void findFightByIdFound() {
 		PanacheMock.mock(Fight.class);
-		when(Fight.findById(eq(DEFAULT_FIGHT_ID)))
+		when(Fight.findById(DEFAULT_FIGHT_ID))
 			.thenReturn(Uni.createFrom().item(createFightHeroWon()));
 
 		var fight = this.fightService.findFightById(DEFAULT_FIGHT_ID.toString())
@@ -156,9 +157,9 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void findFightByIdNotFound() {
+	void findFightByIdNotFound() {
 		PanacheMock.mock(Fight.class);
-		when(Fight.findById(eq(DEFAULT_FIGHT_ID)))
+		when(Fight.findById(DEFAULT_FIGHT_ID))
 			.thenReturn(Uni.createFrom().nullItem());
 
 		var fight = this.fightService.findFightById(DEFAULT_FIGHT_ID.toString())
@@ -175,7 +176,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void findRandomFightersHeroError() {
+	void findRandomFightersHeroError() {
 		PanacheMock.mock(Fight.class);
 		when(this.heroClient.findRandomHero())
 			.thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
@@ -205,7 +206,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void findRandomFightersVillainError() {
+	void findRandomFightersVillainError() {
 		PanacheMock.mock(Fight.class);
 		when(this.heroClient.findRandomHero())
 			.thenReturn(Uni.createFrom().item(createDefaultHero()));
@@ -235,7 +236,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void findRandomFightersHeroVillainError() {
+	void findRandomFightersHeroVillainError() {
 		PanacheMock.mock(Fight.class);
 		when(this.heroClient.findRandomHero())
 			.thenReturn(Uni.createFrom().failure(InternalServerErrorException::new));
@@ -265,7 +266,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
   @Test
-  public void findRandomLocationNoLocationFound() {
+  void findRandomLocationNoLocationFound() {
     PanacheMock.mock(Fight.class);
     when(this.locationClient.findRandomLocation())
       .thenReturn(Uni.createFrom().nullItem());
@@ -287,7 +288,7 @@ class FightServiceTests extends FightServiceTestsBase {
   }
 
   @Test
-  public void findRandomLocationDelayTriggersFallback() {
+  void findRandomLocationDelayTriggersFallback() {
     PanacheMock.mock(Fight.class);
     when(this.locationClient.findRandomLocation())
       .thenReturn(
@@ -313,7 +314,7 @@ class FightServiceTests extends FightServiceTestsBase {
   }
 
   @Test
-  public void findRandomLocationSuccess() {
+  void findRandomLocationSuccess() {
     PanacheMock.mock(Fight.class);
     when(this.locationClient.findRandomLocation())
       .thenReturn(Uni.createFrom().item(createDefaultFightLocation()));
@@ -335,7 +336,7 @@ class FightServiceTests extends FightServiceTestsBase {
   }
 
 	@Test
-	public void findRandomHeroDelayTriggersFallback() {
+	void findRandomHeroDelayTriggersFallback() {
 		PanacheMock.mock(Fight.class);
 		when(this.heroClient.findRandomHero())
 			.thenReturn(
@@ -361,7 +362,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void findRandomVillainDelayTriggersFallback() {
+	void findRandomVillainDelayTriggersFallback() {
 		PanacheMock.mock(Fight.class);
 		when(this.villainClient.findRandomVillain())
 			.thenReturn(
@@ -387,7 +388,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void findRandomFightersAddDelayTriggersTimeout() {
+	void findRandomFightersAddDelayTriggersTimeout() {
 		PanacheMock.mock(Fight.class);
 
 		// Mock the addDelay method so it returns a 5 second delay on whatever argument (a Uni<Fighters>) was passed into it
@@ -417,7 +418,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void findRandomFightersDelayedFindHeroAndVillainTriggersTimeout() {
+	void findRandomFightersDelayedFindHeroAndVillainTriggersTimeout() {
 		PanacheMock.mock(Fight.class);
 
 		// Add a delay to the call to findRandomHero()
@@ -452,7 +453,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void performFightNullFighters() {
+	void performFightNullFighters() {
 		PanacheMock.mock(Fight.class);
 
 		var cve = catchThrowableOfType(
@@ -493,7 +494,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void performFightInvalidFighters() {
+	void performFightInvalidFighters() {
 		PanacheMock.mock(Fight.class);
 
 		var cve = catchThrowableOfType(
@@ -580,11 +581,11 @@ class FightServiceTests extends FightServiceTestsBase {
   }
 
   @Test
-  public void narrateFightNarrationTimesOut() {
+  void narrateFightNarrationTimesOut() {
     var fightToNarrate = createFightToNarrateHeroWon();
     var timeout = Duration.ofSeconds(ShorterTimeoutsProfile.NARRATION_OVERRIDDEN_TIMEOUT + 1);
 
-    when(this.narrationClient.narrate(eq(fightToNarrate)))
+    when(this.narrationClient.narrate(fightToNarrate))
       .thenReturn(
         Uni.createFrom().item(DEFAULT_NARRATION)
           .onItem().delayIt().by(timeout)
@@ -600,11 +601,11 @@ class FightServiceTests extends FightServiceTestsBase {
       .isNotNull()
       .isEqualTo(FALLBACK_NARRATION);
 
-    verify(this.fightService).fallbackNarrateFight(eq(fightToNarrate));
+    verify(this.fightService).fallbackNarrateFight(fightToNarrate);
   }
 
 	@Test
-	public void performFightHeroShouldWin() {
+	void performFightHeroShouldWin() {
     var fightOutcome = createFightHeroWon();
 		var fightMatcher = fightMatcher(fightOutcome);
     var defaultFightRequest = createDefaultFightRequest();
@@ -616,11 +617,11 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		doReturn(true)
       .when(this.fightService)
-      .shouldHeroWin(eq(defaultFightRequest));
+      .shouldHeroWin(defaultFightRequest);
 
 		doReturn(fightOutcome)
       .when(this.fightService)
-      .heroWonFight(eq(defaultFightRequest));
+      .heroWonFight(defaultFightRequest);
 
 		var fight = this.fightService.performFight(createDefaultFightRequest())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -642,10 +643,10 @@ class FightServiceTests extends FightServiceTestsBase {
       .usingRecursiveComparison()
 			.isEqualTo(this.fightMapper.toSchema(fightOutcome));
 
-		verify(this.fightService).determineWinner(eq(defaultFightRequest));
+		verify(this.fightService).determineWinner(defaultFightRequest);
 		verify(this.fightService).persistFight(argThat(fightMatcher));
-		verify(this.fightService).shouldHeroWin(eq(defaultFightRequest));
-		verify(this.fightService).heroWonFight(eq(defaultFightRequest));
+		verify(this.fightService).shouldHeroWin(defaultFightRequest);
+		verify(this.fightService).heroWonFight(defaultFightRequest);
 		verify(this.fightService, never()).shouldVillainWin(any(FightRequest.class));
 		verify(this.fightService, never()).villainWonFight(any(FightRequest.class));
 		verify(this.fightService, never()).getRandomWinner(any(FightRequest.class));
@@ -656,7 +657,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void performFightVillainShouldWin() {
+	void performFightVillainShouldWin() {
     var fightOutcome = createFightVillainWon();
     var fightMatcher = fightMatcher(fightOutcome);
     var defaultFightRequest = createDefaultFightRequest();
@@ -668,15 +669,15 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		doReturn(false)
       .when(this.fightService)
-      .shouldHeroWin(eq(defaultFightRequest));
+      .shouldHeroWin(defaultFightRequest);
 
 		doReturn(true)
       .when(this.fightService)
-      .shouldVillainWin(eq(defaultFightRequest));
+      .shouldVillainWin(defaultFightRequest);
 
 		doReturn(fightOutcome)
       .when(this.fightService)
-      .villainWonFight(eq(defaultFightRequest));
+      .villainWonFight(defaultFightRequest);
 
 		var fight = this.fightService.performFight(createDefaultFightRequest())
 			.subscribe().withSubscriber(UniAssertSubscriber.create())
@@ -698,11 +699,11 @@ class FightServiceTests extends FightServiceTestsBase {
 			.usingRecursiveComparison()
 			.isEqualTo(this.fightMapper.toSchema(fightOutcome));
 
-		verify(this.fightService).determineWinner(eq(defaultFightRequest));
+		verify(this.fightService).determineWinner(defaultFightRequest);
 		verify(this.fightService).persistFight(argThat(fightMatcher));
-		verify(this.fightService).shouldVillainWin(eq(defaultFightRequest));
-		verify(this.fightService).shouldHeroWin(eq(defaultFightRequest));
-		verify(this.fightService).villainWonFight(eq(defaultFightRequest));
+		verify(this.fightService).shouldVillainWin(defaultFightRequest);
+		verify(this.fightService).shouldHeroWin(defaultFightRequest);
+		verify(this.fightService).villainWonFight(defaultFightRequest);
     verify(this.fightService, never()).narrateFight(any(FightToNarrate.class));
     verify(this.fightService, never()).fallbackNarrateFight(any(FightToNarrate.class));
 		verify(this.fightService, never()).heroWonFight(any(FightRequest.class));
@@ -712,7 +713,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void performFightRandomWinner() {
+	void performFightRandomWinner() {
     var fightOutcome = createFightVillainWon();
     var fightMatcher = fightMatcher(fightOutcome);
 		var defaultFightRequest = createDefaultFightRequest();
@@ -754,7 +755,7 @@ class FightServiceTests extends FightServiceTestsBase {
 			.usingRecursiveComparison()
 			.isEqualTo(this.fightMapper.toSchema(fightOutcome));
 
-		verify(this.fightService).determineWinner(eq(defaultFightRequest));
+		verify(this.fightService).determineWinner(defaultFightRequest);
 		verify(this.fightService).persistFight(argThat(fightMatcher));
 		verify(this.fightService).shouldVillainWin(defaultFightRequest);
 		verify(this.fightService).shouldHeroWin(defaultFightRequest);
@@ -779,7 +780,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void didHeroWinFalse() {
+	void didHeroWinFalse() {
 		var f = createDefaultFightRequest();
     var h = new Hero(f.hero().name(), Integer.MIN_VALUE, f.hero().picture(), f.hero().powers());
     var v = new Villain(f.villain().name(), Integer.MAX_VALUE - this.fightConfig.hero().adjustBound(), f.villain().picture(), f.villain().powers());
@@ -790,7 +791,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void didVillainWinTrue() {
+	void didVillainWinTrue() {
 		var f = createDefaultFightRequest();
     var h = new Hero(f.hero().name(), Integer.MIN_VALUE, f.hero().picture(), f.hero().powers());
     var v = new Villain(f.villain().name(), Integer.MAX_VALUE, f.villain().picture(), f.villain().powers());
@@ -801,7 +802,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-	public void didVillainWinFalse() {
+	void didVillainWinFalse() {
 		var f = createDefaultFightRequest();
     var h = new Hero(f.hero().name(), Integer.MAX_VALUE, f.hero().picture(), f.hero().powers());
     var v = new Villain(f.villain().name(), Integer.MIN_VALUE, f.villain().picture(), f.villain().powers());
@@ -812,7 +813,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
   @Test
-  public void helloHeroesFallback() {
+  void helloHeroesFallback() {
     when(this.fightService.fallbackHelloHeroes())
 	    .thenReturn(Uni.createFrom().item("fallback"));
 
@@ -841,7 +842,7 @@ class FightServiceTests extends FightServiceTestsBase {
   }
 
   @Test
-  public void helloHeroesFailure() {
+  void helloHeroesFailure() {
     when(this.fightService.fallbackHelloHeroes())
 	    .thenReturn(Uni.createFrom().item("fallback"));
 
@@ -866,7 +867,7 @@ class FightServiceTests extends FightServiceTestsBase {
   }
 
 	@Test
-	public void helloLocationsSuccess() {
+	void helloLocationsSuccess() {
 		when(this.locationClient.helloLocations())
 			.thenReturn(Uni.createFrom().item(DEFAULT_HELLO_LOCATION_RESPONSE));
 
@@ -886,7 +887,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
 	@Test
-  public void helloLocationsFallback() {
+  void helloLocationsFallback() {
     when(this.fightService.fallbackHelloLocations())
 	    .thenReturn(Uni.createFrom().item("fallback"));
 
@@ -914,7 +915,7 @@ class FightServiceTests extends FightServiceTestsBase {
   }
 
 	@Test
-	public void helloLocationsFailure() {
+	void helloLocationsFailure() {
 		when(this.fightService.fallbackHelloLocations())
 			.thenReturn(Uni.createFrom().item("fallback"));
 
@@ -938,7 +939,7 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
   @Test
-  public void helloVillainsFallback() {
+  void helloVillainsFallback() {
     when(this.fightService.fallbackHelloVillains())
 	    .thenReturn(Uni.createFrom().item("fallback"));
 
@@ -967,7 +968,7 @@ class FightServiceTests extends FightServiceTestsBase {
   }
 
   @Test
-  public void helloVillainsFailure() {
+  void helloVillainsFailure() {
     when(this.fightService.fallbackHelloVillains())
 	    .thenReturn(Uni.createFrom().item("fallback"));
 
@@ -992,7 +993,7 @@ class FightServiceTests extends FightServiceTestsBase {
   }
 
   @Test
-  public void helloNarrationFallback() {
+  void helloNarrationFallback() {
     when(this.fightService.fallbackHelloNarration())
 	    .thenReturn(Uni.createFrom().item("fallback"));
 
@@ -1020,7 +1021,7 @@ class FightServiceTests extends FightServiceTestsBase {
   }
 
   @Test
-  public void helloNarrationFailure() {
+  void helloNarrationFailure() {
     when(this.fightService.fallbackHelloNarration())
 	    .thenReturn(Uni.createFrom().item("fallback"));
 

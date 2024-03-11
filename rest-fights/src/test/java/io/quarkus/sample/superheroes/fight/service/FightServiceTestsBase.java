@@ -8,6 +8,8 @@ import jakarta.inject.Inject;
 import org.bson.types.ObjectId;
 import org.mockito.ArgumentMatcher;
 
+import io.quarkus.test.junit.mockito.InjectSpy;
+
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.FightRequest;
@@ -16,7 +18,6 @@ import io.quarkus.sample.superheroes.fight.client.FightToNarrate.FightToNarrateL
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
-import io.quarkus.test.junit.mockito.InjectSpy;
 
 public abstract class FightServiceTestsBase {
   static final ObjectId DEFAULT_FIGHT_ID = new ObjectId();

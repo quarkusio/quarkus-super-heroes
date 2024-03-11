@@ -14,6 +14,7 @@ import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 
 import io.quarkus.logging.Log;
+
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.config.VillainConfig;
 import io.quarkus.sample.superheroes.villain.mapping.VillainFullUpdateMapper;

@@ -4,11 +4,11 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status.Code
 import io.grpc.StatusRuntimeException
+import io.quarkus.test.junit.QuarkusIntegrationTest
 import io.quarkus.sample.superheroes.location.Location
 import io.quarkus.sample.superheroes.location.LocationType
 import io.quarkus.sample.superheroes.location.grpc.LocationsGrpc.LocationsBlockingStub
 import io.quarkus.sample.superheroes.location.mapping.LocationMapper
-import io.quarkus.test.junit.QuarkusIntegrationTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.microprofile.config.ConfigProvider

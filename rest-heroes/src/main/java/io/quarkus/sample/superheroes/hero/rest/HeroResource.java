@@ -38,6 +38,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
+
 import io.quarkus.sample.superheroes.hero.Hero;
 import io.quarkus.sample.superheroes.hero.service.HeroService;
 

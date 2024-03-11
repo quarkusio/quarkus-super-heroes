@@ -14,6 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
+import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.junit.QuarkusTest;
+
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.InjectGrpcWireMock;
 import io.quarkus.sample.superheroes.fight.LocationsWiremockGrpcServerResource;
@@ -22,8 +25,6 @@ import io.quarkus.sample.superheroes.location.grpc.HelloRequest;
 import io.quarkus.sample.superheroes.location.grpc.Location;
 import io.quarkus.sample.superheroes.location.grpc.LocationType;
 import io.quarkus.sample.superheroes.location.grpc.RandomLocationRequest;
-import io.quarkus.test.common.QuarkusTestResource;
-import io.quarkus.test.junit.QuarkusTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.grpc.StatusRuntimeException;

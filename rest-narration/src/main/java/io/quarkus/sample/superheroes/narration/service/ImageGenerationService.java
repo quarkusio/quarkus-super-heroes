@@ -3,6 +3,7 @@ package io.quarkus.sample.superheroes.narration.service;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import io.quarkus.logging.Log;
+
 import io.quarkus.sample.superheroes.narration.FightImage;
 
 import dev.langchain4j.model.image.ImageModel;

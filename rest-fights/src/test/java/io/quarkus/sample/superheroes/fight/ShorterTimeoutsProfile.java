@@ -3,11 +3,12 @@ package io.quarkus.sample.superheroes.fight;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.quarkus.test.junit.QuarkusTestProfile;
+
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
 import io.quarkus.sample.superheroes.fight.client.LocationClient;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.service.FightService;
-import io.quarkus.test.junit.QuarkusTestProfile;
 
 /**
  * The purpose of this {@link QuarkusTestProfile} is to override the default timeouts and circuit breakers for communication with the

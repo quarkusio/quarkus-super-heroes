@@ -5,10 +5,10 @@ import io.mockk.every
 import io.mockk.verify
 import io.quarkiverse.test.junit.mockk.InjectMock
 import jakarta.inject.Inject
+import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.sample.superheroes.location.Location
 import io.quarkus.sample.superheroes.location.LocationType
 import io.quarkus.sample.superheroes.location.repository.LocationRepository
-import io.quarkus.test.junit.QuarkusTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

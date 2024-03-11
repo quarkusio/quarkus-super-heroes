@@ -4,8 +4,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.websocket.server.ServerEndpoint;
 
-import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 import io.quarkus.scheduler.Scheduled;
+
+import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 
 import io.smallrye.mutiny.Multi;
 

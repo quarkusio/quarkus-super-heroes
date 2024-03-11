@@ -18,6 +18,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.quarkus.panache.mock.PanacheMock;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.QuarkusTestProfile;
+import io.quarkus.test.junit.TestProfile;
+import io.quarkus.test.junit.mockito.InjectSpy;
+
 import io.quarkus.sample.superheroes.fight.Fight;
 import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.Fighters;
@@ -28,10 +33,6 @@ import io.quarkus.sample.superheroes.fight.client.NarrationClient;
 import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.service.FightServiceConsumerContractTests.PactConsumerContractTestProfile;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.QuarkusTestProfile;
-import io.quarkus.test.junit.TestProfile;
-import io.quarkus.test.junit.mockito.InjectSpy;
 
 import au.com.dius.pact.consumer.dsl.PactDslRootValue;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
@@ -453,7 +454,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
       .isEqualTo(DEFAULT_NARRATION);
 
     verify(this.narrationClient).narrate(eq(fightToNarrate));
-		verify(this.fightService, never()).fallbackNarrateFight(eq(fightToNarrate));
+		verify(this.fightService, never()).fallbackNarrateFight(fightToNarrate);
     verifyNoInteractions(this.heroClient, this.villainClient, this.locationClient);
 		PanacheMock.verifyNoInteractions(Fight.class);
   }

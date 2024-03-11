@@ -1,9 +1,9 @@
 package io.quarkus.sample.superheroes.ui;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-
-import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /*
 Why do we need to register this for reflection? Normally this would be automatic if

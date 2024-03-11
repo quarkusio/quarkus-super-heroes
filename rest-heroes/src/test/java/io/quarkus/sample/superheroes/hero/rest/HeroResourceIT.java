@@ -18,14 +18,15 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import io.quarkus.sample.superheroes.hero.Hero;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
+
+import io.quarkus.sample.superheroes.hero.Hero;
 
 import io.restassured.RestAssured;
 
 @QuarkusIntegrationTest
 @TestMethodOrder(OrderAnnotation.class)
-public class HeroResourceIT {
+class HeroResourceIT {
 	private static final int DEFAULT_ORDER = 0;
 	private static final String DEFAULT_NAME = "Super Chocolatine";
 	private static final String UPDATED_NAME = DEFAULT_NAME + " (updated)";
@@ -48,7 +49,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void helloEndpoint() {
+	void helloEndpoint() {
 		given()
 			.when()
 				.accept(TEXT_PLAIN)
@@ -60,14 +61,14 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotGetUnknownHero() {
+	void shouldNotGetUnknownHero() {
 		get("/api/heroes/{id}", new Random().nextLong())
 			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldGetRandomHeroFound() {
+	void shouldGetRandomHeroFound() {
 		get("/api/heroes/random")
 			.then()
 				.statusCode(OK.getStatusCode())
@@ -77,7 +78,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotAddInvalidItem() {
+	void shouldNotAddInvalidItem() {
 		var hero = new Hero();
 		hero.setName(null);
 		hero.setOtherName(DEFAULT_OTHER_NAME);
@@ -97,7 +98,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotFullyUpdateInvalidItem() {
+	void shouldNotFullyUpdateInvalidItem() {
 		var hero = new Hero();
 		hero.setId(1L);
 		hero.setName(null);
@@ -118,7 +119,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotPartiallyUpdateInvalidItem() {
+	void shouldNotPartiallyUpdateInvalidItem() {
 		var hero = new Hero();
 		hero.setId(50L);
 		hero.setName(null);
@@ -139,7 +140,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotAddNullItem() {
+	void shouldNotAddNullItem() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -151,7 +152,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotFullyUpdateNullItem() {
+	void shouldNotFullyUpdateNullItem() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -164,7 +165,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotFullyUpdateNotFoundItem() {
+	void shouldNotFullyUpdateNotFoundItem() {
 		Hero hero = new Hero();
 		hero.setId(-1L);
 		hero.setName(UPDATED_NAME);
@@ -185,7 +186,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotPartiallyUpdateNullItem() {
+	void shouldNotPartiallyUpdateNullItem() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -198,7 +199,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotPartiallyUpdateNotFoundItem() {
+	void shouldNotPartiallyUpdateNotFoundItem() {
 		Hero hero = new Hero();
 		hero.setPicture(DEFAULT_PICTURE);
 		hero.setPowers(DEFAULT_POWERS);
@@ -215,7 +216,7 @@ public class HeroResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER)
-  public void shouldNotGetAnyHeroesThatDontMatchFilterCriteria() {
+  void shouldNotGetAnyHeroesThatDontMatchFilterCriteria() {
     given()
       .when()
         .queryParam("name_filter", "iooi90904890358349 8890re9ierkjlk;sdf098w459idxflkjdfjoiio4ue")
@@ -227,7 +228,7 @@ public class HeroResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER)
-  public void shouldGetHeroesThatMatchFilterCriteria() {
+  void shouldGetHeroesThatMatchFilterCriteria() {
     var heroes = given()
       .when()
         .queryParam("name_filter", "spid")
@@ -245,7 +246,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void shouldGetInitialItems() {
+	void shouldGetInitialItems() {
 		get("/api/heroes")
 			.then()
 				.statusCode(OK.getStatusCode())
@@ -255,7 +256,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 2)
-	public void shouldAddAnItem() {
+	void shouldAddAnItem() {
 		Hero hero = new Hero();
 		hero.setName(DEFAULT_NAME);
 		hero.setOtherName(DEFAULT_OTHER_NAME);
@@ -332,7 +333,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 3)
-	public void shouldFullyUpdateAnItem() {
+	void shouldFullyUpdateAnItem() {
 		Hero hero = new Hero();
 		hero.setId(Long.valueOf(heroId));
 		hero.setName(UPDATED_NAME);
@@ -370,7 +371,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 4)
-	public void shouldPartiallyUpdateAnItem() {
+	void shouldPartiallyUpdateAnItem() {
 		Hero hero = new Hero();
 		hero.setPicture(DEFAULT_PICTURE);
 		hero.setPowers(DEFAULT_POWERS);
@@ -408,7 +409,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 5)
-	public void shouldDeleteHero() {
+	void shouldDeleteHero() {
 		delete("/api/heroes/{id}", heroId)
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
@@ -423,7 +424,7 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 6)
-	public void shouldDeleteAllHeros() {
+	void shouldDeleteAllHeros() {
 		delete("/api/heroes/")
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
@@ -437,14 +438,14 @@ public class HeroResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 7)
-	public void shouldGetRandomHeroNotFound() {
+	void shouldGetRandomHeroNotFound() {
 		get("/api/heroes/random")
 			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
 
   @Test
   @Order(DEFAULT_ORDER + 8)
-  public void shouldReplaceAllHeroes() {
+  void shouldReplaceAllHeroes() {
     var h1 = new Hero();
     h1.setName(DEFAULT_NAME);
     h1.setOtherName(DEFAULT_OTHER_NAME);
@@ -495,7 +496,7 @@ public class HeroResourceIT {
   }
 
 	@Test
-	public void shouldPingOpenAPI() {
+	void shouldPingOpenAPI() {
 		given()
 			.when()
 				.accept(JSON)

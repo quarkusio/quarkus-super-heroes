@@ -7,6 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import io.quarkus.hibernate.reactive.panache.PanacheRepository;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
+
 import io.quarkus.sample.superheroes.hero.Hero;
 
 import io.smallrye.mutiny.Uni;

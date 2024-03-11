@@ -1,10 +1,10 @@
 package io.quarkus.sample.superheroes.location.repository
 
 import jakarta.inject.Inject
-import io.quarkus.sample.superheroes.location.Location
-import io.quarkus.sample.superheroes.location.LocationType
 import io.quarkus.test.TestTransaction
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.sample.superheroes.location.Location
+import io.quarkus.sample.superheroes.location.LocationType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

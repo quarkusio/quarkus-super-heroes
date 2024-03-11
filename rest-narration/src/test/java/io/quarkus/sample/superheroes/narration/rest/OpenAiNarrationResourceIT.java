@@ -11,10 +11,11 @@ import jakarta.ws.rs.core.MediaType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
 
-import io.quarkus.sample.superheroes.narration.rest.OpenAiNarrationResourceIT.WiremockOpenAITestProfile;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
+
+import io.quarkus.sample.superheroes.narration.rest.OpenAiNarrationResourceIT.WiremockOpenAITestProfile;
 
 import io.quarkiverse.wiremock.devservice.WireMockConfigKey;
 

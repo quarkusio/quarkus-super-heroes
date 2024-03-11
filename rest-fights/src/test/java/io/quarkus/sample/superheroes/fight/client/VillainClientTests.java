@@ -16,10 +16,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
-import io.quarkus.sample.superheroes.fight.InjectWireMock;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+
+import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
+import io.quarkus.sample.superheroes.fight.InjectWireMock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

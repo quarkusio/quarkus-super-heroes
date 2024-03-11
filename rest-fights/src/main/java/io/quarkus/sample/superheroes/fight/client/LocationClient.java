@@ -10,6 +10,7 @@ import org.eclipse.microprofile.faulttolerance.Retry;
 
 import io.quarkus.grpc.GrpcClient;
 import io.quarkus.logging.Log;
+
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.mapping.LocationMapper;
 import io.quarkus.sample.superheroes.location.grpc.HelloReply;
