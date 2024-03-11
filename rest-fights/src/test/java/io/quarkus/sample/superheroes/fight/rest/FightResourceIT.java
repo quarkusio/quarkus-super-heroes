@@ -853,6 +853,7 @@ class FightResourceIT {
   void getRandomLocationFail(Status status, String statusReason, int expectedNumberOfCalls) {
 	  System.out.println("getRandomLocationFail(status = " + status + ", statusReason=\"" + statusReason + "\")");
     resetLocationCircuitBreakerToClosedState();
+	  System.out.println("Circuit breakers closed");
 
     this.wireMockGrpc.stubFor(
       method("GetRandomLocation")
@@ -1555,7 +1556,14 @@ class FightResourceIT {
 
 		// Reset all the mocks on the WireMockGrpcServer
 		this.wireMockGrpcServer.resetAll();
-	}
+
+	  try {
+		  TimeUnit.SECONDS.sleep(2);
+	  }
+	  catch (InterruptedException ex) {
+		  Log.error(ex.getMessage(), ex);
+	  }
+  }
 
   private void resetNarrationCircuitBreakersToClosedState() {
 		try {
