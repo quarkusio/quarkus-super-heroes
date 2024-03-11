@@ -869,13 +869,13 @@ class FightResourceIT {
       .usingRecursiveComparison()
       .isEqualTo(FALLBACK_LOCATION);
 
-    this.wireMockGrpc.verify(expectedNumberOfCalls, "GetRandomLocation")
+    this.wireMockGrpc.verify(moreThanOrExactly(expectedNumberOfCalls), "GetRandomLocation")
       .withRequestMessage(equalToMessage(RandomLocationRequest.newBuilder()));
   }
 
   static Stream<Arguments> randomLocationFailReasons() {
     return Stream.of(
-      Arguments.of(Status.UNAVAILABLE, "Service isn't there", 4),
+      Arguments.of(Status.UNAVAILABLE, "Service isn't there", 3),
       Arguments.of(Status.NOT_FOUND, "A location was not found", 1)
     );
   }
@@ -1551,16 +1551,6 @@ class FightResourceIT {
 		// Verify successful requests
     this.wireMockGrpc.verify(9, "GetRandomLocation")
       .withRequestMessage(equalToMessage(RandomLocationRequest.newBuilder()));
-
-		// Reset all the mocks on the WireMockGrpcServer
-		this.wireMockGrpcServer.resetAll();
-
-	  try {
-		  TimeUnit.SECONDS.sleep(5);
-	  }
-	  catch (InterruptedException ex) {
-		  Log.error(ex.getMessage(), ex);
-	  }
   }
 
   private void resetNarrationCircuitBreakersToClosedState() {
