@@ -1554,7 +1554,14 @@ class FightResourceIT {
 
 		// Reset all the mocks on the WireMockGrpcServer
 		this.wireMockGrpcServer.resetAll();
-	}
+
+	  try {
+		  TimeUnit.SECONDS.sleep(5);
+	  }
+	  catch (InterruptedException ex) {
+		  Log.error(ex.getMessage(), ex);
+	  }
+  }
 
   private void resetNarrationCircuitBreakersToClosedState() {
 		try {
