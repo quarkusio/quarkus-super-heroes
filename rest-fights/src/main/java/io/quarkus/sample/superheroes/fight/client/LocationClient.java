@@ -40,11 +40,11 @@ public class LocationClient {
   @Retry(maxRetries = 3, delay = 200, delayUnit = ChronoUnit.MILLIS)
   @WithSpan(kind = SpanKind.CLIENT, value = "LocationClient.findRandomLocation")
 	public Uni<FightLocation> findRandomLocation() {
-		Log.debug("Making request to location service to find a random location");
+		Log.info("Making request to location service to find a random location");
 
 		return this.locationClient.getRandomLocation(RandomLocationRequest.newBuilder().build())
       .map(this.locationMapper::fromGrpc)
-			.invoke(location -> Log.debugf("Got random location from locations service: %s", location))
+			.invoke(location -> Log.infof("Got random location from locations service: %s", location))
 			.onFailure(this::isNotFoundFailure).recoverWithNull();
 	}
 

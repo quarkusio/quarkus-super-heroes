@@ -851,6 +851,7 @@ class FightResourceIT {
   @MethodSource("randomLocationFailReasons")
   @Order(DEFAULT_ORDER + 1)
   void getRandomLocationFail(Status status, String statusReason, int expectedNumberOfCalls) {
+	  System.out.println("getRandomLocationFail(status = " + status + ", statusReason=\"" + statusReason + "\")");
     resetLocationCircuitBreakerToClosedState();
 
     this.wireMockGrpc.stubFor(
@@ -1534,7 +1535,7 @@ class FightResourceIT {
     );
 
 		// The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
-		IntStream.rangeClosed(0, 9)
+		IntStream.rangeClosed(0, 8)
 			.forEach(i -> {
         var location = get("/api/fights/randomlocation").then()
           .statusCode(OK.getStatusCode())
@@ -1549,7 +1550,7 @@ class FightResourceIT {
 			);
 
 		// Verify successful requests
-    this.wireMockGrpc.verify(10, "GetRandomLocation")
+    this.wireMockGrpc.verify(9, "GetRandomLocation")
       .withRequestMessage(equalToMessage(RandomLocationRequest.newBuilder()));
 
 		// Reset all the mocks on the WireMockGrpcServer
