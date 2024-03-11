@@ -1534,7 +1534,7 @@ class FightResourceIT {
     );
 
 		// The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
-		IntStream.rangeClosed(0, 8)
+		IntStream.rangeClosed(0, 9)
 			.forEach(i -> {
         var location = get("/api/fights/randomlocation").then()
           .statusCode(OK.getStatusCode())
@@ -1549,7 +1549,7 @@ class FightResourceIT {
 			);
 
 		// Verify successful requests
-    this.wireMockGrpc.verify(9, "GetRandomLocation")
+    this.wireMockGrpc.verify(10, "GetRandomLocation")
       .withRequestMessage(equalToMessage(RandomLocationRequest.newBuilder()));
 
 		// Reset all the mocks on the WireMockGrpcServer
