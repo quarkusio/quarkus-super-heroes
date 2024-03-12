@@ -83,6 +83,8 @@ You can then click the _Narrate Fight_ button if you want to perform a narration
 
 ![Fight screen](images/fight-screen.png)
 
+https://github.com/quarkusio/quarkus-super-heroes/assets/363447/55a0a63f-c636-4719-9a7b-9a9034116e77
+
 ## Running Locally via Docker Compose
 Pre-built images for all of the applications in the system can be found at [`quay.io/quarkus-super-heroes`](http://quay.io/quarkus-super-heroes).
 
