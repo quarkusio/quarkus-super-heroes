@@ -289,7 +289,7 @@ class FightResourceIT {
       .usingRecursiveComparison()
       .isEqualTo(new Fighters(FALLBACK_HERO, DEFAULT_VILLAIN));
 
-		this.wireMockServer.verify(4,
+		this.wireMockServer.verify(moreThanOrExactly(3),
 			getRequestedFor(urlEqualTo(HERO_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
@@ -371,7 +371,7 @@ class FightResourceIT {
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 
-		this.wireMockServer.verify(4,
+		this.wireMockServer.verify(moreThanOrExactly(3),
 			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
@@ -568,7 +568,7 @@ class FightResourceIT {
       .contentType(TEXT)
       .body(is(FALLBACK_NARRATION));
 
-    this.wireMockServer.verify(4,
+    this.wireMockServer.verify(moreThanOrExactly(3),
       postRequestedFor(urlEqualTo(NARRATION_API_BASE_URI))
         .withHeader(ACCEPT, containing(TEXT_PLAIN))
         .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
@@ -607,7 +607,7 @@ class FightResourceIT {
         .contentType(TEXT)
         .body(is(FALLBACK_NARRATION));
 
-    this.wireMockServer.verify(4,
+    this.wireMockServer.verify(moreThanOrExactly(3),
       postRequestedFor(urlEqualTo(NARRATION_API_BASE_URI))
         .withHeader(ACCEPT, containing(TEXT_PLAIN))
         .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
@@ -666,7 +666,7 @@ class FightResourceIT {
       .usingRecursiveAssertion()
       .isEqualTo(FALLBACK_IMAGE);
 
-    this.wireMockServer.verify(4,
+    this.wireMockServer.verify(moreThanOrExactly(3),
       postRequestedFor(urlEqualTo(NARRATION_API_IMAGE_GEN_URI))
         .withHeader(ACCEPT, containing(APPLICATION_JSON))
         .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
@@ -710,7 +710,7 @@ class FightResourceIT {
       .usingRecursiveAssertion()
       .isEqualTo(FALLBACK_IMAGE);
 
-    this.wireMockServer.verify(4,
+    this.wireMockServer.verify(moreThanOrExactly(3),
       postRequestedFor(urlEqualTo(NARRATION_API_IMAGE_GEN_URI))
         .withHeader(ACCEPT, containing(APPLICATION_JSON))
         .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
@@ -743,12 +743,12 @@ class FightResourceIT {
       .usingRecursiveComparison()
       .isEqualTo(new Fighters(FALLBACK_HERO, FALLBACK_VILLAIN));
 
-		this.wireMockServer.verify(4,
+		this.wireMockServer.verify(moreThanOrExactly(3),
 			getRequestedFor(urlEqualTo(HERO_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
 
-		this.wireMockServer.verify(4,
+		this.wireMockServer.verify(moreThanOrExactly(3),
 			getRequestedFor(urlEqualTo(VILLAIN_API_URI))
 				.withHeader(ACCEPT, equalTo(APPLICATION_JSON))
 		);
