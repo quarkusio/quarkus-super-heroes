@@ -75,6 +75,7 @@ Because of this integration and our goal to keep this application working at all
 If you'd like to make live calls to an OpenAI provider, set the `-Dquarkus.profile=openai` or `-Dquarkus.profile=azure-openai` property. This will turn off the [Quarkus WireMock](https://docs.quarkiverse.io/quarkus-wiremock/dev/index.html) functionality and set the application back up to talk to the OpenAI provider. You still need to specify your provider-specific properties, though.
 
 Here's a quick look at what the UI would look like with this integration turned on:
+
 https://github.com/quarkusio/quarkus-super-heroes/assets/363447/55a0a63f-c636-4719-9a7b-9a9034116e77
 
 ##### OpenAI 
