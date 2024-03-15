@@ -10,6 +10,7 @@ import io.quarkus.sample.superheroes.narration.Fight;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkiverse.langchain4j.RegisterAiService;
 
 @RegisterAiService
@@ -62,6 +63,7 @@ public interface NarrationService {
     """)
   @Fallback(fallbackMethod = "narrateFallback")
   @CircuitBreaker(requestVolumeThreshold = 8, failureRatio = 0.5, delay = 2, delayUnit = ChronoUnit.SECONDS)
+  @WithSpan("NarrationService.narrate")
   String narrate(@SpanAttribute("arg.fight") Fight fight);
 
   default String narrateFallback(@SpanAttribute("arg.fight") Fight fight) {
