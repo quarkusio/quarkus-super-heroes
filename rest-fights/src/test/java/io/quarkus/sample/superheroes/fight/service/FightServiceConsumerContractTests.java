@@ -54,19 +54,19 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
   providerName = "rest-heroes",
   port = FightServiceConsumerContractTests.HEROES_MOCK_PORT,
   hostInterface = "localhost",
-  implementation = MockServerImplementation.KTorServer
+  implementation = MockServerImplementation.JavaHttpServer
 )
 @MockServerConfig(
   providerName = "rest-villains",
   port = FightServiceConsumerContractTests.VILLAINS_MOCK_PORT,
   hostInterface = "localhost",
-  implementation = MockServerImplementation.KTorServer
+  implementation = MockServerImplementation.JavaHttpServer
 )
 @MockServerConfig(
   providerName = "rest-narration",
   port = FightServiceConsumerContractTests.NARRATION_MOCK_PORT,
   hostInterface = "localhost",
-  implementation = MockServerImplementation.KTorServer
+  implementation = MockServerImplementation.JavaHttpServer
 )
 public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
