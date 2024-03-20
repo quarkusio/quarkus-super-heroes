@@ -266,28 +266,6 @@ class FightServiceTests extends FightServiceTestsBase {
 	}
 
   @Test
-  void findRandomLocationNoLocationFound() {
-    PanacheMock.mock(Fight.class);
-    when(this.locationClient.findRandomLocation())
-      .thenReturn(Uni.createFrom().nullItem());
-
-    var location = this.fightService.findRandomLocation()
-      .subscribe().withSubscriber(UniAssertSubscriber.create())
-			.assertSubscribed()
-			.awaitItem(Duration.ofSeconds(5))
-			.getItem();
-
-    assertThat(location)
-      .isNotNull()
-      .usingRecursiveComparison()
-      .isEqualTo(createFallbackLocation());
-
-    verify(this.locationClient).findRandomLocation();
-    verify(this.fightService, never()).fallbackRandomLocation();
-    PanacheMock.verifyNoInteractions(Fight.class);
-  }
-
-  @Test
   void findRandomLocationDelayTriggersFallback() {
     PanacheMock.mock(Fight.class);
     when(this.locationClient.findRandomLocation())
@@ -310,28 +288,6 @@ class FightServiceTests extends FightServiceTestsBase {
 
     verify(this.locationClient).findRandomLocation();
     verify(this.fightService).fallbackRandomLocation();
-    PanacheMock.verifyNoInteractions(Fight.class);
-  }
-
-  @Test
-  void findRandomLocationSuccess() {
-    PanacheMock.mock(Fight.class);
-    when(this.locationClient.findRandomLocation())
-      .thenReturn(Uni.createFrom().item(createDefaultFightLocation()));
-
-    var location = this.fightService.findRandomLocation()
-      .subscribe().withSubscriber(UniAssertSubscriber.create())
-			.assertSubscribed()
-			.awaitItem(Duration.ofSeconds(5))
-			.getItem();
-
-    assertThat(location)
-      .isNotNull()
-      .usingRecursiveComparison()
-      .isEqualTo(createDefaultFightLocation());
-
-    verify(this.locationClient).findRandomLocation();
-    verify(this.fightService, never()).fallbackRandomLocation();
     PanacheMock.verifyNoInteractions(Fight.class);
   }
 
@@ -865,26 +821,6 @@ class FightServiceTests extends FightServiceTestsBase {
     verifyNoMoreInteractions(this.heroClient);
     verifyNoInteractions(this.villainClient);
   }
-
-	@Test
-	void helloLocationsSuccess() {
-		when(this.locationClient.helloLocations())
-			.thenReturn(Uni.createFrom().item(DEFAULT_HELLO_LOCATION_RESPONSE));
-
-		var message = this.fightService.helloLocations()
-      .subscribe().withSubscriber(UniAssertSubscriber.create())
-      .assertSubscribed()
-      .awaitItem(Duration.ofSeconds(5))
-      .getItem();
-
-    assertThat(message)
-      .isNotNull()
-      .isEqualTo(DEFAULT_HELLO_LOCATION_RESPONSE);
-
-    verify(this.locationClient).helloLocations();
-    verify(this.fightService).helloLocations();
-    verifyNoInteractions(this.heroClient, this.villainClient, this.narrationClient);
-	}
 
 	@Test
   void helloLocationsFallback() {

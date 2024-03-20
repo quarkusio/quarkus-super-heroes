@@ -120,13 +120,16 @@ This application has a full suite of tests, including an [integration test suite
 
 [Eric Deandrea](https://developers.redhat.com/author/eric-deandrea) and [Holly Cummins](https://hollycummins.com) recently spoke about contract testing with Pact and used the Quarkus Superheroes for their demos. [Watch the replay](https://www.youtube.com/watch?v=vYwkDPrzqV8) and [view the slides](https://hollycummins.com/modern-microservices-testing-pitfalls-devoxx/) if you'd like to learn more about contract testing.
 
-The `rest-fights` application is both a [Pact _Consumer_](https://docs.pact.io/consumer) and a [Pact _Provider_](https://docs.pact.io/provider). As a _Consumer_, it should be responsible for defining the contracts between itself and its providers ([`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), & [`rest-narration`](../rest-narration)). As a _Provider_, is should run provider verification tests against contracts produced by consumers.
+The `rest-fights` application is both a [Pact _Consumer_](https://docs.pact.io/consumer) and a [Pact _Provider_](https://docs.pact.io/provider). As a _Consumer_, it should be responsible for defining the contracts between itself and its providers ([`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration), & [`grpc-locations`](../grpc-locations)). As a _Provider_, is should run provider verification tests against contracts produced by consumers.
 
 As [this README states](src/test/resources/pacts/README.md), contracts generally should be hosted in a [Pact Broker](https://docs.pact.io/pact_broker) and then automatically discovered in the provider verification tests.
 
 One of the main goals of the Superheroes application is to be super simple and just "work" by anyone who may clone this repo. That being said, we can't make any assumptions about where a Pact broker may be or any of the credentials required to access it.
 
-The [`FightServiceConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/service/FightServiceConsumerContractTests.java) test class generates the [`rest-fights-rest-heroes.json`](../rest-heroes/src/test/resources/pacts/rest-fights-rest-heroes.json), [`rest-fights-rest-villains.json`](../rest-villains/src/test/resources/pacts/rest-fights-rest-villains.json), and [`rest-fights-rest-narration.json`](../rest-narration/src/test/resources/pacts/rest-fights-rest-narration.json) contracts while also providing mock instances of the `rest-heroes`, `rest-villains`, and `rest-narration` providers.
+The [`FightServiceConsumerContractTests.java`](src/test/java/io/quarkus/sample/superheroes/fight/service/FightServiceConsumerContractTests.java) test class generates the [`rest-fights-rest-heroes.json`](../rest-heroes/src/test/resources/pacts/rest-fights-rest-heroes.json), [`rest-fights-rest-villains.json`](../rest-villains/src/test/resources/pacts/rest-fights-rest-villains.json), [`rest-fights-rest-narration.json`](../rest-narration/src/test/resources/pacts/rest-fights-rest-narration.json), and [`rest-fights-grpc-locations.json`](../grpc-locations/src/test/resources/pacts/rest-fights-grpc-locations.json) contracts while also providing mock instances of the `rest-heroes`, `rest-villains`, `rest-narration`, and `grpc-locations` providers.
+
+> [!NOTE]
+> The `grpc-locations` service uses gRPC/protobuf and not REST, therefore the consumer contract tests between `rest-fights` and `grpc-locations` use the [Pact protobuf plugin](https://docs.pact.io/implementation_guides/pact_plugins/plugins/protobuf). There is no installation necessary. When the tests execute the plugin will be automatically installed.
 
 The contracts are committed into the provider's version control simply for easy of use and reproducibility.
 
@@ -159,7 +162,8 @@ The application runs on port `8082` (defined by `quarkus.http.port` in [`applica
 
 From the `quarkus-super-heroes/rest-fights` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode), or running `quarkus dev` using the [Quarkus CLI](https://quarkus.io/guides/cli-tooling). The application will be exposed at `http://localhost:8082` and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at `http://localhost:8082/q/dev`. [Quarkus Dev Services](https://quarkus.io/guides/dev-services) will ensure the MongoDB instance, an Apache Kafka instance, and an Apicurio Schema Registry are all started and configured.
 
-**NOTE:** Running the application outside of Quarkus Dev Mode requires standing up a MongoDB instance, an Apache Kafka instance, and an Apicurio Schema Registry and binding them to the app.
+> [!NOTE]
+> Running the application outside of Quarkus Dev Mode requires standing up a MongoDB instance, an Apache Kafka instance, and an Apicurio Schema Registry and binding them to the app.
 
 Furthermore, since this service also communicates with additional downstream services ([rest-heroes](../rest-heroes), [rest-villains](../rest-villains), & [rest-narration](../rest-narration)), those would need to be stood up as well, although this service does have fallbacks in case those other services aren't available.
 

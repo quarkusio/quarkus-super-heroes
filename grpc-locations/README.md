@@ -3,6 +3,7 @@
 ## Table of Contents
 - [Introduction](#introduction)
     - [Exposed Endpoints](#exposed-endpoints) 
+- [Contract testing with Pact](#contract-testing-with-pact)
 - [Benchmarking with Hyperfoil](#benchmarking-with-hyperfoil)
 - [Running the Application](#running-the-application)
 - [Running Locally via Docker Compose](#running-locally-via-docker-compose)
@@ -21,6 +22,25 @@ Additionally, this application favors constructor injection of beans over field 
 
 ### Exposed Endpoints
 Since this is a gRPC service, the protobuf definition can be [found here](src/main/proto/locationservice-v1.proto).
+
+## Contract testing with Pact
+[Pact](https://pact.io) is a code-first tool for testing HTTP and message integrations using `contract tests`. Contract tests assert that inter-application messages conform to a shared understanding that is documented in a contract. Without contract testing, the only way to ensure that applications will work correctly together is by using expensive and brittle integration tests.
+
+[Eric Deandrea](https://developers.redhat.com/author/eric-deandrea) and [Holly Cummins](https://hollycummins.com) recently spoke about contract testing with Pact and used the Quarkus Superheroes for their demos. [Watch the replay](https://www.youtube.com/watch?v=vYwkDPrzqV8) and [view the slides](https://hollycummins.com/modern-microservices-testing-pitfalls-devoxx/) if you'd like to learn more about contract testing.
+
+The `grpc-locations` application is a [Pact _Provider_](https://docs.pact.io/provider), and as such, should run provider verification tests against contracts produced by consumers.
+
+> [!NOTE]
+> The `grpc-locations` service uses gRPC/protobuf and not REST, therefore the consumer contract tests between `rest-fights` and `grpc-locations` use the [Pact protobuf plugin](https://docs.pact.io/implementation_guides/pact_plugins/plugins/protobuf). There is no installation necessary. When the tests execute the plugin will be automatically installed.
+
+As [this README states](src/test/resources/pacts/README.md), contracts generally should be hosted in a [Pact Broker](https://docs.pact.io/pact_broker) and then automatically discovered in the provider verification tests.
+
+One of the main goals of the Superheroes application is to be super simple and just "work" by anyone who may clone this repo. That being said, we can't make any assumptions about where a Pact broker may be or any of the credentials required to access it.
+
+Therefore, the [Pact contract](src/test/resources/pacts/rest-fights-grpc-locations.json) is committed into this application's source tree inside the [`src/test/resources/pacts` directory](src/test/resources/pacts). In a realistic
+scenario, if a broker wasn't used, the consumer's CI/CD would commit the contracts into this repository's source control.
+
+The Pact tests use the [Quarkus Pact extension](https://github.com/quarkiverse/quarkus-pact). This extension is recommended to give the best user experience and ensure compatibility.
 
 ## Benchmarking with Hyperfoil
 Hyperfoil doesn't yet support gRPC. [This issue](https://github.com/Hyperfoil/Hyperfoil/issues/281) is currently tracking it.

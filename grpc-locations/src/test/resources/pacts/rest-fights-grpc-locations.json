@@ -1,0 +1,192 @@
+{
+  "consumer": {
+    "name": "rest-fights"
+  },
+  "interactions": [
+    {
+      "comments": {
+        "testname": "io.quarkus.sample.superheroes.fight.service.FightServiceConsumerContractTests.helloLocationsSuccess()"
+      },
+      "description": "A hello request",
+      "interactionMarkup": {
+        "markup": "```protobuf\nmessage HelloRequest {\n}\n```\n\n```protobuf\nmessage HelloReply {\n    string message = 1;\n}\n```\n",
+        "markupType": "COMMON_MARK"
+      },
+      "key": "6157e489",
+      "pending": false,
+      "pluginConfiguration": {
+        "protobuf": {
+          "descriptorKey": "a8fe1a3b44eaf00837c1f6f2dbc2f63d",
+          "service": "Locations/Hello"
+        }
+      },
+      "request": {
+        "contents": {
+          "content": ""
+        },
+        "metadata": {
+          "contentType": "application/protobuf;message=HelloRequest"
+        }
+      },
+      "response": [
+        {
+          "contents": {
+            "content": "Cg9IZWxsbyBsb2NhdGlvbiE=",
+            "contentType": "application/protobuf; message=HelloReply",
+            "contentTypeHint": "BINARY",
+            "encoded": "base64"
+          },
+          "matchingRules": {
+            "body": {
+              "$.message": {
+                "combine": "AND",
+                "matchers": [
+                  {
+                    "match": "regex",
+                    "regex": ".+"
+                  }
+                ]
+              }
+            }
+          },
+          "metadata": {
+            "contentType": "application/protobuf;message=HelloReply"
+          }
+        }
+      ],
+      "transport": "grpc",
+      "type": "Synchronous/Messages"
+    },
+    {
+      "comments": {
+        "testname": "io.quarkus.sample.superheroes.fight.service.FightServiceConsumerContractTests.findRandomLocationSuccess()"
+      },
+      "description": "A request for a random location",
+      "interactionMarkup": {
+        "markup": "```protobuf\nmessage RandomLocationRequest {\n}\n```\n\n```protobuf\nmessage Location {\n    string name = 1;\n    string picture = 3;\n}\n```\n",
+        "markupType": "COMMON_MARK"
+      },
+      "key": "be585f93",
+      "pending": false,
+      "pluginConfiguration": {
+        "protobuf": {
+          "descriptorKey": "a8fe1a3b44eaf00837c1f6f2dbc2f63d",
+          "service": "Locations/GetRandomLocation"
+        }
+      },
+      "request": {
+        "contents": {
+          "content": ""
+        },
+        "metadata": {
+          "contentType": "application/protobuf;message=RandomLocationRequest"
+        }
+      },
+      "response": [
+        {
+          "contents": {
+            "content": "CgtHb3RoYW0gQ2l0eRooaHR0cDovL3d3dy5zb21ld2hlcmUuY29tL2dvdGhhbV9jaXR5LnBuZw==",
+            "contentType": "application/protobuf; message=Location",
+            "contentTypeHint": "BINARY",
+            "encoded": "base64"
+          },
+          "matchingRules": {
+            "body": {
+              "$.name": {
+                "combine": "AND",
+                "matchers": [
+                  {
+                    "match": "regex",
+                    "regex": ".+"
+                  }
+                ]
+              },
+              "$.picture": {
+                "combine": "AND",
+                "matchers": [
+                  {
+                    "match": "regex",
+                    "regex": "((http|https):\\/\\/).+"
+                  }
+                ]
+              }
+            }
+          },
+          "metadata": {
+            "contentType": "application/protobuf;message=Location"
+          }
+        }
+      ],
+      "transport": "grpc",
+      "type": "Synchronous/Messages"
+    },
+    {
+      "comments": {
+        "testname": "io.quarkus.sample.superheroes.fight.service.FightServiceConsumerContractTests.findRandomLocationNoLocationFound()"
+      },
+      "description": "A request for a random location",
+      "interactionMarkup": {
+        "markup": "```protobuf\nmessage RandomLocationRequest {\n}\n```\n\n```protobuf\nmessage Location {\n}\n```\n",
+        "markupType": "COMMON_MARK"
+      },
+      "key": "5dffc2cf",
+      "pending": false,
+      "pluginConfiguration": {
+        "protobuf": {
+          "descriptorKey": "a8fe1a3b44eaf00837c1f6f2dbc2f63d",
+          "service": "Locations/GetRandomLocation"
+        }
+      },
+      "providerStates": [
+        {
+          "name": "No random location found"
+        }
+      ],
+      "request": {
+        "contents": {
+          "content": ""
+        },
+        "metadata": {
+          "contentType": "application/protobuf;message=RandomLocationRequest"
+        }
+      },
+      "response": [
+        {
+          "contents": {
+            "content": ""
+          },
+          "metadata": {
+            "contentType": "application/protobuf;message=Location",
+            "grpc-message": "A location was not found",
+            "grpc-status": "NOT_FOUND"
+          }
+        }
+      ],
+      "transport": "grpc",
+      "type": "Synchronous/Messages"
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.6.7"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    },
+    "plugins": [
+      {
+        "configuration": {
+          "a8fe1a3b44eaf00837c1f6f2dbc2f63d": {
+            "protoDescriptors": "Ct8GChhsb2NhdGlvbnNlcnZpY2UtdjEucHJvdG8SKWlvLnF1YXJrdXMuc2FtcGxlLnN1cGVyaGVyb2VzLmxvY2F0aW9uLnYxIqcBCghMb2NhdGlvbhISCgRuYW1lGAEgASgJUgRuYW1lEiAKC2Rlc2NyaXB0aW9uGAIgASgJUgtkZXNjcmlwdGlvbhIYCgdwaWN0dXJlGAMgASgJUgdwaWN0dXJlEksKBHR5cGUYBCABKA4yNy5pby5xdWFya3VzLnNhbXBsZS5zdXBlcmhlcm9lcy5sb2NhdGlvbi52MS5Mb2NhdGlvblR5cGVSBHR5cGUiFwoVUmFuZG9tTG9jYXRpb25SZXF1ZXN0ImIKDUxvY2F0aW9uc0xpc3QSUQoJbG9jYXRpb25zGAEgAygLMjMuaW8ucXVhcmt1cy5zYW1wbGUuc3VwZXJoZXJvZXMubG9jYXRpb24udjEuTG9jYXRpb25SCWxvY2F0aW9ucyIOCgxIZWxsb1JlcXVlc3QiJgoKSGVsbG9SZXBseRIYCgdtZXNzYWdlGAEgASgJUgdtZXNzYWdlKlIKDExvY2F0aW9uVHlwZRIKCgZQTEFORVQQABIICgRDSVRZEAESCQoFUExBQ0UQAhIKCgZJU0xBTkQQAxILCgdDT1VOVFJZEAQSCAoETU9PThAFMpUCCglMb2NhdGlvbnMSjAEKEUdldFJhbmRvbUxvY2F0aW9uEkAuaW8ucXVhcmt1cy5zYW1wbGUuc3VwZXJoZXJvZXMubG9jYXRpb24udjEuUmFuZG9tTG9jYXRpb25SZXF1ZXN0GjMuaW8ucXVhcmt1cy5zYW1wbGUuc3VwZXJoZXJvZXMubG9jYXRpb24udjEuTG9jYXRpb24iABJ5CgVIZWxsbxI3LmlvLnF1YXJrdXMuc2FtcGxlLnN1cGVyaGVyb2VzLmxvY2F0aW9uLnYxLkhlbGxvUmVxdWVzdBo1LmlvLnF1YXJrdXMuc2FtcGxlLnN1cGVyaGVyb2VzLmxvY2F0aW9uLnYxLkhlbGxvUmVwbHkiAEJFCitpby5xdWFya3VzLnNhbXBsZS5zdXBlcmhlcm9lcy5sb2NhdGlvbi5ncnBjQhRMb2NhdGlvblNlcnZpY2VQcm90b1ABYgZwcm90bzM=",
+            "protoFile": "syntax = \"proto3\";\n\noption java_multiple_files = true;\noption java_package = \"io.quarkus.sample.superheroes.location.grpc\";\noption java_outer_classname = \"LocationServiceProto\";\n\npackage io.quarkus.sample.superheroes.location.v1;\n\nenum LocationType {\n  PLANET = 0;\n  CITY = 1;\n  PLACE = 2;\n  ISLAND = 3;\n  COUNTRY = 4;\n  MOON = 5;\n}\n\nmessage Location {\n  string name = 1;\n  string description = 2;\n  string picture = 3;\n  LocationType type = 4;\n}\n\nmessage RandomLocationRequest {}\n\nmessage LocationsList {\n  repeated Location locations = 1;\n}\n\nmessage HelloRequest {}\n\nmessage HelloReply {\n  string message = 1;\n}\n\nservice Locations {\n  rpc GetRandomLocation(RandomLocationRequest) returns (Location) {}\n  rpc Hello(HelloRequest) returns (HelloReply) {}\n}\n"
+          }
+        },
+        "name": "protobuf",
+        "version": "0.3.13"
+      }
+    ]
+  },
+  "provider": {
+    "name": "grpc-locations"
+  }
+}

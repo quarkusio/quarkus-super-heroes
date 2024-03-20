@@ -1,5 +1,6 @@
 package io.quarkus.sample.superheroes.fight.service;
 
+import static au.com.dius.pact.consumer.dsl.BuilderUtils.filePath;
 import static au.com.dius.pact.consumer.dsl.LambdaDsl.newJsonBody;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,11 +35,13 @@ import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.service.FightServiceConsumerContractTests.PactConsumerContractTestProfile;
 
+import au.com.dius.pact.consumer.dsl.PactBuilder;
 import au.com.dius.pact.consumer.dsl.PactDslRootValue;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit.MockServerConfig;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
+import au.com.dius.pact.consumer.junit5.ProviderType;
 import au.com.dius.pact.consumer.model.MockServerImplementation;
 import au.com.dius.pact.core.model.PactSpecVersion;
 import au.com.dius.pact.core.model.V4Pact;
@@ -68,6 +71,12 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
   hostInterface = "localhost",
   implementation = MockServerImplementation.JavaHttpServer
 )
+@MockServerConfig(
+  providerName = "grpc-locations",
+  port = FightServiceConsumerContractTests.LOCATION_MOCK_PORT,
+  implementation = MockServerImplementation.Plugin,
+  registryEntry = "protobuf/transport/grpc"
+)
 public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
@@ -89,6 +98,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String NARRATION_IMAGE_GEN_URI = NARRATION_NARRATE_URI + "/image";
   static final String NARRATION_MOCK_PORT = "9085";
 
+  static final String LOCATION_MOCK_PORT = "9086";
 
   @InjectSpy
   HeroClient heroClient;
@@ -269,6 +279,60 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
         .status(Status.OK.getStatusCode())
         .body(imageGenBody)
       .toPact(V4Pact.class);
+  }
+
+  @Pact(consumer = "rest-fights", provider = "grpc-locations")
+  public V4Pact helloLocationsPact(PactBuilder builder) {
+    return builder
+      .usingPlugin("protobuf")
+      .expectsToReceive("A hello request", "core/interaction/synchronous-message")
+      .with(Map.of(
+        "pact:proto", filePath("src/main/proto/locationservice-v1.proto"),
+        "pact:content-type", "application/grpc",
+        "pact:proto-service", "Locations/Hello",
+        "request", Map.of(),
+        "response", Map.of(
+          "message", "matching(regex, '.+', '%s')".formatted(DEFAULT_HELLO_LOCATION_RESPONSE)
+        )
+      ))
+      .toPact();
+  }
+
+  @Pact(consumer = "rest-fights", provider = "grpc-locations")
+  public V4Pact randomLocationFoundPact(PactBuilder builder) {
+    return builder
+      .usingPlugin("protobuf")
+      .expectsToReceive("A request for a random location", "core/interaction/synchronous-message")
+      .with(Map.of(
+        "pact:proto", filePath("src/main/proto/locationservice-v1.proto"),
+        "pact:content-type", "application/grpc",
+        "pact:proto-service", "Locations/GetRandomLocation",
+        "request", Map.of(),
+        "response", Map.of(
+          "name", "matching(regex, '.+', '%s')".formatted(DEFAULT_LOCATION_NAME),
+          "picture", "matching(regex, '((http|https):\\/\\/).+', '%s')".formatted(DEFAULT_LOCATION_PICTURE)
+        )
+      ))
+      .toPact();
+  }
+
+  @Pact(consumer = "rest-fights", provider = "grpc-locations")
+  public V4Pact randomLocationNotFoundPact(PactBuilder builder) {
+    return builder
+      .usingPlugin("protobuf")
+      .given("No random location found")
+      .expectsToReceive("A request for a random location", "core/interaction/synchronous-message")
+      .with(Map.of(
+        "pact:proto", filePath("src/main/proto/locationservice-v1.proto"),
+        "pact:content-type", "application/grpc",
+        "pact:proto-service", "Locations/GetRandomLocation",
+        "request", Map.of(),
+        "responseMetadata", Map.of(
+          "grpc-status", io.grpc.Status.NOT_FOUND.getCode().name(),
+          "grpc-message", "A location was not found"
+        )
+      ))
+      .toPact();
   }
 
   @Test
@@ -481,14 +545,68 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
 		PanacheMock.verifyNoInteractions(Fight.class);
   }
 
+  @Test
+  @PactTestFor(pactMethods = "helloLocationsPact", providerType = ProviderType.SYNCH_MESSAGE)
+  void helloLocationsSuccess() {
+    var message = this.fightService.helloLocations()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+      .assertSubscribed()
+      .awaitItem(Duration.ofSeconds(5))
+      .getItem();
+
+    assertThat(message)
+      .isNotNull();
+
+    verify(this.locationClient).helloLocations();
+    verifyNoInteractions(this.heroClient, this.villainClient, this.narrationClient);
+  }
+
+  @Test
+  @PactTestFor(pactMethods = "randomLocationFoundPact", providerType = ProviderType.SYNCH_MESSAGE)
+  void findRandomLocationSuccess() {
+    var location = this.fightService.findRandomLocation()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+			.assertSubscribed()
+			.awaitItem(Duration.ofSeconds(5))
+			.getItem();
+
+    assertThat(location)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .ignoringFields("description")
+      .isEqualTo(createDefaultFightLocation());
+
+    verify(this.locationClient).findRandomLocation();
+    verifyNoInteractions(this.heroClient, this.villainClient, this.narrationClient);
+  }
+
+  @Test
+  @PactTestFor(pactMethods = "randomLocationNotFoundPact", providerType = ProviderType.SYNCH_MESSAGE)
+  void findRandomLocationNoLocationFound() {
+    var location = this.fightService.findRandomLocation()
+      .subscribe().withSubscriber(UniAssertSubscriber.create())
+			.assertSubscribed()
+			.awaitItem(Duration.ofSeconds(5))
+			.getItem();
+
+    assertThat(location)
+      .isNotNull()
+      .usingRecursiveComparison()
+      .isEqualTo(createFallbackLocation());
+
+    verify(this.locationClient).findRandomLocation();
+    verifyNoInteractions(this.heroClient, this.villainClient, this.narrationClient);
+  }
+
 	public static class PactConsumerContractTestProfile implements QuarkusTestProfile {
 		@Override
 		public Map<String, String> getConfigOverrides() {
-			return Map.of(
-      "quarkus.rest-client.hero-client.url", "http://localhost:%s".formatted(HEROES_MOCK_PORT),
-      "fight.villain.client-base-url", "http://localhost:%s".formatted(VILLAINS_MOCK_PORT),
-      "quarkus.rest-client.narration-client.url", "http://localhost:%s".formatted(NARRATION_MOCK_PORT)
-			);
+      return Map.of(
+        "quarkus.rest-client.hero-client.url", "http://localhost:%s".formatted(HEROES_MOCK_PORT),
+        "fight.villain.client-base-url", "http://localhost:%s".formatted(VILLAINS_MOCK_PORT),
+        "quarkus.rest-client.narration-client.url", "http://localhost:%s".formatted(NARRATION_MOCK_PORT),
+        "quarkus.grpc.clients.locations.test-port", LOCATION_MOCK_PORT
+      );
 		}
 	}
 }
