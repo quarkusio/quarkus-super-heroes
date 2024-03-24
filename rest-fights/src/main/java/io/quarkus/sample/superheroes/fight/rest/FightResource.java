@@ -5,6 +5,7 @@ import static org.eclipse.microprofile.openapi.annotations.enums.SchemaType.ARRA
 
 import java.util.List;
 
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -309,4 +310,5 @@ public class FightResource {
 	public Uni<String> helloLocations() {
 		return this.service.helloLocations();
 	}
+
 }

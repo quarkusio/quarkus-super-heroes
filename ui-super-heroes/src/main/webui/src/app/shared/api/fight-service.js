@@ -21,7 +21,6 @@ if (!basePath) {
   basePath = window.location.protocol + "//" + window.location.host
 }
 
-
 /**
  * Returns all the fights from the database
  *
@@ -30,6 +29,7 @@ export async function getFights() {
 
   const response = await axios.get(`${basePath}/api/fights`,
     {
+      withCredentials: true,
       headers: defaultHeaders,
     }
   )
