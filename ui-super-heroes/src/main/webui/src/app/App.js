@@ -56,10 +56,9 @@ if (!basePath) {
     {isLoggedIn ? (
       <>
         <h1>Welcome to Super Heroes Fight!</h1>
-        {/* Uncomment these if they should also wait for login
-            <Fight onFight={refreshFights}/>
-            <FightList fights={fights}/>
-        */}
+        <Fight onFight={refreshFights}/>
+        <FightList fights={fights}/>
+       
       </>
     ) : (
       <Login onLoginSuccess={handleLoginSuccess} /> // Passing the callback to Login component

@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.1",
+  "type_definitions": [
+    {
+      "type": "feature",
+      "relations": {
+        "associated_plan": {
+          "this": {}
+        },
+        "can_access": {
+          "tupleToUserset": {
+            "computedUserset": {
+              "relation": "subscriber"
+            },
+            "tupleset": {
+              "relation": "associated_plan"
+            }
+          }
+        }
+      },
+      "metadata": {
+        "relations": {
+          "associated_plan": {
+            "directly_related_user_types": [
+              {
+                "type": "plan"
+              }
+            ]
+          },
+          "can_access": {
+            "directly_related_user_types": []
+          }
+        }
+      }
+    },
+    {
+      "type": "plan",
+      "relations": {
+        "subscriber": {
+          "this": {}
+        }
+      },
+      "metadata": {
+        "relations": {
+          "subscriber": {
+            "directly_related_user_types": [
+              {
+                "type": "user"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "user",
+      "relations": {},
+      "metadata": {}
+    }
+  ]
+}

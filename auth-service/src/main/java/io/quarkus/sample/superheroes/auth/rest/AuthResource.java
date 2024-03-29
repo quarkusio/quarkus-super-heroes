@@ -1,5 +1,12 @@
 package io.quarkus.sample.superheroes.auth.rest;
 
+import io.quarkiverse.openfga.client.AuthorizationModelClient;
+import io.quarkiverse.openfga.client.StoreClient;
+
+import io.quarkiverse.openfga.client.model.TupleKey;
+
+import io.quarkiverse.zanzibar.annotations.FGARelation;
+
 import io.quarkus.logging.Log;
 
 import io.quarkus.sample.superheroes.auth.webauthn.User;
@@ -9,6 +16,7 @@ import io.quarkus.sample.superheroes.auth.webauthn.WebAuthnCredential;
 import io.quarkus.security.webauthn.WebAuthnRegisterResponse;
 import io.quarkus.security.webauthn.WebAuthnSecurity;
 
+import io.smallrye.mutiny.Uni;
 import io.vertx.ext.auth.webauthn.Authenticator;
 import io.vertx.ext.web.RoutingContext;
 
@@ -31,12 +39,22 @@ import java.security.Principal;
 import java.util.HashSet;
 
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.reactive.RestPath;
+
+import javax.annotation.Nullable;
+import javax.lang.model.type.NullType;
 
 @Path("/")
 public class AuthResource {
   private static final Logger LOG = Logger.getLogger(AuthResource.class);
+
+  @Inject
+  StoreClient storeClient;
   @Inject
   WebAuthnSecurity webAuthnSecurity;
+
+  @Inject
+  AuthorizationModelClient defaultAuthModelClient;
   @GET
   @Produces(MediaType.TEXT_PLAIN)
   public String publicResource() {
@@ -45,6 +63,7 @@ public class AuthResource {
   @Path("/register")
   @POST
   @Transactional
+  @FGARelation(FGARelation.ANY)
   public Response register(@RestForm String userName, @RestForm String role,
     @BeanParam WebAuthnRegisterResponse webAuthnResponse,
     RoutingContext ctx) {
@@ -70,15 +89,14 @@ public class AuthResource {
       LOG.info(authenticator.getUserName());
       User newUser = new User();
       newUser.userName = authenticator.getUserName();
-      if (newUser.role == null) {
-        newUser.role = new HashSet<>();
-      }
-      newUser.role.add(role);
+      newUser.plan = role;
       WebAuthnCredential credential = new WebAuthnCredential(authenticator, newUser);
 
       newUser.persist();
       credential.persist();
-
+      var authModelClient = storeClient.authorizationModels().model("01HT68CBY34M0WMNT36TCRE0YJ");
+      LOG.info(authModelClient);
+      authModelClient.write(TupleKey.of("plan:"+newUser.plan, "subscriber", "user:"+newUser.userName)).await().indefinitely();
       // make a login cookie
 
       this.webAuthnSecurity.rememberUser(newUser.userName, ctx);
@@ -97,8 +115,23 @@ public class AuthResource {
   public Response verify(@Context SecurityContext securityContext, RoutingContext ctx){
 
     LOG.info( "THE USERNAME OF THE PERSON IS.....  "+ securityContext.getUserPrincipal().getName());
+    LOG.info( "THE role OF THE PERSON IS.....  "+ securityContext.isUserInRole("admin"));
+    LOG.info(ctx.getCookie("quarkus-credential").getDomain());
     return Response.ok().build();
   }
+
+  @GET
+  @Path("/feature-access/{feature}")
+  @FGARelation(FGARelation.ANY)
+  public Boolean checkFeatureAccess(@RestPath String feature,@Context SecurityContext securityContext, RoutingContext ctx){
+    User user = User.findByUserName(securityContext.getUserPrincipal().getName());
+    var authModelClient = storeClient.authorizationModels().model("01HT68CBY34M0WMNT36TCRE0YJ");
+    if(!authModelClient.check(TupleKey.of("feature:"+feature, "can_access", "user:"+user.userName),null).await().indefinitely()) {
+        return false;
+    }
+    return true;
+  }
+
 
   @GET
   @Path("/me")

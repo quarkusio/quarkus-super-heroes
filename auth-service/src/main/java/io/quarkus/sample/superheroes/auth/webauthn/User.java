@@ -15,8 +15,11 @@ public class User extends PanacheEntity {
   @Column(unique = true)
   public String userName;
 
+//  @Column
+//  public Set<String> role;
+
   @Column
-  public Set<String> role;
+  public String plan;
 
 
   // non-owning side, so we can add more credentials later

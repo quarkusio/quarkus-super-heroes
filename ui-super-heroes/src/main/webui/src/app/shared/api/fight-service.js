@@ -50,6 +50,7 @@ export async function startFight(body) {
 
   const response = await axios.post(
     `${basePath}/api/fights`, body, {
+      withCredentials: true,
       crossDomain: true,
       defaultHeaders,
     }
@@ -64,6 +65,7 @@ export async function getRandomLocation() {
   try {
     const response = await axios.get(`${basePath}/api/fights/randomlocation`,
         {
+            withCredentials: true,
             headers: defaultHeaders,
         })
     return response.data
@@ -83,6 +85,7 @@ export async function getRandomFighters() {
   try {
     const response = await axios.get(`${basePath}/api/fights/randomfighters`,
       {
+        withCredentials: true,
         headers: defaultHeaders,
       }
     )
@@ -108,6 +111,7 @@ export async function narrateFight(body) {
   const response = await axios.post(`${basePath}/api/fights/narrate`,
     body,
     {
+      withCredentials: true,
       crossDomain: true,
       responseType: 'text',
       headers,
@@ -133,6 +137,7 @@ export async function generateImage(narration) {
   const response = await axios.post(`${basePath}/api/fights/narrate/image`,
     narration,
     {
+      withCredentials: true,
       crossDomain: true,
       headers,
     }

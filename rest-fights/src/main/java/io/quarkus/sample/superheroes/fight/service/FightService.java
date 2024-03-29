@@ -6,9 +6,16 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 
+import io.opentelemetry.sdk.trace.data.StatusData;
+
+import io.quarkus.sample.superheroes.fight.client.AuthRestClient;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 import org.bson.types.ObjectId;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
@@ -50,17 +57,19 @@ public class FightService {
 	private final VillainClient villainClient;
   private final NarrationClient narrationClient;
 	private final LocationClient locationClient;
+  private final AuthRestClient authRestClient;
 	private final MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter;
 	private final FightConfig fightConfig;
   private final FightMapper fightMapper;
 	private final Random random = new Random();
 
-	public FightService(HeroClient heroClient, VillainClient villainClient, @RestClient NarrationClient narrationClient, LocationClient locationClient, @Channel("fights") MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter, FightConfig fightConfig, FightMapper fightMapper) {
+	public FightService(HeroClient heroClient, VillainClient villainClient, @RestClient NarrationClient narrationClient, LocationClient locationClient, @RestClient AuthRestClient authRestClient, @Channel("fights") MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter, FightConfig fightConfig, FightMapper fightMapper) {
 		this.heroClient = heroClient;
 		this.villainClient = villainClient;
     this.narrationClient = narrationClient;
 		this.locationClient = locationClient;
-		this.emitter = emitter;
+    this.authRestClient = authRestClient;
+    this.emitter = emitter;
 		this.fightConfig = fightConfig;
     this.fightMapper = fightMapper;
   }
@@ -254,8 +263,10 @@ public class FightService {
   @WithSpan("FightService.performFight")
 	public Uni<Fight> performFight(@SpanAttribute("arg.fighters") @NotNull @Valid FightRequest fightRequest) {
     Log.debugf("Performing a fight with fighters: %s", fightRequest);
-    return determineWinner(fightRequest)
-      .chain(this::persistFight);
+    return this.authRestClient.checkFeatureAccess("fight")
+        .onItem().transformToUni(permissionCheck ->
+        permissionCheck ? determineWinner(fightRequest).chain(this::persistFight): returnPayForSubscription(fightRequest)
+      );
   }
 
   @CircuitBreaker(requestVolumeThreshold = 8, failureRatio = 0.5, delay = 2, delayUnit = ChronoUnit.SECONDS)
@@ -266,7 +277,10 @@ public class FightService {
   @WithSpan("FightService.narrateFight")
   public Uni<String> narrateFight(@SpanAttribute("arg.fight") FightToNarrate fight) {
     Log.debugf("Narrating fight: %s", fight);
-    return this.narrationClient.narrate(fight);
+    return this.authRestClient.checkFeatureAccess("ai")
+      .onItem().transformToUni(permissionCheck ->
+        permissionCheck ? this.narrationClient.narrate(fight): Uni.createFrom().item("Not authorized")
+        );
   }
 
   @CircuitBreaker(requestVolumeThreshold = 8, failureRatio = 0.5, delay = 2, delayUnit = ChronoUnit.SECONDS)
@@ -290,6 +304,23 @@ public class FightService {
       .replaceWith(fight);
 	}
 
+  Uni<Fight> returnPayForSubscription(FightRequest fightRequest){
+    return Uni.createFrom().item(() -> {
+      Fight fight = new Fight();
+      fight.winnerName = "To see the winner's name, consider paying for a higher tier!";
+      fight.winnerPicture = "Image";
+      fight.winnerLevel = 0;
+      fight.winnerPowers = "To see the winner's powers, consider paying for a higher tier!";
+      fight.loserName = "To see the loser's name, consider paying for a higher tier!";
+      fight.loserPicture = "Image";
+      fight.loserLevel = 0;
+      fight.loserPowers = "To see the loser's powers, consider paying for a higher tier!";
+      fight.winnerTeam = "To see the winner's team, consider paying for a higher tier!";
+      fight.loserTeam = "To see the loser's team, consider paying for a higher tier!";
+      fight.location = fightRequest.location();
+      return fight;
+    });
+  }
 	Uni<Fight> determineWinner(@SpanAttribute("arg.fighters") FightRequest fightRequest) {
     Log.debugf("Determining winner between fighters: %s", fightRequest);
 

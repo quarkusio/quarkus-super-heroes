@@ -1,6 +1,7 @@
 package io.quarkus.sample.superheroes.fight.client;
 
 
+import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonObject;
 
 import jakarta.ws.rs.BeanParam;
@@ -16,6 +17,7 @@ import jakarta.ws.rs.core.SecurityContext;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import org.jboss.resteasy.reactive.RestPath;
 
 @RegisterRestClient(configKey = "auth-client")
 @RegisterClientHeaders
@@ -46,5 +48,9 @@ public interface AuthRestClient {
   @GET
   @Path("/verify-session")
   public Response verify();
+
+  @GET
+  @Path("/feature-access/{feature}")
+  public Uni<Boolean> checkFeatureAccess(@RestPath String feature);
 
 }

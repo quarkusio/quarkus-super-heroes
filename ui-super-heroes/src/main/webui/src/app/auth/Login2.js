@@ -14,7 +14,7 @@ import WebAuthn from './WebAuthn';
      const [userName, setUserName] = useState('');
      const [firstName, setFirstName] = useState('');
      const [lastName, setLastName] = useState('');
-     const [userRole, setUserRole] = useState('admin');
+     const [userRole, setUserRole] = useState('');
      const [result, setResult] = useState('');
      
     
@@ -114,7 +114,8 @@ import WebAuthn from './WebAuthn';
                          <input id="firstName" placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} /><br />
                          <input id="lastName" placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} /><br />
                          <select id="userRole" value={userRole} onChange={(e) => setUserRole(e.target.value)}>
-                             <option value="admin">Admin</option>
+                            <option value="">--Please choose your plan--</option>
+                             <option value="full">Full</option>
                              <option value="referee">Referee</option>
                              <option value="viewer">Viewer</option>
                          </select><br />
