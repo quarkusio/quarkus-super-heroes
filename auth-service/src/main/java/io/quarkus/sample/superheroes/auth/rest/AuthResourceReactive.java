@@ -37,6 +37,8 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.RestPath;
 
+import java.security.Principal;
+
 @Path("")
 public class AuthResourceReactive {
   private static final Logger LOG = Logger.getLogger(AuthResourceReactive.class);
@@ -100,18 +102,13 @@ public class AuthResourceReactive {
     @Path("/verify-session")
     @FGARelation(FGARelation.ANY)
     public Uni<Response> verify(@Context SecurityContext securityContext, RoutingContext ctx){
-      return Uni.createFrom().item(() -> {
-        try{
-          if(securityContext.getUserPrincipal() ==null){return Response.status(Status.UNAUTHORIZED).build();}
-          LOG.info( "THE USERNAME OF THE PERSON IS.....  "+ securityContext.getUserPrincipal().getName());
+      return Uni.createFrom().item(securityContext.getUserPrincipal())
+        .onItem().ifNotNull().transform(principal -> {
+          LOG.info("User session validated");
           return Response.ok().build();
-        } catch (Exception e) {
-            LOG.info(e);
-            throw new RuntimeException(e);
-        }
-      })
-        .onFailure().recoverWithItem(x -> {
-          LOG.info(x);
+        })
+        .onItem().ifNull().continueWith(() -> {
+          LOG.info("Invalid user session detected");
           return Response.status(Status.UNAUTHORIZED).build();
         });
     }
@@ -119,14 +116,14 @@ public class AuthResourceReactive {
     @GET
     @Path("/feature-access/{feature}")
     @FGARelation(FGARelation.ANY)
-    public Uni<Boolean> checkFeatureAccess(@RestPath String feature,@Context SecurityContext securityContext, RoutingContext ctx){
-      return User.findByUserName(securityContext.getUserPrincipal().getName())
-        .onItem().ifNotNull().transformToUni(user -> {
-          var authModelClient = defaultAuthModelClient;
-          // Directly return the Uni<Boolean> from authModelClient.check
-          return authModelClient.check(TupleKey.of("feature:" + feature, "can_access", "user:" + user.userName), null);
-        })
-        .onItem().ifNull().continueWith(() -> {return false;});
+    public Uni<Boolean> checkFeatureAccess(@RestPath String feature,@Context SecurityContext securityContext, RoutingContext ctx) {
+      return Uni.createFrom().item(securityContext.getUserPrincipal()).onItem().ifNotNull().transformToUni(principal -> {
+        return User.findByUserName(principal.getName()).onItem().ifNotNull().transformToUni(user -> {
+          return defaultAuthModelClient.check(TupleKey.of("feature:" + feature, "can_access", "user:" + user.userName), null);
+        }
+        );
+      })
+        .onItem().ifNull().continueWith(false)
+        .onFailure().recoverWithItem(false);
     }
-
 }
