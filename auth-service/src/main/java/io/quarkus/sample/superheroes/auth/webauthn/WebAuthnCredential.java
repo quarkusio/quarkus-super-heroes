@@ -3,13 +3,21 @@ package io.quarkus.sample.superheroes.auth.webauthn;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+
+
+
+import io.smallrye.mutiny.Uni;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+//leaving this here in case of non-reactive examples
+//import io.quarkus.hibernate.orm.panache.PanacheEntity;
+
 import io.vertx.ext.auth.webauthn.Authenticator;
 import io.vertx.ext.auth.webauthn.PublicKeyCredential;
 
@@ -98,11 +106,15 @@ public class WebAuthnCredential extends PanacheEntity {
     user.webAuthnCredential = this;
   }
 
-  public static List<WebAuthnCredential> findByUserName(String userName) {
+  public static Uni<List<WebAuthnCredential>> findByUserName(String userName) {
     return list("userName", userName);
   }
 
-  public static List<WebAuthnCredential> findByCredID(String credID) {
+  public static Uni<List<WebAuthnCredential>> findByCredID(String credID) {
     return list("credID", credID);
+  }
+
+  public <T> Uni<T> fetch(T association) {
+    return getSession().flatMap(session -> session.fetch(association));
   }
 }

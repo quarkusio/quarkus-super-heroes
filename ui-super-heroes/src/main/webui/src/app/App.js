@@ -2,7 +2,7 @@ import {FightList} from "./fight-list/FightList"
 import Fight from "./fight/Fight"
 import {useEffect, useState} from "react"
 import {getFights} from "./shared/api/fight-service"
-import Login from "./auth/Login2"
+import Login from "./auth/Login"
 function App() {
   let basePath = window?.APP_CONFIG?.API_BASE_URL
 const calculateApiBaseUrl = window?.APP_CONFIG?.CALCULATE_API_BASE_URL

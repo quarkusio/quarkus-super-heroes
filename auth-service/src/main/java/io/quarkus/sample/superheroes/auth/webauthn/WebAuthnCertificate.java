@@ -1,6 +1,11 @@
 package io.quarkus.sample.superheroes.auth.webauthn;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+//leaving this here in case of non-reactive examples
+//import io.quarkus.hibernate.orm.panache.PanacheEntity;
+//
+
+import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 

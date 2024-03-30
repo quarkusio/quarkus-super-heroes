@@ -1,11 +1,13 @@
 package io.quarkus.sample.superheroes.auth.webauthn;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.smallrye.common.annotation.Blocking;
+import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 
 import io.quarkus.security.webauthn.WebAuthnUserProvider;
@@ -16,60 +18,58 @@ import jakarta.transaction.Transactional;
 
 import static io.quarkus.sample.superheroes.auth.webauthn.WebAuthnCredential.*;
 
-@Blocking
+
 @ApplicationScoped
 public class WebAuthnSetup implements WebAuthnUserProvider {
 
-  @Transactional
+  @ReactiveTransactional
   @Override
   public Uni<List<Authenticator>> findWebAuthnCredentialsByUserName(String userName) {
-    return Uni.createFrom().item(toAuthenticators(findByUserName(userName)));
+    return WebAuthnCredential.findByUserName(userName)
+      .flatMap(WebAuthnSetup::toAuthenticators);
   }
 
-  @Transactional
+  @ReactiveTransactional
   @Override
   public Uni<List<Authenticator>> findWebAuthnCredentialsByCredID(String credID) {
-    return Uni.createFrom().item(toAuthenticators(findByCredID(credID)));
+    return WebAuthnCredential.findByCredID(credID)
+      .flatMap(WebAuthnSetup::toAuthenticators);
   }
 
-  @Transactional
+  @ReactiveTransactional
   @Override
-  public Uni<Void> updateOrStoreWebAuthnCredentials(Authenticator authenticator) {
-    // leave the scooby user to the manual endpoint, because if we do it here it will be created/updated twice
-//    if(!authenticator.getUserName().equals("scooby")) {
-//      User user = User.findByUserName(authenticator.getUserName());
-//      if(user == null) {
-//        // new user
-//        User newUser = new User();
-//        newUser.userName = authenticator.getUserName();
-//        WebAuthnCredential credential = new WebAuthnCredential(authenticator, newUser);
-//        credential.persist();
-//        newUser.persist();
-//      } else {
-//        // existing user
-//        user.webAuthnCredential.counter = authenticator.getCounter();
-//      }
-//    }
-    return Uni.createFrom().nullItem();
+  public Uni<Void> updateOrStoreWebAuthnCredentials(Authenticator authenticator) {return Uni.createFrom().nullItem();}
+  private static Uni<List<Authenticator>> toAuthenticators(List<WebAuthnCredential> dbs) {
+    // can't call combine/uni on empty list
+    if (dbs.isEmpty())
+      return Uni.createFrom().item(Collections.emptyList());
+    List<Uni<Authenticator>> ret = new ArrayList<>(dbs.size());
+    for (WebAuthnCredential db : dbs) {
+      ret.add(toAuthenticator(db));
+    }
+    return Uni.combine().all().unis(ret).combinedWith(f -> (List) f);
   }
 
-  private static List<Authenticator> toAuthenticators(List<WebAuthnCredential> dbs) {
-    return dbs.stream().map(WebAuthnSetup::toAuthenticator).collect(Collectors.toList());
-  }
-
-  private static Authenticator toAuthenticator(WebAuthnCredential credential) {
-    Authenticator ret = new Authenticator();
-    ret.setAaguid(credential.aaguid);
-    AttestationCertificates attestationCertificates = new AttestationCertificates();
-    attestationCertificates.setAlg(credential.alg);
-    ret.setAttestationCertificates(attestationCertificates);
-    ret.setCounter(credential.counter);
-    ret.setCredID(credential.credID);
-    ret.setFmt(credential.fmt);
-    ret.setPublicKey(credential.publicKey);
-    ret.setType(credential.type);
-    ret.setUserName(credential.userName);
-    return ret;
+  private static Uni<Authenticator> toAuthenticator(WebAuthnCredential credential) {
+    return credential.fetch(credential.x5c)
+      .map(x5c -> {
+        Authenticator ret = new Authenticator();
+        ret.setAaguid(credential.aaguid);
+        AttestationCertificates attestationCertificates = new AttestationCertificates();
+        attestationCertificates.setAlg(credential.alg);
+        List<String> x5cs = new ArrayList<>(x5c.size());
+        for (WebAuthnCertificate webAuthnCertificate : x5c) {
+          x5cs.add(webAuthnCertificate.x5c);
+        }
+        ret.setAttestationCertificates(attestationCertificates);
+        ret.setCounter(credential.counter);
+        ret.setCredID(credential.credID);
+        ret.setFmt(credential.fmt);
+        ret.setPublicKey(credential.publicKey);
+        ret.setType(credential.type);
+        ret.setUserName(credential.userName);
+        return ret;
+      });
   }
 
   @Override

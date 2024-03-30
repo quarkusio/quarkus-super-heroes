@@ -25,29 +25,26 @@ import org.jboss.resteasy.reactive.RestPath;
 public interface AuthRestClient {
   @GET
   @Path("/q/webauthn/webauthn.js")
-  public Response javascript();
+  public Uni<Response> javascript();
   @POST
   @Path("/q/webauthn/register")
-  public Response setUpObtainRegistrationChallenge(JsonObject jsonObject);
+  public Uni<Response> setUpObtainRegistrationChallenge(JsonObject jsonObject);
   @POST
   @Path("/register")
-  public Response register(  @FormParam("userName") String userName,@FormParam("role") String role,@BeanParam WebAuthnRegisterResponse webAuthnResponse);
+  public Uni<Response> register(  @FormParam("userName") String userName,@FormParam("plan") String plan,@BeanParam WebAuthnRegisterResponse webAuthnResponse);
   @POST
   @Path("/q/webauthn/login")
-  public Response setUpObtainLoginChallenge(JsonObject jsonObject);
+  public Uni<Response> setUpObtainLoginChallenge(JsonObject jsonObject);
   @POST
   @Path("/q/webauthn/callback")
-  public Response callback(JsonObject jsonObject);
+  public Uni<Response> callback(JsonObject jsonObject);
   @GET
   @Path("/q/webauthn/logout")
-  public Response logout();
-  @GET
-  @Path("/me")
-  public String me(@Context SecurityContext securityContext);
+  public Uni<Response> logout();
 
   @GET
   @Path("/verify-session")
-  public Response verify();
+  public Uni<Response> verify();
 
   @GET
   @Path("/feature-access/{feature}")

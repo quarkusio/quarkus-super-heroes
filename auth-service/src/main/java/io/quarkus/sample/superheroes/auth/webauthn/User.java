@@ -1,6 +1,10 @@
 package io.quarkus.sample.superheroes.auth.webauthn;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+
+import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+
+import io.smallrye.mutiny.Uni;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
@@ -15,9 +19,6 @@ public class User extends PanacheEntity {
   @Column(unique = true)
   public String userName;
 
-//  @Column
-//  public Set<String> role;
-
   @Column
   public String plan;
 
@@ -26,7 +27,7 @@ public class User extends PanacheEntity {
   @OneToOne(mappedBy = "user")
   public WebAuthnCredential webAuthnCredential;
 
-  public static User findByUserName(String userName) {
-    return User.find("userName", userName).firstResult();
+  public static Uni<User> findByUserName(String userName) {
+    return find("userName", userName).firstResult();
   }
 }

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import loadWebAuthn from './loadWebauthnLibrary';
 
- function Login() {
+import WebAuthn from './WebAuthn';
+ function Login({onLoginSuccess}) {
     let basePath = window?.APP_CONFIG?.API_BASE_URL
     const calculateApiBaseUrl = window?.APP_CONFIG?.CALCULATE_API_BASE_URL
 
@@ -10,85 +11,68 @@ import loadWebAuthn from './loadWebauthnLibrary';
     basePath = window.location.protocol + "//" + window.location.host.replace('ui-super-heroes', 'rest-fights')
     
     }
-  
-
-    console.log('Login Component Rendering');
-    if (window.WebAuthn)
-    {
-        console.log("initialize")
-        const webAuthn = new window.WebAuthn.constructor({
-            callbackPath: '/q/webauthn/callback',
-            registerPath: '/q/webauthn/register',
-            loginPath: '/q/webauthn/login'
-      });
-    }
      const [userName, setUserName] = useState('');
      const [firstName, setFirstName] = useState('');
      const [lastName, setLastName] = useState('');
-     const [userRole, setUserRole] = useState('admin');
+     const [userPlan, setUserPlan] = useState('');
      const [result, setResult] = useState('');
      
-    const [loaded, setLoaded] = useState(false);  
-    useEffect(() => {
-        loadWebAuthn(() => {
-        setLoaded(true);
-        });
-    });
     
      useEffect(() => {
          fetch('/api/public/me')
              .then(response => response.text())
              .then(name => setResult(`User: ${name}`));
      }, []);
+
      const handleLogin = () => {
         setResult('');
-        if(window.webAuthn) {
-            window.webAuthn.login({ name: userName })
+        const webAuthn = new WebAuthn({
+            callbackPath: `${basePath}` +'/q/webauthn/callback',
+            registerPath: `${basePath}` +'/q/webauthn/register',
+            loginPath: `${basePath}` +'/q/webauthn/login'
+        })
+        webAuthn.login({ name: userName })
                 .then(body => {
                     setResult(`User: ${userName}`);
+                    onLoginSuccess();
                 })
                 .catch(err => {
                     setResult(`Login failed: ${err}`);
                 });
-        } else {
-            console.log('webAuthn is not loaded yet');
-        }
     };
+
      const handleRegister = () => {
         setResult('');
-        if (window.webAuthn) {
-            const WebAuthn = new window.WebAuthn.constructor({
-                callbackPath: `${basePath}` +'/q/webauthn/callback',
-                registerPath: `${basePath}` +'/q/webauthn/register',
-                loginPath: `${basePath}` +'/q/webauthn/login'
-          });
-            console.log(WebAuthn)
-            WebAuthn.registerOnly({
-                name: userName, 
-                role: userRole, 
-                displayName: firstName + " " + lastName
-            })
-            .then(body => {
-                console.log(body)
-                let formData = new FormData();
-                formData.append('userName', userName);
-                formData.append('role', userRole);
-                formData.append('displayName', firstName + " " + lastName);
-                // Assuming body contains id, rawId, response, and type based on your script.
-                formData.append('webAuthnId', body.id);
-                formData.append('webAuthnRawId', body.rawId);
-                formData.append('webAuthnResponseAttestationObject', body.response.attestationObject);
-                formData.append('webAuthnResponseClientDataJSON', body.response.clientDataJSON);
-                formData.append('webAuthnType', body.type);
-                return fetch( `${basePath}` + '/register', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Accept': 'application/json'
-                       
-                    },
-                    body: formData
-                });
+        const webAuthn = new WebAuthn({
+            callbackPath: `${basePath}` +'/q/webauthn/callback',
+            registerPath: `${basePath}` +'/q/webauthn/register',
+            loginPath: `${basePath}` +'/q/webauthn/login'
+      })
+      webAuthn.registerOnly({
+        name: userName, 
+        plan: userPlan, 
+        displayName: firstName + " " + lastName
+    })
+    .then(body => {
+        console.log(body)
+        let formData = new FormData();
+        formData.append('userName', userName);
+        formData.append('plan', userPlan);
+        formData.append('displayName', firstName + " " + lastName);
+        // Assuming body contains id, rawId, response, and type based on your script.
+        formData.append('webAuthnId', body.id);
+        formData.append('webAuthnRawId', body.rawId);
+        formData.append('webAuthnResponseAttestationObject', body.response.attestationObject);
+        formData.append('webAuthnResponseClientDataJSON', body.response.clientDataJSON);
+        formData.append('webAuthnType', body.type);
+        return fetch( `${basePath}` + '/register', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json'
+        },
+            body: formData
+        });
             })
             .then(res => {
                 if (res.status >= 200 && res.status < 300) {
@@ -98,24 +82,17 @@ import loadWebAuthn from './loadWebauthnLibrary';
             })
             .then(message => setResult(message))
             .catch(error => setResult(`Registration failed: ${error}`));
-        } else {
-            console.log('webAuthn is not loaded yet');
-            setResult('Registration failed: webAuthn not available');
-        }
+                  
     };
-    
 
-     return (
+    return (
          <div>
-             <div className="maps-component">
-                {loaded ? '' : ''}
-            </div>
              <nav>
                  <ul>
                      <li><a href="/api/public">Public API</a></li>
                      <li><a href="/api/users/me">User API</a></li>
                      <li><a href="/api/admin">Admin API</a></li>
-                     <li><a href="/q/webauthn/logout">Logout</a></li>
+                     <li><a href= {`${basePath}/q/webauthn/logout`}>Logout</a></li>
                  </ul>
              </nav>
              <div className="container">
@@ -136,9 +113,10 @@ import loadWebAuthn from './loadWebauthnLibrary';
                          <input id="userNameRegister" placeholder="User name" value={userName} onChange={(e) => setUserName(e.target.value)} /><br />
                          <input id="firstName" placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} /><br />
                          <input id="lastName" placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} /><br />
-                         <select id="userRole" value={userRole} onChange={(e) => setUserRole(e.target.value)}>
-                             <option value="admin">Admin</option>
-                             <option value="referee">Referee</option>
+                         <select id="userPlan" value={userPlan} onChange={(e) => setUserPlan(e.target.value)}>
+                            <option value="">--Please choose your plan--</option>
+                             <option value="full">Full</option>
+                             <option value="ref">Referee</option>
                              <option value="viewer">Viewer</option>
                          </select><br />
                          <button id="register" onClick={handleRegister}>Register</button>
@@ -147,7 +125,7 @@ import loadWebAuthn from './loadWebauthnLibrary';
              </div>
          </div>
      );
- }
+}
 
 
  export default Login
