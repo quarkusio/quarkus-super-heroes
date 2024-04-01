@@ -48,7 +48,6 @@ public class AuthResourceReactive {
   StoreClient storeClient;
   @Inject
   AuthorizationModelClient defaultAuthModelClient;
-
   @Path("/register")
   @POST
   @FGARelation(FGARelation.ANY)

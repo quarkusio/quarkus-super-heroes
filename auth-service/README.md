@@ -1,4 +1,11 @@
-# code-with-quarkus
+# code-with-quarkus Authorization service draft 
+
+before running, you need to run the commands in `src/main/resources/setup-fga.sh` individually to start the FGA
+container and load it with our model and tuples
+
+you need to use Chrome, and make a temporary webauthn key 
+
+
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
