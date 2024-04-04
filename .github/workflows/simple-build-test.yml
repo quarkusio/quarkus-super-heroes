@@ -298,7 +298,7 @@ jobs:
       fail-fast: false
       matrix:
         java:
-          - '17'
+          - { jvm: '17', mandrel: '21' }
         project:
           - event-statistics
           - rest-fights
@@ -307,7 +307,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Get Mandrel file name
-        run: echo "MANDREL_FILE=mandrel-java${{ matrix.java }}-linux-amd64-${{ env.MANDREL_VERSION }}-Final.tar.gz" >> $GITHUB_ENV
+        run: echo "MANDREL_FILE=mandrel-java${{ matrix.java.mandrel }}-linux-amd64-${{ env.MANDREL_VERSION }}-Final.tar.gz" >> $GITHUB_ENV
 
       - name: Cache and restore Mandrel distro
         id: check-mandrel-cache
@@ -327,15 +327,15 @@ jobs:
         with:
           distribution: 'jdkfile'
           jdkFile: ${{ env.MANDREL_FILE }}
-          java-version: ${{ matrix.java }}
+          java-version: ${{ matrix.java.jvm }}
           architecture: x64
           cache: maven
 
-      - name: "build-native-container-${{ matrix.project }}-java-${{ matrix.java }}"
+      - name: "build-native-container-${{ matrix.project }}-java-${{ matrix.java.jvm }}"
         working-directory: ${{ matrix.project }}
         run: |
           ./mvnw -B clean package -DskipTests -Pnative \
             -Dquarkus.http.host=0.0.0.0 \
-            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dmaven.compiler.release=${{ matrix.java.jvm }} \
             -Dquarkus.container-image.build=true \
             -Dquarkus.native.container-build=true
