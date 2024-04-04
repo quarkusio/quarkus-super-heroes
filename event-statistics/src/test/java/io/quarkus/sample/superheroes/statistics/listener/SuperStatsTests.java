@@ -14,11 +14,12 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.junit.jupiter.api.Test;
 
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectSpy;
+
 import io.quarkus.sample.superheroes.fight.schema.Fight;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
 import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectSpy;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.helpers.test.AssertSubscriber;
@@ -53,7 +54,7 @@ class SuperStatsTests {
   Multi<Iterable<Score>> topWinnersMulti;
 
   @Test
-  public void processFight() {
+  void processFight() {
     // Create the consumer subscriptions
     var teamScoresSubscription = this.teamStatsMulti
       .subscribe().withSubscriber(AssertSubscriber.create(10))

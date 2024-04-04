@@ -23,6 +23,16 @@ public interface FightConfig {
 	 */
 	Villain villain();
 
+  /**
+   * FightLocation configuration
+   */
+  Location location();
+
+  /**
+   * Narration configuration
+   */
+  Narration narration();
+
 	interface Process {
 		/**
 		 * The number of millis to add as a delay to the fight process. Can be used to introduce deliberate delays.
@@ -33,6 +43,31 @@ public interface FightConfig {
 		@WithDefault("0")
 		long delayMillis();
 	}
+
+  interface Narration {
+    /**
+   * Fallback narration
+   */
+    @WithDefault("Connection to the narration service could not be established.")
+    String fallbackNarration();
+
+    /**
+     * The fallback settings for image generation
+     */
+    NarrationImageFallback fallbackImageGeneration();
+
+    interface NarrationImageFallback {
+      /**
+       * The fallback narration
+       */
+      String imageNarration();
+
+      /**
+       * The URL to the fallback image for the narration
+       */
+      String imageUrl();
+    }
+  }
 
 	interface Hero {
 		/**
@@ -132,4 +167,28 @@ public interface FightConfig {
 			String powers();
 		}
 	}
+
+  interface Location {
+    /**
+     * FightLocation fallback configuration
+     */
+    LocationFallback fallback();
+
+    interface LocationFallback {
+      /**
+			 * FightLocation fallback name
+			 */
+			String name();
+
+      /**
+       * FightLocation fallback description
+       */
+      String description();
+
+      /**
+       * FightLocation fallback picture
+       */
+      String picture();
+    }
+  }
 }

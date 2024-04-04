@@ -1,0 +1,121 @@
+# This Hyperfoil benchmark performs a "Narrate fight" operation, which runs a sequence of requests in each iteration:
+# 1) Perform a GET to /api/fights/randomfighters to retrieve random fighters, storing the result in a variable (done in parallel with 2)
+# 2) Perform a GET to /api/fights/randomlocation to retrieve a random location, storing the result in a variable (done in parallel with 1)
+# 3) Pause to look at the fighters & location (as a human user might)
+# 4) Perform a POST to /api/fights to perform the fight, sending the result from steps 1 and 2 as the request body
+# 5) Pause to look at the fight result (as a human user might)
+# 6) Perform a POST to /api/fights/narrate to narrate the fight, sending the result from step 4 as the request body
+
+# Here is a list of all the parameters and their default values that can be adjusted when running:
+#
+# FIGHT_PROTOCOL=http (The protocol used by the benchmark)
+# FIGHT_HOST=localhost (The host the rest-fights application is running on)
+# FIGHT_PORT=8082 (The port the rest-fights application is running on)
+# SHARED_CONNECTIONS=400 (The number of connections to share across the requests)
+# USERS_PER_SEC=20 (The number of users per second)
+# MAX_SESSIONS=200 (The maximum number of hyperfoil sessions to make available)
+# DURATION=10s (The duration to run the benchmark)
+# PAUSE_TIME_DURATION=1s (The duration to pause, as described in steps 2 & 5 of the workflow)
+
+name: narrate-fight
+http:
+  - protocol: !param FIGHT_PROTOCOL http
+    host: !param FIGHT_HOST localhost
+    port: !param FIGHT_PORT 8082
+    name: fights-host
+    sharedConnections: !param SHARED_CONNECTIONS 400
+
+phases:
+  - narrateFight:
+      constantRate:
+        startAfter: warmUp
+        usersPerSec: !param USERS_PER_SEC 20
+        maxSessions: !param MAX_SESSIONS 200
+        duration: !param DURATION 10s
+        scenario:
+          initialSequences:
+            - getRandomFighters:
+                - httpRequest:
+                    GET: /api/fights/randomfighters
+                    headers:
+                      accept: application/json
+                    handler:
+                      body:
+                        store:
+                          toVar: randomFighters
+                          format: BYTES
+                - json:
+                    fromVar: randomFighters
+                    format: STRING
+                    query: .hero
+                    toVar: randomHero
+                - json:
+                    fromVar: randomFighters
+                    format: STRING
+                    query: .villain
+                    toVar: randomVillain
+
+            - getRandomLocation:
+                - httpRequest:
+                    GET: /api/fights/randomlocation
+                    headers:
+                      accept: application/json
+                    handler:
+                      body:
+                        store:
+                          toVar: randomLocation
+
+            - pauseOnFightersLocation:
+                - awaitVar: randomHero
+                - awaitVar: randomVillain
+                - awaitVar: randomLocation
+                - thinkTime:
+                    duration: !param PAUSE_TIME_DURATION 1s
+                - set: pausedOnFightersLocation <- true
+
+            - performFight:
+                - awaitVar: pausedOnFightersLocation
+                - httpRequest:
+                    POST: /api/fights
+                    headers:
+                      content-type: application/json
+                      accept: application/json
+                    body: >-
+                      {"hero": ${randomHero}, "villain": ${randomVillain}, "location": ${randomLocation}}
+                    handler:
+                      body:
+                        store:
+                          toVar: fight
+
+            - pauseOnFight:
+                - awaitVar: fight
+                - thinkTime:
+                    duration: !param PAUSE_TIME_DURATION 1s
+                - newSequence: narrateFight
+
+          sequences:
+            - narrateFight:
+                - httpRequest:
+                    POST: /api/fights/narrate
+                    headers:
+                      content-type: application/json
+                      accept: text/plain
+                    body:
+                      fromVar: fight
+
+  - warmUp:
+      always:
+        users: 10
+        duration: 10s
+        scenario:
+          initialSequences:
+            - getRandomFighters:
+                - httpRequest:
+                    GET: /api/fights/randomfighters
+                    headers:
+                      accept: application/json
+            - getRandomLocation:
+                - httpRequest:
+                    GET: /api/fights/randomlocation
+                    headers:
+                      accept: application/json

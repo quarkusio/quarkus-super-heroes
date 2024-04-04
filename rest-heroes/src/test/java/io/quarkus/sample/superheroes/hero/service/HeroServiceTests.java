@@ -16,15 +16,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectSpy;
+import io.quarkus.test.vertx.RunOnVertxContext;
+import io.quarkus.test.vertx.UniAsserter;
+
 import io.quarkus.sample.superheroes.hero.Hero;
 import io.quarkus.sample.superheroes.hero.mapping.HeroFullUpdateMapper;
 import io.quarkus.sample.superheroes.hero.mapping.HeroPartialUpdateMapper;
 import io.quarkus.sample.superheroes.hero.repository.HeroRepository;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
-import io.quarkus.test.junit.mockito.InjectSpy;
-import io.quarkus.test.vertx.RunOnVertxContext;
-import io.quarkus.test.vertx.UniAsserter;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
@@ -56,7 +57,7 @@ class HeroServiceTests {
   HeroFullUpdateMapper heroFullUpdateMapper;
 
   @Test
-  public void findAllHeroesNoneFound() {
+  void findAllHeroesNoneFound() {
     when(this.heroRepository.listAll())
       .thenReturn(Uni.createFrom().item(List.of()));
 
@@ -75,7 +76,7 @@ class HeroServiceTests {
   }
 
   @Test
-  public void findAllHeroes() {
+  void findAllHeroes() {
     when(this.heroRepository.listAll())
       .thenReturn(Uni.createFrom().item(List.of(createDefaultHero())));
 
@@ -113,7 +114,7 @@ class HeroServiceTests {
   @ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
   @ValueSource(strings = { "name" })
   @NullSource
-  public void findAllHeroesHavingNameNoneFound(String name) {
+  void findAllHeroesHavingNameNoneFound(String name) {
     when(this.heroRepository.listAllWhereNameLike(eq(name))).thenReturn(Uni.createFrom().item(List.of()));
 
     var allHeroes = this.heroService.findAllHeroesHavingName(name)
@@ -131,7 +132,7 @@ class HeroServiceTests {
   }
 
   @Test
-  public void findAllHeroesHavingName() {
+  void findAllHeroesHavingName() {
     when(this.heroRepository.listAllWhereNameLike(eq("name"))).thenReturn(Uni.createFrom().item(List.of(createDefaultHero())));
 
     var allHeroes = this.heroService.findAllHeroesHavingName("name")
@@ -168,7 +169,7 @@ class HeroServiceTests {
   }
 
   @Test
-  public void findHeroByIdFound() {
+  void findHeroByIdFound() {
     when(this.heroRepository.findById(eq(DEFAULT_ID)))
       .thenReturn(Uni.createFrom().item(createDefaultHero()));
 
@@ -202,7 +203,7 @@ class HeroServiceTests {
   }
 
   @Test
-  public void findHeroByIdNotFound() {
+  void findHeroByIdNotFound() {
     when(this.heroRepository.findById(eq(DEFAULT_ID)))
       .thenReturn(Uni.createFrom().nullItem());
 
@@ -220,7 +221,7 @@ class HeroServiceTests {
   }
 
   @Test
-  public void findRandomHeroNotFound() {
+  void findRandomHeroNotFound() {
     when(this.heroRepository.findRandom())
       .thenReturn(Uni.createFrom().nullItem());
 
@@ -238,7 +239,7 @@ class HeroServiceTests {
   }
 
   @Test
-  public void findRandomHeroFound() {
+  void findRandomHeroFound() {
     when(this.heroRepository.findRandom())
       .thenReturn(Uni.createFrom().item(createDefaultHero()));
 
@@ -273,7 +274,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void persistNullHero(UniAsserter asserter) {
+  void persistNullHero(UniAsserter asserter) {
     asserter.assertFailedWith(
       () -> this.heroService.persistHero(null),
       cve -> {
@@ -303,7 +304,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void persistInvalidHero(UniAsserter asserter) {
+  void persistInvalidHero(UniAsserter asserter) {
     var hero = createDefaultHero();
     hero.setName("a");
 
@@ -336,7 +337,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void persistHero(UniAsserter asserter) {
+  void persistHero(UniAsserter asserter) {
     when(this.heroRepository.persist(any(Hero.class)))
       .thenReturn(Uni.createFrom().item(createDefaultHero()));
 
@@ -373,7 +374,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void fullyUpdateNullHero(UniAsserter asserter) {
+  void fullyUpdateNullHero(UniAsserter asserter) {
     asserter.assertFailedWith(
       () -> this.heroService.replaceHero(null),
       cve -> {
@@ -403,7 +404,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void fullyUpdateInvalidHero(UniAsserter asserter) {
+  void fullyUpdateInvalidHero(UniAsserter asserter) {
     var hero = createDefaultHero();
     hero.setName(null);
 
@@ -436,7 +437,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void fullyUpdateNotFoundHero(UniAsserter asserter) {
+  void fullyUpdateNotFoundHero(UniAsserter asserter) {
     when(this.heroRepository.findById(eq(DEFAULT_ID)))
       .thenReturn(Uni.createFrom().nullItem());
 
@@ -455,7 +456,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void fullyUpdateHero(UniAsserter asserter) {
+  void fullyUpdateHero(UniAsserter asserter) {
     when(this.heroRepository.findById(eq(DEFAULT_ID)))
       .thenReturn(Uni.createFrom().item(createDefaultHero()));
 
@@ -491,7 +492,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void partiallyUpdateNullHero(UniAsserter asserter) {
+  void partiallyUpdateNullHero(UniAsserter asserter) {
     asserter.assertFailedWith(
       () -> this.heroService.partialUpdateHero(null),
       cve -> {
@@ -521,7 +522,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void partiallyUpdateInvalidHero(UniAsserter asserter) {
+  void partiallyUpdateInvalidHero(UniAsserter asserter) {
     when(this.heroRepository.findById(eq(DEFAULT_ID)))
       .thenReturn(Uni.createFrom().item(createDefaultHero()));
 
@@ -560,7 +561,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void partiallyUpdateNotFoundHero(UniAsserter asserter) {
+  void partiallyUpdateNotFoundHero(UniAsserter asserter) {
     when(this.heroRepository.findById(eq(DEFAULT_ID)))
       .thenReturn(Uni.createFrom().nullItem());
 
@@ -579,7 +580,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void partiallyUpdateHero(UniAsserter asserter) {
+  void partiallyUpdateHero(UniAsserter asserter) {
     when(this.heroRepository.findById(eq(DEFAULT_ID)))
       .thenReturn(Uni.createFrom().item(createDefaultHero()));
 
@@ -615,7 +616,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void deleteHero(UniAsserter asserter) {
+  void deleteHero(UniAsserter asserter) {
     when(this.heroRepository.deleteById(eq(DEFAULT_ID)))
       .thenReturn(Uni.createFrom().item(true));
 
@@ -630,7 +631,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void deleteAllHeroes(UniAsserter asserter) {
+  void deleteAllHeroes(UniAsserter asserter) {
     var h1 = createDefaultHero();
     var h2 = createUpdatedHero();
     h2.setId(h1.getId() + 1);
@@ -645,8 +646,8 @@ class HeroServiceTests {
       () -> this.heroService.deleteAllHeroes(),
       v -> {
         verify(this.heroRepository).listAll();
-        verify(this.heroRepository).deleteById(eq(h1.getId()));
-        verify(this.heroRepository).deleteById(eq(h2.getId()));
+        verify(this.heroRepository).deleteById(h1.getId());
+        verify(this.heroRepository).deleteById(h2.getId());
         verifyNoMoreInteractions(this.heroRepository);
       }
     );
@@ -654,7 +655,7 @@ class HeroServiceTests {
 
   @Test
   @RunOnVertxContext
-  public void replaceAllHeroes(UniAsserter asserter) {
+  void replaceAllHeroes(UniAsserter asserter) {
     var h1 = createDefaultHero();
     var h2 = createUpdatedHero();
     h2.setId(h1.getId() + 1);

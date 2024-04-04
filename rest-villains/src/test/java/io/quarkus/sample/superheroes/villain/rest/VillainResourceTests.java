@@ -5,11 +5,11 @@ import static io.restassured.http.ContentType.*;
 import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -17,16 +17,20 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.HttpHeaders;
 
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
+
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.service.VillainService;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
+
+import io.restassured.RestAssured;
 
 @QuarkusTest
-public class VillainResourceTests {
+class VillainResourceTests {
 	private static final String DEFAULT_NAME = "Super Chocolatine";
 	private static final String UPDATED_NAME = DEFAULT_NAME + " (updated)";
 	private static final String DEFAULT_OTHER_NAME = "Super Chocolatine chocolate in";
@@ -42,8 +46,13 @@ public class VillainResourceTests {
 	@InjectMock
 	VillainService villainService;
 
+	@BeforeAll
+	static void beforeAll() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+	}
+
 	@Test
-	public void helloEndpoint() {
+	void helloEndpoint() {
 		get("/api/villains/hello")
 			.then()
 				.statusCode(OK.getStatusCode())
@@ -54,19 +63,19 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldNotGetUnknownVillain() {
-		when(this.villainService.findVillainById(eq(DEFAULT_ID)))
+	void shouldNotGetUnknownVillain() {
+		when(this.villainService.findVillainById(DEFAULT_ID))
 			.thenReturn(Optional.empty());
 
 		get("/api/villains/{id}", DEFAULT_ID)
 			.then().statusCode(NOT_FOUND.getStatusCode());
 
-		verify(this.villainService).findVillainById(eq(DEFAULT_ID));
+		verify(this.villainService).findVillainById(DEFAULT_ID);
 		verifyNoMoreInteractions(this.villainService);
 	}
 
 	@Test
-	public void shouldGetRandomVillainNotFound() {
+	void shouldGetRandomVillainNotFound() {
 		when(this.villainService.findRandomVillain())
 			.thenReturn(Optional.empty());
 
@@ -78,7 +87,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldGetRandomVillainFound() {
+	void shouldGetRandomVillainFound() {
 		when(this.villainService.findRandomVillain())
 			.thenReturn(Optional.of(createDefaultVillian()));
 
@@ -107,7 +116,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldNotAddInvalidItem() {
+	void shouldNotAddInvalidItem() {
 		var villain = new Villain();
 		villain.name = null;
 		villain.otherName = DEFAULT_OTHER_NAME;
@@ -128,7 +137,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldNotAddNullItem() {
+	void shouldNotAddNullItem() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -141,7 +150,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldNotFullyUpdateNullItem() {
+	void shouldNotFullyUpdateNullItem() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -155,7 +164,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldNotFullyUpdateInvalidItem() {
+	void shouldNotFullyUpdateInvalidItem() {
 		var villain = createFullyUpdatedVillain();
 		villain.name = null;
 		villain.otherName = UPDATED_OTHER_NAME;
@@ -176,7 +185,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldNotPartiallyUpdateInvalidItem() {
+	void shouldNotPartiallyUpdateInvalidItem() {
 		ArgumentMatcher<Villain> villainMatcher = v ->
 			(v.id == DEFAULT_ID) &&
 				(v.name == null) &&
@@ -207,7 +216,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldNotPartiallyUpdateNullItem() {
+	void shouldNotPartiallyUpdateNullItem() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -221,7 +230,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldGetItems() {
+	void shouldGetItems() {
 		when(this.villainService.findAllVillains())
 			.thenReturn(List.of(createDefaultVillian()));
 
@@ -251,7 +260,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldGetEmptyItems() {
+	void shouldGetEmptyItems() {
 		when(this.villainService.findAllVillains())
 			.thenReturn(List.of());
 
@@ -265,8 +274,8 @@ public class VillainResourceTests {
 	}
 
   @Test
-  public void shouldGetItemsWithNameFilter() {
-    when(this.villainService.findAllVillainsHavingName(eq("name")))
+  void shouldGetItemsWithNameFilter() {
+    when(this.villainService.findAllVillainsHavingName("name"))
       .thenReturn(List.of(createDefaultVillian()));
 
     var defaultVillain = new Villain();
@@ -293,13 +302,13 @@ public class VillainResourceTests {
       .ignoringFieldsMatchingRegexes(".*_hibernate_.*")
       .isEqualTo(defaultVillain);
 
-    verify(this.villainService).findAllVillainsHavingName(eq("name"));
+    verify(this.villainService).findAllVillainsHavingName("name");
     verifyNoMoreInteractions(this.villainService);
   }
 
   @Test
-  public void shouldGetEmptyItemsWithNameFilter() {
-    when(this.villainService.findAllVillainsHavingName(eq("name")))
+  void shouldGetEmptyItemsWithNameFilter() {
+    when(this.villainService.findAllVillainsHavingName("name"))
       .thenReturn(List.of());
 
     given()
@@ -310,12 +319,12 @@ public class VillainResourceTests {
         .statusCode(OK.getStatusCode())
         .body("$.size()", is(0));
 
-    verify(this.villainService).findAllVillainsHavingName(eq("name"));
+    verify(this.villainService).findAllVillainsHavingName("name");
     verifyNoMoreInteractions(this.villainService);
   }
 
 	@Test
-	public void shouldGetNullItems() {
+	void shouldGetNullItems() {
 		when(this.villainService.findAllVillains())
 			.thenReturn(List.of());
 
@@ -329,7 +338,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldAddAnItem() {
+	void shouldAddAnItem() {
 		ArgumentMatcher<Villain> villainMatcher = v ->
 			(v.id == null) &&
 			v.name.equals(DEFAULT_NAME) &&
@@ -363,7 +372,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldNotFullyUpdateNotFoundItem() {
+	void shouldNotFullyUpdateNotFoundItem() {
 		var villain = createFullyUpdatedVillain();
 		ArgumentMatcher<Villain> villainMatcher = v ->
 			(v.id == DEFAULT_ID) &&
@@ -391,7 +400,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldFullyUpdateAnItem() {
+	void shouldFullyUpdateAnItem() {
 		var villain = createFullyUpdatedVillain();
 		ArgumentMatcher<Villain> villainMatcher = v ->
 			(v.id == DEFAULT_ID) &&
@@ -419,7 +428,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldNotPartiallyUpdateNotFoundItem() {
+	void shouldNotPartiallyUpdateNotFoundItem() {
 		ArgumentMatcher<Villain> villainMatcher = v ->
 			(v.id == DEFAULT_ID) &&
 				(v.name == null) &&
@@ -450,7 +459,7 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldPartiallyUpdateAnItem() {
+	void shouldPartiallyUpdateAnItem() {
 		ArgumentMatcher<Villain> villainMatcher = v ->
 			(v.id == DEFAULT_ID) &&
 				(v.name == null) &&
@@ -496,22 +505,22 @@ public class VillainResourceTests {
 	}
 
 	@Test
-	public void shouldDeleteVillain() {
+	void shouldDeleteVillain() {
 		doNothing()
 			.when(this.villainService)
-			.deleteVillain(eq(DEFAULT_ID));
+			.deleteVillain(DEFAULT_ID);
 
 		delete("/api/villains/{id}", DEFAULT_ID)
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
 				.body(blankOrNullString());
 
-		verify(this.villainService).deleteVillain(eq(DEFAULT_ID));
+		verify(this.villainService).deleteVillain(DEFAULT_ID);
 		verifyNoMoreInteractions(this.villainService);
 	}
 
 	@Test
-	public void shouldDeleteAllVillains() {
+	void shouldDeleteAllVillains() {
 		doNothing()
 			.when(this.villainService)
 			.deleteAllVillains();
@@ -526,7 +535,7 @@ public class VillainResourceTests {
 	}
 
   @Test
-  public void shouldReplaceAllVillains() {
+  void shouldReplaceAllVillains() {
     var villains = List.of(createDefaultVillian(), createFullyUpdatedVillain());
     villains.forEach(v -> v.id = null);
 
@@ -564,13 +573,37 @@ public class VillainResourceTests {
   }
 
 	@Test
-	public void shouldPingOpenAPI() {
-		given()
-			.when()
-				.accept(JSON)
-				.get("/q/openapi")
-			.then()
-				.statusCode(OK.getStatusCode());
+	void shouldPingOpenAPI() {
+		get("/q/openapi").then()
+			.statusCode(OK.getStatusCode());
+	}
+
+	@Test
+	void shouldPingHealthCheck() {
+		var expected = Map.of(
+			"name", "Ping Villain REST Endpoint",
+			"status", "UP",
+			"data", Map.of("Response", "Hello Villain Resource")
+		);
+
+		var health = get("/q/health/live").then()
+			.statusCode(OK.getStatusCode())
+			.contentType(JSON)
+			.extract().as(Map.class);
+
+		assertThat(health)
+			.isNotNull()
+			.containsKey("checks");
+
+		var pingElement = ((List<Map<String, Object>>) health.get("checks")).stream()
+			.filter(map -> "Ping Villain REST Endpoint".equals(map.get("name")))
+			.findFirst();
+
+		assertThat(pingElement)
+			.isPresent();
+
+		assertThat(pingElement.get())
+			.containsAllEntriesOf(expected);
 	}
 
 	private static Villain createDefaultVillian() {

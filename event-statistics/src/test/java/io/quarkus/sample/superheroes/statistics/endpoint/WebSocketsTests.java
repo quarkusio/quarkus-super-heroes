@@ -28,11 +28,12 @@ import jakarta.websocket.OnOpen;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.sample.superheroes.statistics.domain.Score;
-import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
+
+import io.quarkus.sample.superheroes.statistics.domain.Score;
+import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Multi;
@@ -46,7 +47,7 @@ import io.smallrye.mutiny.unchecked.Unchecked;
  * </p>
  */
 @QuarkusTest
-public class WebSocketsTests {
+class WebSocketsTests {
 	@TestHTTPResource("/stats/winners")
 	URI topWinnersUri;
 
@@ -63,7 +64,7 @@ public class WebSocketsTests {
 	ObjectMapper objectMapper;
 
 	@Test
-	public void testScenarios() throws DeploymentException, IOException {
+	void testScenarios() throws DeploymentException, IOException {
 		// Set up the Queues to handle the messages
 		var teamStatsMessages = new LinkedBlockingQueue<String>();
 		var topWinnerMessages = new LinkedBlockingQueue<String>();
@@ -193,24 +194,24 @@ public class WebSocketsTests {
 		}
 
 		@OnOpen
-		public void open() {
+		void open() {
 			this.logger.info("Opening socket");
 			this.messages.offer("CONNECT");
 		}
 
 		@OnMessage
-		public void message(String msg) {
+		void message(String msg) {
 			this.logger.infof("Got message: %s", msg);
 			this.messages.offer(msg);
 		}
 
 		@OnClose
-		public void close(CloseReason closeReason) {
+		void close(CloseReason closeReason) {
 			this.logger.infof("Closing socket: %s", closeReason);
 		}
 
 		@OnError
-		public void error(Throwable error) {
+		void error(Throwable error) {
 			this.logger.errorf(error, "Socket encountered error");
 		}
 	}

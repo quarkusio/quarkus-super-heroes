@@ -83,11 +83,12 @@
 
         var top = new WebSocket(protocol + "://" + host + "/stats/winners");
         top.onmessage = function (event) {
+            console.log("[Top Winners Event]: " + event.data);
             updateTop(event.data);
         };
         var team = new WebSocket(protocol + "://" + host + "/stats/team");
         team.onmessage = function(event) {
-            console.log(event.data);
+            console.log("[Team Stats Event]: " + event.data);
             updateTeam(JSON.parse(event.data));
         };
     });

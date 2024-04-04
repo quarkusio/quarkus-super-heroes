@@ -1,20 +1,27 @@
 name: Basic build and test
 
 env:
-  MANDREL_VERSION: "22.3.0.1-Final"
+  MANDREL_VERSION: "22.3.5.0"
 
 on:
   push:
     paths-ignore:
-      - 'deploy/**'
+      - '.editorconfig'
+      - '**/deploy/**'
       - '**/*.md'
       - 'docs/**'
       - '**/images/**'
       - '.github/dependabot.yml'
       - '.github/quarkus-ecosystem-test'
       - '.github/workflows/quarkus-snapshot.yaml'
+      - '.github/workflows/build-push-ui-images.yml'
+      - '.github/workflows/dependabot-automerge.yml'
+      - '.github/workflows/sonar-scan.yml'
       - 'scripts/deploy-to-azure-containerapps.sh'
+      - 'scripts/create-azure-openai-resources.sh'
+      - 'scripts/delete-azure-openai-resources.sh'
       - 'scripts/watch-services.sh'
+      - '**/hyperfoil/**'
     branches:
       - main
   pull_request:
@@ -26,7 +33,8 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'deploy/**'
+      - '.editorconfig'
+      - '**/deploy/**'
       - '**/*.md'
       - 'docs/**'
       - '**/images/**'
@@ -34,7 +42,11 @@ on:
       - '.github/build-push-container-images*.yml'
       - '.github/quarkus-ecosystem-test'
       - '.github/workflows/quarkus-snapshot.yaml'
+      - '.github/workflows/build-push-ui-images.yml'
+      - '.github/workflows/dependabot-automerge.yml'
+      - '.github/workflows/sonar-scan.yml'
       - 'scripts/*.sh'
+      - '**/hyperfoil/**'
   workflow_dispatch:
 
 concurrency:
@@ -51,29 +63,83 @@ jobs:
         java:
           - '17'
         project:
-          - event-statistics
-          - rest-fights
-          - rest-heroes
-          - rest-villains
-    name: "build-test-${{ matrix.project }}-${{ matrix.java }}"
+          - { name: event-statistics }
+          - { name: rest-fights }
+          - { name: rest-heroes }
+          - { name: rest-villains }
+          - { name: rest-narration }
+          - { name: rest-narration, openai-type: azure-openai }
+          - { name: grpc-locations }
+          - { name: ui-super-heroes }
+    name: "build-test-${{ matrix.project.name }}-${{ matrix.java }}-${{ matrix.project.openai-type }}"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Java ${{ matrix.java }}
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
           cache: maven
 
-      - name: "build-test-jvm-${{ matrix.project }}-java-${{ matrix.java }}"
-        working-directory: ${{ matrix.project }}
+      - name: Create env vars
+        if: matrix.project.openai-type
+        working-directory: ${{ matrix.project.name }}
+        run: |
+          echo "QUARKUS_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV && \
+          echo "QUARKUS_TEST_INTEGRATION_TEST_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV
+
+      - name: "build-test-jvm-${{ matrix.project.name }}-java-${{ matrix.java }}-${{ matrix.project.openai-type }}"
+        working-directory: ${{ matrix.project.name }}
         run: |
           ./mvnw -B clean verify \
             -Dquarkus.http.host=0.0.0.0 \
-            -Dmaven.compiler.release=${{ matrix.java }} 
+            -Dmaven.compiler.release=${{ matrix.java }}
 
-  native-build-test:
+  jvm-container-build-test:
+    runs-on: ubuntu-latest
+    if: github.repository == 'quarkusio/quarkus-super-heroes'
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '17'
+        project:
+          - { name: rest-heroes }
+          - { name: rest-villains }
+          - { name: rest-narration }
+          - { name: rest-narration, openai-type: azure-openai }
+          - { name: grpc-locations }
+          - { name: ui-super-heroes }
+    name: "container-build-test-${{ matrix.project.name }}-${{ matrix.java }}-${{ matrix.project.openai-type }}"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: temurin
+          cache: maven
+
+      - name: Create env vars
+        if: matrix.project.openai-type
+        working-directory: ${{ matrix.project.name }}
+        run: |
+          echo "QUARKUS_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV && \
+          echo "QUARKUS_TEST_INTEGRATION_TEST_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV  
+
+      - name: "build-test-jvm-container-${{ matrix.project.name }}-java-${{ matrix.java }}"
+        working-directory: ${{ matrix.project.name }}
+        run: |
+          ./mvnw -B clean verify \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dquarkus.container-image.build=true \
+            -Dquarkus.test.arg-line="--add-host host.docker.internal:host-gateway"
+
+  # Can't run the integration tests for fights/statistics because of https://github.com/quarkusio/quarkus/issues/23916
+  jvm-container-build:
     runs-on: ubuntu-latest
     if: github.repository == 'quarkusio/quarkus-super-heroes'
     strategy:
@@ -84,38 +150,192 @@ jobs:
         project:
           - event-statistics
           - rest-fights
-          - rest-heroes
-          - rest-villains
-    name: "native-build-test-${{ matrix.project }}"
+    name: "container-build-${{ matrix.project }}-${{ matrix.java }}"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Setup Java ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: temurin
+          cache: maven
+
+      - name: "build-jvm-container-${{ matrix.project }}-java-${{ matrix.java }}"
+        working-directory: ${{ matrix.project }}
+        run: |
+          ./mvnw -B clean package -DskipTests \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dquarkus.container-image.build=true
+
+  native-build-test:
+    runs-on: ubuntu-latest
+    if: github.repository == 'quarkusio/quarkus-super-heroes'
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '17'
+        project:
+          - { name: event-statistics }
+          - { name: rest-fights }
+          - { name: rest-heroes }
+          - { name: rest-villains }
+          - { name: rest-narration }
+          - { name: rest-narration, openai-type: azure-openai }
+          - { name: grpc-locations }
+          - { name: ui-super-heroes }
+    name: "native-build-test-${{ matrix.project.name }}-${{ matrix.project.openai-type }}"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Mandrel file name
+        run: echo "MANDREL_FILE=mandrel-java${{ matrix.java }}-linux-amd64-${{ env.MANDREL_VERSION }}-Final.tar.gz" >> $GITHUB_ENV
 
       - name: Cache and restore Mandrel distro
         id: check-mandrel-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
-          path: mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz
-          key: mandrel-distro-${{ env.MANDREL_VERSION }}-${{ matrix.java }}
+          path: ${{ env.MANDREL_FILE }}
+          key: mandrel-distro-${{ env.MANDREL_VERSION }}
 
       - name: Download Mandrel
         if: steps.check-mandrel-cache.outputs.cache-hit != 'true'
         run: |
-          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${MANDREL_VERSION}/mandrel-java${{ matrix.java }}-linux-amd64-${MANDREL_VERSION}.tar.gz"
-          wget -q -O mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz $download_url
+          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${{ env.MANDREL_VERSION }}-Final/${{ env.MANDREL_FILE }}"
+          wget -q -O ${{ env.MANDREL_FILE }} $download_url
 
       - name: Setup Maven+OpenJDK Distro
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'jdkfile'
-          jdkFile: mandrel-${{ env.MANDREL_VERSION }}-${{ matrix.java }}.tar.gz
+          jdkFile: ${{ env.MANDREL_FILE }}
           java-version: ${{ matrix.java }}
           architecture: x64
           cache: maven
 
-      - name: "build-test-native-${{ matrix.project }}-java-${{ matrix.java }}"
-        working-directory: ${{ matrix.project }}
+      - name: Create env vars
+        if: matrix.project.openai-type
+        working-directory: ${{ matrix.project.name }}
+        run: |
+          echo "QUARKUS_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV && \
+          echo "QUARKUS_TEST_INTEGRATION_TEST_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV
+
+      - name: "build-test-native-${{ matrix.project.name }}-java-${{ matrix.java }}-${{ matrix.project.openai-type }}"
+        working-directory: ${{ matrix.project.name }}
         run: |
           ./mvnw -B clean verify -Pnative \
             -Dquarkus.http.host=0.0.0.0 \
-            -Dmaven.compiler.release=${{ matrix.java }} 
-  
+            -Dmaven.compiler.release=${{ matrix.java }}
+
+  native-container-build-test:
+    runs-on: ubuntu-latest
+    if: github.repository == 'quarkusio/quarkus-super-heroes'
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '17'
+        project:
+          - { name: rest-heroes }
+          - { name: rest-villains }
+          - { name: rest-narration }
+          - { name: rest-narration, openai-type: azure-openai }
+          - { name: grpc-locations }
+          - { name: ui-super-heroes }
+    name: "native-container-build-test-${{ matrix.project.name }}-${{ matrix.project.openai-type }}"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Mandrel file name
+        run: echo "MANDREL_FILE=mandrel-java${{ matrix.java }}-linux-amd64-${{ env.MANDREL_VERSION }}-Final.tar.gz" >> $GITHUB_ENV
+
+      - name: Cache and restore Mandrel distro
+        id: check-mandrel-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MANDREL_FILE }}
+          key: mandrel-distro-${{ env.MANDREL_VERSION }}
+
+      - name: Download Mandrel
+        if: steps.check-mandrel-cache.outputs.cache-hit != 'true'
+        run: |
+          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${{ env.MANDREL_VERSION }}-Final/${{ env.MANDREL_FILE }}"
+          wget -q -O ${{ env.MANDREL_FILE }} $download_url
+
+      - name: Setup Maven+OpenJDK Distro
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'jdkfile'
+          jdkFile: ${{ env.MANDREL_FILE }}
+          java-version: ${{ matrix.java }}
+          architecture: x64
+          cache: maven
+
+      - name: Create env vars
+        if: matrix.project.openai-type
+        working-directory: ${{ matrix.project.name }}
+        run: |
+          echo "QUARKUS_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV && \
+          echo "QUARKUS_TEST_INTEGRATION_TEST_PROFILE=${{ matrix.project.openai-type }}" >> $GITHUB_ENV
+
+      - name: "build-test-native-container-${{ matrix.project.name }}-java-${{ matrix.java }}"
+        working-directory: ${{ matrix.project.name }}
+        run: |
+          ./mvnw -B clean verify -Pnative \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dquarkus.container-image.build=true \
+            -Dquarkus.native.container-build=true \
+            -Dquarkus.test.arg-line="--add-host host.docker.internal:host-gateway"
+
+  # Can't run the integration tests for containerized fights/statistics because of https://github.com/quarkusio/quarkus/issues/23916
+  native-container-build:
+    runs-on: ubuntu-latest
+    if: github.repository == 'quarkusio/quarkus-super-heroes'
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+          - '17'
+        project:
+          - event-statistics
+          - rest-fights
+    name: "native-container-build-${{ matrix.project }}"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Mandrel file name
+        run: echo "MANDREL_FILE=mandrel-java${{ matrix.java }}-linux-amd64-${{ env.MANDREL_VERSION }}-Final.tar.gz" >> $GITHUB_ENV
+
+      - name: Cache and restore Mandrel distro
+        id: check-mandrel-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MANDREL_FILE }}
+          key: mandrel-distro-${{ env.MANDREL_VERSION }}
+
+      - name: Download Mandrel
+        if: steps.check-mandrel-cache.outputs.cache-hit != 'true'
+        run: |
+          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${{ env.MANDREL_VERSION }}-Final/${{ env.MANDREL_FILE }}"
+          wget -q -O ${{ env.MANDREL_FILE }} $download_url
+
+      - name: Setup Maven+OpenJDK Distro
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'jdkfile'
+          jdkFile: ${{ env.MANDREL_FILE }}
+          java-version: ${{ matrix.java }}
+          architecture: x64
+          cache: maven
+
+      - name: "build-native-container-${{ matrix.project }}-java-${{ matrix.java }}"
+        working-directory: ${{ matrix.project }}
+        run: |
+          ./mvnw -B clean package -DskipTests -Pnative \
+            -Dquarkus.http.host=0.0.0.0 \
+            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dquarkus.container-image.build=true \
+            -Dquarkus.native.container-build=true

@@ -30,14 +30,18 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.headers.Header;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.service.VillainService;
+
+import io.smallrye.common.annotation.NonBlocking;
 
 /**
  * JAX-RS API endpoints with <code>/api/villains</code> as the base URI for all endpoints
@@ -58,7 +62,11 @@ public class VillainResource {
 	@APIResponse(
 		responseCode = "200",
 		description = "Gets random villain",
-		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class, required = true))
+		content = @Content(
+      mediaType = APPLICATION_JSON,
+      schema = @Schema(implementation = Villain.class, required = true),
+      examples = @ExampleObject(name = "villain", value = Examples.VALID_EXAMPLE_VILLAIN)
+    )
 	)
 	@APIResponse(
 		responseCode = "404",
@@ -81,7 +89,11 @@ public class VillainResource {
 	@APIResponse(
 		responseCode = "200",
 		description = "Gets all villains",
-		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class, type = SchemaType.ARRAY))
+		content = @Content(
+      mediaType = APPLICATION_JSON,
+      schema = @Schema(implementation = Villain.class, type = SchemaType.ARRAY),
+      examples = @ExampleObject(name = "villains", value = Examples.VALID_EXAMPLE_VILLAIN_LIST)
+    )
 	)
 	public List<Villain> getAllVillains(@Parameter(name = "name_filter", description = "An optional filter parameter to filter results by name") @QueryParam("name_filter") Optional<String> nameFilter) {
     var villains = nameFilter
@@ -99,7 +111,11 @@ public class VillainResource {
 	@APIResponse(
 		responseCode = "200",
 		description = "Gets a villain for a given id",
-		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class))
+		content = @Content(
+      mediaType = APPLICATION_JSON,
+      schema = @Schema(implementation = Villain.class),
+      examples = @ExampleObject(name = "villain", value = Examples.VALID_EXAMPLE_VILLAIN)
+    )
 	)
 	@APIResponse(
 		responseCode = "404",
@@ -129,7 +145,18 @@ public class VillainResource {
 		responseCode = "400",
 		description = "Invalid villain passed in (or no request body found)"
 	)
-	public Response createVillain(@Valid @NotNull Villain villain, @Context UriInfo uriInfo) {
+	public Response createVillain(
+    @RequestBody(
+      name = "villain",
+      required = true,
+      content = @Content(
+        mediaType = APPLICATION_JSON,
+        schema = @Schema(implementation = Villain.class),
+        examples = @ExampleObject(name = "valid_villain", value = Examples.VALID_EXAMPLE_VILLAIN_TO_CREATE)
+      )
+    )
+    @Valid @NotNull Villain villain,
+    @Context UriInfo uriInfo) {
 		var v = this.service.persistVillain(villain);
 		var builder = uriInfo.getAbsolutePathBuilder().path(Long.toString(v.id));
 		this.logger.debugf("New villain created with URI %s", builder.build().toString());
@@ -152,7 +179,18 @@ public class VillainResource {
 		responseCode = "404",
 		description = "No villain found"
 	)
-	public Response fullyUpdateVillain(@Parameter(name = "id", required = true) @PathParam("id") Long id, @Valid @NotNull Villain villain) {
+	public Response fullyUpdateVillain(
+    @Parameter(name = "id", required = true) @PathParam("id") Long id,
+    @RequestBody(
+      name = "villain",
+      required = true,
+      content = @Content(
+        mediaType = APPLICATION_JSON,
+        schema = @Schema(implementation = Villain.class),
+        examples = @ExampleObject(name = "valid_villain", value = Examples.VALID_EXAMPLE_VILLAIN)
+      )
+    )
+    @Valid @NotNull Villain villain) {
     if (villain.id == null) {
 			villain.id = id;
 		}
@@ -180,7 +218,18 @@ public class VillainResource {
 		responseCode = "400",
 		description = "Invalid villains passed in (or no request body found)"
 	)
-  public Response replaceAllVillains(@NotNull List<Villain> villains, @Context UriInfo uriInfo) {
+  public Response replaceAllVillains(
+    @RequestBody(
+      name = "valid_villains",
+      required = true,
+      content = @Content(
+        mediaType = APPLICATION_JSON,
+        schema = @Schema(implementation = Villain.class, type = SchemaType.ARRAY),
+        examples = @ExampleObject(name = "villains", value = Examples.VALID_EXAMPLE_VILLAIN_LIST)
+      )
+    )
+    @NotNull List<Villain> villains,
+    @Context UriInfo uriInfo) {
     this.service.replaceAllVillains(villains);
 		var uri = uriInfo.getAbsolutePathBuilder().build();
 		this.logger.debugf("New Villains created with URI %s", uri.toString());
@@ -194,7 +243,11 @@ public class VillainResource {
 	@APIResponse(
 		responseCode = "200",
 		description = "Updated the villain",
-		content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = Villain.class))
+		content = @Content(
+      mediaType = APPLICATION_JSON,
+      schema = @Schema(implementation = Villain.class),
+      examples = @ExampleObject(name = "villain", value = Examples.VALID_EXAMPLE_VILLAIN)
+    )
 	)
 	@APIResponse(
 		responseCode = "400",
@@ -204,7 +257,17 @@ public class VillainResource {
 		responseCode = "404",
 		description = "No villain found"
 	)
-	public Response partiallyUpdateVillain(@Parameter(name = "id", required = true) @PathParam("id") Long id, @NotNull Villain villain) {
+	public Response partiallyUpdateVillain(
+    @Parameter(name = "id", required = true) @PathParam("id") Long id,
+    @RequestBody(
+      name = "valid_villain",
+      required = true,
+      content = @Content(
+        schema = @Schema(implementation = Villain.class),
+        examples = @ExampleObject(name = "valid_villain", value = Examples.VALID_EXAMPLE_VILLAIN)
+      )
+    )
+    @NotNull Villain villain) {
 		if (villain.id == null) {
 			villain.id = id;
 		}
@@ -250,8 +313,13 @@ public class VillainResource {
 	@Operation(summary = "Ping hello")
 	@APIResponse(
 		responseCode = "200",
-		description = "Ping hello"
+		description = "Ping hello",
+    content = @Content(
+      schema = @Schema(implementation = String.class),
+      examples = @ExampleObject(name = "hello_success", value = "Hello Villain Resource")
+    )
 	)
+  @NonBlocking
 	public String hello() {
     this.logger.debug("Hello Villain Resource");
 		return "Hello Villain Resource";

@@ -7,13 +7,17 @@
     - [Create a resource group](#create-a-resource-group)
     - [Create a Container Apps environment](#create-a-container-apps-environment)
     - [Create the managed Postgres databases](#create-the-managed-postgres-databases)
+    - [Create the managed MariaDB database](#create-the-managed-mariadb-database)
     - [Create the managed MongoDB database](#create-the-managed-mongodb-database)
     - [Create the managed Kafka](#create-the-managed-kafka)
     - [Create the Schema Registry](#create-the-schema-registry)
+    - [Create the Azure OpenAI resources](#create-the-azure-openai-resources)
     - [Deploying the applications](#deploying-the-applications)
         - [Heroes microservice](#heroes-microservice)
         - [Villains microservice](#villains-microservice)
-        - [Statistics Microservice](#statistics-microservice)
+        - [Locations microservice](#locations-microservice)
+        - [Narration microservice](#narration-microservice)
+        - [Statistics microservice](#statistics-microservice)
         - [Fights microservice](#fights-microservice)
         - [Super Hero UI](#super-hero-ui)
 - [Load Testing](#Load-testing)
@@ -80,7 +84,7 @@ For that, we need to set the following environment variables:
 ```shell
 # Images
 SUPERHEROES_IMAGES_BASE="quay.io/quarkus-super-heroes"
-IMAGES_TAG="native-latest"
+IMAGES_TAG="java17-latest"
 
 # Azure
 RESOURCE_GROUP="super-heroes"
@@ -100,6 +104,13 @@ POSTGRES_DB_VERSION="14"
 POSTGRES_SKU="B1ms"
 POSTGRES_TIER="Burstable"
 
+# MariaDB
+MARIADB_ADMIN_USER="$POSTGRES_DB_ADMIN"
+MARIADB_ADMIN_PWD="$POSTGRES_DB_PWD"
+MARIADB_SKU="$POSTGRES_SKU"
+MARIADB_TIER="$POSTGRES_TIER"
+MARIADB_VERSION="5.7"
+
 # MongoDB
 MONGO_DB="fights-db-$UNIQUE_IDENTIFIER"
 MONGO_DB_VERSION="4.2"
@@ -113,6 +124,17 @@ KAFKA_BOOTSTRAP_SERVERS="$KAFKA_NAMESPACE.servicebus.windows.net:9093"
 APICURIO_APP="apicurio"
 APICURIO_IMAGE="apicurio/apicurio-registry-mem:2.4.2.Final"
 
+# Narration
+NARRATION_APP="rest-narration"
+NARRATION_IMAGE="${SUPERHEROES_IMAGES_BASE}/${NARRATION_APP}:${IMAGES_TAG}"
+
+# Location
+LOCATIONS_APP="grpc-locations"
+LOCATIONS_DB="locations-db-$UNIQUE_IDENTIFIER"
+LOCATIONS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${LOCATIONS_APP}:${IMAGES_TAG}"
+LOCATIONS_DB_SCHEMA="locations"
+LOCATIONS_DB_CONNECT_STRING="jdbc:mariadb://${LOCATIONS_DB}.mysql.database.azure.com:3306/${LOCATIONS_DB_SCHEMA}?sslmode=trust&useMysqlMetadata=true"
+
 # Heroes
 HEROES_APP="rest-heroes"
 HEROES_DB="heroes-db-$UNIQUE_IDENTIFIER"
@@ -125,7 +147,7 @@ VILLAINS_APP="rest-villains"
 VILLAINS_DB="villains-db-$UNIQUE_IDENTIFIER"
 VILLAINS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${VILLAINS_APP}:${IMAGES_TAG}"
 VILLAINS_DB_SCHEMA="villains"
-VILLAINS_DB_CONNECT_STRING="jdbc:otel:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
+VILLAINS_DB_CONNECT_STRING="jdbc:postgresql://${VILLAINS_DB}.postgres.database.azure.com:5432/${VILLAINS_DB_SCHEMA}?ssl=true&sslmode=require"
 
 # Fights
 FIGHTS_APP="rest-fights"
@@ -138,7 +160,13 @@ STATISTICS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${STATISTICS_APP}:${IMAGES_TAG}"
 
 # UI
 UI_APP="ui-super-heroes"
-UI_IMAGE="${SUPERHEROES_IMAGES_BASE}/${UI_APP}:latest"
+UI_IMAGE="${SUPERHEROES_IMAGES_BASE}/${UI_APP}:${IMAGES_TAG}"
+
+# Cognitive Services
+COGNITIVE_SERVICE="cs-super-heroes-$UNIQUE_IDENTIFIER"
+COGNITIVE_DEPLOYMENT="csdeploy-super-heroes-$UNIQUE_IDENTIFIER"
+MODEL="gpt-35-turbo"
+MODEL_VERSION="0613"
 ```
 
 ## Create a resource group
@@ -216,7 +244,7 @@ az postgres flexible-server create \
   --public all \
   --sku-name "Standard_$POSTGRES_SKU" \
   --tier "$POSTGRES_TIER" \
-  --storage-size 256 \
+  --storage-size 32 \
   --version "$POSTGRES_DB_VERSION"
 ```
 
@@ -231,7 +259,7 @@ az postgres flexible-server create \
   --public all \
   --sku-name "Standard_$POSTGRES_SKU" \
   --tier "$POSTGRES_TIER" \
-  --storage-size 256 \
+  --storage-size 32 \
   --version "$POSTGRES_DB_VERSION"
 ```
 
@@ -311,11 +339,81 @@ az postgres flexible-server show-connection-string \
   --output tsv
 ```
 
-> **NOTE:** These aren't the actual connection strings used, especially in the heroes service, which does not use JDBC.
-> 
+> [!IMPORTANT]
+> These aren't the actual connection strings used, especially in the heroes service, which does not use JDBC.
+>
 > You also need to append `ssl=true&sslmode=require` to the end of each connect string to force the driver to use ssl.
-> 
+>
 > These commands are just here for your own examination purposes.
+
+## Create the managed MariaDB database
+
+We need to create a single MariaDB database so the Location microservice can store data.
+Because we also want to access these database from external SQL client, we make them available to the outside world thanks to the `-public all` parameter.
+Create the database with the following command:
+
+```shell
+az mysql flexible-server create \
+  --resource-group "$RESOURCE_GROUP" \
+  --location "$LOCATION" \
+  --tags system="$TAG_SYSTEM" application="$LOCATIONS_APP" \
+  --name "$LOCATIONS_DB" \
+  --admin-user "$MARIADB_ADMIN_USER" \
+  --admin-password "$MARIADB_ADMIN_PWD" \
+  --public all \
+  --sku-name "Standard_$MARIADB_SKU" \
+  --tier "$MARIADB_TIER" \
+  --storage-size 32 \
+  --version "$MARIADB_VERSION"
+````
+
+Then, we create the database schema:
+
+```shell
+az mysql flexible-server db create \
+  --resource-group "$RESOURCE_GROUP" \
+  --server-name "$LOCATIONS_DB" \
+  --database-name "$LOCATIONS_DB_SCHEMA"
+```
+
+Add data to the database using the following commands:
+```shell
+az mysql flexible-server execute \
+  --name "$LOCATIONS_DB" \
+  --admin-user "$MARIADB_ADMIN_USER" \
+  --admin-password "$MARIADB_ADMIN_PWD" \
+  --database-name "$LOCATIONS_DB_SCHEMA" \
+  --file-path "grpc-locations/deploy/db-init/initialize-tables.sql"
+```
+
+You can check the content of the table with the following command:
+```shell
+az mysql flexible-server execute \
+  --name "$LOCATIONS_DB" \
+  --admin-user "$MARIADB_ADMIN_USER" \
+  --admin-password "$MARIADB_ADMIN_PWD" \
+  --database-name "$LOCATIONS_DB_SCHEMA" \
+  --querytext "select * from locations"
+```
+
+If you'd like to see the connection string to the databases (so you can access your database from an external SQL client), use the following command:
+
+```shell
+az mysql flexible-server show-connection-string \
+  --database-name "$LOCATIONS_DB_SCHEMA" \
+  --server-name "$LOCATIONS_DB" \
+  --admin-user "$MARIADB_ADMIN_USER" \
+  --admin-password "$LOCATIONS_DB_SCHEMA" \
+  --query "connectionStrings.jdbc" \
+  --output tsv
+```
+
+> [!IMPORTANT]
+> This isn't the actual connection string used.
+>
+> You also need to append `?sslmode=trust&useMysqlMetadata=true` to the end of each connect string to force the driver to use ssl and to use MySQL metadata.
+>
+> This command is just here for your own examination purposes.
 
 ## Create the managed MongoDB Database
 
@@ -439,6 +537,61 @@ You can go to the Apicurio web console:
 open $APICURIO_URL
 ```
 
+## Create the Azure OpenAI resources
+
+The Narration microservice needs to access an AI service to generate the text narrating the fight.
+[Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service), or "OpenAI on Azure" is a service that provides REST API access to OpenAI’s models, including the GPT-4, GPT-3, Codex and Embeddings series.
+Azure OpenAI runs on Azure global infrastructure, which meets your production needs for critical enterprise security, compliance, and regional availability.
+
+The [`create-azure-openai-resources.sh` script](../scripts/create-azure-openai-resources.sh) can be used to create the required Azure resources.
+Similarly, the [`delete-azure-openai-resources.sh` script](../scripts/delete-azure-openai-resources.sh) can be used to delete the Azure resources.
+
+> [!WARNING]
+> Keep in mind that the service may not be free.
+
+First, create an Azure Cognitive Services using the following command:
+
+```shell
+az cognitiveservices account create \
+  --name "$COGNITIVE_SERVICE" \
+  --resource-group "$RESOURCE_GROUP" \
+  --location "$LOCATION" \
+  --custom-domain "$COGNITIVE_SERVICE" \
+  --tags system="$TAG" \
+  --kind OpenAI \
+  --sku S0 \
+  --yes
+```
+
+Then you need to deploy a GPT model to the Cognitive Services with the following command:
+
+```shell
+az cognitiveservices account deployment create \
+  --name "$COGNITIVE_SERVICE" \
+  --resource-group "$RESOURCE_GROUP" \
+  --deployment-name "$COGNITIVE_DEPLOYMENT" \
+  --model-name "$MODEL" \
+  --model-version "$MODEL_VERSION" \
+  --model-format OpenAI \
+  --sku-name Standard \
+  --sku-capacity 1
+```
+
+Then you need to get the Azure OpenAI key with the following command:
+
+```shell
+AZURE_OPENAI_KEY=$(
+  az cognitiveservices account keys list \
+    --name "$COGNITIVE_SERVICE" \
+    --resource-group "$RESOURCE_GROUP" \
+    | jq -r .key1
+)
+    
+echo $AZURE_OPENAI_KEY
+```
+
+Take note of the `AZURE_OPENAI_KEY` value for use in the step for [deploying the narration microservice](#narration-microservice).
+
 ## Deploying the Applications
 
 Now that the Azure Container Apps environment is all set, we need to deploy our microservices to Azure Container Apps.
@@ -542,6 +695,101 @@ az containerapp logs show \
   --output table
 ````
 
+### Locations Microservice
+The Location microservice needs to access the managed MariaDB database, so we need to set the right variables.
+
+```shell
+az containerapp create \
+  --resource-group "$RESOURCE_GROUP" \
+  --tags system="$TAG_SYSTEM" application="$VILLAINS_APP" \
+  --image "$LOCATIONS_IMAGE" \
+  --name "$LOCATIONS_APP" \
+  --environment "$CONTAINERAPPS_ENVIRONMENT" \
+  --ingress external \
+  --transport http2 \
+  --target-port 8089 \
+  --min-replicas 1 \
+  --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
+             QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT=no-file \
+             QUARKUS_DATASOURCE_USERNAME="$MARIADB_ADMIN_USER" \
+             QUARKUS_DATASOURCE_PASSWORD="$MARIADB_ADMIN_PWD" \
+             QUARKUS_DATASOURCE_JDBC_URL="$LOCATIONS_DB_CONNECT_STRING"
+```
+
+The following command sets the host of the deployed application to the `LOCATIONS_HOST` variable:
+
+```shell
+LOCATIONS_HOST="$(az containerapp ingress show \
+  --resource-group $RESOURCE_GROUP \
+  --name $LOCATIONS_APP \
+  --output json | jq -r .fqdn)"
+  
+echo $LOCATIONS_HOST
+```
+
+You can now invoke the Location microservice APIs with:
+
+```shell
+grpcurl "$LOCATIONS_HOST:443" list
+grpcurl "$LOCATIONS_HOST:443" io.quarkus.sample.superheroes.location.v1.Locations.GetRandomLocation | jq
+```
+
+To access the logs of the Location microservice, you can write the following query:
+
+````shell
+az containerapp logs show \
+  --name "$LOCATIONS_APP" \
+  --resource-group "$RESOURCE_GROUP" \
+  --output table
+````
+
+### Narration Microservice
+
+The narration microservice communicates with the [Azure OpenAI service](#create-the-azure-openai-resources).
+You'll need the `AZURE_OPENAI_KEY` value from the [Create the Azure OpenAI resources](#create-the-azure-openai-resources) step.
+
+```shell
+az containerapp create \
+  --resource-group "$RESOURCE_GROUP" \
+  --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
+  --image "${NARRATION_IMAGE}-azure-openai" \
+  --name "$NARRATION_APP" \
+  --environment "$CONTAINERAPPS_ENVIRONMENT" \
+  --ingress external \
+  --target-port 8087 \
+  --min-replicas 1 \
+  --env-vars QUARKUS_PROFILE=azure-openai \
+             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY="$AZURE_OPENAI_KEY" \
+             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME="$COGNITIVE_SERVICE" \
+             QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_ID="$COGNITIVE_DEPLOYMENT"
+```
+
+The following command sets the URL of the deployed application to the `NARRATION_URL` variable:
+
+```shell
+NARRATION_URL="https://$(az containerapp ingress show \
+  --resource-group $RESOURCE_GROUP \
+  --name $NARRATION_APP \
+  --output json | jq -r .fqdn)"
+  
+echo $NARRATION_URL
+```
+You can now invoke the Narration microservice APIs with:
+
+```shell
+curl "$NARRATION_URL/api/narration/hello" 
+curl -X POST -d  '{"winnerName" : "Super winner", "winnerLevel" : 42, "winnerPowers" : "jumping", "loserName" : "Super loser", "loserLevel" : 2, "loserPowers" : "leaping", "winnerTeam" : "heroes", "loserTeam" : "villains", "location" : {"name" : "Tatooine", "description" : "desert planet"}}'  -H "Content-Type: application/json" "$NARRATION_URL/api/narration"
+```
+
+To access the logs of the Narration microservice, you can write the following query:
+
+````shell
+az containerapp logs show \
+  --name "$NARRATION_APP" \
+  --resource-group "$RESOURCE_GROUP" \
+  --output table
+````
+
 ### Statistics Microservice
 
 The Statistics microservice listens to a Kafka topics and consumes all the fights.
@@ -616,6 +864,10 @@ az containerapp create \
              QUARKUS_LIQUIBASE_MONGODB_MIGRATE_AT_START=false \
              QUARKUS_MONGODB_CONNECTION_STRING="$MONGO_CONNECTION_STRING" \
              QUARKUS_REST_CLIENT_HERO_CLIENT_URL="$HEROES_URL" \
+             QUARKUS_REST_CLIENT_NARRATION_CLIENT_URL="$NARRATION_URL" \
+             QUARKUS_GRPC_CLIENTS_LOCATIONS_HOST="$LOCATIONS_HOST" \
+             QUARKUS_GRPC_CLIENTS_LOCATIONS_PORT=443 \
+             QUARKUS_GRPC_CLIENTS_LOCATIONS_PLAIN_TEXT=false \
              FIGHT_VILLAIN_CLIENT_BASE_URL="$VILLAINS_URL"
 ```
 
@@ -633,7 +885,7 @@ echo $FIGHTS_URL
 Use the following curl commands to access the Fight microservice.
 Remember that we've set the minimum replicas to 0.
 That means that pinging the Hero and Villain microservices might fallback (you will get a _That means that pinging the Hero and Villain microservices might fallback (you will get a That means that pinging the Hero and Villain microservices might fallback (you will get a _Could not invoke the Villains microservice_ message).
-Execute several times the same curl commands so Azure Containers Apps has time to instantiate one replica and process the requests: 
+Execute several times the same curl commands so Azure Containers Apps has time to instantiate one replica and process the requests:
 
 ```shell
 curl "$FIGHTS_URL/api/fights/hello"
@@ -695,11 +947,11 @@ node version
 export NODE_OPTIONS=--openssl-legacy-provider
 ```
 
-Then, to execute the app locally, set `API_BASE_URL` with the same value of the Fight microservice URL (so it accesses the remote Fight microservice): 
+Then, to execute the app locally, set `API_BASE_URL` with the same value of the Fight microservice URL (so it accesses the remote Fight microservice):
 
 ```shell
 export API_BASE_URL=https://${FIGHT_URL}/api
-ui-super-heroes$ npm install && npm run build && npm start
+ui-super-heroes$ java -jar target/quarkus-app/quarkus-run.jar
 ```
 
 You can check the URL is correctly set with:
@@ -739,7 +991,7 @@ This way, we will be able to see the auto-scaling in Azure Container Apps.
 To add some load to an application, you can do it locally using [JMeter](https://jmeter.apache.org), but you can also do it remotely on Azure using [Azure Load Testing](https://azure.microsoft.com/services/load-testing) and JMeter.
 Azure Load Testing is a fully managed load-testing service built for Azure that makes it easy to generate high-scale load and identify app performance bottlenecks.
 It is available on the [Azure Marketplace](https://azuremarketplace.microsoft.com).
-For that, we need to go the 
+For that, we need to go the
 
 To use Azure Load Testing, go to the [Azure Portal](https://portal.azure.com), search for the Marketplace and look for "_Azure Load Testing_"  in the Marketplace.
 Click on "_Create_":
@@ -752,7 +1004,7 @@ Click on "Create":
 ![load-testing-2-create](../images/load-testing-2-create.png)
 
 Creating a load testing resource can take a few moment.
-Once created, you should see the Azure Load Testing available in your resource group: 
+Once created, you should see the Azure Load Testing available in your resource group:
 
 ![load-testing-3-list](../images/load-testing-3-list.png)
 
@@ -762,7 +1014,7 @@ Choose this second option:
 
 ![load-testing-4-upload-jmeter](../images/load-testing-4-upload-jmeter.png)
 
-Before uploading a JMeter script, create a load test by entering a name (eg. "_Make them fight_"), a description and click "_Next: Test plan >_: 
+Before uploading a JMeter script, create a load test by entering a name (eg. "_Make them fight_"), a description and click "_Next: Test plan >_:
 
 ![load-testing-5-create-test-1](../images/load-testing-5-create-test-1.png)
 

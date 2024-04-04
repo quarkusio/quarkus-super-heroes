@@ -1,12 +1,15 @@
 @startuml
-skinparam NodePadding 40
 !include <logos/kafka>
 !include <logos/postgresql>
+!include <logos/mariadb>
 !include <logos/mongodb>
-!include <logos/nodejs>
 !include <logos/prometheus>
+!include <logos/react>
 !include <logos/jaeger>
 !include style.puml
+
+skinparam NodePadding 40
+skinparam dpi 100
 
 left to right direction
 
@@ -21,7 +24,9 @@ together {
     }
 
     node "Super Hero UI" as ui {
-        agent "<$nodejs>" as uiQuarkus
+      agent "<$react>" <<frontend>> as reactUi
+      agent "Quarkus" <<application>> as uiQuarkus
+      reactUi .up> uiQuarkus
     }
 }
 
@@ -30,6 +35,14 @@ node "Fight" as fight {
     database "<$mongodb>" as fightMongoDb
     fightQuarkus .up> fightMongoDb
 }
+
+node "Narration" as narration {
+  agent "Quarkus (blocking)" <<application>> as narrationQuarkus
+  hexagon "Langchain4J" as langchain
+  narrationQuarkus .up> langchain
+}
+
+cloud "OpenAI\nAzure OpenAI" as openai
 
 node "Hero" as hero {
     agent "Quarkus (reactive)" <<application>> as heroQuarkus
@@ -41,6 +54,12 @@ node "Villain" as villain {
     agent "Quarkus (imperative)" <<application>> as villainQuarkus
     database "<$postgresql>" as villainPostgresql
     villainQuarkus .up> villainPostgresql
+}
+
+node "Location" as location {
+		agent "Quarkus (imperative)" <<application>> as locationQuarkus
+		database "<$mariadb>" as locationMariadb
+		locationQuarkus .up> locationMariadb
 }
 
 together {
@@ -63,25 +82,33 @@ package "stats" {
     }
 }
 
-uiQuarkus --> fightQuarkus : HTTP
+reactUi --> fightQuarkus : HTTP
+fightQuarkus --> narrationQuarkus : HTTP
 fightQuarkus --> villainQuarkus : HTTP
 fightQuarkus --> heroQuarkus : HTTP
+fightQuarkus -[dotted]-> locationQuarkus : gRPC
+
+langchain --> openai : HTTP
 
 fightQuarkus ..> kafka : Message
-fightQuarkus -[dotted]-> apicurio : HTTP
+fightQuarkus --> apicurio : HTTP
 
 statQuarkus <.. kafka : Message
-statQuarkus -[dotted]-> apicurio : HTTP
+statQuarkus --> apicurio : HTTP
 statQuarkus ..> uiStats : Web Sockets
 
 prometheus .> fight : polling
+prometheus .> narration : polling
 prometheus .> hero : polling
 prometheus .> villain : polling
 prometheus .> stats : polling
+prometheus .> location : polling
 
 otelCollector .> jaeger : gRPC
 otelCollector <-[dotted]- fight : gRPC
 otelCollector <-[dotted]- hero : gRPC
 otelCollector <-[dotted]- villain : gRPC
+otelCollector <-[dotted]- narration : gRPC
 otelCollector <-[dotted]- stats : gRPC
+otelCollector <-[dotted]- location : gRPC
 @enduml

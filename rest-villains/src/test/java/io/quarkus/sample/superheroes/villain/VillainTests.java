@@ -25,7 +25,7 @@ class VillainTests {
 	public void findRandomNotFound() {
 		Villain.deleteAll();
 		assertThat(Villain.count())
-			.isEqualTo(0);
+			.isZero();
 
 		assertThat(Villain.findRandom())
 			.isNotNull()

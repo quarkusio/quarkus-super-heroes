@@ -15,7 +15,7 @@ import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
  * Mongo entity class for a Fight. Re-used in the API layer
  */
 @MongoEntity(collection = "Fights")
-@Schema(description = "Each fight has a winner and a loser")
+@Schema(description = "Each fight has a winner, a loser, and a location")
 public class Fight extends ReactivePanacheMongoEntity {
 	@NotNull
 	public Instant fightDate;
@@ -26,6 +26,9 @@ public class Fight extends ReactivePanacheMongoEntity {
 	@NotNull
 	public Integer winnerLevel;
 
+  @NotEmpty
+  public String winnerPowers;
+
 	@NotEmpty
 	public String winnerPicture;
 
@@ -34,6 +37,9 @@ public class Fight extends ReactivePanacheMongoEntity {
 
 	@NotNull
 	public Integer loserLevel;
+
+  @NotEmpty
+  public String loserPowers;
 
 	@NotEmpty
 	public String loserPicture;
@@ -44,7 +50,9 @@ public class Fight extends ReactivePanacheMongoEntity {
 	@NotEmpty
 	public String loserTeam;
 
-	@Override
+	public FightLocation location = new FightLocation();
+
+  @Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -68,12 +76,15 @@ public class Fight extends ReactivePanacheMongoEntity {
 			", id=" + this.id +
 			", winnerName='" + this.winnerName + '\'' +
 			", winnerLevel=" + this.winnerLevel +
+      ", winnerPowers='" + this.winnerPowers + '\'' +
 			", winnerPicture='" + this.winnerPicture + '\'' +
 			", loserName='" + this.loserName + '\'' +
 			", loserLevel=" + this.loserLevel +
+      ", loserPowers='" + this.loserPowers + '\'' +
 			", loserPicture='" + this.loserPicture + '\'' +
 			", winnerTeam='" + this.winnerTeam + '\'' +
 			", loserTeam='" + this.loserTeam + '\'' +
+			", location=" + this.location +
 			'}';
 	}
 }

@@ -1,0 +1,301 @@
+{
+  "consumer": {
+    "name": "rest-fights"
+  },
+  "interactions": [
+    {
+      "comments": {
+        "testname": "io.quarkus.sample.superheroes.fight.service.FightServiceConsumerContractTests.helloNarrationSuccess()",
+        "text": [
+
+        ]
+      },
+      "description": "A hello request",
+      "key": "2ec6e2e8",
+      "pending": false,
+      "request": {
+        "headers": {
+          "Accept": [
+            "text/plain"
+          ]
+        },
+        "method": "GET",
+        "path": "/api/narration/hello"
+      },
+      "response": {
+        "body": {
+          "content": "Hello narration!",
+          "contentType": "text/plain",
+          "contentTypeHint": "DEFAULT",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "text/plain"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": ".+"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "https",
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "comments": {
+        "testname": "io.quarkus.sample.superheroes.fight.service.FightServiceConsumerContractTests.generateImageFromNarrationSuccess()",
+        "text": [
+
+        ]
+      },
+      "description": "A request to generate an image from a narration",
+      "key": "b622a497",
+      "pending": false,
+      "request": {
+        "body": {
+          "content": "This is a default narration - NOT a fallback!\n\nHigh above a bustling city, a symbol of hope and justice soared through the sky, while chaos reigned below, with malevolent laughter echoing through the streets.\nWith unwavering determination, the figure swiftly descended, effortlessly evading explosive attacks, closing the gap, and delivering a decisive blow that silenced the wicked laughter.\n\nIn the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.\nThe people knew that their protector had once again ensured their safety.\n",
+          "contentType": "text/plain",
+          "contentTypeHint": "DEFAULT",
+          "encoded": false
+        },
+        "headers": {
+          "Accept": [
+            "application/json"
+          ],
+          "Content-Type": [
+            "text/plain"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "[.\\s\\S]+"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/api/narration/image"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "imageNarration": "Fallback image caption (something happened while generating the image)",
+            "imageUrl": "https://dummyimage.com/240x320/1e8fff/ffffff&text=Fallback+Image+Caption"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.imageNarration": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.imageUrl": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "https",
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "comments": {
+        "testname": "io.quarkus.sample.superheroes.fight.service.FightServiceConsumerContractTests.narrateFightSuccess()",
+        "text": [
+
+        ]
+      },
+      "description": "A request to narrate a fight",
+      "key": "81e30bfb",
+      "pending": false,
+      "request": {
+        "body": {
+          "content": {
+            "location": {
+              "description": "An American city rife with corruption and crime, the home of its iconic protector Batman.",
+              "name": "Gotham City"
+            },
+            "loserLevel": 42,
+            "loserName": "Super Chocolatine",
+            "loserPowers": "does not eat pain au chocolat",
+            "loserTeam": "villains",
+            "winnerLevel": 42,
+            "winnerName": "Super Baguette",
+            "winnerPowers": "eats baguette really quickly",
+            "winnerTeam": "heroes"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Accept": [
+            "text/plain"
+          ],
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.location.description": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.location.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.loserLevel": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.loserName": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.loserPowers": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.loserTeam": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.winnerLevel": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.winnerName": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.winnerPowers": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.winnerTeam": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/api/narration"
+      },
+      "response": {
+        "body": {
+          "content": "This is a default narration - NOT a fallback!\n\nHigh above a bustling city, a symbol of hope and justice soared through the sky, while chaos reigned below, with malevolent laughter echoing through the streets.\nWith unwavering determination, the figure swiftly descended, effortlessly evading explosive attacks, closing the gap, and delivering a decisive blow that silenced the wicked laughter.\n\nIn the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.\nThe people knew that their protector had once again ensured their safety.\n",
+          "contentType": "text/plain",
+          "contentTypeHint": "DEFAULT",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "text/plain"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "[.\\s\\S]+"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "https",
+      "type": "Synchronous/HTTP"
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.6.7"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "rest-narration"
+  }
+}

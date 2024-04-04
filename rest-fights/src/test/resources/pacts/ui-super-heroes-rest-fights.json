@@ -63,8 +63,14 @@
         "body": {
           "content": [
             {
+              "id": "653bea9d188984908cd12429",
+              "fightDate": "2075-10-27T16:51:41.787Z",
               "loserName": "Super Chocolatine",
-              "winnerName": "Super Baguette"
+              "winnerName": "Super Baguette",
+              "location": {
+                "name": "Gotham City",
+                "description": "An American city rife with corruption and crime, the home of its iconic protector Batman."
+              }
             }
           ],
           "contentType": "application/json",
@@ -86,6 +92,14 @@
                 }
               ]
             },
+            "$[*].id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
             "$[*].loserName": {
               "combine": "AND",
               "matchers": [
@@ -95,6 +109,22 @@
               ]
             },
             "$[*].winnerName": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].location.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].location.description": {
               "combine": "AND",
               "matchers": [
                 {
@@ -128,13 +158,13 @@
             "hero": {
               "level": 42,
               "name": "Super Baguette",
-              "picture": "super_baguette.png",
+              "picture": "https://somewhere.com/super_baguette.png",
               "powers": "eats baguette really quickly"
             },
             "villain": {
               "level": 40,
               "name": "Super Chocolatine",
-              "picture": "super_chocolatine.png",
+              "picture": "https://somewhere.com/super_chocolatine.png",
               "powers": "does not eat pain au chocolat"
             }
           },
@@ -168,7 +198,8 @@
               "combine": "AND",
               "matchers": [
                 {
-                  "match": "type"
+                  "match": "regex",
+                  "regex": "((http|https):\\/\\/).+"
                 }
               ]
             },
@@ -200,7 +231,8 @@
               "combine": "AND",
               "matchers": [
                 {
-                  "match": "type"
+                  "match": "regex",
+                  "regex": "((http|https):\\/\\/).+"
                 }
               ]
             },
@@ -268,11 +300,506 @@
       },
       "transport": "https",
       "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "A request for a random location",
+      "key": "29587036",
+      "pending": false,
+      "request": {
+        "headers": {
+          "Accept": [
+            "application/json"
+          ]
+        },
+        "method": "GET",
+        "path": "/api/fights/randomlocation"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "name": "Gotham City",
+            "description": "An American city rife with corruption and crime, the home of its iconic protector Batman.",
+            "picture": "https://somewhere.com/gotham_city.png"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.description": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.picture": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "((http|https):\\/\\/).+"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "https",
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "A request to perform a fight",
+      "key": "81e30bfb",
+      "pending": false,
+      "request": {
+        "body": {
+          "content": {
+            "location": {
+              "description": "An American city rife with corruption and crime, the home of its iconic protector Batman.",
+              "name": "Gotham City",
+              "picture": "https://somewhere.com/gotham_city.png"
+            },
+            "hero": {
+              "name": "Super Baguette",
+              "level": 42,
+              "powers": "eats baguette really quickly",
+              "picture": "https://somewhere.com/super_baguette.png"
+            },
+            "villain": {
+              "name": "Super Chocolatine",
+              "level": 15,
+              "powers": "does not eat pain au chocolat",
+              "picture": "https://somewhere.com/super_chololatine.png"
+            }
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Accept": [
+            "application/json"
+          ],
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.location.description": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.location.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.location.picture": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "((http|https):\\/\\/).+"
+                }
+              ]
+            },
+            "$.villain.level": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.villain.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.villain.powers": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.villain.picture": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "((http|https):\\/\\/).+"
+                }
+              ]
+            },
+            "$.hero.level": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.hero.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.hero.powers": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.hero.picture": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "((http|https):\\/\\/).+"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/api/fights"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "id": "653bea9d188984908cd12429",
+            "fightDate": "2075-10-27T16:51:41.787Z",
+            "loserName": "Super Chocolatine",
+            "winnerName": "Super Baguette",
+            "location": {
+              "name": "Gotham City",
+              "description": "An American city rife with corruption and crime, the home of its iconic protector Batman."
+            }
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.fightDate": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.loserName": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.winnerName": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.location.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.location.description": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "http",
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "A request to narrate a fight",
+      "key": "81e30bfb",
+      "pending": false,
+      "request": {
+        "body": {
+          "content": {
+            "location": {
+              "description": "An American city rife with corruption and crime, the home of its iconic protector Batman.",
+              "name": "Gotham City"
+            },
+            "loserLevel": 42,
+            "loserName": "Super Chocolatine",
+            "loserPowers": "does not eat pain au chocolat",
+            "loserTeam": "villains",
+            "winnerLevel": 42,
+            "winnerName": "Super Baguette",
+            "winnerPowers": "eats baguette really quickly",
+            "winnerTeam": "heroes"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Accept": [
+            "text/plain"
+          ],
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.location.description": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.location.name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.loserLevel": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.loserName": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.loserPowers": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.loserTeam": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.winnerLevel": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.winnerName": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.winnerPowers": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.winnerTeam": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/api/fights/narrate"
+      },
+      "response": {
+        "body": {
+          "content": "This is a default narration - NOT a fallback!\n\nHigh above a bustling city, a symbol of hope and justice soared through the sky, while chaos reigned below, with malevolent laughter echoing through the streets.\nWith unwavering determination, the figure swiftly descended, effortlessly evading explosive attacks, closing the gap, and delivering a decisive blow that silenced the wicked laughter.\n\nIn the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.\nThe people knew that their protector had once again ensured their safety.\n",
+          "contentType": "text/plain",
+          "contentTypeHint": "DEFAULT",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "text/plain"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": ".+"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "http",
+      "type": "Synchronous/HTTP"
+    },
+    {
+      "description": "A request to generate an image from a narration",
+      "key": "b622a497",
+      "pending": false,
+      "request": {
+        "body": {
+          "content": "This is a default narration - NOT a fallback!\n\nHigh above a bustling city, a symbol of hope and justice soared through the sky, while chaos reigned below, with malevolent laughter echoing through the streets.\nWith unwavering determination, the figure swiftly descended, effortlessly evading explosive attacks, closing the gap, and delivering a decisive blow that silenced the wicked laughter.\n\nIn the end, the battle concluded with a clear victory for the forces of good, as their commitment to peace triumphed over the chaos and villainy that had threatened the city.\nThe people knew that their protector had once again ensured their safety.\n",
+          "contentType": "text/plain",
+          "contentTypeHint": "DEFAULT",
+          "encoded": false
+        },
+        "headers": {
+          "Accept": [
+            "application/json"
+          ],
+          "Content-Type": [
+            "text/plain"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "[.\\s\\S]+"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/api/fights/narrate/image"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "imageNarration": "Fallback image caption (something happened while generating the image)",
+            "imageUrl": "https://dummyimage.com/240x320/1e8fff/ffffff&text=Fallback+Image+Caption"
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.imageNarration": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.imageUrl": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      },
+      "transport": "http",
+      "type": "Synchronous/HTTP"
     }
   ],
   "metadata": {
     "pact-jvm": {
-      "version": "4.4.2"
+      "version": "4.5.6"
     },
     "pactSpecification": {
       "version": "4.0"

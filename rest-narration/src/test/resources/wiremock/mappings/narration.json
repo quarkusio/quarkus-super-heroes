@@ -1,0 +1,250 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPath": "/v1/chat/completions",
+        "method": "POST",
+        "headers": {
+          "Accept": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Content-Type": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Authorization": {
+            "matches": "Bearer .+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.model",
+              "matches": "gpt-.+"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.messages.size() == 2)]"
+          },
+          {
+            "matchesJsonPath": "$.messages[?((@.role == 'system') && (@.content == 'You are a marvel comics writer, expert in all sorts of super heroes and super villains.'))]"
+          },
+          {
+            "matchesJsonPath": {
+              "expression": "$.messages[?(@.role == 'user')].content",
+              "contains": "Narrate the fight between a super hero and a super villain.\n\nDuring the narration, don't repeat \"super hero\" or \"super villain\".\n\nWrite 4 paragraphs maximum. Be creative.\n\nThe narration must be:\n- G rated\n- Workplace/family safe\n- No sexism, racism, or other bias/bigotry\n\nHere is the data you will use for the winner:"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.temperature == 0.7)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.top_p == 0.5)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.presence_penalty == 0)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.frequency_penalty == 0)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"id\": \"chatcmpl-8Uy1UC7ZFUXtjhYcY5VFj7eYGu6jX\",\n  \"object\": \"chat.completion\",\n  \"created\": 1702391260,\n  \"model\": \"gpt-3.5-turbo-0613\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"In the gritty streets of Gotham City, a clash of epic proportions unfolded. Han Solo, a hero known for his sharpshooting skills and unwavering skepticism towards the force, faced off against Storm Trooper, a villain armed with nothing more than a small gun. The odds seemed stacked against the Storm Trooper, but he was determined to prove his worth.\\n\\nAs the battle commenced, Han Solo swiftly dodged the Storm Trooper's feeble shots, his agility and experience shining through. With a smirk on his face, Han Solo aimed his big gun with precision, firing shots that echoed through the city. The Storm Trooper, though outmatched, refused to back down, his determination fueling his every move.\\n\\nWith each passing moment, Han Solo's level of expertise became more apparent. His shots were calculated and deadly, while the Storm Trooper struggled to keep up. The hero's confidence grew, his movements becoming more fluid and effortless. It was clear that the Storm Trooper's small gun was no match for Han Solo's superior firepower.\\n\\nIn a final, decisive moment, Han Solo's shot found its mark, incapacitating the Storm Trooper. The hero emerged victorious, his unwavering resolve prevailing over the villain's futile attempts. As the city rejoiced in the triumph of justice, Han Solo stood tall, a symbol of hope and resilience in the face of adversity.\"\n      },\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 232,\n    \"completion_tokens\": 280,\n    \"total_tokens\": 512\n  },\n  \"system_fingerprint\": null\n}\n",
+        "headers": {
+          "Content-Type": "application/json",
+          "openai-model": "gpt-3.5-turbo-0613",
+          "openai-organization": "my-org-1234",
+          "openai-version": "2020-10-01",
+          "openai-processing-ms": "15000"
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPath": "/v1/chat/completions",
+        "queryParameters": {
+          "api-version": {
+            "matches": ".+"
+          }
+        },
+        "method": "POST",
+        "headers": {
+          "Accept": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Content-Type": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "api-key": {
+            "matches": ".+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.model",
+              "matches": "gpt-.+"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.messages.size() == 2)]"
+          },
+          {
+            "matchesJsonPath": "$.messages[?((@.role == 'system') && (@.content == 'You are a marvel comics writer, expert in all sorts of super heroes and super villains.'))]"
+          },
+          {
+            "matchesJsonPath": {
+              "expression": "$.messages[?(@.role == 'user')].content",
+              "contains": "Narrate the fight between a super hero and a super villain.\n\nDuring the narration, don't repeat \"super hero\" or \"super villain\".\n\nWrite 4 paragraphs maximum. Be creative.\n\nThe narration must be:\n- G rated\n- Workplace/family safe\n- No sexism, racism, or other bias/bigotry\n\nHere is the data you will use for the winner:"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.temperature == 0.7)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.top_p == 0.5)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.presence_penalty == 0)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.frequency_penalty == 0)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"id\": \"chatcmpl-8Uy1UC7ZFUXtjhYcY5VFj7eYGu6jX\",\n  \"object\": \"chat.completion\",\n  \"created\": 1702391260,\n  \"model\": \"gpt-3.5-turbo-0613\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"In the gritty streets of Gotham City, a clash of epic proportions unfolded. Han Solo, a hero known for his sharpshooting skills and unwavering skepticism towards the force, faced off against Storm Trooper, a villain armed with nothing more than a small gun. The odds seemed stacked against the Storm Trooper, but he was determined to prove his worth.\\n\\nAs the battle commenced, Han Solo swiftly dodged the Storm Trooper's feeble shots, his agility and experience shining through. With a smirk on his face, Han Solo aimed his big gun with precision, firing shots that echoed through the city. The Storm Trooper, though outmatched, refused to back down, his determination fueling his every move.\\n\\nWith each passing moment, Han Solo's level of expertise became more apparent. His shots were calculated and deadly, while the Storm Trooper struggled to keep up. The hero's confidence grew, his movements becoming more fluid and effortless. It was clear that the Storm Trooper's small gun was no match for Han Solo's superior firepower.\\n\\nIn a final, decisive moment, Han Solo's shot found its mark, incapacitating the Storm Trooper. The hero emerged victorious, his unwavering resolve prevailing over the villain's futile attempts. As the city rejoiced in the triumph of justice, Han Solo stood tall, a symbol of hope and resilience in the face of adversity.\"\n      },\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 232,\n    \"completion_tokens\": 280,\n    \"total_tokens\": 512\n  },\n  \"system_fingerprint\": null\n}\n",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPath": "/v1/images/generations",
+        "method": "POST",
+        "headers": {
+          "Accept": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Content-Type": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Authorization": {
+            "matches": "Bearer .+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.model",
+              "matches": "dall-e-.+"
+            }
+          },
+          {
+            "matchesJsonPath": {
+              "expression": "$.prompt",
+              "matches": ".+"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.n == 1)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.size == '1024x1024')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.quality == 'standard')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.style == 'vivid')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.response_format == 'url')]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"created\": 1708633271,\n  \"data\": [\n    {\n      \"revised_prompt\": \"In a city reminiscent of a dark, gritty metropolitan at night, two characters are caught in a confrontation of epic proportions. One figure, a heroic roguish character, renowned for his agile precision and disbelief in mystic powers, is engaged in a standoff against a menacing adversary, outfitted in futuristic armor and armed with a modest energy weapon. The hero, quick on his feet, evades his opponent's inadequate shots while retorting with his more formidable blaster causing loud reverberations throughout the urban landscape. Despite being outgunned, the villain continues the fight, showing a relentless spirit. With each passing second, the hero's superior skill and command over his weapon become increasingly visible. His counter-attacks are perfectly timed and lethal, overwhelming the adversary struggling to match him. Displaying a growing confidence, the hero's movements transition to being more seamless. A final, pinpoint shot from the hero incapacitates the villain, signaling a decisive victory for the hero, much to the city's relief. The hero's unwavering resilience standing victorious brings hope and strength to a city under duress.\",\n      \"url\": \"https://somewhere.com/someImage.png\"\n    }\n   ]\n  }\n",
+        "headers": {
+          "Content-Type": "application/json",
+          "openai-organization": "my-org-1234",
+          "openai-version": "2020-10-01",
+          "openai-processing-ms": "15000"
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPath": "/v1/images/generations",
+        "queryParameters": {
+          "api-version": {
+            "matches": ".+"
+          }
+        },
+        "method": "POST",
+        "headers": {
+          "Accept": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Content-Type": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "api-key": {
+            "matches": ".+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.model",
+              "matches": "dall-e-.+"
+            }
+          },
+          {
+            "matchesJsonPath": {
+              "expression": "$.prompt",
+              "matches": ".+"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.n == 1)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.size == '1024x1024')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.quality == 'standard')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.style == 'vivid')]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.response_format == 'url')]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"created\": 1708633271,\n  \"data\": [\n    {\n      \"revised_prompt\": \"In a city reminiscent of a dark, gritty metropolitan at night, two characters are caught in a confrontation of epic proportions. One figure, a heroic roguish character, renowned for his agile precision and disbelief in mystic powers, is engaged in a standoff against a menacing adversary, outfitted in futuristic armor and armed with a modest energy weapon. The hero, quick on his feet, evades his opponent's inadequate shots while retorting with his more formidable blaster causing loud reverberations throughout the urban landscape. Despite being outgunned, the villain continues the fight, showing a relentless spirit. With each passing second, the hero's superior skill and command over his weapon become increasingly visible. His counter-attacks are perfectly timed and lethal, overwhelming the adversary struggling to match him. Displaying a growing confidence, the hero's movements transition to being more seamless. A final, pinpoint shot from the hero incapacitates the villain, signaling a decisive victory for the hero, much to the city's relief. The hero's unwavering resilience standing victorious brings hope and strength to a city under duress.\",\n      \"url\": \"https://somewhere.com/someImage.png\"\n    }\n   ]\n  }\n",
+        "headers": {
+          "Content-Type": "application/json",
+          "openai-organization": "my-org-1234",
+          "openai-version": "2020-10-01",
+          "openai-processing-ms": "15000"
+        }
+      }
+    }
+  ]
+}

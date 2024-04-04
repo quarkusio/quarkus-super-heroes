@@ -1,18 +1,25 @@
 @startuml
-skinparam NodePadding 40
-!include <azure/AzureCommon>
-!include <azure/Databases/AzureCosmosDb>
-!include <azure/Databases/AzureDatabaseForPostgreSQL>
-!include <azure/Analytics/AzureEventHub>
-!include <logos/nodejs>
+!define AzurePuml https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist
+!includeurl AzurePuml/AzureCommon.puml
+!includeurl AzurePuml/Databases/AzureCosmosDb.puml
+!includeurl AzurePuml/Databases/AzureDatabaseForPostgreSQL.puml
+!includeurl AzurePuml/Databases/AzureDatabaseForMariaDB.puml
+!includeurl AzurePuml/Analytics/AzureEventHub.puml
+!includeurl AzurePuml/AIMachineLearning/AzureCognitiveServices.puml
+!include <logos/react>
 !include <logos/prometheus>
 !include style.puml
+
+skinparam NodePadding 40
+skinparam dpi 100
 
 left to right direction
 
 together {
-    node "Super Hero UI" <<AzureContainerApp>> as ui {
-        agent "<$nodejs>" as uiQuarkus
+    node "Super Hero UI" as ui {
+      agent "<$react>" <<frontend>> as reactUi
+      agent "Quarkus" <<application>> as uiQuarkus
+      reactUi .up> uiQuarkus
     }
 
     node "<$prometheus>" as prometheus {
@@ -25,17 +32,31 @@ node "Fight" <<AzureContainerApp>> as fight {
     fightQuarkus .up> fightMongoDb
 }
 
-  node "Hero" <<AzureContainerApp>> as hero {
-      agent "Quarkus (reactive)" <<application>> as heroQuarkus
-      AzureDatabaseForPostgreSQL(heroPostgresql, "HeroesDB", "")
-      heroQuarkus .up> heroPostgresql
-  }
+node "Narration" <<AzureContainerApp>> as narration {
+  agent "Quarkus (imperative)" <<application>> as narrationQuarkus
+  hexagon "Langchain4J" as langchain
+  narrationQuarkus .up> langchain
+}
 
-  node "Villain" <<AzureContainerApp>> as villain {
-      agent "Quarkus (imperative)" <<application>> as villainQuarkus
-      AzureDatabaseForPostgreSQL(villainPostgresql, "VillansDB", "")
-      villainQuarkus .up> villainPostgresql
-  }
+AzureCognitiveServices(openai, "OpenAI\nAzure OpenAI", "")
+
+node "Hero" <<AzureContainerApp>> as hero {
+    agent "Quarkus (reactive)" <<application>> as heroQuarkus
+    AzureDatabaseForPostgreSQL(heroPostgresql, "HeroesDB", "")
+    heroQuarkus .up> heroPostgresql
+}
+
+node "Villain" <<AzureContainerApp>> as villain {
+    agent "Quarkus (imperative)" <<application>> as villainQuarkus
+    AzureDatabaseForPostgreSQL(villainPostgresql, "VillansDB", "")
+    villainQuarkus .up> villainPostgresql
+}
+
+node "Location" <<AzureContainerApp>> as location {
+  agent "Quarkus (imperative)" <<application>> as locationQuarkus
+  AzureDatabaseForMariaDB(locationMariaDB, "LocationsDB", "")
+  locationQuarkus .up> locationMariaDB
+}
 
 together {
   AzureEventHub(kafka, "Kafka", "")
@@ -56,9 +77,13 @@ package "stats" <<AzureContainerApp>> {
     }
 }
 
-uiQuarkus --> fightQuarkus : HTTP
+reactUi --> fightQuarkus : HTTP
+fightQuarkus --> narrationQuarkus : HTTP
 fightQuarkus --> villainQuarkus : HTTP
 fightQuarkus --> heroQuarkus : HTTP
+fightQuarkus -[dotted]-> locationQuarkus: gRPC
+
+langchain --> openai : HTTP
 
 fightQuarkus ..> kafka : Message
 fightQuarkus -[dotted]-> apicurio : HTTP
@@ -68,7 +93,9 @@ statQuarkus -[dotted]-> apicurio : HTTP
 statQuarkus ..> uiStats : Web Sockets
 
 prometheus .> fight : polling
+prometheus .> narration : polling
 prometheus .> hero : polling
 prometheus .> villain : polling
 prometheus .> stat : polling
+prometheus .> location : polling
 @enduml

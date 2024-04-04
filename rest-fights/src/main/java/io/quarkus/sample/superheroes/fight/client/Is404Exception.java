@@ -19,7 +19,7 @@ class Is404Exception implements Predicate<Throwable> {
 	@Override
 	public boolean test(Throwable throwable) {
 		return Optional.ofNullable(throwable)
-			.filter(t -> t instanceof WebApplicationException)
+			.filter(WebApplicationException.class::isInstance)
 			.map(WebApplicationException.class::cast)
 			.map(WebApplicationException::getResponse)
 			.filter(response -> response.getStatus() == Status.NOT_FOUND.getStatusCode())

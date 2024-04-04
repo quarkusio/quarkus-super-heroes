@@ -14,6 +14,7 @@ import org.jboss.resteasy.reactive.client.impl.UniInvoker;
 
 import io.quarkus.logging.Log;
 import io.quarkus.rest.client.reactive.runtime.MicroProfileRestClientRequestFilter;
+
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 
 import io.opentelemetry.api.trace.SpanKind;

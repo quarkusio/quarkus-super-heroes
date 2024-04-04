@@ -21,11 +21,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import io.quarkus.sample.superheroes.fight.Fighters;
-import io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource;
-import io.quarkus.sample.superheroes.fight.InjectWireMock;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+
+import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
+import io.quarkus.sample.superheroes.fight.InjectWireMock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +34,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
 @QuarkusTest
-@QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
+@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
 public class HeaderPropagationTests {
   private static final String PROPAGATE_HEADER_NAME = "x-propagate";
   private static final String PROPAGATE_HEADER_VALUE = "propagate-value";
@@ -59,6 +60,8 @@ public class HeaderPropagationTests {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_API_URI = VILLAIN_API_BASE_URI + "/random";
   private static final String VILLAIN_API_HELLO_URI = VILLAIN_API_BASE_URI + "/hello";
+  private static final String NARRATION_API_BASE_URI = "/api/narration";
+  private static final String NARRATION_API_HELLO_URI = NARRATION_API_BASE_URI + "/hello";
   private static final String DEFAULT_VILLAIN_NAME = "Super Chocolatine";
   private static final String DEFAULT_VILLAIN_PICTURE = "super_chocolatine.png";
   private static final String DEFAULT_VILLAIN_POWERS = "does not eat pain au chocolat";
@@ -153,7 +156,8 @@ public class HeaderPropagationTests {
   static Stream<Arguments> helloServiceHeadersPropagateValues() {
     return Stream.of(
       arguments("/api/fights/hello/heroes", HERO_API_HELLO_URI, "Hello heroes!"),
-      arguments("/api/fights/hello/villains", VILLAIN_API_HELLO_URI, "Hello villains!")
+      arguments("/api/fights/hello/villains", VILLAIN_API_HELLO_URI, "Hello villains!"),
+      arguments("/api/fights/hello/narration", NARRATION_API_HELLO_URI, "Hello narration!")
     );
   }
 

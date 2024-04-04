@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  *     }
  *   </pre>
  * </p>
- * @see HeroesVillainsWiremockServerResource
+ * @see HeroesVillainsNarrationWiremockServerResource
  */
 @Target({ METHOD, CONSTRUCTOR, FIELD })
 @Retention(RUNTIME)

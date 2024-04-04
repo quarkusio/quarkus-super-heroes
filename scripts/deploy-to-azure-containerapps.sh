@@ -15,14 +15,24 @@ help() {
   echo
   echo "Syntax: deploy-to-azure-containerapps.sh [options]"
   echo "options:"
-  echo "  -g <resource_group_name>     Name of the Azure resource group to use to deploy resources. Default is 'super-heroes'."
-  echo "  -h                           Prints this help message"
-  echo "  -l <location>                The location (region) to deploy resources into. Default: 'eastus2'".
-  echo "  -p <postgres_server_tier>    Compute tier of the PostgreSQL servers. Accepted values: Burstable, GeneralPurpose, MemoryOptimized. Default: 'Burstable'."
-  echo "  -r                           If present, create an Azure Container Registry instance (see https://azure.microsoft.com/en-us/services/container-registry). This is optional. No container images are pushed here by this script."
-  echo "  -s <postgres_server_sku>     The SKU to use for the PostgreSQL servers (see https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server). Default: 'B1ms'."
-  echo "  -t <tag>                     The tag for the images to deploy. Accepted values: 'java17-latest' or 'native-latest'. Default: 'native-latest'."
-  echo "  -u <unique_identifier>       A unique identifier to append to some resources. Some Azure services require unique names within a region (across users). Default is to use the output of the 'whoami' command."
+  echo "  -a                                     Create Azure OpenAI resources and bind to the narration service"
+  echo "                                             By default this is not created and the narration service will serve a default narration on all requests."
+  echo "  -g <resource_group_name>               Name of the Azure resource group to use to deploy resources"
+  echo "                                             Default: 'super-heroes'"
+  echo "  -h                                     Prints this help message"
+  echo "  -l <location>                          The location (region) to deploy resources into"
+  echo "                                             Default: 'eastus2'"
+  echo "  -p <database_server_tier>              Compute tier of the PostgreSQL/MariaDB servers"
+  echo "                                             Accepted values: 'Burstable', 'GeneralPurpose', 'MemoryOptimized'"
+  echo "                                             Default: 'Burstable'"
+  echo "  -r                                     If present, create an Azure Container Registry instance (see https://azure.microsoft.com/en-us/services/container-registry). This is optional. No container images are pushed here by this script."
+  echo "  -s <database_server_sku>               The SKU to use for the PostgreSQL/MariaDB servers (see https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server / https://azure.microsoft.com/en-us/pricing/details/mysql/flexible-server)"
+  echo "                                             Default: 'B1ms'"
+  echo "  -t <tag>                               The tag for the images to deploy"
+  echo "                                             Accepted values: 'java17-latest' or 'native-latest'"
+  echo "                                             Default: 'java17-latest'"
+  echo "  -u <unique_identifier>                 A unique identifier to append to some resources. Some Azure services require unique names within a region (across users)."
+  echo "                                             Default is to use the output of the 'whoami' command."
 }
 
 exit_abnormal() {
@@ -49,6 +59,7 @@ create_container_registry() {
   echo "Allowing anonymous pull access to the $CONTAINER_REGISTRY_NAME container registry"
   az acr update \
     --name "$CONTAINER_REGISTRY_NAME" \
+    --resource-group "$RESOURCE_GROUP" \
     --anonymous-pull-enabled
 
   echo "Getting the URL for the $CONTAINER_REGISTRY_NAME container registry"
@@ -56,6 +67,49 @@ create_container_registry() {
     --resource-group "$RESOURCE_GROUP" \
     --name "$CONTAINER_REGISTRY_NAME" \
     --output json | jq -r .loginServer)
+}
+
+create_maria_db() {
+  local APP_NAME=$1
+  local DB_NAME=$2
+  local DB_SCHEMA=$3
+  local DB_SQL=$4
+  local DOWNLOADED_SQL_FILE="$TEMP_DIR/${APP_NAME}.sql"
+
+  echo "Creating the $DB_NAME MySQL database"
+  az mysql flexible-server create \
+    --resource-group "$RESOURCE_GROUP" \
+    --location "$LOCATION" \
+    --tags system="$TAG_SYSTEM" application="$APP_NAME" \
+    --name "$DB_NAME" \
+    --admin-user "$MARIADB_ADMIN_USER" \
+    --admin-password "$MARIADB_ADMIN_PWD" \
+    --public all \
+    --sku-name "Standard_$MARIADB_SKU" \
+    --tier "$MARIADB_TIER" \
+    --storage-size 32 \
+    --version "$MARIADB_VERSION"
+  echo
+
+  echo "Creating the $DB_SCHEMA schema on the $DB_NAME database"
+  az mysql flexible-server db create \
+    --resource-group "$RESOURCE_GROUP" \
+    --server-name "$DB_NAME" \
+    --database-name "$DB_SCHEMA"
+  echo
+
+  echo "Downloading $APP_NAME data from $DB_SQL to $DOWNLOADED_SQL_FILE"
+  curl "$DB_SQL" --output "$DOWNLOADED_SQL_FILE"
+  echo
+
+  echo "Adding data to the $DB_SCHEMA schema in the $DB_NAME database"
+  az mysql flexible-server execute \
+    --name "$DB_NAME" \
+    --admin-user "$POSTGRES_DB_ADMIN" \
+    --admin-password "$POSTGRES_DB_PWD" \
+    --database-name "$DB_SCHEMA" \
+    --file-path "$DOWNLOADED_SQL_FILE"
+  echo
 }
 
 create_postgres_db() {
@@ -76,7 +130,7 @@ create_postgres_db() {
     --public all \
     --sku-name "Standard_$POSTGRES_SKU" \
     --tier "$POSTGRES_TIER" \
-    --storage-size 256 \
+    --storage-size 32 \
     --version "$POSTGRES_DB_VERSION"
   echo
 
@@ -231,6 +285,67 @@ create_villains_app() {
       --output json | jq -r .fqdn)"
 }
 
+create_locations_app() {
+  echo "Creating Locations Container App"
+  az containerapp create \
+    --resource-group "$RESOURCE_GROUP" \
+    --tags system="$TAG_SYSTEM" application="$LOCATIONS_APP" \
+    --image "$LOCATIONS_IMAGE" \
+    --name "$LOCATIONS_APP" \
+    --environment "$CONTAINERAPPS_ENVIRONMENT" \
+    --ingress external \
+    --transport http2 \
+    --target-port 8089 \
+    --min-replicas 1 \
+    --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
+               QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT=no-file \
+               QUARKUS_DATASOURCE_USERNAME="$MARIADB_ADMIN_USER" \
+               QUARKUS_DATASOURCE_PASSWORD="$MARIADB_ADMIN_PWD" \
+               QUARKUS_DATASOURCE_JDBC_URL="$LOCATIONS_DB_CONNECT_STRING"
+
+  echo "Getting URL to locations app"
+  LOCATIONS_HOST="$(az containerapp ingress show \
+      --resource-group $RESOURCE_GROUP \
+      --name $LOCATIONS_APP \
+      --output json | jq -r .fqdn)"
+}
+
+create_narration_app() {
+  echo "Creating Narration Container App"
+
+  if "$CREATE_AZURE_OPENAI_RESOURCES"; then
+    az containerapp create \
+      --resource-group "$RESOURCE_GROUP" \
+      --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
+      --image "${NARRATION_IMAGE}-azure-openai" \
+      --name "$NARRATION_APP" \
+      --environment "$CONTAINERAPPS_ENVIRONMENT" \
+      --ingress external \
+      --target-port 8087 \
+      --min-replicas 1 \
+      --env-vars QUARKUS_PROFILE=azure-openai \
+                 QUARKUS_LANGCHAIN4J_AZURE_OPENAI_API_KEY="$AZURE_OPENAI_KEY" \
+                 QUARKUS_LANGCHAIN4J_AZURE_OPENAI_RESOURCE_NAME="$NARRATION_COGNITIVE_SERVICE" \
+                 QUARKUS_LANGCHAIN4J_AZURE_OPENAI_DEPLOYMENT_ID="$NARRATION_COGNITIVE_SERVICE_DEPLOYMENT_NAME"
+  else
+    az containerapp create \
+      --resource-group "$RESOURCE_GROUP" \
+      --tags system="$TAG_SYSTEM" application="$NARRATION_APP" \
+      --image "$NARRATION_IMAGE" \
+      --name "$NARRATION_APP" \
+      --environment "$CONTAINERAPPS_ENVIRONMENT" \
+      --ingress external \
+      --target-port 8087 \
+      --min-replicas 1
+  fi
+
+  echo "Getting URL to narration app"
+  NARRATION_URL="https://$(az containerapp ingress show \
+      --resource-group $RESOURCE_GROUP \
+      --name $NARRATION_APP \
+      --output json | jq -r .fqdn)"
+}
+
 create_statistics_app() {
   echo "Creating Event Statistics Container App"
   az containerapp create \
@@ -274,6 +389,10 @@ create_fights_app() {
                QUARKUS_LIQUIBASE_MONGODB_MIGRATE_AT_START=false \
                QUARKUS_MONGODB_CONNECTION_STRING="$MONGO_COLLECTION_CONNECT_STRING" \
                QUARKUS_REST_CLIENT_HERO_CLIENT_URL="$HEROES_URL" \
+               QUARKUS_REST_CLIENT_NARRATION_CLIENT_URL="$NARRATION_URL" \
+               QUARKUS_GRPC_CLIENTS_LOCATIONS_HOST="$LOCATIONS_HOST" \
+               QUARKUS_GRPC_CLIENTS_LOCATIONS_PORT=443 \
+               QUARKUS_GRPC_CLIENTS_LOCATIONS_PLAIN_TEXT=false \
                FIGHT_VILLAIN_CLIENT_BASE_URL="$VILLAINS_URL"
 
   echo "Getting URL to event fights app"
@@ -302,18 +421,43 @@ create_ui_app() {
       --output json | jq -r .fqdn)"
 }
 
+create_azure_openai_resources() {
+  ./create-azure-openai-resources.sh \
+    -c "$COGNITIVE_SERVICE_NAME" \
+    -d "$COGNITIVE_SERVICE_DEPLOYMENT_NAME" \
+    -g "$RESOURCE_GROUP" \
+    -l "$LOCATION" \
+    -t "$TAG_SYSTEM" \
+    -u "$UNIQUE_IDENTIFIER"
+
+  echo
+
+  AZURE_OPENAI_KEY=$(
+    az cognitiveservices account keys list \
+      --name "$NARRATION_COGNITIVE_SERVICE" \
+      --resource-group "$RESOURCE_GROUP" \
+        | jq -r .key1
+  )
+}
+
 # Define defaults
 RESOURCE_GROUP="super-heroes"
 LOCATION="eastus2"
-IMAGES_TAG="native-latest"
+IMAGES_TAG="java17-latest"
 UNIQUE_IDENTIFIER=$(whoami)
 POSTGRES_SKU="B1ms"
 POSTGRES_TIER="Burstable"
+MARIADB_SKU="$POSTGRES_SKU"
+MARIADB_TIER="$POSTGRES_TIER"
 CREATE_CONTAINER_REGISTRY=false
+CREATE_AZURE_OPENAI_RESOURCES=false
 
 # Process the input options
-while getopts "g:hl:p:rs:t:u:" option; do
+while getopts "ag:hl:p:rs:t:u:" option; do
   case $option in
+    a) CREATE_AZURE_OPENAI_RESOURCES=true
+      ;;
+
     g) RESOURCE_GROUP=$OPTARG
        ;;
 
@@ -363,6 +507,11 @@ POSTGRES_DB_ADMIN="superheroesadmin"
 POSTGRES_DB_PWD="p@ssw0rd-12046"
 POSTGRES_DB_VERSION=14
 
+# MariaDB
+MARIADB_ADMIN_USER="$POSTGRES_DB_ADMIN"
+MARIADB_ADMIN_PWD="$POSTGRES_DB_PWD"
+MARIADB_VERSION="5.7"
+
 # MongoDB
 MONGO_DB="fights-db-$UNIQUE_IDENTIFIER"
 MONGO_DB_VERSION="4.2"
@@ -375,6 +524,22 @@ KAFKA_BOOTSTRAP_SERVERS="$KAFKA_NAMESPACE.servicebus.windows.net:9093"
 # Apicurio
 APICURIO_APP="apicurio"
 APICURIO_IMAGE="apicurio/apicurio-registry-mem:2.4.2.Final"
+
+# Narration
+NARRATION_APP="rest-narration"
+NARRATION_IMAGE="${SUPERHEROES_IMAGES_BASE}/${NARRATION_APP}:${IMAGES_TAG}"
+COGNITIVE_SERVICE_NAME="cs-super-heroes"
+COGNITIVE_SERVICE_DEPLOYMENT_NAME="csdeploy-super-heroes"
+NARRATION_COGNITIVE_SERVICE="$COGNITIVE_SERVICE_NAME-$UNIQUE_IDENTIFIER"
+NARRATION_COGNITIVE_SERVICE_DEPLOYMENT_NAME="$COGNITIVE_SERVICE_DEPLOYMENT_NAME-$UNIQUE_IDENTIFIER"
+
+# Location
+LOCATIONS_APP="grpc-locations"
+LOCATIONS_DB="locations-db-$UNIQUE_IDENTIFIER"
+LOCATIONS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${LOCATIONS_APP}:${IMAGES_TAG}"
+LOCATIONS_DB_SCHEMA="locations"
+LOCATIONS_DB_SQL="$GITHUB_RAW_BASE_URL/$LOCATIONS_APP/deploy/db-init/initialize-tables.sql"
+LOCATIONS_DB_CONNECT_STRING="jdbc:mariadb://${LOCATIONS_DB}.mysql.database.azure.com:3306/${LOCATIONS_DB_SCHEMA}?sslmode=trust&useMysqlMetadata=true"
 
 # Heroes
 HEROES_APP="rest-heroes"
@@ -403,7 +568,7 @@ STATISTICS_IMAGE="${SUPERHEROES_IMAGES_BASE}/${STATISTICS_APP}:${IMAGES_TAG}"
 
 # UI
 UI_APP="ui-super-heroes"
-UI_IMAGE="${SUPERHEROES_IMAGES_BASE}/${UI_APP}:latest"
+UI_IMAGE="${SUPERHEROES_IMAGES_BASE}/${UI_APP}:${IMAGES_TAG}"
 
 # Now run the script
 echo "Deploying Quarkus Superheroes to Azure Container Apps with the following configuration:"
@@ -411,8 +576,8 @@ echo "  Resource Group: $RESOURCE_GROUP"
 echo "  Location: $LOCATION"
 echo "  Container image tag: $IMAGES_TAG"
 echo "  Unique identifier: $UNIQUE_IDENTIFIER"
-echo "  PostgreSQL SKU: $POSTGRES_SKU"
-echo "  PostgreSQL Tier: $POSTGRES_TIER"
+echo "  PostgreSQL/MySQL SKU: $POSTGRES_SKU"
+echo "  PostgreSQL/MySQL Tier: $POSTGRES_TIER"
 echo
 echo "Please be patient. This may take a while."
 echo
@@ -458,6 +623,14 @@ if "$CREATE_CONTAINER_REGISTRY"; then
   create_container_registry
 fi
 
+# Create the Azure OpenAI resources (if needed)
+if "$CREATE_AZURE_OPENAI_RESOURCES"; then
+  echo "-----------------------------------------"
+  echo "[$(date +"%m/%d/%Y %T")]: Creating the Azure OpenAI resources"
+  echo "-----------------------------------------"
+  create_azure_openai_resources
+fi
+
 # Create the Heroes Postgres db
 echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: Creating the $HEROES_DB PostgreSQL database"
@@ -470,6 +643,13 @@ echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: Creating the $VILLAINS_DB PostgreSQL database"
 echo "-----------------------------------------"
 create_postgres_db "$VILLAINS_APP" "$VILLAINS_DB" "$VILLAINS_DB_SCHEMA" "$VILLAINS_DB_SQL"
+echo
+
+# Create the Locations MariaDB db
+echo "-----------------------------------------"
+echo "[$(date +"%m/%d/%Y %T")]: Creating the $LOCATIONS_DB MariaDB database"
+echo "-----------------------------------------"
+create_maria_db "$LOCATIONS_APP" "$LOCATIONS_DB" "$LOCATIONS_DB_SCHEMA" "$LOCATIONS_DB_SQL"
 echo
 
 # Create the Fights MongoDB db
@@ -552,6 +732,20 @@ echo "-----------------------------------------"
 create_villains_app
 echo
 
+# Create locations
+echo "-----------------------------------------"
+echo "[$(date +"%m/%d/%Y %T")]: Creating the $LOCATIONS_APP Container App"
+echo "-----------------------------------------"
+create_locations_app
+echo
+
+# Create narration
+echo "-----------------------------------------"
+echo "[$(date +"%m/%d/%Y %T")]: Creating the $NARRATION_APP Container App"
+echo "-----------------------------------------"
+create_narration_app
+echo
+
 # Create statistics
 echo "-----------------------------------------"
 echo "[$(date +"%m/%d/%Y %T")]: Creating the $STATISTICS_APP Container App"
@@ -586,6 +780,8 @@ echo "  Event stats: $STATISTICS_URL"
 echo "  Fights URL: $FIGHTS_URL"
 echo "  Heroes URL: $HEROES_URL"
 echo "  Villains URL: $VILLAINS_URL"
+echo "  Narration URL: $NARRATION_URL"
+echo "  Locations URL: grpc://$LOCATIONS_HOST:443"
 echo "  Apicurio Schema Registry: $APICURIO_URL"
 
 if "$CREATE_CONTAINER_REGISTRY"; then

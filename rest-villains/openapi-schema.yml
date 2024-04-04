@@ -7,8 +7,6 @@ info:
     name: Quarkus
     url: https://github.com/quarkusio
   version: "1.0"
-servers:
-- url: http://localhost:8084
 tags:
 - name: hello
 - name: villains
@@ -34,6 +32,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Villain'
+              examples:
+                villains:
+                  value:
+                  - id: 1
+                    name: Darth Vader
+                    level: 5
+                    picture: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg
+                    powers: "Uses light sabre, dark side of the force"
     put:
       tags:
       - villains
@@ -45,6 +51,15 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/Villain'
+            examples:
+              villains:
+                value:
+                - id: 1
+                  name: Darth Vader
+                  level: 5
+                  picture: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg
+                  powers: "Uses light sabre, dark side of the force"
+        required: true
       responses:
         "201":
           description: The URI to retrieve all the created villains
@@ -65,6 +80,14 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Villain'
+            examples:
+              valid_villain:
+                value:
+                  name: Darth Vader
+                  level: 5
+                  picture: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg
+                  powers: "Uses light sabre, dark side of the force"
+        required: true
       responses:
         "201":
           description: The URI of the created villain
@@ -95,6 +118,9 @@ paths:
             text/plain:
               schema:
                 type: string
+              examples:
+                hello_success:
+                  value: Hello Villain Resource
   /api/villains/random:
     get:
       tags:
@@ -107,6 +133,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Villain'
+              examples:
+                villain:
+                  value:
+                    id: 1
+                    name: Darth Vader
+                    level: 5
+                    picture: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg
+                    powers: "Uses light sabre, dark side of the force"
         "404":
           description: No villain found
   /api/villains/{id}:
@@ -128,6 +162,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Villain'
+              examples:
+                villain:
+                  value:
+                    id: 1
+                    name: Darth Vader
+                    level: 5
+                    picture: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg
+                    powers: "Uses light sabre, dark side of the force"
         "404":
           description: The villain is not found for a given identifier
     put:
@@ -135,11 +177,27 @@ paths:
       - villains
       summary: Completely updates/replaces an exiting villain by replacing it with
         the passed-in villain
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Villain'
+            examples:
+              valid_villain:
+                value:
+                  id: 1
+                  name: Darth Vader
+                  level: 5
+                  picture: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg
+                  powers: "Uses light sabre, dark side of the force"
+        required: true
       responses:
         "204":
           description: Replaced the villain
@@ -177,6 +235,15 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Villain'
+            examples:
+              valid_villain:
+                value:
+                  id: 1
+                  name: Darth Vader
+                  level: 5
+                  picture: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg
+                  powers: "Uses light sabre, dark side of the force"
+        required: true
       responses:
         "200":
           description: Updated the villain
@@ -184,12 +251,186 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Villain'
+              examples:
+                villain:
+                  value:
+                    id: 1
+                    name: Darth Vader
+                    level: 5
+                    picture: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg
+                    powers: "Uses light sabre, dark side of the force"
         "400":
           description: Null villain passed in (or no request body found)
         "404":
           description: No villain found
 components:
   schemas:
+    Charset:
+      type: object
+      properties:
+        name:
+          type: string
+        aliases:
+          type: array
+          items:
+            type: string
+        aliasSet:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        registered:
+          type: boolean
+    Expression:
+      type: object
+      properties:
+        namespace:
+          type: string
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Part'
+        literal:
+          type: boolean
+        literalValue: {}
+        origin:
+          $ref: '#/components/schemas/Origin'
+        generatedId:
+          format: int32
+          type: integer
+    Locale:
+      type: object
+      properties:
+        language:
+          type: string
+        script:
+          type: string
+        country:
+          type: string
+        variant:
+          type: string
+        extensionKeys:
+          uniqueItems: true
+          type: array
+          items:
+            format: byte
+            type: string
+        unicodeLocaleAttributes:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        unicodeLocaleKeys:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        iSO3Language:
+          type: string
+        iSO3Country:
+          type: string
+        displayLanguage:
+          type: string
+        displayScript:
+          type: string
+        displayCountry:
+          type: string
+        displayVariant:
+          type: string
+        displayName:
+          type: string
+    Origin:
+      type: object
+      properties:
+        line:
+          format: int32
+          type: integer
+        lineCharacterStart:
+          format: int32
+          type: integer
+        lineCharacterEnd:
+          format: int32
+          type: integer
+        templateId:
+          type: string
+        templateGeneratedId:
+          type: string
+        variant:
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/Variant'
+          nullable: true
+    ParameterDeclaration:
+      type: object
+      properties:
+        typeInfo:
+          type: string
+        key:
+          type: string
+        defaultValue:
+          $ref: '#/components/schemas/Expression'
+        origin:
+          $ref: '#/components/schemas/Origin'
+    Part:
+      type: object
+      properties:
+        name:
+          type: string
+        typeInfo:
+          type: string
+        virtualMethod:
+          type: boolean
+    Template:
+      type: object
+      properties:
+        expressions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Expression'
+        generatedId:
+          type: string
+        id:
+          type: string
+        variant:
+          type: object
+          allOf:
+          - $ref: '#/components/schemas/Variant'
+          nullable: true
+        parameterDeclarations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParameterDeclaration'
+        fragmentIds:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        fragment:
+          type: boolean
+    TemplateInstance:
+      type: object
+      properties:
+        timeout:
+          format: int64
+          type: integer
+        template:
+          $ref: '#/components/schemas/Template'
+    Variant:
+      type: object
+      properties:
+        locale:
+          $ref: '#/components/schemas/Locale'
+        contentType:
+          type: string
+        encoding:
+          $ref: '#/components/schemas/Charset'
+        hashCode:
+          format: int32
+          type: integer
+        mediaType:
+          type: string
+        charset:
+          $ref: '#/components/schemas/Charset'
     Villain:
       required:
       - name
@@ -203,14 +444,13 @@ components:
           maxLength: 50
           minLength: 3
           type: string
-          nullable: false
         otherName:
           type: string
         level:
           format: int32
-          minimum: 1
+          minimum: 0
+          exclusiveMinimum: true
           type: integer
-          nullable: false
         picture:
           type: string
         powers:

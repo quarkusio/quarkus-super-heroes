@@ -13,17 +13,21 @@ import java.util.Random;
 
 import jakarta.ws.rs.core.HttpHeaders;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
+
+import io.quarkus.sample.superheroes.villain.Villain;
+
+import io.restassured.RestAssured;
 
 @QuarkusIntegrationTest
 @TestMethodOrder(OrderAnnotation.class)
-public class VillainResourceIT {
+class VillainResourceIT {
 	private static final int DEFAULT_ORDER = 0;
 	private static final String DEFAULT_NAME = "Super Chocolatine";
 	private static final String UPDATED_NAME = DEFAULT_NAME + " (updated)";
@@ -40,9 +44,14 @@ public class VillainResourceIT {
 	private static final int NB_VILLAINS = 100;
 	private static String villainId;
 
+	@BeforeAll
+	static void beforeAll() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+	}
+
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void helloEndpoint() {
+	void helloEndpoint() {
 		given()
 			.when()
 				.accept(TEXT_PLAIN)
@@ -54,14 +63,14 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotGetUnknownVillain() {
+	void shouldNotGetUnknownVillain() {
 		get("/api/villains/{id}", new Random().nextLong())
 			.then().statusCode(NOT_FOUND.getStatusCode());
 	}
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldGetRandomVillainFound() {
+	void shouldGetRandomVillainFound() {
 		get("/api/villains/random")
 			.then()
 				.statusCode(OK.getStatusCode())
@@ -71,7 +80,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotAddInvalidItem() {
+	void shouldNotAddInvalidItem() {
 		var villain = new Villain();
 		villain.name = null;
 		villain.otherName = DEFAULT_OTHER_NAME;
@@ -91,7 +100,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotFullyUpdateInvalidItem() {
+	void shouldNotFullyUpdateInvalidItem() {
 		var villain = new Villain();
 		villain.id = 1L;
 		villain.name = null;
@@ -112,7 +121,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotPartiallyUpdateInvalidItem() {
+	void shouldNotPartiallyUpdateInvalidItem() {
 		var villain = new Villain();
 		villain.id = 50L;
 		villain.name = null;
@@ -133,7 +142,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotAddNullItem() {
+	void shouldNotAddNullItem() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -145,7 +154,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotFullyUpdateNullItem() {
+	void shouldNotFullyUpdateNullItem() {
 		given()
 				.when()
           .contentType(JSON)
@@ -158,7 +167,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotFullyUpdateNotFoundItem() {
+	void shouldNotFullyUpdateNotFoundItem() {
 		Villain villain = new Villain();
 		villain.id = -1L;
 		villain.name = UPDATED_NAME;
@@ -179,7 +188,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotPartiallyUpdateNullItem() {
+	void shouldNotPartiallyUpdateNullItem() {
 		given()
 			.when()
 				.contentType(JSON)
@@ -192,7 +201,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER)
-	public void shouldNotPartiallyUpdateNotFoundItem() {
+	void shouldNotPartiallyUpdateNotFoundItem() {
 		Villain villain = new Villain();
 		villain.picture = DEFAULT_PICTURE;
 		villain.powers = DEFAULT_POWERS;
@@ -209,7 +218,7 @@ public class VillainResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER)
-  public void shouldNotGetAnyVillainsThatDontMatchFilterCriteria() {
+  void shouldNotGetAnyVillainsThatDontMatchFilterCriteria() {
     given()
       .when()
         .queryParam("name_filter", "iooi90904890358349 8890re9ierkjlk;sdf098w459idxflkjdfjoiio4ue")
@@ -221,7 +230,7 @@ public class VillainResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER)
-  public void shouldGetVillainsThatMatchFilterCriteria() {
+  void shouldGetVillainsThatMatchFilterCriteria() {
     var villains = given()
       .when()
         .queryParam("name_filter", "darth")
@@ -239,7 +248,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 1)
-	public void shouldGetInitialItems() {
+	void shouldGetInitialItems() {
 		get("/api/villains")
 			.then()
 			.statusCode(OK.getStatusCode())
@@ -249,7 +258,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 2)
-	public void shouldAddAnItem() {
+	void shouldAddAnItem() {
 		Villain villain = new Villain();
 		villain.name = DEFAULT_NAME;
 		villain.otherName = DEFAULT_OTHER_NAME;
@@ -307,7 +316,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 3)
-	public void shouldFullyUpdateAnItem() {
+	void shouldFullyUpdateAnItem() {
 		Villain villain = new Villain();
 		villain.id = Long.valueOf(villainId);
 		villain.name = UPDATED_NAME;
@@ -345,7 +354,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 4)
-	public void shouldPartiallyUpdateAnItem() {
+	void shouldPartiallyUpdateAnItem() {
 		Villain villain = new Villain();
 		villain.picture = DEFAULT_PICTURE;
 		villain.powers = DEFAULT_POWERS;
@@ -384,7 +393,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 5)
-	public void shouldDeleteVillain() {
+	void shouldDeleteVillain() {
 		delete("/api/villains/{id}", villainId)
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
@@ -399,7 +408,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 6)
-	public void shouldDeleteAllVillains() {
+	void shouldDeleteAllVillains() {
 		delete("/api/villains/")
 			.then()
 				.statusCode(NO_CONTENT.getStatusCode())
@@ -413,7 +422,7 @@ public class VillainResourceIT {
 
 	@Test
 	@Order(DEFAULT_ORDER + 7)
-	public void shouldGetRandomVillainNotFound() {
+	void shouldGetRandomVillainNotFound() {
 		given()
 			.when().get("/api/villains/random")
 			.then().statusCode(NOT_FOUND.getStatusCode());
@@ -421,7 +430,7 @@ public class VillainResourceIT {
 
   @Test
   @Order(DEFAULT_ORDER + 8)
-  public void shouldReplaceAllVillains() {
+  void shouldReplaceAllVillains() {
     var v1 = new Villain();
 		v1.name = DEFAULT_NAME;
 		v1.otherName = DEFAULT_OTHER_NAME;
@@ -486,7 +495,7 @@ public class VillainResourceIT {
   }
 
 	@Test
-	public void shouldPingOpenAPI() {
+	void shouldPingOpenAPI() {
 		given()
 			.when()
 				.accept(JSON)

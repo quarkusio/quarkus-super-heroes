@@ -16,10 +16,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource;
-import io.quarkus.sample.superheroes.fight.InjectWireMock;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+
+import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
+import io.quarkus.sample.superheroes.fight.InjectWireMock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,10 +31,10 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
 /**
  * Tests for the {@link io.quarkus.sample.superheroes.fight.client.VillainClient}. Uses wiremock to stub responses and verify interactions.
- * @see io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource
+ * @see HeroesVillainsNarrationWiremockServerResource
  */
 @QuarkusTest
-@QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
+@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
 class VillainClientTests {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
@@ -92,18 +93,7 @@ class VillainClientTests {
 
         assertThat(villain)
           .isNotNull()
-          .extracting(
-            Villain::getName,
-            Villain::getLevel,
-            Villain::getPicture,
-            Villain::getPowers
-          )
-          .containsExactly(
-            DEFAULT_VILLAIN_NAME,
-            DEFAULT_VILLAIN_LEVEL,
-            DEFAULT_VILLAIN_PICTURE,
-            DEFAULT_VILLAIN_POWERS
-          );
+          .isEqualTo(DEFAULT_VILLAIN);
       });
 
     this.wireMockServer.verify(5,
@@ -171,7 +161,7 @@ class VillainClientTests {
     assertThat(ex)
       .isNotNull()
       .isExactlyInstanceOf(CircuitBreakerOpenException.class)
-      .hasMessageContainingAll(String.format("%s#findRandomVillain", VillainClient.class.getName()), "circuit breaker is open");
+      .hasMessageContainingAll("%s#findRandomVillain".formatted(VillainClient.class.getName()), "circuit breaker is open");
 
     // Verify that the breaker is open
     assertThat(this.circuitBreakerMaintenance.currentState("findRandomVillain"))

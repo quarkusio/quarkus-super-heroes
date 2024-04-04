@@ -18,6 +18,12 @@ data:
   quarkus.stork.villain-service.service-discovery.application: rest-villains
   quarkus.stork.villain-service.service-discovery.refresh-period: 1H
   quarkus.stork.villain-service.service-discovery.port-name: http
+  quarkus.stork.narration-service.service-discovery.type: kubernetes
+  quarkus.stork.narration-service.service-discovery.application: rest-narration
+  quarkus.stork.narration-service.service-discovery.refresh-period: 1H
+  quarkus.stork.narration-service.service-discovery.port-name: http
+  quarkus.grpc.clients.locations.host: grpc-locations
+  quarkus.grpc.clients.locations.port: 80
   quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
@@ -42,36 +48,3 @@ spec:
   to:
     kind: Service
     name: apicurio
----
-apiVersion: image.openshift.io/v1
-kind: ImageStream
-metadata:
-  name: rest-fights
-spec:
-  lookupPolicy:
-    local: false
-  tags:
-    - name: java11-latest
-      annotations: null
-      from:
-        kind: DockerImage
-        name: 'quay.io/quarkus-super-heroes/rest-fights:java11-latest'
-      importPolicy: {}
-      referencePolicy:
-        type: Source
-    - name: java17-latest
-      annotations: null
-      from:
-        kind: DockerImage
-        name: 'quay.io/quarkus-super-heroes/rest-fights:java17-latest'
-      importPolicy: { }
-      referencePolicy:
-        type: Source
-    - name: native-latest
-      annotations: null
-      from:
-        kind: DockerImage
-        name: 'quay.io/quarkus-super-heroes/rest-fights:native-latest'
-      importPolicy: { }
-      referencePolicy:
-        type: Source

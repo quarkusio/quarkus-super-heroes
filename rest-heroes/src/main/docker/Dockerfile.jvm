@@ -75,7 +75,14 @@
 #   accessed directly. (example: "foo.example.com,bar.example.com")
 #
 ###
-FROM registry.access.redhat.com/ubi9/openjdk-17:1.14
+FROM registry.access.redhat.com/ubi9/openjdk-17-runtime:1.17
+
+# This is here because of
+# https://www.redhat.com/en/blog/rhel-security-sha-1-package-signatures-distrusted-rhel-9
+#
+# https://access.redhat.com/solutions/6992400 provides the solution to add SHA1 back
+USER root
+RUN update-crypto-policies --set DEFAULT:SHA1
 
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en'
 
@@ -88,5 +95,5 @@ COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
 
 EXPOSE 8083
 USER 185
-ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"

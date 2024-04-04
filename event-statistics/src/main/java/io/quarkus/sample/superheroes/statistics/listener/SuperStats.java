@@ -11,6 +11,7 @@ import org.eclipse.microprofile.reactive.messaging.Outgoing;
 import org.jboss.logging.Logger;
 
 import io.quarkus.opentelemetry.runtime.QuarkusContextStorage;
+
 import io.quarkus.sample.superheroes.fight.schema.Fight;
 import io.quarkus.sample.superheroes.statistics.domain.Score;
 import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
@@ -170,7 +171,7 @@ public class SuperStats {
       .spanBuilder(spanName)
       .setAttribute("arg.fight", fight.toString());
 
-    parent.ifPresent(c -> spanBuilder.setParent(c));
+    parent.ifPresent(spanBuilder::setParent);
 
     return spanBuilder.startSpan();
   }

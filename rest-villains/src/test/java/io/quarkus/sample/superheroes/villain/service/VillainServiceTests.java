@@ -21,13 +21,14 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import io.quarkus.panache.mock.PanacheMock;
+import io.quarkus.test.Mock;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectSpy;
+
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.config.VillainConfig;
 import io.quarkus.sample.superheroes.villain.mapping.VillainFullUpdateMapper;
 import io.quarkus.sample.superheroes.villain.mapping.VillainPartialUpdateMapper;
-import io.quarkus.test.Mock;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectSpy;
 
 import io.smallrye.config.SmallRyeConfig;
 
@@ -59,7 +60,7 @@ class VillainServiceTests {
 	VillainFullUpdateMapper villainFullUpdateMapper;
 
 	@Test
-	public void findAllVillainsNoneFound() {
+	void findAllVillainsNoneFound() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.listAll()).thenReturn(List.of());
 
@@ -72,7 +73,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void findAllVillains() {
+	void findAllVillains() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.listAll()).thenReturn(List.of(createDefaultVillian()));
 
@@ -106,7 +107,7 @@ class VillainServiceTests {
   @ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
   @ValueSource(strings = { "name" })
   @NullSource
-  public void findAllVillainsHavingNameNoneFound(String name) {
+  void findAllVillainsHavingNameNoneFound(String name) {
     PanacheMock.mock(Villain.class);
     when(Villain.listAllWhereNameLike(eq(name))).thenReturn(List.of());
 
@@ -119,7 +120,7 @@ class VillainServiceTests {
   }
 
   @Test
-  public void findAllVillainsHavingName() {
+  void findAllVillainsHavingName() {
     PanacheMock.mock(Villain.class);
     when(Villain.listAllWhereNameLike(eq("name"))).thenReturn(List.of(createDefaultVillian()));
 
@@ -151,7 +152,7 @@ class VillainServiceTests {
   }
 
 	@Test
-	public void findVillainByIdFound() {
+	void findVillainByIdFound() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.findByIdOptional(eq(DEFAULT_ID)))
 			.thenReturn(Optional.of(createDefaultVillian()));
@@ -182,7 +183,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void findVillainByIdNotFound() {
+	void findVillainByIdNotFound() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.empty());
 
@@ -195,7 +196,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void findRandomVillainNotFound() {
+	void findRandomVillainNotFound() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.findRandom()).thenReturn(Optional.empty());
 
@@ -208,7 +209,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void findRandomVillainFound() {
+	void findRandomVillainFound() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.findRandom()).thenReturn(Optional.of(createDefaultVillian()));
 
@@ -238,7 +239,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void persistNullVillain() {
+	void persistNullVillain() {
 		PanacheMock.mock(Villain.class);
 		var cve = catchThrowableOfType(() -> this.villainService.persistVillain(null), ConstraintViolationException.class);
 
@@ -268,7 +269,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void persistInvalidVillain() {
+	void persistInvalidVillain() {
 		PanacheMock.mock(Villain.class);
 		var villain = createDefaultVillian();
 		villain.name = "a";
@@ -301,7 +302,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void persistVillain() {
+	void persistVillain() {
 		PanacheMock.mock(Villain.class);
 		PanacheMock.doNothing()
 			.when(Villain.class).persist(any(Villain.class), any());
@@ -331,7 +332,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void fullyUpdateNullVillain() {
+	void fullyUpdateNullVillain() {
 		PanacheMock.mock(Villain.class);
 		var cve = catchThrowableOfType(() -> this.villainService.replaceVillain(null), ConstraintViolationException.class);
 
@@ -362,7 +363,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void fullyUpdateInvalidVillain() {
+	void fullyUpdateInvalidVillain() {
 		PanacheMock.mock(Villain.class);
 		var villain = createDefaultVillian();
 		villain.name = null;
@@ -396,7 +397,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void fullyUpdateNotFoundVillain() {
+	void fullyUpdateNotFoundVillain() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.empty());
 
@@ -410,7 +411,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void fullyUpdateVillain() {
+	void fullyUpdateVillain() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.of(createDefaultVillian()));
 
@@ -442,7 +443,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void partiallyUpdateNullVillain() {
+	void partiallyUpdateNullVillain() {
 		PanacheMock.mock(Villain.class);
 		var cve = catchThrowableOfType(() -> this.villainService.partialUpdateVillain(null), ConstraintViolationException.class);
 
@@ -473,7 +474,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void partiallyUpdateInvalidVillain() {
+	void partiallyUpdateInvalidVillain() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.of(createDefaultVillian()));
 		var villain = createDefaultVillian();
@@ -510,7 +511,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void partiallyUpdateNotFoundVillain() {
+	void partiallyUpdateNotFoundVillain() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.empty());
 
@@ -524,7 +525,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void partiallyUpdateVillain() {
+	void partiallyUpdateVillain() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.findByIdOptional(eq(DEFAULT_ID))).thenReturn(Optional.of(createDefaultVillian()));
 
@@ -556,7 +557,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void deleteVillain() {
+	void deleteVillain() {
 		PanacheMock.mock(Villain.class);
 		when(Villain.deleteById(eq(DEFAULT_ID))).thenReturn(true);
 
@@ -567,7 +568,7 @@ class VillainServiceTests {
 	}
 
 	@Test
-	public void deleteAllVillains() {
+	void deleteAllVillains() {
 		var v1 = createDefaultVillian();
 		var v2 = createUpdatedVillain();
 		v2.id = v1.id + 1;
@@ -585,7 +586,7 @@ class VillainServiceTests {
 	}
 
   @Test
-  public void replaceAllVillains() {
+  void replaceAllVillains() {
     var v1 = createDefaultVillian();
 		var v2 = createUpdatedVillain();
 		v2.id = v1.id + 1;

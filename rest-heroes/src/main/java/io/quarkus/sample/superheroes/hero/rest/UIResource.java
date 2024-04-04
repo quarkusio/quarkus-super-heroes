@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
+
 import io.quarkus.sample.superheroes.hero.Hero;
 import io.quarkus.sample.superheroes.hero.service.HeroService;
 

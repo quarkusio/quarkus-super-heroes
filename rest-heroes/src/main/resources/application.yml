@@ -1,6 +1,8 @@
 quarkus:
   application:
     name: rest-heroes
+  banner:
+    path: banner.txt
   log:
     level: INFO
     category:
@@ -34,7 +36,6 @@ quarkus:
     info-version: 1.0
     info-contact-name: Quarkus
     info-contact-url: https://github.com/quarkusio
-    servers: "http://localhost:${quarkus.http.port}"
   swagger-ui:
     always-include: true
   container-image:
@@ -54,40 +55,29 @@ quarkus:
       application: "${quarkus.kubernetes.part-of}"
       system: quarkus-super-heroes
   openshift:
-    base-jvm-image: registry.access.redhat.com/ubi9/openjdk-17:1.14
+    base-jvm-image: registry.access.redhat.com/ubi9/openjdk-17:1.17
     base-native-image: quay.io/quarkus/ubi-quarkus-native-binary-s2i:2.0
-    part-of: "${quarkus.kubernetes.part-of}"
+    deployment-kind: deployment
     route:
       expose: true
+      tls:
+        termination: edge
+        insecure-edge-termination-policy: Redirect
     annotations:
       "app.openshift.io/connects-to": heroes-db,otel-collector
-    env:
-      configmaps: "${quarkus.kubernetes.env.configmaps}"
-      secrets: "${quarkus.kubernetes.env.secrets}"
     labels:
       app: "${quarkus.kubernetes.labels.app}"
-      application: "${quarkus.openshift.part-of}"
+      application: "${quarkus.kubernetes.part-of}"
       system: "${quarkus.kubernetes.labels.system}"
   knative:
-    part-of: "${quarkus.kubernetes.part-of}"
     annotations:
       "app.openshift.io/connects-to": heroes-db,otel-collector
-    env:
-      configmaps: "${quarkus.kubernetes.env.configmaps}"
-      secrets: "${quarkus.kubernetes.env.secrets}"
     labels:
       app: "${quarkus.kubernetes.labels.app}"
-      application: "${quarkus.openshift.part-of}"
+      application: "${quarkus.kubernetes.part-of}"
       system: "${quarkus.kubernetes.labels.system}"
 
-"%dev":
-  quarkus:
-    log:
-      console:
-        format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
-        level: DEBUG
-
-"%test":
+"%dev,test":
   quarkus:
     log:
       console:

@@ -16,10 +16,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource;
-import io.quarkus.sample.superheroes.fight.InjectWireMock;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+
+import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
+import io.quarkus.sample.superheroes.fight.InjectWireMock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,10 +31,10 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
 /**
  * Tests for the {@link io.quarkus.sample.superheroes.fight.client.HeroClient}. Uses wiremock to stub responses and verify interactions.
- * @see io.quarkus.sample.superheroes.fight.HeroesVillainsWiremockServerResource
+ * @see HeroesVillainsNarrationWiremockServerResource
  */
 @QuarkusTest
-@QuarkusTestResource(HeroesVillainsWiremockServerResource.class)
+@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
 class HeroClientTests {
   private static final String HERO_API_BASE_URI = "/api/heroes";
   private static final String HERO_RANDOM_URI = HERO_API_BASE_URI + "/random";
@@ -91,18 +92,7 @@ class HeroClientTests {
 
         assertThat(hero)
           .isNotNull()
-          .extracting(
-            Hero::getName,
-            Hero::getLevel,
-            Hero::getPicture,
-            Hero::getPowers
-          )
-          .containsExactly(
-            DEFAULT_HERO_NAME,
-            DEFAULT_HERO_LEVEL,
-            DEFAULT_HERO_PICTURE,
-            DEFAULT_HERO_POWERS
-          );
+          .isEqualTo(DEFAULT_HERO);
       });
 
     this.wireMockServer.verify(5,
@@ -170,7 +160,7 @@ class HeroClientTests {
     assertThat(ex)
       .isNotNull()
       .isExactlyInstanceOf(CircuitBreakerOpenException.class)
-      .hasMessageContainingAll(String.format("%s#findRandomHero", HeroClient.class.getName()), "circuit breaker is open");
+      .hasMessageContainingAll("%s#findRandomHero".formatted(HeroClient.class.getName()), "circuit breaker is open");
 
     // Verify that the breaker is open
     assertThat(this.circuitBreakerMaintenance.currentState("findRandomHero"))
