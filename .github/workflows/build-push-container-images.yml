@@ -119,7 +119,7 @@ jobs:
       fail-fast: false
       matrix:
         java:
-          - '17'
+          - { jvm: '17', mandrel: '21' }
         project:
           - { name: event-statistics }
           - { name: rest-fights }
@@ -132,7 +132,7 @@ jobs:
         arch:
           - amd64
           - arm64
-    name: "Build Native images (${{ matrix.arch }}-${{ matrix.project.name }}-java${{ matrix.java }}-${{ matrix.project.openai-type }})"
+    name: "Build Native images (${{ matrix.arch }}-${{ matrix.project.name }}-java${{ matrix.java.jvm }}-${{ matrix.project.openai-type }})"
     steps:
       - name: Calculate Branch (workflow_run event)
         if: github.event_name == 'workflow_run'
@@ -154,7 +154,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java }}
+          java-version: ${{ matrix.java.jvm }}
           distribution: temurin
           cache: maven
 
@@ -166,7 +166,7 @@ jobs:
       - name: Create CONTAINER_TAG
         working-directory: .github/workflows/scripts
         shell: bash
-        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "native-" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "native-" ${{ matrix.java.jvm }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
 
       - name: Set up QEMU
         if: matrix.arch == 'arm64'
@@ -179,21 +179,21 @@ jobs:
         with:
           install: true
 
-      - name: Build native image (${{ matrix.project.name }}-java${{ matrix.java }}-${{ matrix.arch }}-${{ matrix.project.openai-type }})
+      - name: Build native image (${{ matrix.project.name }}-java${{ matrix.java.jvm }}-${{ matrix.arch }}-${{ matrix.project.openai-type }})
         working-directory: ${{ matrix.project.name }}
         run: |
           ./mvnw -B clean package -DskipTests -Pnative \
-            -Dmaven.compiler.release=${{ matrix.java }} \
+            -Dmaven.compiler.release=${{ matrix.java.jvm }} \
             -Dquarkus.http.host=0.0.0.0 \
             -Dquarkus.native.container-build=true \
-            -Dquarkus.native.builder-image=${{ env.MANDREL_IMAGE }}:jdk-${{ matrix.java }} \
+            -Dquarkus.native.builder-image=${{ env.MANDREL_IMAGE }}:jdk-${{ matrix.java.mandrel }} \
             -Dquarkus.native.container-runtime-options=--platform=linux/${{ matrix.arch }} \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.push=false \
             -Dquarkus.container-image.tag=${{ env.CONTAINER_TAG }}-${{ matrix.arch }} \
             -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
 
-      - name: Save native Image (${{ matrix.project.name }}-java${{ matrix.java }}-${{ matrix.arch }}-${{ matrix.project.openai-type }})
+      - name: Save native Image (${{ matrix.project.name }}-java${{ matrix.java.jvm }}-${{ matrix.arch }}-${{ matrix.project.openai-type }})
         uses: ishworkh/container-image-artifact-upload@v1.0.0
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
