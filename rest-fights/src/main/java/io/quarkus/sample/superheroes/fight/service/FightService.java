@@ -16,8 +16,6 @@ import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Message;
-import org.eclipse.microprofile.reactive.messaging.Metadata;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import io.quarkus.logging.Log;
@@ -37,13 +35,11 @@ import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
 
-import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.smallrye.faulttolerance.api.CircuitBreakerName;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
-import io.smallrye.reactive.messaging.TracingMetadata;
 
 /**
  * Business logic for the Fight service
@@ -108,11 +104,12 @@ public class FightService {
 		var hero = findRandomHero()
       .onItem().ifNull().continueWith(this::createFallbackHero);
 
-		return addDelay(Uni.combine()
-			.all()
-			.unis(hero, villain)
-      .with((h, v) -> new Fighters(h, v))
-		);
+    return addDelay(
+      Uni.combine()
+        .all()
+        .unis(hero, villain)
+        .with(Fighters::new)
+    );
 	}
 
   @Timeout(value = 2, unit = ChronoUnit.SECONDS)
@@ -289,7 +286,7 @@ public class FightService {
 		return Fight.persist(fight)
       .replaceWith(fight)
       .map(this.fightMapper::toSchema)
-      .invoke(f -> this.emitter.sendMessageAndForget(Message.of(f, Metadata.of(TracingMetadata.withCurrent(Context.current())))))
+      .invoke(this.emitter::sendAndForget)
       .replaceWith(fight);
 	}
 
