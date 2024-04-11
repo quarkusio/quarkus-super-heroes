@@ -25,29 +25,29 @@ import org.jboss.resteasy.reactive.RestPath;
 public interface AuthRestClient {
   @GET
   @Path("/q/webauthn/webauthn.js")
-  public Uni<Response> javascript();
+  Uni<Response> javascript();
   @POST
   @Path("/q/webauthn/register")
-  public Uni<Response> setUpObtainRegistrationChallenge(JsonObject jsonObject);
+  Uni<Response> setUpObtainRegistrationChallenge(JsonObject jsonObject);
   @POST
   @Path("/register")
-  public Uni<Response> register(  @FormParam("userName") String userName,@FormParam("plan") String plan,@BeanParam WebAuthnRegisterResponse webAuthnResponse);
+  Uni<Response> register(  @FormParam("userName") String userName,@FormParam("plan") String plan,@BeanParam WebAuthnRegisterResponse webAuthnResponse);
   @POST
   @Path("/q/webauthn/login")
-  public Uni<Response> setUpObtainLoginChallenge(JsonObject jsonObject);
+  Uni<Response> setUpObtainLoginChallenge(JsonObject jsonObject);
   @POST
   @Path("/q/webauthn/callback")
-  public Uni<Response> callback(JsonObject jsonObject);
+  Uni<Response> callback(JsonObject jsonObject);
   @GET
   @Path("/q/webauthn/logout")
-  public Uni<Response> logout();
+  Uni<Response> logout();
 
   @GET
   @Path("/verify-session")
-  public Uni<Response> verify();
+  Uni<Response> verify();
 
   @GET
   @Path("/feature-access/{feature}")
-  public Uni<Boolean> checkFeatureAccess(@RestPath String feature);
+  Uni<Boolean> checkFeatureAccess(@RestPath String feature);
 
 }

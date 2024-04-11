@@ -50,7 +50,6 @@ public class AuthResourceReactive {
   AuthorizationModelClient defaultAuthModelClient;
   @Path("/register")
   @POST
-  @FGARelation(FGARelation.ANY)
   @WithTransaction
   public Uni<Response> register(@RestForm String userName,@RestForm String plan, @BeanParam WebAuthnRegisterResponse webAuthnResponse, RoutingContext ctx) {
     // Input validation
@@ -99,7 +98,6 @@ public class AuthResourceReactive {
 
     @GET
     @Path("/verify-session")
-    @FGARelation(FGARelation.ANY)
     public Uni<Response> verify(@Context SecurityContext securityContext, RoutingContext ctx){
       return Uni.createFrom().item(securityContext.getUserPrincipal())
         .onItem().ifNotNull().transform(principal -> {
@@ -114,7 +112,6 @@ public class AuthResourceReactive {
 
     @GET
     @Path("/feature-access/{feature}")
-    @FGARelation(FGARelation.ANY)
     public Uni<Boolean> checkFeatureAccess(@RestPath String feature,@Context SecurityContext securityContext, RoutingContext ctx) {
       return Uni.createFrom().item(securityContext.getUserPrincipal()).onItem().ifNotNull().transformToUni(principal -> {
         return User.findByUserName(principal.getName()).onItem().ifNotNull().transformToUni(user -> {

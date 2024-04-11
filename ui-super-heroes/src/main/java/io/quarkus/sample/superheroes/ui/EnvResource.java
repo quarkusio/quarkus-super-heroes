@@ -21,6 +21,8 @@ public class EnvResource {
 
     @ConfigProperty(name = "api.base.url", defaultValue = "http://localhost:8082")
     String url;
+    @ConfigProperty(name = "auth.base.url", defaultValue = "http://localhost:8086")
+    String authUrl;
 
     @ConfigProperty(name = "calculate.api.base.url", defaultValue = "false")
     boolean calculateApiBaseUrl;
@@ -32,7 +34,7 @@ public class EnvResource {
     @Produces(APPLICATION_JSON)
     @NonBlocking
     public String getConfig() throws JsonProcessingException {
-        var config = new Config(this.url, this.calculateApiBaseUrl);
+        var config = new Config(this.url, this.authUrl, this.calculateApiBaseUrl);
 
         // We could just return the Config object, but that would be json, and we want a
         // javascript snippet we can include with <script src="..."/>

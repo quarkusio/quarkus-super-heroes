@@ -12,5 +12,5 @@ object mapping, we need to do our own registering.
  */
 @JsonNaming(PropertyNamingStrategies.UpperSnakeCaseStrategy.class)
 @RegisterForReflection
-public record Config(String apiBaseUrl, boolean calculateApiBaseUrl) {
+public record Config(String apiBaseUrl, String authUrl, boolean calculateApiBaseUrl) {
 }

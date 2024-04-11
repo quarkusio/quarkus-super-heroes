@@ -3,14 +3,8 @@ import loadWebAuthn from './loadWebauthnLibrary';
 
 import WebAuthn from './WebAuthn';
  function Login({onLoginSuccess}) {
-    let basePath = window?.APP_CONFIG?.API_BASE_URL
-    const calculateApiBaseUrl = window?.APP_CONFIG?.CALCULATE_API_BASE_URL
+    let authPath = window?.APP_CONFIG?.AUTH_URL
 
-    if (calculateApiBaseUrl) {
-    // If calculateApiBaseUrl then just replace "ui-super-heroes" with "rest-fights" in the current URL
-    basePath = window.location.protocol + "//" + window.location.host.replace('ui-super-heroes', 'rest-fights')
-    
-    }
      const [userName, setUserName] = useState('');
      const [firstName, setFirstName] = useState('');
      const [lastName, setLastName] = useState('');
@@ -27,9 +21,9 @@ import WebAuthn from './WebAuthn';
      const handleLogin = () => {
         setResult('');
         const webAuthn = new WebAuthn({
-            callbackPath: `${basePath}` +'/q/webauthn/callback',
-            registerPath: `${basePath}` +'/q/webauthn/register',
-            loginPath: `${basePath}` +'/q/webauthn/login'
+            callbackPath: `${authPath}` +'/q/webauthn/callback',
+            registerPath: `${authPath}` +'/q/webauthn/register',
+            loginPath: `${authPath}` +'/q/webauthn/login'
         })
         webAuthn.login({ name: userName })
                 .then(body => {
@@ -44,9 +38,9 @@ import WebAuthn from './WebAuthn';
      const handleRegister = () => {
         setResult('');
         const webAuthn = new WebAuthn({
-            callbackPath: `${basePath}` +'/q/webauthn/callback',
-            registerPath: `${basePath}` +'/q/webauthn/register',
-            loginPath: `${basePath}` +'/q/webauthn/login'
+            callbackPath: `${authPath}` +'/q/webauthn/callback',
+            registerPath: `${authPath}` +'/q/webauthn/register',
+            loginPath: `${authPath}` +'/q/webauthn/login'
       })
       webAuthn.registerOnly({
         name: userName, 
@@ -65,7 +59,7 @@ import WebAuthn from './WebAuthn';
         formData.append('webAuthnResponseAttestationObject', body.response.attestationObject);
         formData.append('webAuthnResponseClientDataJSON', body.response.clientDataJSON);
         formData.append('webAuthnType', body.type);
-        return fetch( `${basePath}` + '/register', {
+        return fetch( `${authPath}` + '/register', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -89,16 +83,13 @@ import WebAuthn from './WebAuthn';
          <div>
              <nav>
                  <ul>
-                     <li><a href="/api/public">Public API</a></li>
-                     <li><a href="/api/users/me">User API</a></li>
-                     <li><a href="/api/admin">Admin API</a></li>
-                     <li><a href= {`${basePath}/q/webauthn/logout`}>Logout</a></li>
+                     <li><a href= {`${authPath}/q/webauthn/logout`}>Logout</a></li>
                  </ul>
              </nav>
              <div className="container">
                  <div className="item">
                      <h1>Status</h1>
-                     <div id="result">{result}</div>
+                     <div id="result">result</div>
                  </div>
                  <div className="item">
                      <h1>Login</h1>

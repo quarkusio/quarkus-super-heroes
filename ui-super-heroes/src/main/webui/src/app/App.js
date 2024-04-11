@@ -4,18 +4,12 @@ import {useEffect, useState} from "react"
 import {getFights} from "./shared/api/fight-service"
 import Login from "./auth/Login"
 function App() {
-  let basePath = window?.APP_CONFIG?.API_BASE_URL
-const calculateApiBaseUrl = window?.APP_CONFIG?.CALCULATE_API_BASE_URL
 
-if (calculateApiBaseUrl) {
-  // If calculateApiBaseUrl then just replace "ui-super-heroes" with "rest-fights" in the current URL
-  basePath = window.location.protocol + "//" + window.location.host.replace('ui-super-heroes', 'rest-fights')
-}
+  let authPath = window?.APP_CONFIG?.AUTH_URL
+
 
 // Fallback to whatever is in the browser if basePath isn't set
-if (!basePath) {
-  basePath = window.location.protocol + "//" + window.location.host
-}
+
   const [fights, setFights] = useState()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
@@ -28,7 +22,7 @@ if (!basePath) {
   )
 
   useEffect(() => {
-    fetch(`${basePath}` + '/check-cookie', {
+    fetch(`${authPath}` + '/verify-session', {
       credentials: 'include',
       method: 'GET'
       
@@ -64,16 +58,6 @@ if (!basePath) {
       <Login onLoginSuccess={handleLoginSuccess} /> // Passing the callback to Login component
     )}
   </>
-
-
-    // {/* <>
-    //   <h1>
-    //     Welcome to Super Heroes Fight!
-    //   </h1>
-    //   <Login />
-    //   {/* <Fight onFight={refreshFights}/> */}
-    //   {/* <FightList fights={fights}/> */}
-    // </> */}
   )
 }
 
