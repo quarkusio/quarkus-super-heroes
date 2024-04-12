@@ -1,16 +1,17 @@
-name: Build and Push Container images
+name: Build and Push Container images - 3.8.Final
 
 env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
   MANDREL_IMAGE: "quay.io/quarkus/ubi-quarkus-mandrel-builder-image"
   LATEST_IMAGE_TAG: "latest"
+  BRANCH: 3.8.Final
 
 on:
   workflow_run:
     workflows:
       - "Basic build and test"
     branches:
-      - main
+      - 3.8.Final
     types:
       - completed
   workflow_dispatch:
@@ -21,7 +22,7 @@ concurrency:
 
 jobs:
   build-jvm-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'main')))
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == '3.8.Final')))
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -43,15 +44,11 @@ jobs:
     steps:
       - name: Calculate Branch (workflow_run event)
         if: github.event_name == 'workflow_run'
-        run: |
-          echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
+        run: echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
 
       - name: Calculate Branch (workflow_dispatch event)
         if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "REF=${{ github.sha }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
+        run: echo "REF=${{ github.sha }}" >> $GITHUB_ENV
 
       - name: Checkout from ${{ env.REF }}
         uses: actions/checkout@v4
@@ -113,7 +110,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
   build-native-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'main')))
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == '3.8.Final')))
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -136,15 +133,11 @@ jobs:
     steps:
       - name: Calculate Branch (workflow_run event)
         if: github.event_name == 'workflow_run'
-        run: |
-          echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
+        run: echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
 
       - name: Calculate Branch (workflow_dispatch event)
         if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "REF=${{ github.sha }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
+        run: echo "REF=${{ github.sha }}" >> $GITHUB_ENV
 
       - name: Checkout from ${{ env.REF }}
         uses: actions/checkout@v4
@@ -199,7 +192,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
   push-app-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'main')))
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == '3.8.Final')))
     needs:
       - build-jvm-images
       - build-native-images
@@ -227,15 +220,11 @@ jobs:
     steps:
       - name: Calculate Branch (workflow_run event)
         if: github.event_name == 'workflow_run'
-        run: |
-          echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
+        run: echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
 
       - name: Calculate Branch (workflow_dispatch event)
         if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "REF=${{ github.sha }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
+        run: echo "REF=${{ github.sha }}" >> $GITHUB_ENV
 
       - name: Checkout from ${{ env.REF }}
         uses: actions/checkout@v4
@@ -264,7 +253,7 @@ jobs:
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}"
 
   create-app-multiarch-manifests:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'main')))
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == '3.8.Final')))
     needs: push-app-images
     runs-on: ubuntu-latest
     strategy:
@@ -287,15 +276,11 @@ jobs:
     steps:
       - name: Calculate Branch (workflow_run)
         if: github.event_name == 'workflow_run'
-        run: |
-          echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
+        run: echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
 
       - name: Calculate Branch (workflow_dispatch event)
         if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "REF=${{ github.sha }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
+        run: echo "REF=${{ github.sha }}" >> $GITHUB_ENV
 
       - name: Checkout from ${{ env.REF }}
         uses: actions/checkout@v4
@@ -323,22 +308,22 @@ jobs:
           docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}
 
   deploy-resources-workflow-run:
-    if: ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.event.workflow_run.head_branch == 'main'))
+    if: ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.event.workflow_run.head_branch == '3.8.Final'))
     needs: create-app-multiarch-manifests
     uses: quarkusio/quarkus-super-heroes/.github/workflows/create-deploy-resources.yml@main
     secrets: inherit
     with:
       commit_id: ${{ github.event.workflow_run.head_commit.id }}
-      branch: ${{ github.event.workflow_run.head_branch }}
+      branch: ${{ env.BRANCH }}
 
   deploy-resources-workflow-dispatch:
-    if: ((github.event_name == 'workflow_dispatch') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.ref_name == 'main'))
+    if: ((github.event_name == 'workflow_dispatch') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.ref_name == '3.8.Final'))
     needs: create-app-multiarch-manifests
     uses: quarkusio/quarkus-super-heroes/.github/workflows/create-deploy-resources.yml@main
     secrets: inherit
     with:
       commit_id: ${{ github.sha }}
-      branch: ${{ github.ref_name }}
+      branch: ${{ env.BRANCH }}
 
   cleanup-artifacts:
     needs:

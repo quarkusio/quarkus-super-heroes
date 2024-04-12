@@ -29,7 +29,7 @@ It runs whenever code is pushed to the `main` branch as well as upon any pull re
 It runs `./mvnw clean verify` and `./mvnw clean verify -Pnative` on the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and [`ui-super-heroes`](../ui-super-heroes) applications on Java 17.
 
 ## Build and push container images workflow
-The [Build and push container images](../.github/workflows/build-push-container-images.yml) workflow does pretty much what it sounds like: builds and pushes container images. For JVM images, it builds both `amd64` and `arm64` images. Multi-arch native images are coming soon.
+The [Build and push container images](../.github/workflows/build-push-container-images-3.8.Final.yml) workflow does pretty much what it sounds like: builds and pushes container images. For JVM images, it builds both `amd64` and `arm64` images. Multi-arch native images are coming soon.
 
 It only runs on pushes to the `main` branch after successful completion of the above [_Basic building and testing_](#basic-building-and-testing-workflow) workflow.
    > [!TIP]
@@ -51,8 +51,8 @@ This image is a visual of what the workflow consists of:
 This job [Builds JVM container images](https://quarkus.io/guides/container-image#building) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and  [`ui-super-heroes`](../ui-super-heroes) applications on Java 17 (both amd64 & arm64 platforms) using the [Docker Build action](https://github.com/docker/build-push-action).
 
 Each container image created has 2 tags:
-- `java{{java-version}}-latest-amd64`
-- `java{{java-version}}-latest-arm64`
+- `java{{java-version}}-latest-3.8.Final-amd64`
+- `java{{java-version}}-latest-3.8.Final-arm64`
 
 > [!TIP]
 > - Replace `{{java-version}}` with the Java version the application was built with (i.e. `17`).
@@ -68,8 +68,8 @@ The job [Builds native executable container images](https://quarkus.io/guides/bu
 > The [`rest-narration`](../rest-narration) application currently doesn't support native compilation
 
 Each container image created has 2 tags:
-- `native-latest-amd64`
-- `native-latest-arm64`
+- `native-latest-3.8.Final-amd64`
+- `native-latest-3.8.Final-arm64`
 
 There are a total of 14 images built (7 applications x 2 platforms).
 
@@ -81,7 +81,7 @@ All the container images created in the [_Build JVM container image_](#build-jvm
 ### Create application multi-arch manifests
 Runs after successful completion of the [_Push application container images_](#push-application-container-images-job) job and in parallel with the [_Create UI multi-arch manifests_](#create-ui-multi-arch-manifests) job.
 
-All the application container images for each platform (amd64 & arm64) are combined into manifest lists using the [`docker manifest`](https://docs.docker.com/engine/reference/commandline/manifest) command. For example, the `java{{java-version}}-latest-amd64` and `java{{java-version}}-latest-arm64` tags are combined into a single manifest list with the tag `java{{java-version}}-latest`.
+All the application container images for each platform (amd64 & arm64) are combined into manifest lists using the [`docker manifest`](https://docs.docker.com/engine/reference/commandline/manifest) command. For example, the `java{{java-version}}-latest-3.8.Final-amd64` and `java{{java-version}}-latest-3.8.Final-arm64` tags are combined into a single manifest list with the tag `java{{java-version}}-latest`.
 
 ## Create deploy resources workflow
 The [Create deploy resources](../.github/workflows/create-deploy-resources.yml) workflow is responsible for [generating all of the application resources](#application-resource-generation), described in a later section of this document.

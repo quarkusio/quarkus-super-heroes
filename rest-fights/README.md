@@ -193,8 +193,8 @@ Pick one of the versions of the application from the table below and execute the
 
 | Description | Image Tag       | Docker Compose Run Command                                               |
 |-------------|-----------------|--------------------------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans` |
-| Native      | `native-latest` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
+| JVM Java 17 | `java17-latest-3.8.Final` | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans` |
+| Native      | `native-latest-3.8.Final` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
 
 ### Fights Service and all Downstream Dependencies
 The above Docker Compose files are meant for standing up this application and the required database, Kafka broker, and Apicurio Schema Registry only. If you want to stand up this application and its downstream services ([rest-villains](../rest-villains), [rest-heroes](../rest-heroes), [rest-narration](../rest-narration), & [grpc-locations](../grpc-locations)), pick one of the versions from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
@@ -204,8 +204,8 @@ The above Docker Compose files are meant for standing up this application and th
 
 | Description | Image Tag       | Docker Compose Run Command                                                              |
 |-------------|-----------------|-----------------------------------------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | `docker compose -f deploy/docker-compose/java17-all-downstream.yml up --remove-orphans` |
-| Native      | `native-latest` | `docker compose -f deploy/docker-compose/native-all-downstream.yml up --remove-orphans` |
+| JVM Java 17 | `java17-latest-3.8.Final` | `docker compose -f deploy/docker-compose/java17-all-downstream.yml up --remove-orphans` |
+| Native      | `native-latest-3.8.Final` | `docker compose -f deploy/docker-compose/native-all-downstream.yml up --remove-orphans` |
 
 ### Only Downstream Dependencies
 If you want to develop the Fights service (i.e. via [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode)) but want to stand up just it's downstream services ([rest-villains](../rest-villains), [rest-heroes](../rest-heroes), [rest-narration](../rest-narration), & [grpc-locations](../grpc-locations)), pick one of the versions from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes` directory.
@@ -215,8 +215,8 @@ If you want to develop the Fights service (i.e. via [Quarkus Dev Mode](https://q
 
 | Description | Image Tag       | Docker Compose Run Command                                                                                                                                                                                                                   |
 |-------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | `docker compose -f rest-heroes/deploy/docker-compose/java17.yml -f rest-villains/deploy/docker-compose/java17.yml -f rest-narration/deploy/docker-compose/java17.yml -f grpc-locations/deploy/docker-compose/java17.yml up --remove-orphans` |
-| Native      | `native-latest` | `docker compose -f rest-heroes/deploy/docker-compose/native.yml -f rest-villains/deploy/docker-compose/native.yml -f rest-narration/deploy/docker-compose/native.yml -f grpc-locations/deploy/docker-compose/java17.yml up --remove-orphans` |
+| JVM Java 17 | `java17-latest-3.8.Final` | `docker compose -f rest-heroes/deploy/docker-compose/java17.yml -f rest-villains/deploy/docker-compose/java17.yml -f rest-narration/deploy/docker-compose/java17.yml -f grpc-locations/deploy/docker-compose/java17.yml up --remove-orphans` |
+| Native      | `native-latest-3.8.Final` | `docker compose -f rest-heroes/deploy/docker-compose/native.yml -f rest-villains/deploy/docker-compose/native.yml -f rest-narration/deploy/docker-compose/native.yml -f grpc-locations/deploy/docker-compose/java17.yml up --remove-orphans` |
 
 If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
@@ -237,8 +237,8 @@ Pick one of the versions of the application from the table below and deploy the 
 
 | Description | Image Tag       | OpenShift Descriptor                                      | Minikube Descriptor                                     | Kubernetes Descriptor                                       | Knative Descriptor                                    |
 |-------------|-----------------|-----------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml) | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml) | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml) | [`java17-knative.yml`](deploy/k8s/java17-knative.yml) |
-| Native      | `native-latest` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
+| JVM Java 17 | `java17-latest-3.8.Final` | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml) | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml) | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml) | [`java17-knative.yml`](deploy/k8s/java17-knative.yml) |
+| Native      | `native-latest-3.8.Final` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
 
 The application is exposed outside of the cluster on port `80`.
 
@@ -246,8 +246,8 @@ These are only the descriptors for this application and the required database, K
 
 | Description | Image Tag       | OpenShift Descriptor                                                                    | Minikube Descriptor                                                                   | Kubernetes Descriptor                                                                     | Knative Descriptor                                                                  |
 |-------------|-----------------|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | [`java17-openshift-all-downstream.yml`](deploy/k8s/java17-openshift-all-downstream.yml) | [`java17-minikube-all-downstream.yml`](deploy/k8s/java17-minikube-all-downstream.yml) | [`java17-kubernetes-all-downstream.yml`](deploy/k8s/java17-kubernetes-all-downstream.yml) | [`java17-knative-all-downstream.yml`](deploy/k8s/java17-knative-all-downstream.yml) |
-| Native      | `native-latest` | [`native-openshift-all-downstream.yml`](deploy/k8s/native-openshift-all-downstream.yml) | [`native-minikube-all-downstream.yml`](deploy/k8s/native-minikube-all-downstream.yml) | [`native-kubernetes-all-downstream.yml`](deploy/k8s/native-kubernetes-all-downstream.yml) | [`native-knative-all-downstream.yml`](deploy/k8s/native-knative-all-downstream.yml) |
+| JVM Java 17 | `java17-latest-3.8.Final` | [`java17-openshift-all-downstream.yml`](deploy/k8s/java17-openshift-all-downstream.yml) | [`java17-minikube-all-downstream.yml`](deploy/k8s/java17-minikube-all-downstream.yml) | [`java17-kubernetes-all-downstream.yml`](deploy/k8s/java17-kubernetes-all-downstream.yml) | [`java17-knative-all-downstream.yml`](deploy/k8s/java17-knative-all-downstream.yml) |
+| Native      | `native-latest-3.8.Final` | [`native-openshift-all-downstream.yml`](deploy/k8s/native-openshift-all-downstream.yml) | [`native-minikube-all-downstream.yml`](deploy/k8s/native-minikube-all-downstream.yml) | [`native-kubernetes-all-downstream.yml`](deploy/k8s/native-kubernetes-all-downstream.yml) | [`native-knative-all-downstream.yml`](deploy/k8s/native-knative-all-downstream.yml) |
 
 Each application is exposed outside of the cluster on port `80`.
 
