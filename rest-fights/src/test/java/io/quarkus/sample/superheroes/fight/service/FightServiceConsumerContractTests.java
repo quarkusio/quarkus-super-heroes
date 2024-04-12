@@ -605,7 +605,10 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
         "quarkus.rest-client.hero-client.url", "http://localhost:%s".formatted(HEROES_MOCK_PORT),
         "fight.villain.client-base-url", "http://localhost:%s".formatted(VILLAINS_MOCK_PORT),
         "quarkus.rest-client.narration-client.url", "http://localhost:%s".formatted(NARRATION_MOCK_PORT),
-        "quarkus.grpc.clients.locations.test-port", LOCATION_MOCK_PORT
+        "quarkus.grpc.clients.locations.test-port", LOCATION_MOCK_PORT,
+
+        // Need to increase the timeout because the gRPC server is sometimes slow to start up
+        "%s/findRandomLocation/Timeout/value".formatted(FightService.class.getName()), "10"
       );
 		}
 	}
