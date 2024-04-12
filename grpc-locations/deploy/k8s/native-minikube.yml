@@ -82,11 +82,11 @@ kind: Service
 metadata:
   annotations:
     app.openshift.io/connects-to: "locations-db,otel-collector"
-    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-ref: 3.8.Final
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.9.3
+    app.quarkus.io/quarkus-version: 3.8.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-04-12 - 12:14:18 +0000
+    app.quarkus.io/build-timestamp: 2024-04-12 - 21:05:00 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -94,7 +94,7 @@ metadata:
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
-    app.kubernetes.io/version: native-latest
+    app.kubernetes.io/version: native-latest-3.8.Final
     app: grpc-locations
     application: locations-service
     system: quarkus-super-heroes
@@ -109,7 +109,7 @@ spec:
   selector:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
-    app.kubernetes.io/version: native-latest
+    app.kubernetes.io/version: native-latest-3.8.Final
   type: NodePort
 ---
 apiVersion: apps/v1
@@ -117,11 +117,11 @@ kind: Deployment
 metadata:
   annotations:
     app.openshift.io/connects-to: "locations-db,otel-collector"
-    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-ref: 3.8.Final
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.9.3
+    app.quarkus.io/quarkus-version: 3.8.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-04-12 - 12:14:18 +0000
+    app.quarkus.io/build-timestamp: 2024-04-12 - 21:05:00 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -129,7 +129,7 @@ metadata:
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
-    app.kubernetes.io/version: native-latest
+    app.kubernetes.io/version: native-latest-3.8.Final
     app: grpc-locations
     application: locations-service
     system: quarkus-super-heroes
@@ -140,17 +140,17 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grpc-locations
       app.kubernetes.io/part-of: locations-service
-      app.kubernetes.io/version: native-latest
+      app.kubernetes.io/version: native-latest-3.8.Final
   template:
     metadata:
       annotations:
         alpha.image.policy.openshift.io/resolve-names: '*'
         app.openshift.io/connects-to: "locations-db,otel-collector"
-        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-ref: 3.8.Final
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/quarkus-version: 3.9.3
+        app.quarkus.io/quarkus-version: 3.8.3
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2024-04-12 - 12:14:18 +0000
+        app.quarkus.io/build-timestamp: 2024-04-12 - 21:05:00 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8089"
@@ -158,7 +158,7 @@ spec:
       labels:
         app.kubernetes.io/name: grpc-locations
         app.kubernetes.io/part-of: locations-service
-        app.kubernetes.io/version: native-latest
+        app.kubernetes.io/version: native-latest-3.8.Final
         app: grpc-locations
         application: locations-service
         system: quarkus-super-heroes
@@ -174,7 +174,7 @@ spec:
                 name: grpc-locations-config
             - secretRef:
                 name: grpc-locations-config-creds
-          image: quay.io/quarkus-super-heroes/grpc-locations:native-latest
+          image: quay.io/quarkus-super-heroes/grpc-locations:native-latest-3.8.Final
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
@@ -287,15 +287,15 @@ kind: ServiceMonitor
 metadata:
   annotations:
     app.openshift.io/connects-to: "locations-db,otel-collector"
-    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-ref: 3.8.Final
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.9.3
+    app.quarkus.io/quarkus-version: 3.8.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-04-12 - 12:14:18 +0000
+    app.quarkus.io/build-timestamp: 2024-04-12 - 21:05:00 +0000
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
-    app.kubernetes.io/version: native-latest
+    app.kubernetes.io/version: native-latest-3.8.Final
     app: grpc-locations
     application: locations-service
     system: quarkus-super-heroes
@@ -305,7 +305,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grpc-locations
       app.kubernetes.io/part-of: locations-service
-      app.kubernetes.io/version: native-latest
+      app.kubernetes.io/version: native-latest-3.8.Final
   endpoints:
     - scheme: http
       targetPort: 8089
