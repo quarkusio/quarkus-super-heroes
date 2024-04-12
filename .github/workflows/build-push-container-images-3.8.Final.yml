@@ -314,7 +314,7 @@ jobs:
     secrets: inherit
     with:
       commit_id: ${{ github.event.workflow_run.head_commit.id }}
-      branch: ${{ env.BRANCH }}
+      branch: ${{ github.event.workflow_run.head_branch }}
 
   deploy-resources-workflow-dispatch:
     if: ((github.event_name == 'workflow_dispatch') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.ref_name == '3.8.Final'))
@@ -323,7 +323,7 @@ jobs:
     secrets: inherit
     with:
       commit_id: ${{ github.sha }}
-      branch: ${{ env.BRANCH }}
+      branch: ${{ github.ref_name }}
 
   cleanup-artifacts:
     needs:
