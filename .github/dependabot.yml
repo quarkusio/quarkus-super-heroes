@@ -19,6 +19,23 @@ updates:
       - "version-upgrade"
       - ui
 
+  # Dependencies for the 3.8.Final branch
+  - package-ecosystem: maven
+    directory: /
+    open-pull-requests-limit: 10
+    schedule:
+      interval: daily
+    target-branch: 3.8.Final
+    labels:
+      - "version-upgrade"
+    ignore:
+      - dependency-name: org.apache.maven.plugins:maven-compiler-plugin
+      - dependency-name: "io.quarkus.platform:quarkus-bom"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+      - dependency-name: "io.quarkus.platform:quarkus-maven-plugin"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+      - dependency-name: "io.github.microcks.quarkus:quarkus-microcks"
+
   # Dependencies for the 3.2.Final branch
   - package-ecosystem: maven
     directory: /
