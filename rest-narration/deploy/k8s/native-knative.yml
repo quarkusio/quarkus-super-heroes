@@ -20,11 +20,11 @@ kind: Service
 metadata:
   annotations:
     app.openshift.io/connects-to: otel-collector
-    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-ref: 3.8.Final
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.9.3
+    app.quarkus.io/quarkus-version: 3.8.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-04-12 - 12:14:36 +0000
+    app.quarkus.io/build-timestamp: 2024-04-12 - 21:05:17 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8087"
@@ -36,7 +36,7 @@ metadata:
     system: quarkus-super-heroes
     app.kubernetes.io/part-of: narration-service
     app.kubernetes.io/name: rest-narration
-    app.kubernetes.io/version: native-latest
+    app.kubernetes.io/version: native-latest-3.8.Final
   name: rest-narration
 spec:
   template:
@@ -45,7 +45,7 @@ spec:
         - envFrom:
             - configMapRef:
                 name: rest-narration-config
-          image: quay.io/quarkus-super-heroes/rest-narration:native-latest
+          image: quay.io/quarkus-super-heroes/rest-narration:native-latest-3.8.Final
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -83,11 +83,11 @@ kind: ServiceMonitor
 metadata:
   annotations:
     app.openshift.io/connects-to: otel-collector
-    app.openshift.io/vcs-ref: main
+    app.openshift.io/vcs-ref: 3.8.Final
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.9.3
+    app.quarkus.io/quarkus-version: 3.8.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-04-12 - 12:14:36 +0000
+    app.quarkus.io/build-timestamp: 2024-04-12 - 21:05:17 +0000
   labels:
     app: rest-narration
     app.openshift.io/runtime: quarkus
@@ -95,7 +95,7 @@ metadata:
     system: quarkus-super-heroes
     app.kubernetes.io/part-of: narration-service
     app.kubernetes.io/name: rest-narration
-    app.kubernetes.io/version: native-latest
+    app.kubernetes.io/version: native-latest-3.8.Final
   name: rest-narration
 spec:
   selector: {}
