@@ -1,0 +1,22 @@
+
+auth-db:
+  image: postgres:14
+  container_name: auth-db
+  ports:
+    - "5433"
+  environment:
+    POSTGRES_USER: superman
+    POSTGRES_PASSWORD: superman
+    POSTGRES_DB: heroes_database
+  volumes:
+    - ../../../rest-heroes/deploy/db-init/initialize-tables.sql:/docker-entrypoint-initdb.d/1-init-tables.sql
+auth-fga:
+  image: openfga:v1.5.1
+  container_name: auth-fga
+  ports:
+    - "8080:8080"
+      # Needed for the grpc server (if used)
+    - "8081:8081"
+      # Needed for the playground (Do not enable in prod!)
+    - "3000:3000"
+

@@ -71,7 +71,7 @@ public class AuthResource {
 
 
   @GET
-  @Path("/check-cookie")
+  @Path("/verify-session")
   public Uni<Response> checkCookie(){ return authClient.verify();}
 
 }

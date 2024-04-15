@@ -1,16 +1,12 @@
 package io.quarkus.sample.superheroes.auth.rest;
 
 import io.quarkiverse.openfga.client.AuthorizationModelClient;
-import io.quarkiverse.openfga.client.StoreClient;
 import io.quarkiverse.openfga.client.model.TupleKey;
-import io.quarkiverse.zanzibar.annotations.FGARelation;
 
-import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
-
-
+import io.quarkus.sample.superheroes.auth.service.AuthService;
 import io.quarkus.sample.superheroes.auth.webauthn.User;
 
-import io.quarkus.sample.superheroes.auth.webauthn.WebAuthnCredential;
+
 
 import io.quarkus.security.webauthn.WebAuthnRegisterResponse;
 
@@ -43,21 +39,20 @@ import java.security.Principal;
 public class AuthResourceReactive {
   private static final Logger LOG = Logger.getLogger(AuthResourceReactive.class);
   @Inject
-  WebAuthnSecurity webAuthnSecurity;
+  AuthService authService;
   @Inject
-  StoreClient storeClient;
+  WebAuthnSecurity webAuthnSecurity;
   @Inject
   AuthorizationModelClient defaultAuthModelClient;
   @Path("/register")
   @POST
-  @WithTransaction
   public Uni<Response> register(@RestForm String userName,@RestForm String plan, @BeanParam WebAuthnRegisterResponse webAuthnResponse, RoutingContext ctx) {
     // Input validation
     if (userName == null || userName.isEmpty() || !webAuthnResponse.isSet() || !webAuthnResponse.isValid()) {
       return Uni.createFrom().item(Response.status(Status.BAD_REQUEST).build());
     }
 
-    Uni<User> userUni = User.findByUserName(userName);
+    Uni<User> userUni = authService.findUserByUserName(userName);
     return userUni.flatMap(user -> {
       if (user != null) {
         // Duplicate user
@@ -67,18 +62,9 @@ public class AuthResourceReactive {
 
       return authenticator
         // store the user
-        .flatMap(auth -> {
-          User newUser = new User();
-          newUser.userName = auth.getUserName();
-          newUser.plan = plan;
-          WebAuthnCredential credential = new WebAuthnCredential(auth, newUser);
-          return credential.persist().flatMap(c -> newUser.<User>persist());
-
-        })
+        .flatMap(auth -> {return authService.persistCredentialAndUser(auth,auth.getUserName(),plan);})
         .flatMap(newUser -> {
-          var authModelClient = storeClient.authorizationModels().defaultModel();
-          LOG.info(authModelClient);
-          return authModelClient.write(TupleKey.of("plan:" + newUser.plan, "subscriber", "user:" + newUser.userName))
+          return defaultAuthModelClient.write(TupleKey.of("plan:" + newUser.plan, "subscriber", "user:" + newUser.userName))
             .onItem().transformToUni(voidreturn -> {
             // make a login cookie
             this.webAuthnSecurity.rememberUser(newUser.userName, ctx);

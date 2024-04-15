@@ -1,12 +1,17 @@
 package io.quarkus.sample.superheroes.auth.webauthn;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
+
+import io.quarkus.logging.Log;
+
+import io.quarkus.sample.superheroes.auth.service.AuthService;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -14,6 +19,8 @@ import io.quarkus.security.webauthn.WebAuthnUserProvider;
 import io.smallrye.mutiny.Uni;
 import io.vertx.ext.auth.webauthn.AttestationCertificates;
 import io.vertx.ext.auth.webauthn.Authenticator;
+
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import static io.quarkus.sample.superheroes.auth.webauthn.WebAuthnCredential.*;
@@ -21,24 +28,42 @@ import static io.quarkus.sample.superheroes.auth.webauthn.WebAuthnCredential.*;
 
 @ApplicationScoped
 public class WebAuthnSetup implements WebAuthnUserProvider {
+  @Inject
+  AuthService authService;
 
-  @ReactiveTransactional
+  @WithTransaction
   @Override
   public Uni<List<Authenticator>> findWebAuthnCredentialsByUserName(String userName) {
     return WebAuthnCredential.findByUserName(userName)
       .flatMap(WebAuthnSetup::toAuthenticators);
   }
 
-  @ReactiveTransactional
+  @WithTransaction
   @Override
   public Uni<List<Authenticator>> findWebAuthnCredentialsByCredID(String credID) {
     return WebAuthnCredential.findByCredID(credID)
       .flatMap(WebAuthnSetup::toAuthenticators);
   }
 
-  @ReactiveTransactional
+  @WithTransaction
   @Override
-  public Uni<Void> updateOrStoreWebAuthnCredentials(Authenticator authenticator) {return Uni.createFrom().nullItem();}
+  public Uni<Void> updateOrStoreWebAuthnCredentials(Authenticator authenticator) {
+     //editing after reading this: https://w3c.github.io/webauthn/#sctn-sign-counter
+    return authService.findUserByUserName(authenticator.getUserName())
+      .onItem().transformToUni(user -> {
+                if (user != null) {
+                    // existing user
+                    if(user.webAuthnCredential.counter<authenticator.getCounter()){
+                      user.webAuthnCredential.counter = authenticator.getCounter();
+                    }
+                    else{
+                      return Uni.createFrom().failure(new RuntimeException("Counter condition not met"));
+                    }
+
+                }
+                return Uni.createFrom().nullItem();
+            });
+  }
   private static Uni<List<Authenticator>> toAuthenticators(List<WebAuthnCredential> dbs) {
     // can't call combine/uni on empty list
     if (dbs.isEmpty())

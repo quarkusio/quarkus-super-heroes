@@ -5,8 +5,8 @@ import {getFights} from "./shared/api/fight-service"
 import Login from "./auth/Login"
 function App() {
 
-  let authPath = window?.APP_CONFIG?.AUTH_URL
-
+  //let authPath = window?.APP_CONFIG?.AUTH_URL
+  let basePath = window?.APP_CONFIG?.API_BASE_URL
 
 // Fallback to whatever is in the browser if basePath isn't set
 
@@ -22,7 +22,7 @@ function App() {
   )
 
   useEffect(() => {
-    fetch(`${authPath}` + '/verify-session', {
+    fetch(`${basePath}` + '/verify-session', {
       credentials: 'include',
       method: 'GET'
       
