@@ -311,7 +311,7 @@ jobs:
 
       - name: Get saved images (${{ matrix.project }}-${{ matrix.kind }}java${{ matrix.java }}-${{ matrix.arch }})
         if: (matrix.arch == 'amd64') || (matrix.kind != 'native-')
-        uses: ishworkh/container-image-artifact-download@v1.0.0
+        uses: ishworkh/container-image-artifact-download@v1.1.1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
@@ -392,7 +392,7 @@ jobs:
           echo "APP_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)-${{ env.BRANCH }}" >> $GITHUB_ENV
 
       - name: Get Saved UI Image (${{ matrix.arch }})
-        uses: ishworkh/container-image-artifact-download@v1.0.0
+        uses: ishworkh/container-image-artifact-download@v1.1.1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/ui-super-heroes:${{ env.CONTAINER_TAG }}"
 
