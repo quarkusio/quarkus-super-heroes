@@ -60,7 +60,7 @@ public interface AuthRestClient {
   @Path("/verify-session")
   @Timeout(value = 30, unit = ChronoUnit.SECONDS)
   @Retry(maxRetries = 3, delay = 200, delayUnit = ChronoUnit.MILLIS)
-  @Fallback(fallbackVerify.class)
+  @Fallback(value=fallbackVerify.class,skipOn =ClientWebApplicationException.class )
   Uni<Response> verify();
 
   @GET
@@ -79,9 +79,9 @@ public interface AuthRestClient {
       Throwable failure = context.getFailure();
       Log.info(failure.getClass());
       Log.info(failure.getMessage());
-      if (failure instanceof ClientWebApplicationException) {
-        return Uni.createFrom().item(Response.status(Status.UNAUTHORIZED).build());
-      }
+//      if (failure instanceof ClientWebApplicationException) {
+//        return Uni.createFrom().item(Response.status(Status.UNAUTHORIZED).build());
+//      }
       return FALLBACK_VERIFY_RESPONSE;
     }
   }

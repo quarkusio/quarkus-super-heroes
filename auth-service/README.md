@@ -1,10 +1,23 @@
-# code-with-quarkus Authorization service draft 
+# Superheroes Auth Microservice 
 
-before running, you need to run the commands in `src/main/resources/setup-fga.sh` individually to start the FGA
-container and load it with our model and tuples
+## Table of Contents
+- [Introduction](#introduction)
 
-you need to use Chrome, and make a temporary webauthn key 
+# Introduction
+This is the Auth Microservice. It is a reactive HTTP microservice exposing an API for performing authentication with WebAuthn, and
+fine-grained authorization(relationship based access control) with OpenFGA. This also delegates the management of the 
+database credentials using HashiCorp Vault. 
 
+Users and their corresponding credentials are stored in a PostgreSQL database, but there is currently no exposed endpoints to do anything 
+else with the users besides registering and logging in. 
+
+Permission checks are done using OpenFGA with the Quarkus OpenFGA client. Currently, this service just uses the in memory data store that the
+OpenFGA container provides. 
+
+Database credentials are fully managed by HashiCorp Vault using the Quarkus Vault extension. This service makes use of dynamic database credential
+creation, which only gives the application credentials for a specific amount of time.  
+
+Currently the only tested version can run locally with Quarkus dev as seen below. 
 
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
