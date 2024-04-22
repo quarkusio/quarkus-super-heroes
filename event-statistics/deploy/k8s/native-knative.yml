@@ -38,7 +38,7 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.openshift.io/vcs-ref: rhbq-2.13
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-02-21 - 12:54:41 +0000
+    app.quarkus.io/build-timestamp: 2024-04-22 - 13:48:22 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -56,14 +56,14 @@ spec:
   template:
     metadata:
       annotations:
-        app.quarkus.io/build-timestamp: 2024-02-21 - 12:54:41 +0000
+        app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
+        app.openshift.io/vcs-ref: rhbq-2.13
+        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.quarkus.io/build-timestamp: 2024-04-22 - 13:48:22 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
         prometheus.io/scheme: http
-        app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-        app.openshift.io/vcs-ref: rhbq-2.13
-        app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
       labels:
         app: event-statistics
         app.openshift.io/runtime: quarkus
@@ -75,10 +75,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:native-latest-rhbq-2.13
           livenessProbe:
             failureThreshold: 3
