@@ -186,7 +186,7 @@ public class FightResource {
       content = @Content(
         mediaType = APPLICATION_JSON,
         schema = @Schema(implementation = FightToNarrate.class),
-        examples = @ExampleObject(name = "valid_fight", value = Examples.VALID_EXAMPLE_FIGHT)
+        examples = @ExampleObject(name = "valid_fight", value = Examples.VALID_EXAMPLE_FIGHT_TO_NARRATE)
       )
     )
     @NotNull @Valid FightToNarrate fight) {
