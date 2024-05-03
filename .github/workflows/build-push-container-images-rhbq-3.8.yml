@@ -1,4 +1,4 @@
-name: Build and Push Container images - 3.8.Final
+name: Build and Push Container images - rhbq-3.8
 
 env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   build-jvm-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == '3.8.Final')))
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'rhbq-3.8')))
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -105,12 +105,12 @@ jobs:
             -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
 
       - name: Save JVM Image (${{ matrix.project.name }}-java${{ matrix.java }}-${{ matrix.arch }}-${{ matrix.project.openai-type }})
-        uses: ishworkh/container-image-artifact-upload@v1.0.0
+        uses: ishworkh/container-image-artifact-upload@v1.1.1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
   build-native-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == '3.8.Final')))
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'rhbq-3.8')))
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -192,7 +192,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
   push-app-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == '3.8.Final')))
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'rhbq-3.8')))
     needs:
       - build-jvm-images
       - build-native-images
@@ -237,7 +237,7 @@ jobs:
         run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "${{ matrix.kind }}" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
 
       - name: Get saved images (${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }})
-        uses: ishworkh/container-image-artifact-download@v1.0.0
+        uses: ishworkh/container-image-artifact-download@v1.1.1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
@@ -253,7 +253,7 @@ jobs:
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}"
 
   create-app-multiarch-manifests:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == '3.8.Final')))
+    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'rhbq-3.8')))
     needs: push-app-images
     runs-on: ubuntu-latest
     strategy:
@@ -308,7 +308,7 @@ jobs:
           docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}
 
   deploy-resources-workflow-run:
-    if: ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.event.workflow_run.head_branch == '3.8.Final'))
+    if: ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.event.workflow_run.head_branch == 'rhbq-3.8'))
     needs: create-app-multiarch-manifests
     uses: quarkusio/quarkus-super-heroes/.github/workflows/create-deploy-resources.yml@main
     secrets: inherit
@@ -317,7 +317,7 @@ jobs:
       branch: ${{ github.event.workflow_run.head_branch }}
 
   deploy-resources-workflow-dispatch:
-    if: ((github.event_name == 'workflow_dispatch') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.ref_name == '3.8.Final'))
+    if: ((github.event_name == 'workflow_dispatch') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.ref_name == 'rhbq-3.8'))
     needs: create-app-multiarch-manifests
     uses: quarkusio/quarkus-super-heroes/.github/workflows/create-deploy-resources.yml@main
     secrets: inherit
