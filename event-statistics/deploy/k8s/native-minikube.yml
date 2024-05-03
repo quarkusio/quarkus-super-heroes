@@ -71,11 +71,11 @@ kind: Service
 metadata:
   annotations:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.quarkus.io/vcs-ref: 3.8.Final
+    app.quarkus.io/vcs-ref: rhbq-3.8
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.8.4
+    app.quarkus.io/quarkus-version: 3.8.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-04-29 - 12:25:09 +0000
+    app.quarkus.io/build-timestamp: 2024-05-03 - 19:51:12 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -83,7 +83,7 @@ metadata:
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: native-latest-3.8.Final
+    app.kubernetes.io/version: native-latest-rhbq-3.8
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
@@ -98,7 +98,7 @@ spec:
   selector:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: native-latest-3.8.Final
+    app.kubernetes.io/version: native-latest-rhbq-3.8
   type: NodePort
 ---
 apiVersion: apps/v1
@@ -106,11 +106,11 @@ kind: Deployment
 metadata:
   annotations:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.quarkus.io/vcs-ref: 3.8.Final
+    app.quarkus.io/vcs-ref: rhbq-3.8
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.8.4
+    app.quarkus.io/quarkus-version: 3.8.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-04-29 - 12:25:09 +0000
+    app.quarkus.io/build-timestamp: 2024-05-03 - 19:51:12 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -118,7 +118,7 @@ metadata:
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: native-latest-3.8.Final
+    app.kubernetes.io/version: native-latest-rhbq-3.8
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
@@ -129,17 +129,17 @@ spec:
     matchLabels:
       app.kubernetes.io/name: event-statistics
       app.kubernetes.io/part-of: event-stats
-      app.kubernetes.io/version: native-latest-3.8.Final
+      app.kubernetes.io/version: native-latest-rhbq-3.8
   template:
     metadata:
       annotations:
         alpha.image.policy.openshift.io/resolve-names: '*'
         app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-        app.quarkus.io/vcs-ref: 3.8.Final
+        app.quarkus.io/vcs-ref: rhbq-3.8
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/quarkus-version: 3.8.4
+        app.quarkus.io/quarkus-version: 3.8.3.redhat-00003
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2024-04-29 - 12:25:09 +0000
+        app.quarkus.io/build-timestamp: 2024-05-03 - 19:51:12 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -147,7 +147,7 @@ spec:
       labels:
         app.kubernetes.io/name: event-statistics
         app.kubernetes.io/part-of: event-stats
-        app.kubernetes.io/version: native-latest-3.8.Final
+        app.kubernetes.io/version: native-latest-rhbq-3.8
         app: event-statistics
         application: event-stats
         system: quarkus-super-heroes
@@ -159,11 +159,11 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
-          image: quay.io/quarkus-super-heroes/event-statistics:native-latest-3.8.Final
+            - secretRef:
+                name: event-statistics-config-creds
+          image: quay.io/quarkus-super-heroes/event-statistics:native-latest-rhbq-3.8
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
@@ -328,15 +328,15 @@ kind: ServiceMonitor
 metadata:
   annotations:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.quarkus.io/vcs-ref: 3.8.Final
+    app.quarkus.io/vcs-ref: rhbq-3.8
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.8.4
+    app.quarkus.io/quarkus-version: 3.8.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-04-29 - 12:25:09 +0000
+    app.quarkus.io/build-timestamp: 2024-05-03 - 19:51:12 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: native-latest-3.8.Final
+    app.kubernetes.io/version: native-latest-rhbq-3.8
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
@@ -346,7 +346,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: event-statistics
       app.kubernetes.io/part-of: event-stats
-      app.kubernetes.io/version: native-latest-3.8.Final
+      app.kubernetes.io/version: native-latest-rhbq-3.8
   endpoints:
     - scheme: http
       targetPort: 8085
