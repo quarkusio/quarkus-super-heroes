@@ -20,11 +20,11 @@ kind: Service
 metadata:
   annotations:
     app.openshift.io/connects-to: otel-collector
-    app.openshift.io/vcs-ref: 3.8.Final
+    app.openshift.io/vcs-ref: rhbq-3.8
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.8.4
+    app.quarkus.io/quarkus-version: 3.8.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-04-29 - 12:20:50 +0000
+    app.quarkus.io/build-timestamp: 2024-05-03 - 19:45:20 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8087"
@@ -34,9 +34,9 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: narration-service
     system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
-    app.kubernetes.io/version: java17-latest-3.8.Final
+    app.kubernetes.io/version: java17-latest-rhbq-3.8
+    app.kubernetes.io/name: rest-narration
   name: rest-narration
 spec:
   template:
@@ -45,7 +45,7 @@ spec:
         - envFrom:
             - configMapRef:
                 name: rest-narration-config
-          image: quay.io/quarkus-super-heroes/rest-narration:java17-latest-3.8.Final
+          image: quay.io/quarkus-super-heroes/rest-narration:java17-latest-rhbq-3.8
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -83,19 +83,19 @@ kind: ServiceMonitor
 metadata:
   annotations:
     app.openshift.io/connects-to: otel-collector
-    app.openshift.io/vcs-ref: 3.8.Final
+    app.openshift.io/vcs-ref: rhbq-3.8
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.8.4
+    app.quarkus.io/quarkus-version: 3.8.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-04-29 - 12:20:50 +0000
+    app.quarkus.io/build-timestamp: 2024-05-03 - 19:45:20 +0000
   labels:
     app: rest-narration
     app.openshift.io/runtime: quarkus
     application: narration-service
     system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
-    app.kubernetes.io/version: java17-latest-3.8.Final
+    app.kubernetes.io/version: java17-latest-rhbq-3.8
+    app.kubernetes.io/name: rest-narration
   name: rest-narration
 spec:
   selector: {}
