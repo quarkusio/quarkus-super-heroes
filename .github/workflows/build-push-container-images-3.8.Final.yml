@@ -105,7 +105,7 @@ jobs:
             -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
 
       - name: Save JVM Image (${{ matrix.project.name }}-java${{ matrix.java }}-${{ matrix.arch }}-${{ matrix.project.openai-type }})
-        uses: ishworkh/container-image-artifact-upload@v1.0.0
+        uses: ishworkh/container-image-artifact-upload@v1.1.1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
@@ -187,7 +187,7 @@ jobs:
             -Dquarkus.docker.buildx.platform=linux/${{ matrix.arch }}
 
       - name: Save native Image (${{ matrix.project.name }}-java${{ matrix.java.jvm }}-${{ matrix.arch }}-${{ matrix.project.openai-type }})
-        uses: ishworkh/container-image-artifact-upload@v1.0.0
+        uses: ishworkh/container-image-artifact-upload@v1.1.1
         with:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
