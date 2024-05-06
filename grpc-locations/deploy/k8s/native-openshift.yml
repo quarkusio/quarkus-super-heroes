@@ -87,7 +87,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.10.0
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-03 - 19:06:35 +0000
+    app.quarkus.io/build-timestamp: 2024-05-06 - 11:44:39 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -189,7 +189,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.10.0
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-03 - 19:06:35 +0000
+    app.quarkus.io/build-timestamp: 2024-05-06 - 11:44:39 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -200,17 +200,17 @@ metadata:
     system: quarkus-super-heroes
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: native-latest
-    app.kubernetes.io/name: grpc-locations
   name: grpc-locations
 spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/name: grpc-locations
       app.kubernetes.io/part-of: locations-service
       app.kubernetes.io/version: native-latest
-      app.kubernetes.io/name: grpc-locations
   template:
     metadata:
       annotations:
@@ -221,7 +221,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.10.0
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2024-05-03 - 19:06:35 +0000
+        app.quarkus.io/build-timestamp: 2024-05-06 - 11:44:39 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8089"
@@ -232,16 +232,16 @@ spec:
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/name: grpc-locations
         app.kubernetes.io/part-of: locations-service
         app.kubernetes.io/version: native-latest
-        app.kubernetes.io/name: grpc-locations
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: grpc-locations-config
             - secretRef:
                 name: grpc-locations-config-creds
+            - configMapRef:
+                name: grpc-locations-config
           image: quay.io/quarkus-super-heroes/grpc-locations:native-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -295,7 +295,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.10.0
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-03 - 19:06:35 +0000
+    app.quarkus.io/build-timestamp: 2024-05-06 - 11:44:39 +0000
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
@@ -326,7 +326,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.10.0
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-03 - 19:06:35 +0000
+    app.quarkus.io/build-timestamp: 2024-05-06 - 11:44:39 +0000
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
