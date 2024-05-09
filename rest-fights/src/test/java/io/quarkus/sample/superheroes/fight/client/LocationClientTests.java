@@ -33,7 +33,7 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
 @QuarkusTest
 @QuarkusTestResource(value = LocationsWiremockGrpcServerResource.class, restrictToAnnotatedClass = true)
-public class LocationClientTests {
+class LocationClientTests {
 	private static final String DEFAULT_HELLO_RESPONSE = "Hello locations!";
 	private static final String DEFAULT_LOCATION_NAME = "Gotham City";
 	private static final String DEFAULT_LOCATION_DESCRIPTION = "Dark city where Batman lives.";
@@ -58,18 +58,18 @@ public class LocationClientTests {
 	CircuitBreakerMaintenance circuitBreakerMaintenance;
 
 	@BeforeEach
-	public void beforeEach() {
+	void beforeEach() {
     this.wireMockGrpc.resetAll();
 	}
 
 	@AfterEach
-  public void afterEach() {
+  void afterEach() {
     // Reset all circuit breaker counts after each test
     this.circuitBreakerMaintenance.resetAll();
   }
 
 	@Test
-	public void helloLocations() {
+	void helloLocations() {
     this.wireMockGrpc.stubFor(
       method("Hello")
         .willReturn(message(HelloReply.newBuilder().setMessage(DEFAULT_HELLO_RESPONSE)))
@@ -86,7 +86,7 @@ public class LocationClientTests {
 	}
 
 	@Test
-	public void findsRandom() {
+	void findsRandom() {
     this.wireMockGrpc.stubFor(
       method("GetRandomLocation")
         .willReturn(message(DEFAULT_LOCATION))
@@ -110,7 +110,7 @@ public class LocationClientTests {
 	}
 
 	@Test
-	public void findRandomRecoversFromNotFound() {
+	void findRandomRecoversFromNotFound() {
      this.wireMockGrpc.stubFor(
       method("GetRandomLocation")
         .willReturn(Status.NOT_FOUND, "A location was not found")
@@ -129,7 +129,7 @@ public class LocationClientTests {
 	}
 
 	@Test
-	public void findRandomDoesntRecoverFromError() {
+	void findRandomDoesntRecoverFromError() {
     this.wireMockGrpc.stubFor(
       method("GetRandomLocation")
         .willReturn(Status.UNAVAILABLE, "Service isn't there")
