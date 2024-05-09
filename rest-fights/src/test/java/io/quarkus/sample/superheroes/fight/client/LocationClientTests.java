@@ -26,7 +26,6 @@ import io.quarkus.sample.superheroes.location.grpc.Location;
 import io.quarkus.sample.superheroes.location.grpc.LocationType;
 import io.quarkus.sample.superheroes.location.grpc.RandomLocationRequest;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import io.grpc.StatusRuntimeException;
 import io.smallrye.faulttolerance.api.CircuitBreakerMaintenance;
 import io.smallrye.faulttolerance.api.CircuitBreakerState;
@@ -34,7 +33,7 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
 @QuarkusTest
 @QuarkusTestResource(value = LocationsWiremockGrpcServerResource.class, restrictToAnnotatedClass = true)
-public class LocationClientTests {
+class LocationClientTests {
 	private static final String DEFAULT_HELLO_RESPONSE = "Hello locations!";
 	private static final String DEFAULT_LOCATION_NAME = "Gotham City";
 	private static final String DEFAULT_LOCATION_DESCRIPTION = "Dark city where Batman lives.";
@@ -46,6 +45,7 @@ public class LocationClientTests {
 		.setPicture(DEFAULT_LOCATION_PICTURE)
 		.setType(DEFAULT_LOCATION_TYPE)
 		.build();
+
   private static final FightLocation DEFAULT_FIGHT_LOCATION = new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION, DEFAULT_LOCATION_PICTURE);
 
 	@Inject
@@ -54,25 +54,22 @@ public class LocationClientTests {
   @InjectGrpcWireMock
   WireMockGrpcService wireMockGrpc;
 
-  @InjectGrpcWireMock
-  WireMockServer wireMockServer;
-
 	@Inject
 	CircuitBreakerMaintenance circuitBreakerMaintenance;
 
 	@BeforeEach
-	public void beforeEach() {
-		this.wireMockServer.resetAll();
+	void beforeEach() {
+    this.wireMockGrpc.resetAll();
 	}
 
 	@AfterEach
-  public void afterEach() {
+  void afterEach() {
     // Reset all circuit breaker counts after each test
     this.circuitBreakerMaintenance.resetAll();
   }
 
 	@Test
-	public void helloLocations() {
+	void helloLocations() {
     this.wireMockGrpc.stubFor(
       method("Hello")
         .willReturn(message(HelloReply.newBuilder().setMessage(DEFAULT_HELLO_RESPONSE)))
@@ -89,7 +86,7 @@ public class LocationClientTests {
 	}
 
 	@Test
-	public void findsRandom() {
+	void findsRandom() {
     this.wireMockGrpc.stubFor(
       method("GetRandomLocation")
         .willReturn(message(DEFAULT_LOCATION))
@@ -113,7 +110,7 @@ public class LocationClientTests {
 	}
 
 	@Test
-	public void findRandomRecoversFromNotFound() {
+	void findRandomRecoversFromNotFound() {
      this.wireMockGrpc.stubFor(
       method("GetRandomLocation")
         .willReturn(Status.NOT_FOUND, "A location was not found")
@@ -132,7 +129,7 @@ public class LocationClientTests {
 	}
 
 	@Test
-	public void findRandomDoesntRecoverFromError() {
+	void findRandomDoesntRecoverFromError() {
     this.wireMockGrpc.stubFor(
       method("GetRandomLocation")
         .willReturn(Status.UNAVAILABLE, "Service isn't there")

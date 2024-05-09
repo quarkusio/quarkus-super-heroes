@@ -49,21 +49,9 @@ public class LocationsWiremockGrpcServerResource implements QuarkusTestResourceL
 
   @Override
   public void inject(TestInjector testInjector) {
-    var wireMock = new WireMock(getPort());
-
     testInjector.injectIntoFields(
-      wireMock,
-      new AnnotatedAndMatchesType(InjectGrpcWireMock.class, WireMock.class)
-    );
-
-    testInjector.injectIntoFields(
-      new WireMockGrpcService(wireMock, LocationsGrpc.SERVICE_NAME),
+      new WireMockGrpcService(new WireMock(getPort()), LocationsGrpc.SERVICE_NAME),
       new AnnotatedAndMatchesType(InjectGrpcWireMock.class, WireMockGrpcService.class)
-    );
-
-    testInjector.injectIntoFields(
-      this.wireMockServer,
-      new AnnotatedAndMatchesType(InjectGrpcWireMock.class, WireMockServer.class)
     );
   }
 
