@@ -207,9 +207,6 @@ class FightResourceIT {
 	WireMockServer wireMockServer;
 
   @InjectGrpcWireMock
-  WireMockServer wireMockGrpcServer;
-
-  @InjectGrpcWireMock
   WireMockGrpcService wireMockGrpc;
 
 	@InjectKafkaCompanion
@@ -237,7 +234,7 @@ class FightResourceIT {
 	void beforeEach() {
 		// Reset WireMock
 		this.wireMockServer.resetAll();
-    this.wireMockGrpcServer.resetAll();
+    this.wireMockGrpc.resetAll();
 
     // Configure Avro Serde for Fight
     companion.setCommonClientConfig(Map.of(AvroKafkaSerdeConfig.AVRO_DATUM_PROVIDER, ReflectAvroDatumProvider.class.getName()));
@@ -1526,7 +1523,7 @@ class FightResourceIT {
 		}
 
 		// Reset all the mocks on the GrpcMock
-		this.wireMockGrpcServer.resetAll();
+		this.wireMockGrpc.resetAll();
 
 		// Stub successful requests
     this.wireMockGrpc.stubFor(
@@ -1553,7 +1550,7 @@ class FightResourceIT {
     this.wireMockGrpc.verify(9, "GetRandomLocation")
       .withRequestMessage(equalToMessage(RandomLocationRequest.newBuilder()));
 
-		this.wireMockGrpcServer.resetAll();
+		this.wireMockGrpc.resetAll();
   }
 
   private void resetNarrationCircuitBreakersToClosedState() {

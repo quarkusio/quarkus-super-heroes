@@ -26,7 +26,6 @@ import io.quarkus.sample.superheroes.location.grpc.Location;
 import io.quarkus.sample.superheroes.location.grpc.LocationType;
 import io.quarkus.sample.superheroes.location.grpc.RandomLocationRequest;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import io.grpc.StatusRuntimeException;
 import io.smallrye.faulttolerance.api.CircuitBreakerMaintenance;
 import io.smallrye.faulttolerance.api.CircuitBreakerState;
@@ -46,6 +45,7 @@ public class LocationClientTests {
 		.setPicture(DEFAULT_LOCATION_PICTURE)
 		.setType(DEFAULT_LOCATION_TYPE)
 		.build();
+
   private static final FightLocation DEFAULT_FIGHT_LOCATION = new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION, DEFAULT_LOCATION_PICTURE);
 
 	@Inject
@@ -54,15 +54,12 @@ public class LocationClientTests {
   @InjectGrpcWireMock
   WireMockGrpcService wireMockGrpc;
 
-  @InjectGrpcWireMock
-  WireMockServer wireMockServer;
-
 	@Inject
 	CircuitBreakerMaintenance circuitBreakerMaintenance;
 
 	@BeforeEach
 	public void beforeEach() {
-		this.wireMockServer.resetAll();
+    this.wireMockGrpc.resetAll();
 	}
 
 	@AfterEach
