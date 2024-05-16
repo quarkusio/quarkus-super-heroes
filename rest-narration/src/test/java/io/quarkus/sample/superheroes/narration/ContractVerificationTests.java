@@ -3,6 +3,7 @@ package io.quarkus.sample.superheroes.narration;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -18,6 +19,7 @@ import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder;
 @QuarkusTest
 @Provider("rest-narration")
 @PactFolder("pacts")
+@DisabledIfSystemProperty(named = "isNightlyEcosystemTest", matches = "true", disabledReason = "https://github.com/quarkusio/quarkus/issues/23612#issuecomment-2115318234")
 // You could comment out the @PactFolder annotations
 // if you'd like to use a Pact broker. You'd also un-comment the following 2 annotations
 //@PactBroker(url = "https://quarkus-super-heroes.pactflow.io")
