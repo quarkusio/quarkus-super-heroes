@@ -61,6 +61,7 @@ do_build() {
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.kubernetes.annotations.\"app.quarkus.io/vcs-ref\"=$github_ref_name \
     -Dquarkus.openshift.route.expose=true \
+    -Dquarkus.openshift.prometheus.generate-service-monitor=false \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-url\"=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY \
     -Dquarkus.openshift.annotations.\"app.openshift.io/vcs-ref\"=$github_ref_name \
     -Dquarkus.knative.labels.\"app.openshift.io/runtime\"=quarkus \
