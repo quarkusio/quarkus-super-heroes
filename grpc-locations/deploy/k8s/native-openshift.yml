@@ -87,7 +87,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.8.4
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:44:19 +0000
+    app.quarkus.io/build-timestamp: 2024-05-22 - 20:26:43 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -189,7 +189,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.8.4
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:44:19 +0000
+    app.quarkus.io/build-timestamp: 2024-05-22 - 20:26:43 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -200,6 +200,8 @@ metadata:
     system: quarkus-super-heroes
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/version: native-latest-3.8.Final
+    app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/version: native-latest-3.8.Final
     app.kubernetes.io/part-of: locations-service
@@ -208,6 +210,8 @@ spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/version: native-latest-3.8.Final
+      app.kubernetes.io/part-of: locations-service
       app.kubernetes.io/name: grpc-locations
       app.kubernetes.io/version: native-latest-3.8.Final
       app.kubernetes.io/part-of: locations-service
@@ -221,7 +225,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.8.4
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2024-05-22 - 14:44:19 +0000
+        app.quarkus.io/build-timestamp: 2024-05-22 - 20:26:43 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8089"
@@ -232,6 +236,8 @@ spec:
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/version: native-latest-3.8.Final
+        app.kubernetes.io/part-of: locations-service
         app.kubernetes.io/name: grpc-locations
         app.kubernetes.io/version: native-latest-3.8.Final
         app.kubernetes.io/part-of: locations-service
@@ -295,7 +301,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.8.4
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:44:19 +0000
+    app.quarkus.io/build-timestamp: 2024-05-22 - 20:26:43 +0000
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
@@ -315,37 +321,3 @@ spec:
   to:
     kind: Service
     name: grpc-locations
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  annotations:
-    app.openshift.io/vcs-uri: <<unknown>>
-    app.openshift.io/connects-to: "locations-db,otel-collector"
-    app.openshift.io/vcs-ref: 3.8.Final
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.8.4
-    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:44:19 +0000
-  labels:
-    app.kubernetes.io/name: grpc-locations
-    app.kubernetes.io/part-of: locations-service
-    app.kubernetes.io/version: native-latest-3.8.Final
-    app: grpc-locations
-    application: locations-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-    app.openshift.io/runtime: quarkus
-  name: grpc-locations
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: grpc-locations
-      app.kubernetes.io/part-of: locations-service
-      app.kubernetes.io/version: native-latest-3.8.Final
-  endpoints:
-    - scheme: http
-      targetPort: 8089
-      path: /q/metrics
-      interval: 10s
-      honorLabels: true
