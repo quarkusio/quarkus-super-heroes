@@ -76,7 +76,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.10.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:44:47 +0000
+    app.quarkus.io/build-timestamp: 2024-05-22 - 20:28:16 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -230,7 +230,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.10.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:44:47 +0000
+    app.quarkus.io/build-timestamp: 2024-05-22 - 20:28:16 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -242,16 +242,16 @@ metadata:
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/version: native-latest
+    app.kubernetes.io/part-of: event-stats
   name: event-statistics
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: event-statistics
-      app.kubernetes.io/part-of: event-stats
       app.kubernetes.io/version: native-latest
+      app.kubernetes.io/part-of: event-stats
   template:
     metadata:
       annotations:
@@ -262,7 +262,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.10.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2024-05-22 - 14:44:47 +0000
+        app.quarkus.io/build-timestamp: 2024-05-22 - 20:28:16 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -274,8 +274,8 @@ spec:
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/name: event-statistics
-        app.kubernetes.io/part-of: event-stats
         app.kubernetes.io/version: native-latest
+        app.kubernetes.io/part-of: event-stats
     spec:
       containers:
         - envFrom:
@@ -357,7 +357,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.10.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:44:47 +0000
+    app.quarkus.io/build-timestamp: 2024-05-22 - 20:28:16 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -377,37 +377,3 @@ spec:
   to:
     kind: Service
     name: event-statistics
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  annotations:
-    app.openshift.io/vcs-uri: <<unknown>>
-    app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
-    app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.10.1
-    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:44:47 +0000
-  labels:
-    app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: native-latest
-    app: event-statistics
-    application: event-stats
-    system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-    app.openshift.io/runtime: quarkus
-  name: event-statistics
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: event-statistics
-      app.kubernetes.io/part-of: event-stats
-      app.kubernetes.io/version: native-latest
-  endpoints:
-    - scheme: http
-      targetPort: 8085
-      path: /q/metrics
-      interval: 10s
-      honorLabels: true
