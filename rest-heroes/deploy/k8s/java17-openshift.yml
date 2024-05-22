@@ -86,7 +86,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.10.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:41:11 +0000
+    app.quarkus.io/build-timestamp: 2024-05-22 - 20:24:27 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -186,7 +186,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.10.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:41:11 +0000
+    app.quarkus.io/build-timestamp: 2024-05-22 - 20:24:27 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -197,6 +197,8 @@ metadata:
     system: quarkus-super-heroes
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: java17-latest
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -205,6 +207,8 @@ spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/name: rest-heroes
+      app.kubernetes.io/part-of: heroes-service
       app.kubernetes.io/version: java17-latest
       app.kubernetes.io/name: rest-heroes
       app.kubernetes.io/part-of: heroes-service
@@ -218,7 +222,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.10.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2024-05-22 - 14:41:11 +0000
+        app.quarkus.io/build-timestamp: 2024-05-22 - 20:24:27 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8083"
@@ -229,6 +233,8 @@ spec:
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/name: rest-heroes
+        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/version: java17-latest
         app.kubernetes.io/name: rest-heroes
         app.kubernetes.io/part-of: heroes-service
@@ -292,7 +298,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.10.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:41:11 +0000
+    app.quarkus.io/build-timestamp: 2024-05-22 - 20:24:27 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -312,37 +318,3 @@ spec:
   to:
     kind: Service
     name: rest-heroes
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  annotations:
-    app.openshift.io/vcs-uri: <<unknown>>
-    app.openshift.io/connects-to: "heroes-db,otel-collector"
-    app.openshift.io/vcs-ref: main
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.10.1
-    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-05-22 - 14:41:11 +0000
-  labels:
-    app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: java17-latest
-    app: rest-heroes
-    application: heroes-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-    app.openshift.io/runtime: quarkus
-  name: rest-heroes
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: rest-heroes
-      app.kubernetes.io/part-of: heroes-service
-      app.kubernetes.io/version: java17-latest
-  endpoints:
-    - scheme: http
-      targetPort: 8083
-      path: /q/metrics
-      interval: 10s
-      honorLabels: true
