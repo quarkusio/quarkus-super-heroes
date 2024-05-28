@@ -413,8 +413,9 @@ class FightServiceTests extends FightServiceTestsBase {
 		PanacheMock.mock(Fight.class);
 
 		var cve = catchThrowableOfType(
-			() -> this.fightService.performFight(null),
-			ConstraintViolationException.class);
+			ConstraintViolationException.class,
+			() -> this.fightService.performFight(null)
+		);
 
 		assertThat(cve)
 			.isNotNull();
@@ -423,12 +424,8 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		assertThat(violations)
 			.isNotNull()
-			.hasSize(1);
-
-		assertThat(violations.stream().findFirst())
+			.singleElement()
 			.isNotNull()
-			.isPresent()
-			.get()
 			.extracting(
 				ConstraintViolation::getInvalidValue,
 				ConstraintViolation::getMessage
@@ -454,8 +451,9 @@ class FightServiceTests extends FightServiceTestsBase {
 		PanacheMock.mock(Fight.class);
 
 		var cve = catchThrowableOfType(
-			() -> this.fightService.performFight(new FightRequest(null, createDefaultVillain(), createDefaultFightLocation())),
-			ConstraintViolationException.class);
+			ConstraintViolationException.class,
+			() -> this.fightService.performFight(new FightRequest(null, createDefaultVillain(), createDefaultFightLocation()))
+		);
 
 		assertThat(cve)
 			.isNotNull();
@@ -464,12 +462,8 @@ class FightServiceTests extends FightServiceTestsBase {
 
 		assertThat(violations)
 			.isNotNull()
-			.hasSize(1);
-
-		assertThat(violations.stream().findFirst())
+			.singleElement()
 			.isNotNull()
-			.isPresent()
-			.get()
 			.extracting(
 				ConstraintViolation::getInvalidValue,
 				ConstraintViolation::getMessage
