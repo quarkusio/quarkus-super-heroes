@@ -29,7 +29,7 @@ help() {
   echo "  -u <unique_identifier>                  A unique identifier to append to some resources. Some Azure services require unique names within a region (across users)."
   echo "                                             Default is to use the output of the 'whoami' command."
   echo "  -v <chat_model_version>                The chat model version to use"
-  echo "                                             Default: '0125'"
+  echo "                                             Default: '0613'"
 }
 
 exit_abnormal() {
@@ -45,7 +45,7 @@ RESOURCE_GROUP="rg-super-heroes"
 LOCATION="eastus"
 TAG="super-heroes"
 CHAT_MODEL="gpt-35-turbo"
-CHAT_MODEL_VERSION="0125"
+CHAT_MODEL_VERSION="0613"
 IMAGE_MODEL="dall-e-3"
 IMAGE_MODEL_VERSION="3.0"
 UNIQUE_IDENTIFIER=$(whoami)
