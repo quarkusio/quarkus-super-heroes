@@ -71,7 +71,7 @@ metadata:
     app.openshift.io/connects-to: "villains-db,otel-collector"
     app.openshift.io/vcs-ref: 3.2.Final
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-06-14 - 12:55:37 +0000
+    app.quarkus.io/build-timestamp: 2024-06-17 - 12:07:30 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -81,8 +81,8 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: villains-service
     system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: java17-latest-3.2.Final
+    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
   name: rest-villains
 spec:
@@ -90,10 +90,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:java17-latest-3.2.Final
           imagePullPolicy: Always
           livenessProbe:
@@ -271,7 +271,7 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.openshift.io/vcs-ref: 3.2.Final
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-06-14 - 12:55:55 +0000
+    app.quarkus.io/build-timestamp: 2024-06-17 - 12:07:48 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -282,18 +282,18 @@ metadata:
     application: heroes-service
     system: quarkus-super-heroes
     app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: java17-latest-3.2.Final
     app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/version: java17-latest-3.2.Final
   name: rest-heroes
 spec:
   template:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-heroes-config-creds
             - configMapRef:
                 name: rest-heroes-config
+            - secretRef:
+                name: rest-heroes-config-creds
           image: quay.io/quarkus-super-heroes/rest-heroes:java17-latest-3.2.Final
           imagePullPolicy: Always
           livenessProbe:
@@ -474,7 +474,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
     app.openshift.io/vcs-ref: 3.2.Final
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/build-timestamp: 2024-06-14 - 12:56:16 +0000
+    app.quarkus.io/build-timestamp: 2024-06-17 - 12:08:09 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -485,8 +485,8 @@ metadata:
     application: fights-service
     system: quarkus-super-heroes
     app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/version: java17-latest-3.2.Final
+    app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
   template:
@@ -496,7 +496,7 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,otel-collector"
         app.openshift.io/vcs-ref: 3.2.Final
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/build-timestamp: 2024-06-14 - 12:56:16 +0000
+        app.quarkus.io/build-timestamp: 2024-06-17 - 12:08:09 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -507,8 +507,8 @@ spec:
         application: fights-service
         system: quarkus-super-heroes
         app.kubernetes.io/name: rest-fights
-        app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/version: java17-latest-3.2.Final
+        app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - envFrom:
