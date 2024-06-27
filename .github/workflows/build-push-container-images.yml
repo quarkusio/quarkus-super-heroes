@@ -6,22 +6,75 @@ env:
   LATEST_IMAGE_TAG: "latest"
 
 on:
-  workflow_run:
-    workflows:
-      - "Basic build and test"
-    branches:
-      - main
-    types:
-      - completed
+#  workflow_run:
+#    workflows:
+#      - "Basic build and test"
+#    branches:
+#      - main
+#    types:
+#      - completed
   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * MON-FRI"  # MON-FRI 2am CEST
 
 concurrency:
   group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.workflow_run.head_branch || github.event.ref || github.ref }}"
   cancel-in-progress: false
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
+  calculate-refs:
+    runs-on: ubuntu-latest
+    outputs:
+      ref: ${{ steps.calculate_branch.outputs.ref}}
+      branch: ${{ steps.calculate_branch.outputs.branch}}
+    steps:
+      - name: Calculate Branch
+        id: calculate_branch
+        run: |
+          if [[ ${{ github.event_name }} == 'workflow_run' ]]; then
+            echo "ref=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_OUTPUT
+            echo "branch=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.event_name}} == 'workflow_dispatch' ]]; then
+            echo "ref=${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.event_name }} == 'schedule' ]]; then
+            echo "ref=${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+  check-commit-count:
+    needs: calculate-refs
+    runs-on: ubuntu-latest
+    outputs:
+      has_commits: ${{ steps.calculate_commits.outputs.has_commits}}
+      ref: ${{ needs.calculate-refs.outputs.ref}}
+      branch: ${{ needs.calculate-refs.outputs.branch}}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.calculate-refs.outputs.branch }}
+
+      - name: Calculate whether there are commits
+        id: calculate_commits
+        run: |
+          if [[ ${{ github.event_name }} == 'schedule' ]]; then
+            if [[ $(git log --oneline --since '24 hours ago' | wc -l) -gt 0 ]]; then
+              echo "has_commits=true" >> $GITHUB_OUTPUT
+            else
+              echo "has_commits=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "has_commits=true" >> $GITHUB_OUTPUT
+          fi
+
   build-jvm-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'main')))
+    needs: check-commit-count
+    if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -41,22 +94,10 @@ jobs:
           - arm64
     name: "Build JVM images (${{ matrix.arch }}-${{ matrix.project.name }}-java${{ matrix.java }}-${{ matrix.project.openai-type }})"
     steps:
-      - name: Calculate Branch (workflow_run event)
-        if: github.event_name == 'workflow_run'
-        run: |
-          echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
-
-      - name: Calculate Branch (workflow_dispatch event)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "REF=${{ github.sha }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
-
-      - name: Checkout from ${{ env.REF }}
+      - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.REF }}
+          ref: ${{ needs.check-commit-count.outputs.ref }}
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -81,8 +122,7 @@ jobs:
 
       - name: Create CONTAINER_TAG
         working-directory: .github/workflows/scripts
-        shell: bash
-        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ needs.check-commit-count.outputs.branch }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
 
       - name: Set up QEMU
         if: matrix.arch == 'arm64'
@@ -113,7 +153,8 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
   build-native-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'main')))
+    needs: check-commit-count
+    if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -134,22 +175,10 @@ jobs:
           - arm64
     name: "Build Native images (${{ matrix.arch }}-${{ matrix.project.name }}-java${{ matrix.java.jvm }}-${{ matrix.project.openai-type }})"
     steps:
-      - name: Calculate Branch (workflow_run event)
-        if: github.event_name == 'workflow_run'
-        run: |
-          echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
-
-      - name: Calculate Branch (workflow_dispatch event)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "REF=${{ github.sha }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
-
-      - name: Checkout from ${{ env.REF }}
+      - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.REF }}
+          ref: ${{ needs.check-commit-count.outputs.ref }}
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -165,8 +194,7 @@ jobs:
 
       - name: Create CONTAINER_TAG
         working-directory: .github/workflows/scripts
-        shell: bash
-        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "native-" ${{ matrix.java.jvm }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "native-" ${{ matrix.java.jvm }} ${{ env.LATEST_IMAGE_TAG }} ${{ needs.check-commit-count.outputs.branch }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
 
       - name: Set up QEMU
         if: matrix.arch == 'arm64'
@@ -199,8 +227,9 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
   push-app-images:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'main')))
+    if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
     needs:
+      - check-commit-count
       - build-jvm-images
       - build-native-images
     runs-on: ubuntu-latest
@@ -225,27 +254,14 @@ jobs:
           - arm64
     name: "Push app images (${{ matrix.arch }}-${{ matrix.project.name }}-${{ matrix.kind }}java${{ matrix.java }}-${{ matrix.project.openai-type }})"
     steps:
-      - name: Calculate Branch (workflow_run event)
-        if: github.event_name == 'workflow_run'
-        run: |
-          echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
-
-      - name: Calculate Branch (workflow_dispatch event)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "REF=${{ github.sha }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
-
-      - name: Checkout from ${{ env.REF }}
+      - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.REF }}
+          ref: ${{ needs.check-commit-count.outputs.ref }}
 
       - name: Create CONTAINER_TAG
         working-directory: .github/workflows/scripts
-        shell: bash
-        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "${{ matrix.kind }}" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "${{ matrix.kind }}" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ needs.check-commit-count.outputs.branch }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
 
       - name: Get saved images (${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }})
         uses: ishworkh/container-image-artifact-download@v1.1.1
@@ -264,8 +280,10 @@ jobs:
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}"
 
   create-app-multiarch-manifests:
-    if: ((github.event_name == 'workflow_dispatch') || ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success'))) && ((github.repository == 'quarkusio/quarkus-super-heroes') && ((github.event.workflow_run.head_branch == 'main')))
-    needs: push-app-images
+    if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
+    needs:
+      - check-commit-count
+      - push-app-images
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -285,27 +303,14 @@ jobs:
           - { name: ui-super-heroes }
     name: Create app multiarch manifests (${{ matrix.project.name }}-${{ matrix.kind }}java${{ matrix.java }}-${{ matrix.project.openai-type }})
     steps:
-      - name: Calculate Branch (workflow_run)
-        if: github.event_name == 'workflow_run'
-        run: |
-          echo "REF=${{ github.event.workflow_run.head_commit.id }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
-
-      - name: Calculate Branch (workflow_dispatch event)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "REF=${{ github.sha }}" >> $GITHUB_ENV
-          echo "BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
-
-      - name: Checkout from ${{ env.REF }}
+      - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.REF }}
+          ref: ${{ needs.check-commit-count.outputs.ref }}
 
       - name: Create CONTAINER_TAG
         working-directory: .github/workflows/scripts
-        shell: bash
-        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "${{ matrix.kind }}" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ env.BRANCH }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
+        run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "${{ matrix.kind }}" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ needs.check-commit-count.outputs.branch }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
 
       - name: Login to quay
         uses: docker/login-action@v3
@@ -315,35 +320,25 @@ jobs:
           password: ${{ secrets.QUAY_REPO_TOKEN }}
 
       - name: Create and push multi-arch manifests
-        shell: bash
         run: |
           docker manifest create ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }} \
             -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-amd64 \
             -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-arm64
           docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}
 
-  deploy-resources-workflow-run:
-    if: ((github.event_name == 'workflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch')) && (github.event.workflow_run.conclusion == 'success') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.event.workflow_run.head_branch == 'main'))
-    needs: create-app-multiarch-manifests
+  deploy-resources:
+    if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
+    needs:
+      - check-commit-count
+      - create-app-multiarch-manifests
     uses: quarkusio/quarkus-super-heroes/.github/workflows/create-deploy-resources.yml@main
     secrets: inherit
     with:
-      commit_id: ${{ github.event.workflow_run.head_commit.id }}
-      branch: ${{ github.event.workflow_run.head_branch }}
-
-  deploy-resources-workflow-dispatch:
-    if: ((github.event_name == 'workflow_dispatch') && (github.repository == 'quarkusio/quarkus-super-heroes')) && ((github.ref_name == 'main'))
-    needs: create-app-multiarch-manifests
-    uses: quarkusio/quarkus-super-heroes/.github/workflows/create-deploy-resources.yml@main
-    secrets: inherit
-    with:
-      commit_id: ${{ github.sha }}
-      branch: ${{ github.ref_name }}
+      commit_id: ${{ needs.check-commit-count.outputs.ref }}
+      branch: ${{ needs.check-commit-count.outputs.branch }}
 
   cleanup-artifacts:
-    needs:
-      - deploy-resources-workflow-run
-      - deploy-resources-workflow-dispatch
+    needs: deploy-resources
     if: always()
     runs-on: ubuntu-latest
     steps:
