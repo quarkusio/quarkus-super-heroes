@@ -4,6 +4,7 @@ env:
   IMAGE_BASE_NAME: "quay.io/quarkus-super-heroes"
   MANDREL_IMAGE: "quay.io/quarkus/ubi-quarkus-mandrel-builder-image"
   LATEST_IMAGE_TAG: "latest"
+  DEFAULT_TIMEFRAME: "24 hours"
 
 on:
 #  workflow_run:
@@ -63,7 +64,7 @@ jobs:
         id: calculate_commits
         run: |
           if [[ ${{ github.event_name }} == 'schedule' ]]; then
-            if [[ $(git log --oneline --since '24 hours ago' | wc -l) -gt 0 ]]; then
+            if [[ $(git log --oneline --since '${{ env.DEFAULT_TIMEFRAME }} ago' | wc -l) -gt 0 ]]; then
               echo "has_commits=true" >> $GITHUB_OUTPUT
             else
               echo "has_commits=false" >> $GITHUB_OUTPUT
@@ -72,23 +73,42 @@ jobs:
             echo "has_commits=true" >> $GITHUB_OUTPUT
           fi
 
-  build-jvm-images:
+  calculate-modules:
     needs: check-commit-count
+    runs-on: ubuntu-latest
+    if: needs.check-commit-count.outputs.has_commits == 'true'
+    outputs:
+      projects_matrix: ${{ steps.calculate_projects.outputs.projects_matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.check-commit-count.outputs.branch }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Calculate projects
+        id: calculate_projects
+        run: |
+          json=$(curl -Ls https://sh.jbang.dev | bash -s - .github/calculateModules.java ${{ env.DEFAULT_TIMEFRAME }})
+          echo "${json}"
+          echo "projects_matrix=${json}" >> $GITHUB_OUTPUT
+
+  build-jvm-images:
+    needs:
+      - check-commit-count
+      - calculate-modules
     if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
     runs-on: ubuntu-latest
     strategy:
       matrix:
         java:
           - '17'
-        project:
-          - { name: event-statistics }
-          - { name: rest-fights }
-          - { name: rest-heroes }
-          - { name: rest-villains }
-          - { name: rest-narration }
-          - { name: rest-narration, openai-type: azure-openai }
-          - { name: grpc-locations }
-          - { name: ui-super-heroes }
+        project: ${{ fromJson(needs.calculate-modules.outputs.projects_matrix) }}
         arch:
           - amd64
           - arm64
@@ -153,7 +173,9 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
   build-native-images:
-    needs: check-commit-count
+    needs:
+      - check-commit-count
+      - calculate-modules
     if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
     runs-on: ubuntu-latest
     strategy:
@@ -161,15 +183,7 @@ jobs:
       matrix:
         java:
           - { jvm: '17', mandrel: '21' }
-        project:
-          - { name: event-statistics }
-          - { name: rest-fights }
-          - { name: rest-heroes }
-          - { name: rest-villains }
-          - { name: rest-narration }
-          - { name: rest-narration, openai-type: azure-openai }
-          - { name: grpc-locations }
-          - { name: ui-super-heroes }
+        project: ${{ fromJson(needs.calculate-modules.outputs.projects_matrix) }}
         arch:
           - amd64
           - arm64
@@ -230,6 +244,7 @@ jobs:
     if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
     needs:
       - check-commit-count
+      - calculate-modules
       - build-jvm-images
       - build-native-images
     runs-on: ubuntu-latest
@@ -240,15 +255,7 @@ jobs:
         kind:
           - ""
           - "native-"
-        project:
-          - { name: event-statistics }
-          - { name: rest-fights }
-          - { name: rest-heroes }
-          - { name: rest-villains }
-          - { name: rest-narration }
-          - { name: rest-narration, openai-type: azure-openai }
-          - { name: grpc-locations }
-          - { name: ui-super-heroes }
+        project: ${{ fromJson(needs.calculate-modules.outputs.projects_matrix) }}
         arch:
           - amd64
           - arm64
@@ -283,6 +290,7 @@ jobs:
     if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
     needs:
       - check-commit-count
+      - calculate-modules
       - push-app-images
     runs-on: ubuntu-latest
     strategy:
@@ -292,15 +300,7 @@ jobs:
         kind:
           - ""
           - "native-"
-        project:
-          - { name: event-statistics }
-          - { name: rest-fights }
-          - { name: rest-heroes }
-          - { name: rest-villains }
-          - { name: rest-narration }
-          - { name: rest-narration, openai-type: azure-openai }
-          - { name: grpc-locations }
-          - { name: ui-super-heroes }
+        project: ${{ fromJson(needs.calculate-modules.outputs.projects_matrix) }}
     name: Create app multiarch manifests (${{ matrix.project.name }}-${{ matrix.kind }}java${{ matrix.java }}-${{ matrix.project.openai-type }})
     steps:
       - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
