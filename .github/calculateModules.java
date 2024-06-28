@@ -45,13 +45,11 @@ class calculateModules {
 		process.waitFor();
 
 		try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-			var changedDirs = reader.lines()
+			return reader.lines()
 				.filter(calculateModules::shouldIncludeFile)
 				.map(fullFileName -> fullFileName.trim().split("/")[0]) // Grab just the first path, which will be the directory name
 				.filter(MODULES::contains) // Only keep it if it is one of the module names
 				.collect(Collectors.toCollection(LinkedHashSet::new));
-
-			return changedDirs;
 		}
 	}
 
