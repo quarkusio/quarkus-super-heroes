@@ -48,10 +48,9 @@ class calculateModules {
 			var changedDirs = reader.lines()
 				.filter(calculateModules::shouldIncludeFile)
 				.map(fullFileName -> fullFileName.trim().split("/")[0]) // Grab just the first path, which will be the directory name
+				.filter(directoryName -> MODULES.contains(directoryName)) // Only keep it if it is one of the module names
 				.collect(Collectors.toCollection(LinkedHashSet::new));
 
-			// Remove anything that isn't one of the module names
-			changedDirs.retainAll(MODULES);
 			return changedDirs;
 		}
 	}
