@@ -55,6 +55,11 @@ jobs:
       ref: ${{ needs.calculate-refs.outputs.ref}}
       branch: ${{ needs.calculate-refs.outputs.branch}}
     steps:
+      - name: Print inputs
+        run: |
+          echo "ref = ${{ needs.calculate-refs.outputs.ref }}"
+          echo "branch = ${{ needs.calculate-refs.outputs.branch }}"
+      
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -95,7 +100,7 @@ jobs:
         id: calculate_projects
         run: |
           json=$(curl -Ls https://sh.jbang.dev | bash -s - .github/calculateModules.java "${{ env.DEFAULT_TIMEFRAME }}")
-          echo "${json}"
+          echo "modules = ${json}"
           echo "projects_matrix=${json}" >> $GITHUB_OUTPUT
 
   build-jvm-images:
