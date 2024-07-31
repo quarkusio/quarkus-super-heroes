@@ -21,7 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 
 import io.quarkus.sample.superheroes.fight.Fighters;
@@ -34,8 +34,8 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
 @QuarkusTest
-@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
-public class HeaderPropagationTests {
+@WithTestResource(HeroesVillainsNarrationWiremockServerResource.class)
+class HeaderPropagationTests {
   private static final String PROPAGATE_HEADER_NAME = "x-propagate";
   private static final String PROPAGATE_HEADER_VALUE = "propagate-value";
 
@@ -80,13 +80,13 @@ public class HeaderPropagationTests {
   ObjectMapper objectMapper;
 
   @BeforeEach
-  public void beforeEach() {
+  void beforeEach() {
     // Reset WireMock
     this.wireMockServer.resetAll();
   }
 
   @Test
-  public void getRandomFightersAllOk() {
+  void getRandomFightersAllOk() {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(HERO_API_URI))
         .willReturn(okForContentType(APPLICATION_JSON, getDefaultHeroJson()))
@@ -129,7 +129,7 @@ public class HeaderPropagationTests {
 
   @ParameterizedTest(name = DISPLAY_NAME_PLACEHOLDER + "[" + INDEX_PLACEHOLDER + "] (" + ARGUMENTS_WITH_NAMES_PLACEHOLDER + ")")
   @MethodSource("helloServiceHeadersPropagateValues")
-  public void helloServiceHeadersPropagate(String requestUri, String downstreamUri, String expectedBody) {
+  void helloServiceHeadersPropagate(String requestUri, String downstreamUri, String expectedBody) {
     this.wireMockServer.stubFor(
       WireMock.get(urlEqualTo(downstreamUri))
         .willReturn(okForContentType(TEXT_PLAIN, expectedBody))

@@ -35,7 +35,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.kafka.InjectKafkaCompanion;
@@ -68,7 +68,7 @@ import io.vertx.core.Vertx;
  * </p>
  */
 @QuarkusIntegrationTest
-@QuarkusTestResource(value = KafkaCompanionResource.class, restrictToAnnotatedClass = true)
+@WithTestResource(KafkaCompanionResource.class)
 class WebSocketsIT {
 	private static final String HERO_NAME = "Chewbacca";
 	private static final String HERO_TEAM_NAME = "heroes";
@@ -135,7 +135,8 @@ class WebSocketsIT {
       companion.produce(Fight.class)
         .fromRecords(sampleFights.stream()
           .map(fight -> new ProducerRecord<String, Fight>("fights", fight))
-          .collect(Collectors.toList()));
+          .toList()
+        );
 
 			// Wait for our messages to appear in the queue
 			await()
@@ -291,7 +292,7 @@ class WebSocketsIT {
 				}
 
 				return fight.build();
-			}).collect(Collectors.toList());
+			}).toList();
 	}
 
 	@ClientEndpoint
