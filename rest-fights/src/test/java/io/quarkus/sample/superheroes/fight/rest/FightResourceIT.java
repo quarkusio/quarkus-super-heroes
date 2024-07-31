@@ -37,7 +37,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
 import io.quarkus.logging.Log;
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.kafka.InjectKafkaCompanion;
@@ -96,9 +96,9 @@ import io.vertx.core.Vertx;
  */
 @QuarkusIntegrationTest
 @TestProfile(ShorterTimeoutsProfile.class)
-@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
-@QuarkusTestResource(value = KafkaCompanionResource.class, restrictToAnnotatedClass = true)
-@QuarkusTestResource(value = LocationsWiremockGrpcServerResource.class, restrictToAnnotatedClass = true)
+@WithTestResource(HeroesVillainsNarrationWiremockServerResource.class)
+@WithTestResource(KafkaCompanionResource.class)
+@WithTestResource(LocationsWiremockGrpcServerResource.class)
 @TestMethodOrder(OrderAnnotation.class)
 class FightResourceIT {
 	private static final int DEFAULT_ORDER = 0;
@@ -1691,8 +1691,4 @@ class FightResourceIT {
 	private static String getDefaultHeroJson() {
 		return writeAsJson(DEFAULT_HERO);
 	}
-
-  private static String getDefaultLocationJson() {
-    return writeAsJson(DEFAULT_LOCATION);
-  }
 }

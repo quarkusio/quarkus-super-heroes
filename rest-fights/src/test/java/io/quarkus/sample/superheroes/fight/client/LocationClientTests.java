@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 
 import io.quarkus.sample.superheroes.fight.FightLocation;
@@ -32,7 +32,7 @@ import io.smallrye.faulttolerance.api.CircuitBreakerState;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 
 @QuarkusTest
-@QuarkusTestResource(value = LocationsWiremockGrpcServerResource.class, restrictToAnnotatedClass = true)
+@WithTestResource(LocationsWiremockGrpcServerResource.class)
 class LocationClientTests {
 	private static final String DEFAULT_HELLO_RESPONSE = "Hello locations!";
 	private static final String DEFAULT_LOCATION_NAME = "Gotham City";

@@ -12,7 +12,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jakarta.inject.Inject;
@@ -93,8 +92,8 @@ class WebSocketsTests {
 			// Wait for each client to emit a CONNECT message
 			waitForClientsToStart(teamStatsMessages, teamStatsLatch, topWinnerMessages, topWinnersLatch);
 
-			var expectedTeamStats = createTeamStatsItems().collect(Collectors.toList());
-			var expectedTopWinners = createTopWinnerItems().collect(Collectors.toList());
+			var expectedTeamStats = createTeamStatsItems().toList();
+			var expectedTopWinners = createTopWinnerItems().toList();
 
 			// Wait for our messages to appear in the queue
 			await()

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 
 import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
@@ -34,7 +34,7 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
  * @see HeroesVillainsNarrationWiremockServerResource
  */
 @QuarkusTest
-@QuarkusTestResource(value = HeroesVillainsNarrationWiremockServerResource.class, restrictToAnnotatedClass = true)
+@WithTestResource(HeroesVillainsNarrationWiremockServerResource.class)
 class VillainClientTests {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
@@ -66,18 +66,18 @@ class VillainClientTests {
   CircuitBreakerMaintenance circuitBreakerMaintenance;
 
   @BeforeEach
-  public void beforeEach() {
+  void beforeEach() {
     this.wireMockServer.resetAll();
   }
 
   @AfterEach
-  public void afterEach() {
+  void afterEach() {
     // Reset all circuit breaker counts after each test
     this.circuitBreakerMaintenance.resetAll();
   }
 
   @Test
-  public void findsRandom() {
+  void findsRandom() {
     this.wireMockServer.stubFor(
       get(urlEqualTo(VILLAIN_RANDOM_URI))
         .willReturn(okForContentType(APPLICATION_JSON, getDefaultVillainJson()))
@@ -103,7 +103,7 @@ class VillainClientTests {
   }
 
   @Test
-  public void recoversFrom404() {
+  void recoversFrom404() {
     this.wireMockServer.stubFor(
       get(urlEqualTo(VILLAIN_RANDOM_URI))
         .willReturn(notFound())
@@ -124,7 +124,7 @@ class VillainClientTests {
   }
 
   @Test
-  public void doesntRecoverFrom500() {
+  void doesntRecoverFrom500() {
     this.wireMockServer.stubFor(
       get(urlEqualTo(VILLAIN_RANDOM_URI))
         .willReturn(serverError())
@@ -176,7 +176,7 @@ class VillainClientTests {
   }
 
   @Test
-  public void helloVillains() {
+  void helloVillains() {
     this.wireMockServer.stubFor(
       get(urlEqualTo(VILLAIN_HELLO_URI))
         .willReturn(okForContentType(TEXT_PLAIN, DEFAULT_HELLO_RESPONSE))
