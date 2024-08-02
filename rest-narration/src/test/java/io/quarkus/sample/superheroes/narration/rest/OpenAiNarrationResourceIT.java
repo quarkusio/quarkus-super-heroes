@@ -23,6 +23,39 @@ import io.quarkiverse.wiremock.devservice.WireMockConfigKey;
 @TestProfile(WiremockOpenAITestProfile.class)
 @DisabledIf(value = "azureOpenAiEnabled", disabledReason = "Azure OpenAI profile is enabled")
 class OpenAiNarrationResourceIT extends NarrationResourceIT {
+	private static final String NARRATION_REQUEST_JSON = """
+    {
+      "model": "gpt-4o-mini",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a marvel comics writer, expert in all sorts of super heroes and super villains."
+        },
+        {
+          "role": "user",
+          "content": "Narrate the fight between a super hero and a super villain.\\n\\nDuring the narration, don't repeat \\"super hero\\" or \\"super villain\\".\\n\\nWrite 4 paragraphs maximum. Be creative.\\n\\nThe narration must be:\\n- G rated\\n- Workplace/family safe\\n- No sexism, racism, or other bias/bigotry\\n\\nHere is the data you will use for the winner:\\n\\n+++++\\nName: %s\\nPowers: %s\\nLevel: %d\\n+++++\\n\\nHere is the data you will use for the loser:\\n\\n+++++\\nName: %s\\nPowers: %s\\nLevel: %d\\n+++++\\n\\nHere is the data you will use for the fight:\\n\\n+++++\\n%s who is a %s has won the fight against %s who is a %s.\\n\\nThe fight took place in %s, which can be described as %s.\\n+++++\\n"
+        }
+      ],
+      "temperature": 0.7,
+      "top_p": 0.5,
+      "presence_penalty": 0,
+      "frequency_penalty": 0
+    }
+    """.formatted(
+    FIGHT.winnerName(),
+    FIGHT.winnerPowers(),
+    FIGHT.winnerLevel(),
+    FIGHT.loserName(),
+    FIGHT.loserPowers(),
+    FIGHT.loserLevel(),
+    FIGHT.winnerName(),
+    FIGHT.winnerTeam(),
+    FIGHT.loserName(),
+    FIGHT.loserTeam(),
+    FIGHT.location().name(),
+    FIGHT.location().description()
+  );
+
   @Test
 	@Override
 	void shouldNarrateAFight() {

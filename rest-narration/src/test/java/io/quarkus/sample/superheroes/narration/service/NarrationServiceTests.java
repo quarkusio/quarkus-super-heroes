@@ -31,7 +31,7 @@ class NarrationServiceTests {
 
   private static final String REQUEST_JSON = """
     {
-      "model": "gpt-3.5-turbo",
+      "model": "gpt-4o-mini",
       "messages": [
         {
           "role": "system",
@@ -54,7 +54,7 @@ class NarrationServiceTests {
       "id": "chatcmpl-8Uy1UC7ZFUXtjhYcY5VFj7eYGu6jX",
       "object": "chat.completion",
       "created": 1702391260,
-      "model": "gpt-3.5-turbo-0613",
+      "model": "gpt-4o-mini-2024-07-18",
       "choices": [
         {
           "index": 0,
