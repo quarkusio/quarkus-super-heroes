@@ -35,39 +35,7 @@ abstract class NarrationResourceIT {
 
   private static final String DEFAULT_LOCATION_NAME = "Gotham City";
   private static final String DEFAULT_LOCATION_DESCRIPTION = "An American city rife with corruption and crime, the home of its iconic protector Batman.";
-  private static final Fight FIGHT = new Fight(VILLAIN_NAME, VILLAIN_LEVEL, VILLAIN_POWERS, HERO_NAME, HERO_LEVEL, HERO_POWERS, VILLAIN_TEAM_NAME, HERO_TEAM_NAME, new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION));
-  protected static final String NARRATION_REQUEST_JSON = """
-    {
-      "model": "gpt-3.5-turbo",
-      "messages": [
-        {
-          "role": "system",
-          "content": "You are a marvel comics writer, expert in all sorts of super heroes and super villains."
-        },
-        {
-          "role": "user",
-          "content": "Narrate the fight between a super hero and a super villain.\\n\\nDuring the narration, don't repeat \\"super hero\\" or \\"super villain\\".\\n\\nWrite 4 paragraphs maximum. Be creative.\\n\\nThe narration must be:\\n- G rated\\n- Workplace/family safe\\n- No sexism, racism, or other bias/bigotry\\n\\nHere is the data you will use for the winner:\\n\\n+++++\\nName: %s\\nPowers: %s\\nLevel: %d\\n+++++\\n\\nHere is the data you will use for the loser:\\n\\n+++++\\nName: %s\\nPowers: %s\\nLevel: %d\\n+++++\\n\\nHere is the data you will use for the fight:\\n\\n+++++\\n%s who is a %s has won the fight against %s who is a %s.\\n\\nThe fight took place in %s, which can be described as %s.\\n+++++\\n"
-        }
-      ],
-      "temperature": 0.7,
-      "top_p": 0.5,
-      "presence_penalty": 0,
-      "frequency_penalty": 0
-    }
-    """.formatted(
-    FIGHT.winnerName(),
-    FIGHT.winnerPowers(),
-    FIGHT.winnerLevel(),
-    FIGHT.loserName(),
-    FIGHT.loserPowers(),
-    FIGHT.loserLevel(),
-    FIGHT.winnerName(),
-    FIGHT.winnerTeam(),
-    FIGHT.loserName(),
-    FIGHT.loserTeam(),
-    FIGHT.location().name(),
-    FIGHT.location().description()
-  );
+  protected static final Fight FIGHT = new Fight(VILLAIN_NAME, VILLAIN_LEVEL, VILLAIN_POWERS, HERO_NAME, HERO_LEVEL, HERO_POWERS, VILLAIN_TEAM_NAME, HERO_TEAM_NAME, new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION));
 
   protected static final String IMAGE_REQUEST_JSON = """
     {
