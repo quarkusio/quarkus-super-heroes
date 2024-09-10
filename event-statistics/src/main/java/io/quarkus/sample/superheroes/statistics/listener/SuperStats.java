@@ -8,8 +8,8 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
-import org.jboss.logging.Logger;
 
+import io.quarkus.logging.Log;
 import io.quarkus.opentelemetry.runtime.QuarkusContextStorage;
 
 import io.quarkus.sample.superheroes.fight.schema.Fight;
@@ -32,7 +32,6 @@ import io.smallrye.reactive.messaging.annotations.Broadcast;
  */
 @ApplicationScoped
 public class SuperStats {
-  private static final Logger LOGGER = Logger.getLogger(SuperStats.class);
   private static final String SPAN_KEY = "CURRENT_SPAN";
   private static final String MESSAGE_KEY = "CURRENT_MESSAGE";
 
@@ -80,10 +79,10 @@ public class SuperStats {
    */
   @WithSpan("SuperStats.computeTeamStats")
   Uni<Void> computeTeamStats(@SpanAttribute("arg.fight") Fight fight) {
-    LOGGER.debugf("[computeTeamStats] - Got message: %s", fight);
+    Log.debugf("[computeTeamStats] - Got message: %s", fight);
 
     return Uni.createFrom().item(() -> this.stats.add(fight))
-      .invoke(score -> LOGGER.debugf("[computeTeamStats] - Computed the team statistics: %s", score))
+      .invoke(score -> Log.debugf("[computeTeamStats] - Computed the team statistics: %s", score))
       .chain(this.teamStatsEmitter::send);
   }
 
@@ -102,14 +101,14 @@ public class SuperStats {
 
           return multi
             .invoke(fight -> ctx.put(spanName, createChildSpan(spanName, fight, getParentSpan(ctx))))
-            .invoke(fight -> LOGGER.debugf("[computeTopWinners] - Got message: %s", fight))
+            .invoke(fight -> Log.debugf("[computeTopWinners] - Got message: %s", fight))
             .group().by(Fight::getWinnerName)
             .flatMap(group ->
               group.onItem().scan(Score::new, this::incrementScore)
                 .filter(score -> score.name() != null)
             )
             .map(this.topWinners::onNewScore)
-            .invoke(winners -> LOGGER.debugf("[computeTopWinners] - Computed the top winners: %s", winners))
+            .invoke(winners -> Log.debugf("[computeTopWinners] - Computed the top winners: %s", winners))
             .onItem().invoke(() -> closeSpanFromContext(ctx, spanName))
             .onFailure().invoke(() -> closeSpanFromContext(ctx, spanName));
         }

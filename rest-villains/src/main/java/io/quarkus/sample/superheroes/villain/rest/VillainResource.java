@@ -36,7 +36,8 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.jboss.logging.Logger;
+
+import io.quarkus.logging.Log;
 
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.service.VillainService;
@@ -50,9 +51,6 @@ import io.smallrye.common.annotation.NonBlocking;
 @Tag(name = "villains")
 @Produces(APPLICATION_JSON)
 public class VillainResource {
-  @Inject
-	Logger logger;
-
   @Inject
 	VillainService service;
 
@@ -75,11 +73,11 @@ public class VillainResource {
 	public Response getRandomVillain() {
 		return this.service.findRandomVillain()
 			.map(v -> {
-				this.logger.debugf("Found random villain: %s", v);
+				Log.debugf("Found random villain: %s", v);
 				return Response.ok(v).build();
 			})
 			.orElseGet(() -> {
-				this.logger.debug("No random villain found");
+				Log.debug("No random villain found");
 				return Response.status(Status.NOT_FOUND).build();
 			});
 	}
@@ -100,7 +98,7 @@ public class VillainResource {
       .map(this.service::findAllVillainsHavingName)
       .orElseGet(this.service::findAllVillains);
 
-		this.logger.debugf("Total number of villains: %d", villains.size());
+		Log.debugf("Total number of villains: %d", villains.size());
 
 		return villains;
 	}
@@ -124,11 +122,11 @@ public class VillainResource {
 	public Response getVillain(@Parameter(name = "id", required = true) @PathParam("id") Long id) {
 		return this.service.findVillainById(id)
 			.map(v -> {
-				this.logger.debugf("Found villain: %s", v);
+				Log.debugf("Found villain: %s", v);
 				return Response.ok(v).build();
 			})
 			.orElseGet(() -> {
-				this.logger.debugf("No villain found with id %d", id);
+				Log.debugf("No villain found with id %d", id);
 				return Response.status(Status.NOT_FOUND).build();
 			});
 	}
@@ -159,7 +157,7 @@ public class VillainResource {
     @Context UriInfo uriInfo) {
 		var v = this.service.persistVillain(villain);
 		var builder = uriInfo.getAbsolutePathBuilder().path(Long.toString(v.id));
-		this.logger.debugf("New villain created with URI %s", builder.build().toString());
+		Log.debugf("New villain created with URI %s", builder.build().toString());
 		return Response.created(builder.build()).build();
 	}
 
@@ -197,11 +195,11 @@ public class VillainResource {
 
 		return this.service.replaceVillain(villain)
 			.map(v -> {
-				this.logger.debugf("Villain replaced with new values %s", v);
+				Log.debugf("Villain replaced with new values %s", v);
 				return Response.noContent().build();
 			})
 			.orElseGet(() -> {
-				this.logger.debugf("No villain found with id %d", villain.id);
+				Log.debugf("No villain found with id %d", villain.id);
 				return Response.status(Status.NOT_FOUND).build();
 			});
 	}
@@ -232,7 +230,7 @@ public class VillainResource {
     @Context UriInfo uriInfo) {
     this.service.replaceAllVillains(villains);
 		var uri = uriInfo.getAbsolutePathBuilder().build();
-		this.logger.debugf("New Villains created with URI %s", uri.toString());
+		Log.debugf("New Villains created with URI %s", uri.toString());
 		return Response.created(uri).build();
   }
 
@@ -274,11 +272,11 @@ public class VillainResource {
 
 		return this.service.partialUpdateVillain(villain)
 			.map(v -> {
-				this.logger.debugf("Villain updated with new values %s", v);
+				Log.debugf("Villain updated with new values %s", v);
 				return Response.ok(v).build();
 			})
 			.orElseGet(() -> {
-				this.logger.debugf("No villain found with id %d", villain.id);
+				Log.debugf("No villain found with id %d", villain.id);
 				return Response.status(Status.NOT_FOUND).build();
 			});
 	}
@@ -291,7 +289,7 @@ public class VillainResource {
 	)
 	public void deleteAllVillains() {
 		this.service.deleteAllVillains();
-		this.logger.debug("Deleted all villains");
+		Log.debug("Deleted all villains");
 	}
 
 	@DELETE
@@ -303,7 +301,7 @@ public class VillainResource {
 	)
 	public void deleteVillain(@Parameter(name = "id", required = true) @PathParam("id") Long id) {
 		this.service.deleteVillain(id);
-		this.logger.debugf("Villain with id %d deleted ", id);
+		Log.debugf("Villain with id %d deleted ", id);
 	}
 
 	@GET
@@ -321,7 +319,7 @@ public class VillainResource {
 	)
   @NonBlocking
 	public String hello() {
-    this.logger.debug("Hello Villain Resource");
+    Log.debug("Hello Villain Resource");
 		return "Hello Villain Resource";
 	}
 }
