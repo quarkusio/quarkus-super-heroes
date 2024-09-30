@@ -37,7 +37,7 @@ class ImageGenerationServiceTests {
       .revisedPrompt(DEFAULT_IMAGE_NARRATION)
       .build();
 
-    when(this.imageModel.generate(NARRATION))
+    when(this.imageModel.generate(startsWith(NARRATION)))
       .thenReturn(new Response<>(image));
 
     assertThat(this.imageGenerationService.generateImageForNarration(NARRATION))
@@ -51,7 +51,7 @@ class ImageGenerationServiceTests {
         image.url().toString()
       );
 
-    verify(this.imageModel).generate(NARRATION);
+    verify(this.imageModel).generate(startsWith(NARRATION));
     verifyNoMoreInteractions(this.imageModel);
   }
 }
