@@ -168,7 +168,7 @@ jobs:
     needs:
       - check-commit-count
       - calculate-modules
-    if: (needs.check-commit-count.outputs.has_commits == 'true') && (needs.calculate-modules.outputs.projects_matrix != '[]') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
+    if: (needs.check-commit-count.outputs.has_commits == 'true') && (needs.calculate-modules.outputs.projects_matrix != '[]') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '3.15.Final'))))
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -233,7 +233,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
   push-app-images:
-    if: (needs.check-commit-count.outputs.has_commits == 'true') && (needs.calculate-modules.outputs.projects_matrix != '[]') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
+    if: (needs.check-commit-count.outputs.has_commits == 'true') && (needs.calculate-modules.outputs.projects_matrix != '[]') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '3.15.Final'))))
     needs:
       - check-commit-count
       - calculate-modules
@@ -279,7 +279,7 @@ jobs:
         run: "docker push -a ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}"
 
   create-app-multiarch-manifests:
-    if: (needs.check-commit-count.outputs.has_commits == 'true') && (needs.calculate-modules.outputs.projects_matrix != '[]') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
+    if: (needs.check-commit-count.outputs.has_commits == 'true') && (needs.calculate-modules.outputs.projects_matrix != '[]') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '3.15.Final'))))
     needs:
       - check-commit-count
       - calculate-modules
@@ -319,7 +319,7 @@ jobs:
           docker manifest push ${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}
 
   deploy-resources:
-    if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == 'main'))))
+    if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success') && (github.event.workflow_run.head_branch == '3.15.Final'))))
     needs:
       - check-commit-count
       - create-app-multiarch-manifests
