@@ -68,8 +68,8 @@ The job [Builds native executable container images](https://quarkus.io/guides/bu
 > The [`rest-narration`](../rest-narration) application currently doesn't support native compilation
 
 Each container image created has 2 tags:
-- `native-latest-amd64`
-- `native-latest-arm64`
+- `native-latest-3.15.Final-amd64`
+- `native-latest-3.15.Final-arm64`
 
 There are a total of 14 images built (7 applications x 2 platforms).
 

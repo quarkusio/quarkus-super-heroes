@@ -84,7 +84,7 @@ For that, we need to set the following environment variables:
 ```shell
 # Images
 SUPERHEROES_IMAGES_BASE="quay.io/quarkus-super-heroes"
-IMAGES_TAG="java17-latest"
+IMAGES_TAG="java17-latest-3.15.Final"
 
 # Azure
 RESOURCE_GROUP="super-heroes"
