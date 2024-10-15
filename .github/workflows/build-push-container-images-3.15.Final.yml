@@ -24,7 +24,8 @@ jobs:
   calculate-refs:
     runs-on: ubuntu-latest
     outputs:
-      ref: ${{ steps.calculate_branch.outputs.ref}}
+      ref: ${{ steps.calculate_branch.outputs.ref }}
+      branch: ${{ env.BRANCH }}
     steps:
       - name: Calculate Branch
         id: calculate_branch
@@ -41,8 +42,9 @@ jobs:
     needs: calculate-refs
     runs-on: ubuntu-latest
     outputs:
-      has_commits: ${{ steps.calculate_commits.outputs.has_commits}}
-      ref: ${{ needs.calculate-refs.outputs.ref}}
+      has_commits: ${{ steps.calculate_commits.outputs.has_commits }}
+      ref: ${{ needs.calculate-refs.outputs.ref }}
+      branch: ${{ needs.calculate-refs.outputs.branch }}
     steps:
       - name: Print inputs
         run: echo "ref = ${{ needs.calculate-refs.outputs.ref }}"
@@ -327,7 +329,7 @@ jobs:
     secrets: inherit
     with:
       commit_id: ${{ needs.check-commit-count.outputs.ref }}
-      branch: ${{ env.BRANCH }}
+      branch: ${{ needs.check-commit-count.outputs.branch }}
 
   cleanup-artifacts:
     needs: deploy-resources
