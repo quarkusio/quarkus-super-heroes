@@ -9,6 +9,18 @@ env:
 
 on:
   workflow_dispatch:
+    inputs:
+      TIMEFRAME:
+        required: true
+        type: choice
+        description: The timeframe to check for changes
+        default: ${{ env.DEFAULT_TIMEFRAME }}
+        options:
+          - 24 hours
+          - 2 days
+          - 3 days
+          - 7 days
+          - 1 month
   schedule:
     - cron: "0 2 * * *"
 
