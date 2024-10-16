@@ -103,7 +103,7 @@ jobs:
       - name: Calculate projects
         id: calculate_projects
         run: |
-          json=$(curl -Ls https://sh.jbang.dev | bash -s - .github/calculateModules.java "${{ env.DEFAULT_TIMEFRAME }}")
+          json=$(curl -Ls https://sh.jbang.dev | bash -s - .github/calculateModules.java "${{ inputs.TIMEFRAME }}")
           echo "modules = ${json}"
           echo "projects_matrix=${json}" >> $GITHUB_OUTPUT
 
