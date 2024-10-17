@@ -1,8 +1,5 @@
 name: Basic build and test
 
-env:
-  MANDREL_VERSION: "23.1.2.0"
-
 on:
   push:
     paths-ignore:
@@ -196,30 +193,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get Mandrel file name
-        run: echo "MANDREL_FILE=mandrel-java${{ matrix.java.mandrel }}-linux-amd64-${{ env.MANDREL_VERSION }}-Final.tar.gz" >> $GITHUB_ENV
-
-      - name: Cache and restore Mandrel distro
-        id: check-mandrel-cache
-        uses: actions/cache@v4
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
         with:
-          path: ${{ env.MANDREL_FILE }}
-          key: mandrel-distro-${{ env.MANDREL_VERSION }}
-
-      - name: Download Mandrel
-        if: steps.check-mandrel-cache.outputs.cache-hit != 'true'
-        run: |
-          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${{ env.MANDREL_VERSION }}-Final/${{ env.MANDREL_FILE }}"
-          wget -q -O ${{ env.MANDREL_FILE }} $download_url
-
-      - name: Setup Maven+OpenJDK Distro
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'jdkfile'
-          jdkFile: ${{ env.MANDREL_FILE }}
-          java-version: ${{ matrix.java.jvm }}
-          architecture: x64
-          cache: maven
+          java-version: '21'
+          distribution: 'mandrel'
+          cache: 'maven'
+          native-image-job-reports: 'true'
+          native-image-pr-reports: 'true'
 
       - name: Create env vars
         if: matrix.project.openai-type
@@ -254,30 +235,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get Mandrel file name
-        run: echo "MANDREL_FILE=mandrel-java${{ matrix.java.mandrel }}-linux-amd64-${{ env.MANDREL_VERSION }}-Final.tar.gz" >> $GITHUB_ENV
-
-      - name: Cache and restore Mandrel distro
-        id: check-mandrel-cache
-        uses: actions/cache@v4
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
         with:
-          path: ${{ env.MANDREL_FILE }}
-          key: mandrel-distro-${{ env.MANDREL_VERSION }}
-
-      - name: Download Mandrel
-        if: steps.check-mandrel-cache.outputs.cache-hit != 'true'
-        run: |
-          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${{ env.MANDREL_VERSION }}-Final/${{ env.MANDREL_FILE }}"
-          wget -q -O ${{ env.MANDREL_FILE }} $download_url
-
-      - name: Setup Maven+OpenJDK Distro
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'jdkfile'
-          jdkFile: ${{ env.MANDREL_FILE }}
-          java-version: ${{ matrix.java.jvm }}
-          architecture: x64
-          cache: maven
+          java-version: '21'
+          distribution: 'mandrel'
+          cache: 'maven'
+          native-image-job-reports: 'true'
+          native-image-pr-reports: 'true'
 
       - name: Create env vars
         if: matrix.project.openai-type
@@ -312,30 +277,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get Mandrel file name
-        run: echo "MANDREL_FILE=mandrel-java${{ matrix.java.mandrel }}-linux-amd64-${{ env.MANDREL_VERSION }}-Final.tar.gz" >> $GITHUB_ENV
-
-      - name: Cache and restore Mandrel distro
-        id: check-mandrel-cache
-        uses: actions/cache@v4
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
         with:
-          path: ${{ env.MANDREL_FILE }}
-          key: mandrel-distro-${{ env.MANDREL_VERSION }}
-
-      - name: Download Mandrel
-        if: steps.check-mandrel-cache.outputs.cache-hit != 'true'
-        run: |
-          download_url="https://github.com/graalvm/mandrel/releases/download/mandrel-${{ env.MANDREL_VERSION }}-Final/${{ env.MANDREL_FILE }}"
-          wget -q -O ${{ env.MANDREL_FILE }} $download_url
-
-      - name: Setup Maven+OpenJDK Distro
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'jdkfile'
-          jdkFile: ${{ env.MANDREL_FILE }}
-          java-version: ${{ matrix.java.jvm }}
-          architecture: x64
-          cache: maven
+          java-version: '21'
+          distribution: 'mandrel'
+          cache: 'maven'
+          native-image-job-reports: 'true'
+          native-image-pr-reports: 'true'
 
       - name: "build-native-container-${{ matrix.project }}-java-${{ matrix.java.jvm }}"
         working-directory: ${{ matrix.project }}
