@@ -337,6 +337,10 @@ jobs:
 
   deploy-resources:
     if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes') && (contains(fromJSON('["workflow_dispatch", "schedule"]'), github.event_name) || ((github.event_name == 'worflow_run') && ((github.event.workflow_run.event == 'push') || (github.event.workflow_run.event == 'workflow_dispatch') && (github.event.workflow_run.conclusion == 'success'))))
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write
     needs:
       - check-commit-count
       - create-app-multiarch-manifests
