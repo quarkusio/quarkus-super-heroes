@@ -1,10 +1,8 @@
 package io.quarkus.sample.superheroes.statistics.endpoint;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.websocket.server.ServerEndpoint;
 
-import io.quarkus.scheduler.Scheduled;
+import io.quarkus.websockets.next.WebSocket;
 
 import io.quarkus.sample.superheroes.statistics.domain.TeamScore;
 
@@ -17,8 +15,7 @@ import io.smallrye.mutiny.Multi;
  * </p>
  * @see TeamStatsChannelHolder
  */
-@ServerEndpoint("/stats/team")
-@ApplicationScoped
+@WebSocket(path = "/stats/team")
 public class TeamStatsWebSocket extends EventStatsWebSocket<TeamScore> {
 	@Inject
 	TeamStatsChannelHolder teamStatsChannelHolder;
@@ -26,12 +23,5 @@ public class TeamStatsWebSocket extends EventStatsWebSocket<TeamScore> {
   @Override
   protected Multi<TeamScore> getStream() {
     return this.teamStatsChannelHolder.getTeamStats();
-  }
-
-  @Scheduled(every = "${pingInterval.teamStats:1m}", delayed = "${pingInterval.teamStats:1m}")
-  @Override
-  void sendPings() {
-    // This is overridden here because of https://github.com/quarkusio/quarkus/issues/38781
-    super.sendPings();
   }
 }
