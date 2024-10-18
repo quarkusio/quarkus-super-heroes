@@ -34,7 +34,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Tests for the {@link TopWinnerWebSocket} and {@link TeamStatsWebSocket} classes.
@@ -42,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
  *   These tests mock the {@link TopWinnerStatsChannelHolder#getWinners()} and {@link TeamStatsChannelHolder#getTeamStats()} methods to return pre-defined input and then set up a sample WebSocket client to listen to messages sent by the server. Each message received is placed into a {@link java.util.concurrent.BlockingQueue} so that message content can be asserted once the expected number of messages have been received.
  * </p>
  */
-@Slf4j
 @QuarkusTest
 class WebSocketsTests {
   @TestHTTPResource("/stats/winners")
