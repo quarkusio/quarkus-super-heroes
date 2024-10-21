@@ -23,6 +23,8 @@ import org.mockito.ArgumentMatcher;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit5.virtual.ShouldNotPin;
+import io.quarkus.test.junit5.virtual.VirtualThreadUnit;
 
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.service.VillainService;
@@ -30,6 +32,8 @@ import io.quarkus.sample.superheroes.villain.service.VillainService;
 import io.restassured.RestAssured;
 
 @QuarkusTest
+@VirtualThreadUnit
+@ShouldNotPin
 class VillainResourceTests {
 	private static final String DEFAULT_NAME = "Super Chocolatine";
 	private static final String UPDATED_NAME = DEFAULT_NAME + " (updated)";

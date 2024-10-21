@@ -112,7 +112,7 @@ jobs:
     strategy:
       matrix:
         java:
-          - '17'
+          - '21'
         project: ${{ fromJson(needs.calculate-modules.outputs.projects_matrix) }}
         arch:
           - amd64
@@ -134,7 +134,7 @@ jobs:
       - name: Create env vars
         working-directory: ${{ matrix.project.name }}
         run: |
-          if [[ ${{ matrix.java }} == '17' ]]; then
+          if [[ ${{ matrix.java }} == '21' ]]; then
             echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV"
           else
             echo "JVM_DOCKERFILE=Dockerfile.jvm${{ matrix.java }}" >> "$GITHUB_ENV"
@@ -187,7 +187,7 @@ jobs:
       fail-fast: false
       matrix:
         java:
-          - { jvm: '17', mandrel: '21' }
+          - { jvm: '21', mandrel: '21' }
         project: ${{ fromJson(needs.calculate-modules.outputs.projects_matrix) }}
         arch:
           - amd64
@@ -256,7 +256,7 @@ jobs:
     strategy:
       matrix:
         java:
-          - '17'
+          - '21'
         kind:
           - ""
           - "native-"
@@ -301,7 +301,7 @@ jobs:
     strategy:
       matrix:
         java:
-          - '17'
+          - '21'
         kind:
           - ""
           - "native-"

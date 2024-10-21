@@ -43,6 +43,7 @@ import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.service.VillainService;
 
 import io.smallrye.common.annotation.NonBlocking;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 
 /**
  * JAX-RS API endpoints with <code>/api/villains</code> as the base URI for all endpoints
@@ -70,6 +71,7 @@ public class VillainResource {
 		responseCode = "404",
 		description = "No villain found"
 	)
+  @RunOnVirtualThread
 	public Response getRandomVillain() {
 		return this.service.findRandomVillain()
 			.map(v -> {
@@ -93,6 +95,7 @@ public class VillainResource {
       examples = @ExampleObject(name = "villains", value = Examples.VALID_EXAMPLE_VILLAIN_LIST)
     )
 	)
+  @RunOnVirtualThread
 	public List<Villain> getAllVillains(@Parameter(name = "name_filter", description = "An optional filter parameter to filter results by name") @QueryParam("name_filter") Optional<String> nameFilter) {
     var villains = nameFilter
       .map(this.service::findAllVillainsHavingName)
@@ -119,6 +122,7 @@ public class VillainResource {
 		responseCode = "404",
 		description = "The villain is not found for a given identifier"
 	)
+  @RunOnVirtualThread
 	public Response getVillain(@Parameter(name = "id", required = true) @PathParam("id") Long id) {
 		return this.service.findVillainById(id)
 			.map(v -> {
@@ -143,6 +147,7 @@ public class VillainResource {
 		responseCode = "400",
 		description = "Invalid villain passed in (or no request body found)"
 	)
+  @RunOnVirtualThread
 	public Response createVillain(
     @RequestBody(
       name = "villain",
@@ -177,6 +182,7 @@ public class VillainResource {
 		responseCode = "404",
 		description = "No villain found"
 	)
+  @RunOnVirtualThread
 	public Response fullyUpdateVillain(
     @Parameter(name = "id", required = true) @PathParam("id") Long id,
     @RequestBody(
@@ -216,6 +222,7 @@ public class VillainResource {
 		responseCode = "400",
 		description = "Invalid villains passed in (or no request body found)"
 	)
+  @RunOnVirtualThread
   public Response replaceAllVillains(
     @RequestBody(
       name = "valid_villains",
@@ -255,6 +262,7 @@ public class VillainResource {
 		responseCode = "404",
 		description = "No villain found"
 	)
+  @RunOnVirtualThread
 	public Response partiallyUpdateVillain(
     @Parameter(name = "id", required = true) @PathParam("id") Long id,
     @RequestBody(
@@ -287,6 +295,7 @@ public class VillainResource {
 		responseCode = "204",
 		description = "Deletes all villains"
 	)
+  @RunOnVirtualThread
 	public void deleteAllVillains() {
 		this.service.deleteAllVillains();
 		Log.debug("Deleted all villains");
@@ -299,6 +308,7 @@ public class VillainResource {
 		responseCode = "204",
 		description = "Delete a villain"
 	)
+  @RunOnVirtualThread
 	public void deleteVillain(@Parameter(name = "id", required = true) @PathParam("id") Long id) {
 		this.service.deleteVillain(id);
 		Log.debugf("Villain with id %d deleted ", id);

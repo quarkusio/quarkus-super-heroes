@@ -61,10 +61,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'quarkusio/quarkus-super-heroes'
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         java:
-          - '17'
+          - '21'
         project:
           - { name: event-statistics }
           - { name: rest-fights }
@@ -102,11 +102,12 @@ jobs:
   jvm-container-build-test:
     runs-on: ubuntu-latest
     if: github.repository == 'quarkusio/quarkus-super-heroes'
+    needs: jvm-build-test
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         java:
-          - '17'
+          - '21'
         project:
           - { name: rest-heroes }
           - { name: rest-villains }
@@ -145,11 +146,12 @@ jobs:
   jvm-container-build:
     runs-on: ubuntu-latest
     if: github.repository == 'quarkusio/quarkus-super-heroes'
+    needs: jvm-build-test
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         java:
-          - '17'
+          - '21'
         project:
           - event-statistics
           - rest-fights
@@ -175,11 +177,12 @@ jobs:
   native-build-test:
     runs-on: ubuntu-latest
     if: github.repository == 'quarkusio/quarkus-super-heroes'
+    needs: jvm-build-test
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         java:
-          - { jvm: '17', mandrel: '21' }
+          - { jvm: '21', mandrel: '21' }
         project:
           - { name: event-statistics }
           - { name: rest-fights }
@@ -219,11 +222,12 @@ jobs:
   native-container-build-test:
     runs-on: ubuntu-latest
     if: github.repository == 'quarkusio/quarkus-super-heroes'
+    needs: jvm-build-test
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         java:
-          - { jvm: '17', mandrel: '21' }
+          - { jvm: '21', mandrel: '21' }
         project:
           - { name: rest-heroes }
           - { name: rest-villains }
@@ -265,11 +269,12 @@ jobs:
   native-container-build:
     runs-on: ubuntu-latest
     if: github.repository == 'quarkusio/quarkus-super-heroes'
+    needs: jvm-build-test
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         java:
-          - { jvm: '17', mandrel: '21' }
+          - { jvm: '21', mandrel: '21' }
         project:
           - event-statistics
           - rest-fights
