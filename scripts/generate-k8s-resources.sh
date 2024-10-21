@@ -6,6 +6,8 @@
 INPUT_DIR=src/main/kubernetes
 OUTPUT_DIR=deploy/k8s
 DEPLOYMENT_TYPES=("kubernetes" "minikube" "openshift" "knative")
+JAVA_VERSIONS=(21)
+PROJECTS=("grpc-locations" "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
 
 create_output_file() {
   local output_file=$1
@@ -79,8 +81,6 @@ process_quarkus_project() {
   local app_generated_input_file="$project/target/kubernetes/${deployment_type}.yml"
   local project_output_file="$project/$OUTPUT_DIR/${output_filename}.yml"
   local all_apps_output_file="$OUTPUT_DIR/${output_filename}.yml"
-
-  rm -rf $project_output_file
 
   if [[ ! -d "$project/$OUTPUT_DIR" ]]; then
     mkdir -p $project/$OUTPUT_DIR
@@ -160,21 +160,20 @@ create_monitoring() {
 
 rm -rf $OUTPUT_DIR/*.yml
 
-for kind in "" "native-"
+for project in "${PROJECTS[@]}"
 do
-  javaVersions=(21)
-  projects=("grpc-locations" "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
+  rm -rf $project/$OUTPUT_DIR/*.yml
 
-  for javaVersion in "${javaVersions[@]}"
+  for kind in "" "native-"
   do
-    if [[ "$kind" == "native-" ]]; then
-      version_tag="native"
-    else
-      version_tag="${kind}java${javaVersion}"
-    fi
-
-    for project in "${projects[@]}"
+    for javaVersion in "${JAVA_VERSIONS[@]}"
     do
+      if [[ "$kind" == "native-" ]]; then
+        version_tag="native"
+      else
+        version_tag="${kind}java${javaVersion}"
+      fi
+
       # Generate all the k8s resources for all deployment types in one shot
       do_build "$project" "$version_tag" "$javaVersion" "$kind"
 
