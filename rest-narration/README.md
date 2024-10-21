@@ -133,8 +133,8 @@ Pick one of the versions of the application from the table below and execute the
 
 | Description                | Image Tag                    | Docker Compose Run Command                                                                                                                                              |
 |----------------------------|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| JVM Java 17                | `java17-latest`              | `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans`                                                                                                |
-| JVM Java 17 (Azure OpenAI) | `java17-latest-azure-openai` | Modify the image in `deploy/docker-compose/java17.yml`, update environment variables, then run `docker compose -f deploy/docker-compose/java17.yml up --remove-orphans` |
+| JVM Java 21                | `java21-latest`              | `docker compose -f deploy/docker-compose/java21.yml up --remove-orphans`                                                                                                |
+| JVM Java 21 (Azure OpenAI) | `java21-latest-azure-openai` | Modify the image in `deploy/docker-compose/java21.yml`, update environment variables, then run `docker compose -f deploy/docker-compose/java21.yml up --remove-orphans` |
 | Native                     | `native-latest`              | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans`                                                                                                |
 | Native (Azure OpenAI)      | `native-latest-azure-openai` | Modify the image in `deploy/docker-compose/native.yml`, update environment variables, then run `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
 
@@ -162,13 +162,13 @@ Pick one of the versions of the application from the table below and deploy the 
 
 | Description | Image Tag       | OpenShift Descriptor                                      | Minikube Descriptor                                     | Kubernetes Descriptor                                       | Knative Descriptor                                    |
 |-------------|-----------------|-----------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------------------|
-| JVM Java 17 | `java17-latest` | [`java17-openshift.yml`](deploy/k8s/java17-openshift.yml) | [`java17-minikube.yml`](deploy/k8s/java17-minikube.yml) | [`java17-kubernetes.yml`](deploy/k8s/java17-kubernetes.yml) | [`java17-knative.yml`](deploy/k8s/java17-knative.yml) |
+| JVM Java 21 | `java21-latest` | [`java21-openshift.yml`](deploy/k8s/java21-openshift.yml) | [`java21-minikube.yml`](deploy/k8s/java21-minikube.yml) | [`java21-kubernetes.yml`](deploy/k8s/java21-kubernetes.yml) | [`java21-knative.yml`](deploy/k8s/java21-knative.yml) |
 | Native      | `native-latest` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
 
 > [!IMPORTANT]
 > As with the [Docker compose descriptors above](#running-locally-via-docker-compose), the running application will **NOT** make live calls to an OpenAI provider. You will need to [modify the descriptors accordingly](#making-live-calls-to-openai-providers) to have the application make live calls to an OpenAI provider.
 > 
-> Additionally, there are also `java17-latest-azure-openai` and `native-latest-azure-openai` image tags available. You would need to modify the Kubernetes descriptor manually before deploying.
+> Additionally, there are also `java21-latest-azure-openai` and `native-latest-azure-openai` image tags available. You would need to modify the Kubernetes descriptor manually before deploying.
 > 
 > You would first need to modify the image with the appropriate image tag, then update the environment variables according to the [Azure OpenAI properties](#azure-openai-properties).
 
@@ -184,11 +184,11 @@ Following the [deployment section](https://quarkus.io/guides/deploying-to-kubern
 
 | Target Platform        | Java Version | Command                                                                                                                                                                                                                                      |
 |------------------------|:------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Kubernetes             |      17      | `./mvnw clean package -Dquarkus.profile=kubernetes -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                             |
-| OpenShift              |      17      | `./mvnw clean package -Dquarkus.profile=openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests`         |
-| Minikube               |      17      | `./mvnw clean package -Dquarkus.profile=minikube -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                               |
-| Knative                |      17      | `./mvnw clean package -Dquarkus.profile=knative -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                                |
-| Knative (on OpenShift) |      17      | `./mvnw clean package -Dquarkus.profile=knative-openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests` |
+| Kubernetes             |      21      | `./mvnw clean package -Dquarkus.profile=kubernetes -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                             |
+| OpenShift              |      21      | `./mvnw clean package -Dquarkus.profile=openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests`         |
+| Minikube               |      21      | `./mvnw clean package -Dquarkus.profile=minikube -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                               |
+| Knative                |      21      | `./mvnw clean package -Dquarkus.profile=knative -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                                |
+| Knative (on OpenShift) |      21      | `./mvnw clean package -Dquarkus.profile=knative-openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests` |
 
 You may need to adjust other configuration options as well (see [Quarkus Kubernetes Extension configuration options](https://quarkus.io/guides/deploying-to-kubernetes#configuration-options) and [Quarkus OpenShift Extension configuration options](https://quarkus.io/guides/deploying-to-openshift#configuration-reference)).
 

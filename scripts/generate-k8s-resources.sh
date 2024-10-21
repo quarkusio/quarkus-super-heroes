@@ -162,7 +162,7 @@ rm -rf $OUTPUT_DIR/*.yml
 
 for kind in "" "native-"
 do
-  javaVersions=(17)
+  javaVersions=(21)
   projects=("grpc-locations" "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
 
   for javaVersion in "${javaVersions[@]}"

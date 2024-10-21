@@ -16,6 +16,8 @@ import io.quarkus.qute.TemplateInstance;
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.service.VillainService;
 
+import io.smallrye.common.annotation.RunOnVirtualThread;
+
 @Path("/")
 public class UIResource {
   @Inject
@@ -28,6 +30,7 @@ public class UIResource {
 
   @GET
   @Produces(MediaType.TEXT_HTML)
+  @RunOnVirtualThread
   public TemplateInstance get(@QueryParam("name_filter") Optional<String> nameFilter) {
     var villains = nameFilter
       .map(this.service::findAllVillainsHavingName)

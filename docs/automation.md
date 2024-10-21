@@ -26,7 +26,7 @@ It runs whenever code is pushed to the `main` branch as well as upon any pull re
    > [!TIP]
    > The workflow can also be [triggered manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
 
-It runs `./mvnw clean verify` and `./mvnw clean verify -Pnative` on the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and [`ui-super-heroes`](../ui-super-heroes) applications on Java 17.
+It runs `./mvnw clean verify` and `./mvnw clean verify -Pnative` on the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and [`ui-super-heroes`](../ui-super-heroes) applications on Java 21.
 
 ## Build and push container images workflow
 The [Build and push container images](../.github/workflows/build-push-container-images.yml) workflow does pretty much what it sounds like: builds and pushes container images. For JVM images, it builds both `amd64` and `arm64` images. Multi-arch native images are coming soon.
@@ -48,14 +48,14 @@ This image is a visual of what the workflow consists of:
 ![build-push-images-workflow](../images/build-push-container-images-workflow.png)
 
 ### Build JVM container images job
-This job [Builds JVM container images](https://quarkus.io/guides/container-image#building) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and  [`ui-super-heroes`](../ui-super-heroes) applications on Java 17 (both amd64 & arm64 platforms) using the [Docker Build action](https://github.com/docker/build-push-action).
+This job [Builds JVM container images](https://quarkus.io/guides/container-image#building) for the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and  [`ui-super-heroes`](../ui-super-heroes) applications on Java 21 (both amd64 & arm64 platforms) using the [Docker Build action](https://github.com/docker/build-push-action).
 
 Each container image created has 2 tags:
 - `java{{java-version}}-latest-amd64`
 - `java{{java-version}}-latest-arm64`
 
 > [!TIP]
-> - Replace `{{java-version}}` with the Java version the application was built with (i.e. `17`).
+> - Replace `{{java-version}}` with the Java version the application was built with (i.e. `21`).
 
 There are a total of 14 images built (7 applications x 1 JVM version x 2 platforms).
       
@@ -110,7 +110,7 @@ Each Quarkus project ([`event-statistics`](../event-statistics), [`rest-fights`]
 
 These extensions generate the manifests needed for the application itself but not for any other services. [These extensions can also incorporate additional resources](https://quarkus.io/guides/deploying-to-kubernetes#using-existing-resources) by placing additional resources in each project's `src/main/kubernetes` directory.
 
-The [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) loops through all versions of each application (Java version 17, both JVM and native - 8 total versions) and merges the contents of files these extensions generate and places them into each project's `deploy/k8s` directory as well as the respective files in the [root `deploy/k8s` directory](../deploy/k8s).
+The [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) loops through all versions of each application (Java version 21, both JVM and native - 8 total versions) and merges the contents of files these extensions generate and places them into each project's `deploy/k8s` directory as well as the respective files in the [root `deploy/k8s` directory](../deploy/k8s).
 
 The [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) additionally creates the monitoring (Prometheus/Jaeger/OpenTelemetry Collector) descriptors within the [root `deploy/k8s` directory](../deploy/k8s) for each Kubernetes variant platform.
 
@@ -130,10 +130,10 @@ This table describes the different files that can be found inside a project's `s
 
 | File name                  | Description                                                                                                                                                 |
 |----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `infra.yml`                | Any infrastructure definitions that are needed by the application. Definitions in here a re-used for each version of the application (i.e. JVM 17, Native). |
+| `infra.yml`                | Any infrastructure definitions that are needed by the application. Definitions in here a re-used for each version of the application (i.e. JVM 21, Native). |
 | `java{{java-version}}.yml` | Definition for the JVM version of application itself for a particular java version, denoted by `{{java-version}}`.                                          |
 | `native.yml`               | Definition for the native image version of the application itself.                                                                                          |
 
-The [`generate-docker-compose-resources.sh` script](../scripts/generate-docker-compose-resources.sh) loops through all versions of each application (Java version 17, both JVM and native - 8 total versions) and merges contents of these files from each project's `src/main/docker-compose` directory into each project's `deploy/docker-compose` directory as well as the respective files in the [root `deploy/docker-compose` directory](../deploy/docker-compose).
+The [`generate-docker-compose-resources.sh` script](../scripts/generate-docker-compose-resources.sh) loops through all versions of each application (Java version 21, both JVM and native - 8 total versions) and merges contents of these files from each project's `src/main/docker-compose` directory into each project's `deploy/docker-compose` directory as well as the respective files in the [root `deploy/docker-compose` directory](../deploy/docker-compose).
 
 The [`generate-docker-compose-resources.sh` script](../scripts/generate-docker-compose-resources.sh) additionally creates the [monitoring compose file (`monitoring.yml`)](../deploy/docker-compose/monitoring.yml) within the [root `deploy/docker-compose` directory](../deploy/docker-compose).
