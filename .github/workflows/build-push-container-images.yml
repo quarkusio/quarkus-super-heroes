@@ -28,6 +28,7 @@ defaults:
 
 jobs:
   calculate-refs:
+    if: github.repository == 'quarkusio/quarkus-super-heroes'
     runs-on: ubuntu-latest
     outputs:
       ref: ${{ steps.calculate_branch.outputs.ref}}
@@ -49,6 +50,7 @@ jobs:
 
   check-commit-count:
     needs: calculate-refs
+    if: github.repository == 'quarkusio/quarkus-super-heroes'
     runs-on: ubuntu-latest
     outputs:
       has_commits: ${{ steps.calculate_commits.outputs.has_commits}}
@@ -81,7 +83,7 @@ jobs:
   calculate-modules:
     needs: check-commit-count
     runs-on: ubuntu-latest
-    if: needs.check-commit-count.outputs.has_commits == 'true'
+    if: (needs.check-commit-count.outputs.has_commits == 'true') && (github.repository == 'quarkusio/quarkus-super-heroes')
     outputs:
       projects_matrix: ${{ steps.calculate_projects.outputs.projects_matrix }}
     steps:
