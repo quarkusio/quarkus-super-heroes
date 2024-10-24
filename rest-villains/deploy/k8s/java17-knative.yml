@@ -68,7 +68,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.15.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-10-16 - 13:24:15 +0000
+    app.quarkus.io/build-timestamp: 2024-10-24 - 03:31:19 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -78,20 +78,20 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: villains-service
     system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/version: java17-latest-3.15.Final
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/name: rest-villains
   name: rest-villains
 spec:
   template:
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-villains-config
             - secretRef:
                 name: rest-villains-config-creds
-          image: quay.io/quarkus-super-heroes/rest-villains:java17-latest
+            - configMapRef:
+                name: rest-villains-config
+          image: quay.io/quarkus-super-heroes/rest-villains:java17-latest-3.15.Final
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -212,15 +212,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.15.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-10-16 - 13:24:15 +0000
+    app.quarkus.io/build-timestamp: 2024-10-24 - 03:31:19 +0000
   labels:
     app: rest-villains
     app.openshift.io/runtime: quarkus
     application: villains-service
     system: quarkus-super-heroes
-    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/version: java17-latest-3.15.Final
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: java17-latest
+    app.kubernetes.io/name: rest-villains
   name: rest-villains
 spec:
   selector: {}
