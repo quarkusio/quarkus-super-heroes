@@ -1,6 +1,6 @@
 
   fights-db:
-    image: mongo:5.0
+    image: mongo:7.0
     container_name: fights-db
     ports:
       - "27017"
@@ -12,7 +12,7 @@
       - ../../../rest-fights/deploy/db-init/initialize-database.js:/docker-entrypoint-initdb.d/1-init-db.js
 
   apicurio:
-    image: quay.io/apicurio/apicurio-registry-mem:2.4.2.Final
+    image: quay.io/apicurio/apicurio-registry-mem:2.6.5.Final
     container_name: apicurio
     ports:
       - "8086:8086"
@@ -21,7 +21,7 @@
       QUARKUS_HTTP_PORT: 8086
 
   fights-kafka:
-    image: quay.io/strimzi/kafka:0.41.0-kafka-3.7.0
+    image: quay.io/strimzi/kafka:0.43.0-kafka-3.8.0
     container_name: fights-kafka
     depends_on:
       - apicurio
