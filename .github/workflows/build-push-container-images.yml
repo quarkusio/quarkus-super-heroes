@@ -53,9 +53,9 @@ jobs:
     if: github.repository == 'quarkusio/quarkus-super-heroes'
     runs-on: ubuntu-latest
     outputs:
-      has_commits: ${{ steps.calculate_commits.outputs.has_commits}}
-      ref: ${{ needs.calculate-refs.outputs.ref}}
-      branch: ${{ needs.calculate-refs.outputs.branch}}
+      has_commits: ${{ steps.calculate_commits.outputs.has_commits }}
+      ref: ${{ needs.calculate-refs.outputs.ref }}
+      branch: ${{ needs.calculate-refs.outputs.branch }}
     steps:
       - name: Print inputs
         run: |
@@ -79,6 +79,9 @@ jobs:
           else
             echo "has_commits=true" >> $GITHUB_OUTPUT
           fi
+
+      - name: Print whether there are commits
+        run: echo "Are there commits to process? ${{ steps.calculate_commits.outputs.has_commits }}"
 
   calculate-modules:
     needs: check-commit-count
