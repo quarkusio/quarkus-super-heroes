@@ -36,7 +36,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.15.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-10-25 - 00:52:01 +0000
+    app.quarkus.io/build-timestamp: 2024-10-30 - 01:56:39 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -46,8 +46,8 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: event-stats
     system: quarkus-super-heroes
-    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/part-of: event-stats
   name: event-statistics
 spec:
@@ -167,7 +167,7 @@ spec:
               value: /tmp/logs
             - name: KAFKA_ADVERTISED_LISTENERS
               value: PLAINTEXT://fights-kafka:9092
-          image: quay.io/strimzi/kafka:0.41.0-kafka-3.7.0
+          image: quay.io/strimzi/kafka:0.43.0-kafka-3.8.0
           name: fights-kafka
           ports:
             - containerPort: 9092
@@ -216,7 +216,7 @@ spec:
         - env:
             - name: REGISTRY_AUTH_ANONYMOUS_READ_ACCESS_ENABLED
               value: "true"
-          image: quay.io/apicurio/apicurio-registry-mem:2.4.2.Final
+          image: quay.io/apicurio/apicurio-registry-mem:2.6.5.Final
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -257,14 +257,14 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.15.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-10-25 - 00:52:01 +0000
+    app.quarkus.io/build-timestamp: 2024-10-30 - 01:56:39 +0000
   labels:
     app: event-statistics
     app.openshift.io/runtime: quarkus
     application: event-stats
     system: quarkus-super-heroes
-    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/part-of: event-stats
   name: event-statistics
 spec:

@@ -5,8 +5,8 @@ receivers:
         endpoint: otel-collector:4317
 
 exporters:
-  jaeger:
-    endpoint: jaeger:14250
+  otlp/jaeger:
+    endpoint: jaeger:4317
     tls:
       insecure: true
 
@@ -26,4 +26,4 @@ service:
       processors:
         - batch
       exporters:
-        - jaeger
+        - otlp/jaeger

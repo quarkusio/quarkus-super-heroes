@@ -84,8 +84,8 @@ data:
           grpc:
 
     exporters:
-      jaeger:
-        endpoint: jaeger:14250
+      otlp/jaeger:
+        endpoint: jaeger:4317
         tls:
           insecure: true
 
@@ -105,7 +105,7 @@ data:
           processors:
             - batch
           exporters:
-            - jaeger
+            - otlp/jaeger
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -134,7 +134,7 @@ spec:
         role: monitoring
     spec:
       containers:
-        - image: quay.io/prometheus/prometheus:v2.43.0
+        - image: quay.io/prometheus/prometheus:v2.55.0
           name: prometheus
           ports:
             - containerPort: 9090
@@ -186,6 +186,7 @@ spec:
             - containerPort: 16686
             - containerPort: 14268
             - containerPort: 14250
+            - containerPort: 4317
           resources:
             limits:
               memory: 128Mi
@@ -219,7 +220,7 @@ spec:
         role: monitoring
     spec:
       containers:
-        - image: otel/opentelemetry-collector:0.75.0
+        - image: otel/opentelemetry-collector:0.112.0
           name: otel-collector
           args:
             - "--config=/conf/otel-collector-config.yml"
