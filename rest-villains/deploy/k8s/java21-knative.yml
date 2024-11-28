@@ -63,24 +63,26 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   annotations:
-    app.openshift.io/connects-to: "villains-db,otel-collector"
+    app.quarkus.io/vcs-ref: main
     app.openshift.io/vcs-ref: main
+    app.openshift.io/connects-to: "villains-db,otel-collector"
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.16.4
+    app.quarkus.io/quarkus-version: 3.17.0
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-11-27 - 17:00:09 +0000
+    app.quarkus.io/build-timestamp: 2024-11-28 - 01:18:46 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
     prometheus.io/scheme: http
   labels:
     app: rest-villains
-    app.openshift.io/runtime: quarkus
-    application: villains-service
     system: quarkus-super-heroes
+    application: villains-service
+    app.openshift.io/runtime: quarkus
+    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/part-of: villains-service
   name: rest-villains
 spec:
   template:
@@ -207,20 +209,22 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   annotations:
-    app.openshift.io/connects-to: "villains-db,otel-collector"
+    app.quarkus.io/vcs-ref: main
     app.openshift.io/vcs-ref: main
+    app.openshift.io/connects-to: "villains-db,otel-collector"
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.16.4
+    app.quarkus.io/quarkus-version: 3.17.0
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-11-27 - 17:00:09 +0000
+    app.quarkus.io/build-timestamp: 2024-11-28 - 01:18:46 +0000
   labels:
     app: rest-villains
-    app.openshift.io/runtime: quarkus
-    application: villains-service
     system: quarkus-super-heroes
+    application: villains-service
+    app.openshift.io/runtime: quarkus
+    app.kubernetes.io/part-of: villains-service
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/part-of: villains-service
   name: rest-villains
 spec:
   selector: {}
