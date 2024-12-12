@@ -320,6 +320,23 @@
         <quarkus.native.enabled>true</quarkus.native.enabled>
         <quarkus.package.jar.enabled>false</quarkus.package.jar.enabled>
       </properties>
+      <build>
+        <plugins>
+            <plugin>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>${surefire-plugin.version}</version>
+              <configuration>
+                <systemPropertyVariables>
+                  <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                  <maven.home>${maven.home}</maven.home>
+                  <pact_do_not_track>true</pact_do_not_track>
+                  <pact.writer.overwrite>true</pact.writer.overwrite>
+                  <quarkus.native.enabled>${quarkus.native.enabled}</quarkus.native.enabled>
+                </systemPropertyVariables>
+              </configuration>
+            </plugin>
+        </plugins>
+      </build>
     </profile>
     <profile>
       <id>it-coverage</id>

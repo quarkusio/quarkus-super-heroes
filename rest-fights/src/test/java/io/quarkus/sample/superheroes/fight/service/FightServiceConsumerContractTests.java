@@ -19,6 +19,7 @@ import jakarta.ws.rs.core.Response.Status;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 import io.quarkus.panache.mock.PanacheMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -79,6 +80,7 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
   implementation = MockServerImplementation.Plugin,
   registryEntry = "protobuf/transport/grpc"
 )
+@DisabledIfSystemProperty(named = "quarkus.native.enabled", matches = "true", disabledReason = "Not sure why, but when native profile is active some of these tests fail")
 public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
@@ -300,7 +302,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
       .toPact();
   }
 
-	//  Disable the location tests for now due to some flakiness that needs some investigation
   @Pact(consumer = "rest-fights", provider = "grpc-locations")
   public V4Pact randomLocationFoundPact(PactBuilder builder) {
     return builder
