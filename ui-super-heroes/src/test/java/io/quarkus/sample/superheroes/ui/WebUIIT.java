@@ -6,6 +6,6 @@ import io.quarkus.test.junit.QuarkusIntegrationTest;
  * Tests the resource layer ({@link EnvResource}).
  */
 @QuarkusIntegrationTest
-public class WebUIIT extends WebUITests {
+class WebUIIT extends WebUITests {
 
 }

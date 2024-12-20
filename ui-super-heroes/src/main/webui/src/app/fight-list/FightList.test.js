@@ -2,7 +2,7 @@ import React from "react"
 import {render, screen, within} from "@testing-library/react"
 import "@testing-library/jest-dom"
 import {FightList} from "./FightList"
-import {act} from "react-dom/test-utils"
+import {act} from "react"
 
 jest.mock("../shared/api/fight-service")
 
@@ -39,11 +39,11 @@ describe("the fight list", () => {
       render(<FightList fights={[fight]}/>)
     })
 
-    const table = screen.getByRole("table")
+    const table = screen.getByRole("grid")
     expect(table).toBeInTheDocument()
 
     const thead = within(table).getAllByRole('rowgroup')[0]
-    const headRows = within(thead).getAllByRole("row")
+    const headRows = within(thead).getAllByRole("rowheader")
     const headCols = within(headRows[0]).getAllByRole("columnheader")
 
     expect(headCols).toHaveLength(5)
@@ -59,7 +59,7 @@ describe("the fight list", () => {
       render(<FightList fights={[fight]}/>)
     })
 
-    const table = screen.getByRole("table")
+    const table = screen.getByRole("grid")
     const tbody = within(table).getAllByRole('rowgroup')[1];
     const bodyRows = within(tbody).getAllByRole('row');
     const rowCols = within(bodyRows[0]).getAllByRole("cell")

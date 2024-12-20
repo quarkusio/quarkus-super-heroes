@@ -2,7 +2,7 @@ import React from "react";
 import {fireEvent, render, screen} from "@testing-library/react";
 import App from "./App";
 import "@testing-library/jest-dom";
-import {act} from "react-dom/test-utils";
+import {act} from "react";
 import {getFights, getRandomFighters, getRandomLocation, startFight} from "./shared/api/fight-service";
 
 jest.mock("./shared/api/fight-service")

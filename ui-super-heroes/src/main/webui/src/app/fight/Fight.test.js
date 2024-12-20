@@ -3,7 +3,7 @@ import {fireEvent, render, screen} from "@testing-library/react"
 import "@testing-library/jest-dom"
 import Fight from "./Fight"
 import {generateImage, getRandomFighters, getRandomLocation, narrateFight, startFight} from "../shared/api/fight-service"
-import {act} from "react-dom/test-utils"
+import {act} from "react"
 
 jest.mock("../shared/api/fight-service")
 

@@ -38,6 +38,4 @@ public class EnvResource {
         // javascript snippet we can include with <script src="..."/>
         return "window.APP_CONFIG=" + this.objectMapper.writeValueAsString(config);
     }
-
-
 }

@@ -10,8 +10,8 @@ import io.quarkiverse.quinoa.testing.QuinoaTestProfiles;
 @QuarkusTest
 @TestProfile(QuinoaTestProfiles.EnableAndRunTests.class)
 class AllWebUITest {
-  @Test
-  void runTest() {
-    // we don't need anything here, it will run the package.json "test"
-  }
+    @Test
+    void runTest() {
+        // we don't need anything here, it will run the package.json "test"
+    }
 }
