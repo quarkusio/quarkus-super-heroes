@@ -10,7 +10,7 @@ export function FightList({fights}) {
           <th role="columnheader" className="fight-list-header thead-dark">Location</th>
         </tr>
       </thead>
-      <tbody role="rowgroup">
+      <tbody>
 
       {fights && fights.map(element => (
         <tr role="row" key={element.id}>
