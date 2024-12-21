@@ -36,7 +36,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.15.2.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-12-17 - 02:18:35 +0000
+    app.quarkus.io/build-timestamp: 2024-12-21 - 02:44:50 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -46,8 +46,8 @@ metadata:
     app.openshift.io/runtime: quarkus
     application: event-stats
     system: quarkus-super-heroes
-    app.kubernetes.io/version: java17-latest-rhbq-3.15
     app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: java17-latest-rhbq-3.15
     app.kubernetes.io/name: event-statistics
   name: event-statistics
 spec:
@@ -55,10 +55,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:java17-latest-rhbq-3.15
           imagePullPolicy: Always
           livenessProbe:
@@ -257,14 +257,14 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.15.2.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2024-12-17 - 02:18:35 +0000
+    app.quarkus.io/build-timestamp: 2024-12-21 - 02:44:50 +0000
   labels:
     app: event-statistics
     app.openshift.io/runtime: quarkus
     application: event-stats
     system: quarkus-super-heroes
-    app.kubernetes.io/version: java17-latest-rhbq-3.15
     app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/version: java17-latest-rhbq-3.15
     app.kubernetes.io/name: event-statistics
   name: event-statistics
 spec:
