@@ -23,7 +23,7 @@ import io.quarkiverse.playwright.InjectPlaywright;
 import io.quarkiverse.playwright.WithPlaywright;
 
 @QuarkusTest
-@WithPlaywright
+@WithPlaywright(recordVideoDir = "target/playwright", slowMo = 500)
 class UIResourceTests {
   private static final int NB_HEROES = 100;
   private static final Hero SPIDERMAN = getSpiderman();

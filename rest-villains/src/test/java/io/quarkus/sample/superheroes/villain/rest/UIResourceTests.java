@@ -25,7 +25,7 @@ import io.quarkiverse.playwright.InjectPlaywright;
 import io.quarkiverse.playwright.WithPlaywright;
 
 @QuarkusTest
-@WithPlaywright
+@WithPlaywright(recordVideoDir = "target/playwright", slowMo = 500)
 @VirtualThreadUnit
 @ShouldNotPin
 class UIResourceTests {
