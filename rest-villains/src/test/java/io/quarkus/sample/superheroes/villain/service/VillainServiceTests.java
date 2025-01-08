@@ -241,7 +241,7 @@ class VillainServiceTests {
 	@Test
 	void persistNullVillain() {
 		PanacheMock.mock(Villain.class);
-		var cve = catchThrowableOfType(() -> this.villainService.persistVillain(null), ConstraintViolationException.class);
+		var cve = catchThrowableOfType(ConstraintViolationException.class, () -> this.villainService.persistVillain(null));
 
 		assertThat(cve)
 			.isNotNull();
@@ -274,7 +274,7 @@ class VillainServiceTests {
 		var villain = createDefaultVillian();
 		villain.name = "a";
 
-		var cve = catchThrowableOfType(() -> this.villainService.persistVillain(villain), ConstraintViolationException.class);
+		var cve = catchThrowableOfType(ConstraintViolationException.class, () -> this.villainService.persistVillain(villain));
 
 		assertThat(cve)
 			.isNotNull();
@@ -334,7 +334,7 @@ class VillainServiceTests {
 	@Test
 	void fullyUpdateNullVillain() {
 		PanacheMock.mock(Villain.class);
-		var cve = catchThrowableOfType(() -> this.villainService.replaceVillain(null), ConstraintViolationException.class);
+		var cve = catchThrowableOfType(ConstraintViolationException.class, () -> this.villainService.replaceVillain(null));
 
 		assertThat(cve)
 			.isNotNull();
@@ -368,7 +368,7 @@ class VillainServiceTests {
 		var villain = createDefaultVillian();
 		villain.name = null;
 
-		var cve = catchThrowableOfType(() -> this.villainService.replaceVillain(villain), ConstraintViolationException.class);
+		var cve = catchThrowableOfType(ConstraintViolationException.class, () -> this.villainService.replaceVillain(villain));
 
 		assertThat(cve)
 			.isNotNull();
@@ -445,7 +445,7 @@ class VillainServiceTests {
 	@Test
 	void partiallyUpdateNullVillain() {
 		PanacheMock.mock(Villain.class);
-		var cve = catchThrowableOfType(() -> this.villainService.partialUpdateVillain(null), ConstraintViolationException.class);
+		var cve = catchThrowableOfType(ConstraintViolationException.class, () -> this.villainService.partialUpdateVillain(null));
 
 		assertThat(cve)
 			.isNotNull();
@@ -480,7 +480,7 @@ class VillainServiceTests {
 		var villain = createDefaultVillian();
 		villain.name = "a";
 
-		var cve = catchThrowableOfType(() -> this.villainService.partialUpdateVillain(villain), ConstraintViolationException.class);
+		var cve = catchThrowableOfType(ConstraintViolationException.class, () -> this.villainService.partialUpdateVillain(villain));
 
 		assertThat(cve)
 			.isNotNull();

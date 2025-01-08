@@ -153,7 +153,7 @@ class NarrationServiceTests {
             .withHeader("openai-organization", "my-org-1234")
             .withHeader("openai-version", "2020-10-01")
             .withHeader("openai-processing-ms", "15000")
-            .withFixedDelay(Long.valueOf(this.timeout.multipliedBy(2).toMillis()).intValue())
+            .withFixedDelay((int) this.timeout.multipliedBy(2).toMillis())
         )
     );
 

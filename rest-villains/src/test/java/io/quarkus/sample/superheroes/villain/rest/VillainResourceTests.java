@@ -328,20 +328,6 @@ class VillainResourceTests {
   }
 
 	@Test
-	void shouldGetNullItems() {
-		when(this.villainService.findAllVillains())
-			.thenReturn(List.of());
-
-		get("/api/villains")
-			.then()
-				.statusCode(OK.getStatusCode())
-				.body("$.size()", is(0));
-
-		verify(this.villainService).findAllVillains();
-		verifyNoMoreInteractions(this.villainService);
-	}
-
-	@Test
 	void shouldAddAnItem() {
 		ArgumentMatcher<Villain> villainMatcher = v ->
 			(v.id == null) &&

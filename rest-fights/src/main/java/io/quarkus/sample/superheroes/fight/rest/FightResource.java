@@ -125,7 +125,7 @@ public class FightResource {
 				Log.debugf("Found fight: %s", f);
 				return Response.ok(f).build();
 			})
-			.onItem().ifNull().continueWith(() -> {
+			.replaceIfNullWith(() -> {
 				Log.debugf("No fight found with id %s", id);
 				return Response.status(Status.NOT_FOUND).build();
 			});

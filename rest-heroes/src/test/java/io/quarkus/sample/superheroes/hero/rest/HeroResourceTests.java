@@ -343,10 +343,9 @@ public class HeroResourceTests {
 	@Test
 	void shouldGetNullItems() {
 		when(this.heroService.findAllHeroes())
-			.thenReturn(Uni.createFrom().item(List.of()));
+			.thenReturn(Uni.createFrom().nullItem());
 
-		get("/api/heroes")
-			.then()
+		get("/api/heroes").then()
 			.statusCode(OK.getStatusCode())
 			.body("$.size()", is(0));
 

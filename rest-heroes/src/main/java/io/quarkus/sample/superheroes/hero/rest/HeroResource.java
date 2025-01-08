@@ -80,7 +80,7 @@ public class HeroResource {
 				Log.debugf("Found random hero: %s", h);
 				return Response.ok(h).build();
 			})
-			.onItem().ifNull().continueWith(() -> {
+			.replaceIfNullWith(() -> {
 				Log.debug("No random villain found");
 				return Response.status(Status.NOT_FOUND).build();
 			});
@@ -100,7 +100,7 @@ public class HeroResource {
 	public Uni<List<Hero>> getAllHeroes(@Parameter(name = "name_filter", description = "An optional filter parameter to filter results by name") @QueryParam("name_filter") Optional<String> nameFilter) {
     return nameFilter
       .map(this.heroService::findAllHeroesHavingName)
-      .orElseGet(this.heroService::findAllHeroes)
+      .orElseGet(() -> this.heroService.findAllHeroes().replaceIfNullWith(List::of))
       .invoke(heroes -> Log.debugf("Total number of heroes: %d", heroes.size()));
 	}
 
@@ -125,7 +125,7 @@ public class HeroResource {
 				Log.debugf("Found hero: %s", h);
 				return Response.ok(h).build();
 			})
-			.onItem().ifNull().continueWith(() -> {
+			.replaceIfNullWith(() -> {
 				Log.debugf("No hero found with id %d", id);
 				return Response.status(Status.NOT_FOUND).build();
 			});
@@ -200,7 +200,7 @@ public class HeroResource {
 				Log.debugf("Hero replaced with new values %s", h);
 				return Response.noContent().build();
 			})
-			.onItem().ifNull().continueWith(() -> {
+			.replaceIfNullWith(() -> {
 				Log.debugf("No hero found with id %d", hero.getId());
 				return Response.status(Status.NOT_FOUND).build();
 			});
@@ -279,7 +279,7 @@ public class HeroResource {
 				Log.debugf("Hero updated with new values %s", h);
 				return Response.ok(h).build();
 			})
-			.onItem().ifNull().continueWith(() -> {
+			.replaceIfNullWith(() -> {
 				Log.debugf("No hero found with id %d", hero.getId());
 				return Response.status(Status.NOT_FOUND).build();
 			})
