@@ -81,6 +81,7 @@ import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
   registryEntry = "protobuf/transport/grpc"
 )
 @DisabledIfSystemProperty(named = "quarkus.native.enabled", matches = "true", disabledReason = "Not sure why, but when native profile is active some of these tests fail")
+@DisabledIfSystemProperty(named = "isNightlyEcosystemTest", matches = "true", disabledReason = "Nightly Ecosystem tests sometimes cause flaky failures")
 public class FightServiceConsumerContractTests extends FightServiceTestsBase {
   private static final String VILLAIN_API_BASE_URI = "/api/villains";
   private static final String VILLAIN_RANDOM_URI = VILLAIN_API_BASE_URI + "/random";
