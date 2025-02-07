@@ -41,6 +41,10 @@ spec:
       name: grpc
       protocol: TCP
       targetPort: 14250
+    - port: 4317
+      name: otel
+      protocol: TCP
+      targetPort: 4317
   selector:
     name: jaeger
   type: ClusterIP
@@ -56,10 +60,6 @@ metadata:
     role: monitoring
 spec:
   ports:
-    - port: 13133
-      name: healthcheck
-      protocol: TCP
-      targetPort: 13133
     - port: 4317
       name: grpc
       protocol: TCP
@@ -82,6 +82,9 @@ metadata:
 spec:
   port:
     targetPort: 9090
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
   to:
     kind: Service
     name: prometheus
@@ -100,6 +103,9 @@ metadata:
 spec:
   port:
     targetPort: 16686
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
   to:
     kind: Service
     name: jaeger
