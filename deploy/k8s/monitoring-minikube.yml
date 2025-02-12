@@ -82,22 +82,24 @@ data:
       otlp:
         protocols:
           grpc:
-
+            endpoint: 0.0.0.0:4317
+    
     exporters:
       otlp/jaeger:
         endpoint: jaeger:4317
         tls:
           insecure: true
-
+    
     processors:
       batch:
-
+    
     extensions:
       health_check:
-
+      health_check/1:
+    
     service:
       extensions:
-        - health_check
+        - health_check/1
       pipelines:
         traces:
           receivers:
@@ -134,7 +136,7 @@ spec:
         role: monitoring
     spec:
       containers:
-        - image: quay.io/prometheus/prometheus:v2.55.0
+        - image: quay.io/prometheus/prometheus:v3.1.0
           name: prometheus
           ports:
             - containerPort: 9090
@@ -220,13 +222,11 @@ spec:
         role: monitoring
     spec:
       containers:
-        - image: otel/opentelemetry-collector:0.112.0
+        - image: otel/opentelemetry-collector:0.119.0
           name: otel-collector
           args:
             - "--config=/conf/otel-collector-config.yml"
           ports:
-            - name: health-check
-              containerPort: 13133
             - name: otlp-receiver
               containerPort: 4317
           volumeMounts:
@@ -237,33 +237,6 @@ spec:
               memory: 128Mi
             requests:
               memory: 32Mi
-          livenessProbe:
-            timeoutSeconds: 10
-            periodSeconds: 30
-            successThreshold: 1
-            failureThreshold: 3
-            httpGet:
-              port: health-check
-              scheme: HTTP
-              path: /
-          readinessProbe:
-            timeoutSeconds: 10
-            periodSeconds: 30
-            successThreshold: 1
-            failureThreshold: 3
-            httpGet:
-              port: health-check
-              scheme: HTTP
-              path: /
-          startupProbe:
-            timeoutSeconds: 10
-            periodSeconds: 30
-            successThreshold: 1
-            failureThreshold: 3
-            httpGet:
-              port: health-check
-              scheme: HTTP
-              path: /
       volumes:
         - name: otel-collector-config
           configMap:

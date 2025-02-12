@@ -2,7 +2,7 @@ version: "3"
 services:
 
   prometheus:
-    image: quay.io/prometheus/prometheus:v2.55.0
+    image: quay.io/prometheus/prometheus:v3.1.0
     container_name: prometheus
     ports:
       - "9090:9090"
@@ -19,7 +19,7 @@ services:
       - "4317"        # Otel gRPC
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.112.0
+    image: otel/opentelemetry-collector:0.119.0
     container_name: otel-collector
     command:
       - "--config=/conf/otel-collector-config.yml"
