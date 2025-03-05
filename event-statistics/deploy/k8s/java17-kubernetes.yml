@@ -75,7 +75,7 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.15.3.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-03-01 - 04:01:19 +0000
+    app.quarkus.io/build-timestamp: 2025-03-05 - 04:12:04 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -110,7 +110,7 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.15.3.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-03-01 - 04:01:19 +0000
+    app.quarkus.io/build-timestamp: 2025-03-05 - 04:12:04 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -128,9 +128,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/part-of: event-stats
       app.kubernetes.io/version: java17-latest-3.15.Final
       app.kubernetes.io/name: event-statistics
+      app.kubernetes.io/part-of: event-stats
   template:
     metadata:
       annotations:
@@ -140,7 +140,7 @@ spec:
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.15.3.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2025-03-01 - 04:01:19 +0000
+        app.quarkus.io/build-timestamp: 2025-03-05 - 04:12:04 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -150,9 +150,9 @@ spec:
         application: event-stats
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
-        app.kubernetes.io/part-of: event-stats
         app.kubernetes.io/version: java17-latest-3.15.Final
         app.kubernetes.io/name: event-statistics
+        app.kubernetes.io/part-of: event-stats
     spec:
       containers:
         - env:
@@ -161,10 +161,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:java17-latest-3.15.Final
           imagePullPolicy: Always
           livenessProbe:
@@ -334,7 +334,7 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.15.3.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-03-01 - 04:01:19 +0000
+    app.quarkus.io/build-timestamp: 2025-03-05 - 04:12:04 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
