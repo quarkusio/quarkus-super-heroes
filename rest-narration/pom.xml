@@ -12,6 +12,7 @@
     <compiler-plugin.version>3.14.0</compiler-plugin.version>
     <maven.compiler.release>21</maven.compiler.release>
     <jacoco.version>0.8.12</jacoco.version>
+    <junit5.tree.reporter.version>1.4.0</junit5.tree.reporter.version>
     <pact.version>1.5.0</pact.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -175,17 +176,42 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire-plugin.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>me.fabriciorby</groupId>
+            <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+            <version>${junit5.tree.reporter.version}</version>
+          </dependency>
+        </dependencies>
         <configuration>
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <maven.home>${maven.home}</maven.home>
             <pact_do_not_track>true</pact_do_not_track>
           </systemPropertyVariables>
+          <reportFormat>plain</reportFormat>
+          <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
+            <printStacktraceOnError>true</printStacktraceOnError>
+            <printStacktraceOnFailure>true</printStacktraceOnFailure>
+            <printStdoutOnError>true</printStdoutOnError>
+            <printStdoutOnFailure>true</printStdoutOnFailure>
+            <printStdoutOnSuccess>false</printStdoutOnSuccess>
+            <printStderrOnError>true</printStderrOnError>
+            <printStderrOnFailure>true</printStderrOnFailure>
+            <printStderrOnSuccess>false</printStderrOnSuccess>
+          </statelessTestsetInfoReporter>
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>${surefire-plugin.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>me.fabriciorby</groupId>
+            <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+            <version>${junit5.tree.reporter.version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <goals>
@@ -199,6 +225,17 @@
                 <maven.home>${maven.home}</maven.home>
                 <quarkus.test.arg-line>${argLine}</quarkus.test.arg-line>
               </systemPropertyVariables>
+              <reportFormat>plain</reportFormat>
+              <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
+                <printStacktraceOnError>true</printStacktraceOnError>
+                <printStacktraceOnFailure>true</printStacktraceOnFailure>
+                <printStdoutOnError>true</printStdoutOnError>
+                <printStdoutOnFailure>true</printStdoutOnFailure>
+                <printStdoutOnSuccess>false</printStdoutOnSuccess>
+                <printStderrOnError>true</printStderrOnError>
+                <printStderrOnFailure>true</printStderrOnFailure>
+                <printStderrOnSuccess>false</printStderrOnSuccess>
+              </statelessTestsetInfoReporter>
             </configuration>
           </execution>
         </executions>
