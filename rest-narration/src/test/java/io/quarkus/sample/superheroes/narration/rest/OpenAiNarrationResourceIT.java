@@ -56,6 +56,18 @@ class OpenAiNarrationResourceIT extends NarrationResourceIT {
     FIGHT.location().description()
   );
 
+  private static final String IMAGE_REQUEST_JSON = """
+    {
+      "model": "dall-e-3",
+      "prompt": "In the gritty streets of Gotham City, a clash of epic proportions unfolded. Han Solo, a hero known for his sharpshooting skills and unwavering skepticism towards the force, faced off against Storm Trooper, a villain armed with nothing more than a small gun. The odds seemed stacked against the Storm Trooper, but he was determined to prove his worth.\\n\\nAs the battle commenced, Han Solo swiftly dodged the Storm Trooper's feeble shots, his agility and experience shining through. With a smirk on his face, Han Solo aimed his big gun with precision, firing shots that echoed through the city. The Storm Trooper, though outmatched, refused to back down, his determination fueling his every move.\\n\\nWith each passing moment, Han Solo's level of expertise became more apparent. His shots were calculated and deadly, while the Storm Trooper struggled to keep up. The hero's confidence grew, his movements becoming more fluid and effortless. It was clear that the Storm Trooper's small gun was no match for Han Solo's superior firepower.\\n\\nIn a final, decisive moment, Han Solo's shot found its mark, incapacitating the Storm Trooper. The hero emerged victorious, his unwavering resolve prevailing over the villain's futile attempts. As the city rejoiced in the triumph of justice, Han Solo stood tall, a symbol of hope and resilience in the face of adversity.\\nYou must answer strictly in the following JSON format: {\\n\\"url\\": (type: java.net.URI),\\n\\"base64Data\\": (type: string),\\n\\"mimeType\\": (type: string),\\n\\"revisedPrompt\\": (type: string)\\n}",
+      "n": 1,
+      "size": "1024x1024",
+      "quality": "standard",
+      "style": "vivid",
+      "response_format": "url"
+    }
+    """;
+
   @Test
 	@Override
 	void shouldNarrateAFight() {
