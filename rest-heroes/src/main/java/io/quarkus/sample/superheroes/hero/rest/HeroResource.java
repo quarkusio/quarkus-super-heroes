@@ -81,7 +81,7 @@ public class HeroResource {
 				return Response.ok(h).build();
 			})
 			.replaceIfNullWith(() -> {
-				Log.debug("No random villain found");
+				Log.debug("No random hero found");
 				return Response.status(Status.NOT_FOUND).build();
 			});
 	}
@@ -220,7 +220,7 @@ public class HeroResource {
 	)
   public Uni<Response> replaceAllHeroes(
     @RequestBody(
-      name = "valid_villains",
+      name = "valid_heroes",
       required = true,
       content = @Content(
         mediaType = APPLICATION_JSON,
