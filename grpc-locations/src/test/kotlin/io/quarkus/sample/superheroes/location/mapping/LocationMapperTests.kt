@@ -2,7 +2,6 @@ package io.quarkus.sample.superheroes.location.mapping
 
 import io.quarkus.sample.superheroes.location.Location
 import io.quarkus.sample.superheroes.location.LocationType
-import io.quarkus.sample.superheroes.location.grpc.location
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -25,12 +24,12 @@ class LocationMapperTests {
 			return location
 		}
 
-		private fun createDefaultGrpcLocation() = location {
-      name = DEFAULT_NAME
-      description = DEFAULT_DESCRIPTION
-      picture = DEFAULT_PICTURE
-      type = io.quarkus.sample.superheroes.location.grpc.LocationType.CITY
-    }
+		private fun createDefaultGrpcLocation() = io.quarkus.sample.superheroes.location.grpc.Location.newBuilder()
+			.setName(DEFAULT_NAME)
+			.setDescription(DEFAULT_DESCRIPTION)
+			.setPicture(DEFAULT_PICTURE)
+			.setType(io.quarkus.sample.superheroes.location.grpc.LocationType.CITY)
+			.build()
 	}
 
 	@Test
