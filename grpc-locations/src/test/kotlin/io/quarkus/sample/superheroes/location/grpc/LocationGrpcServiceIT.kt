@@ -109,7 +109,7 @@ class LocationGrpcServiceIT {
 	fun `get location by name`() {
 		val location = createDefaultLocation()
 
-		assertThat(locationsGrpcService.getLocationByName(GetLocationRequest.newBuilder().setName(location.name).build()))
+		assertThat(locationsGrpcService.getLocationByName(getLocationRequest { name = location.name }))
 			.isNotNull
 			.usingRecursiveComparison().ignoringFields("memoizedIsInitialized")
 			.isEqualTo(LocationMapper.toGrpcLocation(location))
@@ -142,7 +142,7 @@ class LocationGrpcServiceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 2)
 	fun `get location by name when not found`() {
-		assertThatThrownBy { locationsGrpcService.getLocationByName(GetLocationRequest.newBuilder().setName(DEFAULT_NAME).build()) }
+		assertThatThrownBy { locationsGrpcService.getLocationByName(getLocationRequest { name = DEFAULT_NAME }) }
 			.isNotNull()
 			.isInstanceOf(StatusRuntimeException::class.java)
 			.hasMessage("${Code.NOT_FOUND}: A location was not found")
@@ -153,7 +153,7 @@ class LocationGrpcServiceIT {
 	@Test
 	@Order(DEFAULT_ORDER + 3)
 	fun `replace all locations`() {
-		locationsGrpcService.replaceAllLocations(LocationsList.newBuilder().addAllLocations(listOf(createDefaultGrpcLocation())).build())
+		locationsGrpcService.replaceAllLocations(locationsList { locations.addAll(listOf(createDefaultGrpcLocation())) })
 		verifyNumberOfLocations(1)
 	}
 
