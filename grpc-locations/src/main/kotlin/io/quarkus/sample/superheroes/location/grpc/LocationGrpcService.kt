@@ -47,7 +47,10 @@ class LocationGrpcService(private val locationService: LocationService) : Locati
 		val allLocations = this.locationService.getAllLocations()
 		Log.debug("Got all locations: $allLocations")
 
-		responseObserver?.onNext(locationsList { locations.addAll(allLocations.map(LocationMapper::toGrpcLocation)) })
+		responseObserver?.onNext(
+			LocationsList.newBuilder()
+				.addAllLocations(allLocations.map(LocationMapper::toGrpcLocation))
+				.build())
 		responseObserver?.onCompleted()
 	}
 
@@ -63,7 +66,7 @@ class LocationGrpcService(private val locationService: LocationService) : Locati
 	override fun hello(request: HelloRequest?, responseObserver: StreamObserver<HelloReply>?) {
 		Log.debug("Hello Location service")
 
-		responseObserver?.onNext(helloReply { message = "Hello Location Service" })
+		responseObserver?.onNext(HelloReply.newBuilder().setMessage("Hello Location Service").build())
 		responseObserver?.onCompleted()
 	}
 

@@ -2,16 +2,16 @@ package io.quarkus.sample.superheroes.location.mapping
 
 import io.quarkus.sample.superheroes.location.Location
 import io.quarkus.sample.superheroes.location.LocationType
-import io.quarkus.sample.superheroes.location.grpc.location
 
 class LocationMapper {
 	companion object {
-		fun toGrpcLocation(location: Location) = location {
-      name = location.name
-      description = location.description ?: ""
-      picture = location.picture ?: ""
-      type = location.type.toGrpcLocationType()
-    }
+		fun toGrpcLocation(location: Location): io.quarkus.sample.superheroes.location.grpc.Location =
+			io.quarkus.sample.superheroes.location.grpc.Location.newBuilder()
+					.setName(location.name)
+					.setDescription(location.description)
+					.setPicture(location.picture)
+					.setType(location.type.toGrpcLocationType())
+					.build()
 
 		fun fromGrpcLocation(location: io.quarkus.sample.superheroes.location.grpc.Location): Location {
 			val l = Location()

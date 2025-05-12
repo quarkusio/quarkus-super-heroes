@@ -68,8 +68,8 @@ Pick one of the versions of the application from the table below and execute the
 
 | Description | Image Tag       | Docker Compose Run Command                                               |
 |-------------|-----------------|--------------------------------------------------------------------------|
-| JVM Java 21 | `java21-latest` | `docker compose -f deploy/docker-compose/java21.yml up --remove-orphans` |
-| Native      | `native-latest` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
+| JVM Java 21 | `java21-latest-3.20.Final` | `docker compose -f deploy/docker-compose/java21.yml up --remove-orphans` |
+| Native      | `native-latest-3.20.Final` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
 
 These Docker Compose files are meant for standing up this application and the required database only. If you want to stand up the entire system, [follow these instructions](../README.md#running-locally-via-docker-compose).
 
@@ -90,8 +90,8 @@ Pick one of the versions of the application from the table below and deploy the 
 
 | Description | Image Tag       | OpenShift Descriptor                                      | Minikube Descriptor                                     | Kubernetes Descriptor                                       | Knative Descriptor                                    |
 |-------------|-----------------|-----------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------------------|
-| JVM Java 21 | `java21-latest` | [`java21-openshift.yml`](deploy/k8s/java21-openshift.yml) | [`java21-minikube.yml`](deploy/k8s/java21-minikube.yml) | [`java21-kubernetes.yml`](deploy/k8s/java21-kubernetes.yml) | [`java21-knative.yml`](deploy/k8s/java21-knative.yml) |
-| Native      | `native-latest` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
+| JVM Java 21 | `java21-latest-3.20.Final` | [`java21-openshift.yml`](deploy/k8s/java21-openshift.yml) | [`java21-minikube.yml`](deploy/k8s/java21-minikube.yml) | [`java21-kubernetes.yml`](deploy/k8s/java21-kubernetes.yml) | [`java21-knative.yml`](deploy/k8s/java21-knative.yml) |
+| Native      | `native-latest-3.20.Final` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
 
 The application is exposed outside of the cluster on port `80`.
 

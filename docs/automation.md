@@ -29,7 +29,7 @@ It runs whenever code is pushed to the `main` branch as well as upon any pull re
 It runs `./mvnw clean verify` and `./mvnw clean verify -Pnative` on the [`event-statistics`](../event-statistics), [`rest-fights`](../rest-fights), [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration/deploy), [`grpc-locations`](../grpc-locations/deploy), and [`ui-super-heroes`](../ui-super-heroes) applications on Java 21.
 
 ## Build and push container images workflow
-The [Build and push container images](../.github/workflows/build-push-container-images.yml) workflow does pretty much what it sounds like: builds and pushes container images. For JVM images, it builds both `amd64` and `arm64` images. Multi-arch native images are coming soon.
+The [Build and push container images](../.github/workflows/build-push-container-images-3.20.Final.yml) workflow does pretty much what it sounds like: builds and pushes container images. For JVM images, it builds both `amd64` and `arm64` images. Multi-arch native images are coming soon.
 
 It only runs on pushes to the `main` branch after successful completion of the above [_Basic building and testing_](#basic-building-and-testing-workflow) workflow.
    > [!TIP]
@@ -68,8 +68,8 @@ The job [Builds native executable container images](https://quarkus.io/guides/bu
 > The [`rest-narration`](../rest-narration) application currently doesn't support native compilation
 
 Each container image created has 2 tags:
-- `native-latest-amd64`
-- `native-latest-arm64`
+- `native-latest-3.20.Final-amd64`
+- `native-latest-3.20.Final-arm64`
 
 There are a total of 14 images built (7 applications x 2 platforms).
 
