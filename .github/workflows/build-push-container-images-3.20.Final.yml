@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       ref: ${{ steps.calculate_branch.outputs.ref }}
+      branch: ${{ env.BRANCH }}
     steps:
       - name: Calculate Branch
         id: calculate_branch
@@ -45,6 +46,7 @@ jobs:
     outputs:
       has_commits: ${{ steps.calculate_commits.outputs.has_commits }}
       ref: ${{ needs.calculate-refs.outputs.ref }}
+      branch: ${{ needs.calculate-refs.outputs.branch }}
     steps:
       - name: Print inputs
         run: |
@@ -333,7 +335,7 @@ jobs:
     secrets: inherit
     with:
       commit_id: ${{ needs.check-commit-count.outputs.ref }}
-      branch: ${{ env.BRANCH }}
+      branch: ${{ needs.check-commit-count.outputs.branch }}
 
   cleanup-artifacts:
     needs: deploy-resources
