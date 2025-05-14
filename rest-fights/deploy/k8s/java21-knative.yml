@@ -75,14 +75,14 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   annotations:
-    app.quarkus.io/vcs-ref: main
-    app.openshift.io/vcs-ref: main
+    app.quarkus.io/vcs-ref: 3.20.Final
+    app.openshift.io/vcs-ref: 3.20.Final
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.2
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-09 - 01:56:06 +0000
+    app.quarkus.io/build-timestamp: 2025-05-14 - 01:33:06 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -92,8 +92,8 @@ metadata:
     system: quarkus-super-heroes
     application: fights-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java21-latest-3.20.Final
     app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
@@ -101,14 +101,14 @@ spec:
     metadata:
       annotations:
         autoscaling.knative.dev/min-scale: "1"
-        app.quarkus.io/vcs-ref: main
-        app.openshift.io/vcs-ref: main
+        app.quarkus.io/vcs-ref: 3.20.Final
+        app.openshift.io/vcs-ref: 3.20.Final
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.22.2
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2025-05-09 - 01:56:06 +0000
+        app.quarkus.io/build-timestamp: 2025-05-14 - 01:33:06 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -118,17 +118,17 @@ spec:
         system: quarkus-super-heroes
         application: fights-service
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/version: java21-latest-3.20.Final
         app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/version: java21-latest
         app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
-          image: quay.io/quarkus-super-heroes/rest-fights:java21-latest-3.20.Final
+            - secretRef:
+                name: rest-fights-config-creds
+          image: quay.io/quarkus-super-heroes/rest-fights:java21-latest
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -376,21 +376,21 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   annotations:
-    app.quarkus.io/vcs-ref: main
-    app.openshift.io/vcs-ref: main
+    app.quarkus.io/vcs-ref: 3.20.Final
+    app.openshift.io/vcs-ref: 3.20.Final
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.2
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-09 - 01:56:06 +0000
+    app.quarkus.io/build-timestamp: 2025-05-14 - 01:33:06 +0000
   labels:
     app: rest-fights
     system: quarkus-super-heroes
     application: fights-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java21-latest-3.20.Final
     app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
