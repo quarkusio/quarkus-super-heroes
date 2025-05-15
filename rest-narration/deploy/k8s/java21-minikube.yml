@@ -19,7 +19,7 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.quarkus.io/vcs-ref: 3.20.Final
+    app.quarkus.io/vcs-ref: rhbq-3.20
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: otel-collector
     app.quarkus.io/quarkus-version: 3.22.2
@@ -32,7 +32,7 @@ metadata:
   labels:
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
-    app.kubernetes.io/version: java21-latest-3.20.Final
+    app.kubernetes.io/version: java21-latest-rhbq-3.20
     app: rest-narration
     application: narration-service
     system: quarkus-super-heroes
@@ -47,14 +47,14 @@ spec:
   selector:
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
-    app.kubernetes.io/version: java21-latest-3.20.Final
+    app.kubernetes.io/version: java21-latest-rhbq-3.20
   type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.quarkus.io/vcs-ref: 3.20.Final
+    app.quarkus.io/vcs-ref: rhbq-3.20
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: otel-collector
     app.quarkus.io/quarkus-version: 3.22.2
@@ -67,7 +67,7 @@ metadata:
   labels:
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
-    app.kubernetes.io/version: java21-latest-3.20.Final
+    app.kubernetes.io/version: java21-latest-rhbq-3.20
     app: rest-narration
     application: narration-service
     system: quarkus-super-heroes
@@ -78,12 +78,12 @@ spec:
     matchLabels:
       app.kubernetes.io/name: rest-narration
       app.kubernetes.io/part-of: narration-service
-      app.kubernetes.io/version: java21-latest-3.20.Final
+      app.kubernetes.io/version: java21-latest-rhbq-3.20
   template:
     metadata:
       annotations:
         alpha.image.policy.openshift.io/resolve-names: '*'
-        app.quarkus.io/vcs-ref: 3.20.Final
+        app.quarkus.io/vcs-ref: rhbq-3.20
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: otel-collector
         app.quarkus.io/quarkus-version: 3.22.2
@@ -96,7 +96,7 @@ spec:
       labels:
         app.kubernetes.io/name: rest-narration
         app.kubernetes.io/part-of: narration-service
-        app.kubernetes.io/version: java21-latest-3.20.Final
+        app.kubernetes.io/version: java21-latest-rhbq-3.20
         app: rest-narration
         application: narration-service
         system: quarkus-super-heroes
@@ -110,7 +110,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: rest-narration-config
-          image: quay.io/quarkus-super-heroes/rest-narration:java21-latest-3.20.Final
+          image: quay.io/quarkus-super-heroes/rest-narration:java21-latest-rhbq-3.20
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
@@ -157,7 +157,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   annotations:
-    app.quarkus.io/vcs-ref: 3.20.Final
+    app.quarkus.io/vcs-ref: rhbq-3.20
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: otel-collector
     app.quarkus.io/quarkus-version: 3.22.2
@@ -166,7 +166,7 @@ metadata:
   labels:
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
-    app.kubernetes.io/version: java21-latest-3.20.Final
+    app.kubernetes.io/version: java21-latest-rhbq-3.20
     app: rest-narration
     application: narration-service
     system: quarkus-super-heroes
@@ -176,7 +176,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: rest-narration
       app.kubernetes.io/part-of: narration-service
-      app.kubernetes.io/version: java21-latest-3.20.Final
+      app.kubernetes.io/version: java21-latest-rhbq-3.20
   endpoints:
     - scheme: http
       targetPort: 8087

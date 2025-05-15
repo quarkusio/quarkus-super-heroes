@@ -70,7 +70,7 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.quarkus.io/vcs-ref: 3.20.Final
+    app.quarkus.io/vcs-ref: rhbq-3.20
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.quarkus.io/quarkus-version: 3.22.2
@@ -83,7 +83,7 @@ metadata:
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java21-latest-3.20.Final
+    app.kubernetes.io/version: java21-latest-rhbq-3.20
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
@@ -98,14 +98,14 @@ spec:
   selector:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java21-latest-3.20.Final
+    app.kubernetes.io/version: java21-latest-rhbq-3.20
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.quarkus.io/vcs-ref: 3.20.Final
+    app.quarkus.io/vcs-ref: rhbq-3.20
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.quarkus.io/quarkus-version: 3.22.2
@@ -118,7 +118,7 @@ metadata:
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java21-latest-3.20.Final
+    app.kubernetes.io/version: java21-latest-rhbq-3.20
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
@@ -129,13 +129,13 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/part-of: event-stats
-      app.kubernetes.io/version: java21-latest-3.20.Final
+      app.kubernetes.io/version: java21-latest-rhbq-3.20
       app.kubernetes.io/name: event-statistics
   template:
     metadata:
       annotations:
         alpha.image.policy.openshift.io/resolve-names: '*'
-        app.quarkus.io/vcs-ref: 3.20.Final
+        app.quarkus.io/vcs-ref: rhbq-3.20
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
         app.quarkus.io/quarkus-version: 3.22.2
@@ -151,7 +151,7 @@ spec:
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
         app.kubernetes.io/part-of: event-stats
-        app.kubernetes.io/version: java21-latest-3.20.Final
+        app.kubernetes.io/version: java21-latest-rhbq-3.20
         app.kubernetes.io/name: event-statistics
     spec:
       containers:
@@ -165,7 +165,7 @@ spec:
                 name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
-          image: quay.io/quarkus-super-heroes/event-statistics:java21-latest-3.20.Final
+          image: quay.io/quarkus-super-heroes/event-statistics:java21-latest-rhbq-3.20
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -329,7 +329,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   annotations:
-    app.quarkus.io/vcs-ref: 3.20.Final
+    app.quarkus.io/vcs-ref: rhbq-3.20
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.quarkus.io/quarkus-version: 3.22.2
@@ -338,7 +338,7 @@ metadata:
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/version: java21-latest-3.20.Final
+    app.kubernetes.io/version: java21-latest-rhbq-3.20
     app: event-statistics
     application: event-stats
     system: quarkus-super-heroes
@@ -349,7 +349,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: event-statistics
       app.kubernetes.io/part-of: event-stats
-      app.kubernetes.io/version: java21-latest-3.20.Final
+      app.kubernetes.io/version: java21-latest-rhbq-3.20
   endpoints:
     - scheme: http
       targetPort: 8085

@@ -20,8 +20,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-    <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>3.20.0</quarkus.platform.version>
+    <quarkus.platform.group-id>com.redhat.quarkus.platform</quarkus.platform.group-id>
+    <quarkus.platform.version>3.20.0.redhat-00002</quarkus.platform.version>
     <surefire-plugin.version>3.5.3</surefire-plugin.version>
     <wiremock.version>3.13.0</wiremock.version>
     <wiremock-grpc.version>0.10.0</wiremock-grpc.version>
@@ -342,47 +342,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-      	<groupId>org.eclipse.jkube</groupId>
-      	<artifactId>openshift-maven-plugin</artifactId>
-      	<version>1.18.1</version>
-      	<configuration>
-      		<remoteDevelopment>
-      			<localServices>
-      				<localService>
-      					<serviceName>rest-fights</serviceName>
-      					<port>8082</port>
-      				</localService>
-      			</localServices>
-      			<remoteServices>
-      				<remoteService>
-      					<hostname>rest-heroes</hostname>
-      					<port>80</port>
-      					<localPort>8083</localPort>
-      				</remoteService>
-      				<remoteService>
-      					<hostname>rest-villains</hostname>
-      					<port>80</port>
-      					<localPort>8084</localPort>
-      				</remoteService>
-      				<remoteService>
-      					<hostname>rest-narration</hostname>
-      					<port>80</port>
-      					<localPort>8087</localPort>
-      				</remoteService>
-      				<remoteService>
-      					<hostname>grpc-locations</hostname>
-      					<port>80</port>
-      					<localPort>8089</localPort>
-      				</remoteService>
-      				<remoteService>
-      					<hostname>otel-collector</hostname>
-      					<port>4317</port>
-      				</remoteService>
-      			</remoteServices>
-      		</remoteDevelopment>
-      	</configuration>
-      </plugin>
     </plugins>
   </build>
   <profiles>
@@ -456,6 +415,30 @@
       </build>
     </profile>
   </profiles>
+  <repositories>
+    <repository>
+      <id>red-hat-enterprise-maven-repository</id>
+      <url>https://maven.repository.redhat.com/ga/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>red-hat-enterprise-maven-repository</id>
+      <url>https://maven.repository.redhat.com/ga/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
   <organization>
     <name>Quarkus</name>
     <url>https://quarkus.io</url>

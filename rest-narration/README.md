@@ -133,10 +133,10 @@ Pick one of the versions of the application from the table below and execute the
 
 | Description                | Image Tag                    | Docker Compose Run Command                                                                                                                                              |
 |----------------------------|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| JVM Java 21                | `java21-latest-3.20.Final`              | `docker compose -f deploy/docker-compose/java21.yml up --remove-orphans`                                                                                                |
-| JVM Java 21 (Azure OpenAI) | `java21-latest-3.20.Final-azure-openai` | Modify the image in `deploy/docker-compose/java21.yml`, update environment variables, then run `docker compose -f deploy/docker-compose/java21.yml up --remove-orphans` |
-| Native                     | `native-latest-3.20.Final`              | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans`                                                                                                |
-| Native (Azure OpenAI)      | `native-latest-3.20.Final-azure-openai` | Modify the image in `deploy/docker-compose/native.yml`, update environment variables, then run `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
+| JVM Java 21                | `java21-latest-rhbq-3.20`              | `docker compose -f deploy/docker-compose/java21.yml up --remove-orphans`                                                                                                |
+| JVM Java 21 (Azure OpenAI) | `java21-latest-rhbq-3.20-azure-openai` | Modify the image in `deploy/docker-compose/java21.yml`, update environment variables, then run `docker compose -f deploy/docker-compose/java21.yml up --remove-orphans` |
+| Native                     | `native-latest-rhbq-3.20`              | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans`                                                                                                |
+| Native (Azure OpenAI)      | `native-latest-rhbq-3.20-azure-openai` | Modify the image in `deploy/docker-compose/native.yml`, update environment variables, then run `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
 
 > [!IMPORTANT]
 > The running application will **NOT** make live calls to an OpenAI provider. You will need to [modify the descriptors accordingly](#making-live-calls-to-openai-providers) to have the application make live calls to an OpenAI provider.
@@ -162,13 +162,13 @@ Pick one of the versions of the application from the table below and deploy the 
 
 | Description | Image Tag       | OpenShift Descriptor                                      | Minikube Descriptor                                     | Kubernetes Descriptor                                       | Knative Descriptor                                    |
 |-------------|-----------------|-----------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|-------------------------------------------------------|
-| JVM Java 21 | `java21-latest-3.20.Final` | [`java21-openshift.yml`](deploy/k8s/java21-openshift.yml) | [`java21-minikube.yml`](deploy/k8s/java21-minikube.yml) | [`java21-kubernetes.yml`](deploy/k8s/java21-kubernetes.yml) | [`java21-knative.yml`](deploy/k8s/java21-knative.yml) |
-| Native      | `native-latest-3.20.Final` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
+| JVM Java 21 | `java21-latest-rhbq-3.20` | [`java21-openshift.yml`](deploy/k8s/java21-openshift.yml) | [`java21-minikube.yml`](deploy/k8s/java21-minikube.yml) | [`java21-kubernetes.yml`](deploy/k8s/java21-kubernetes.yml) | [`java21-knative.yml`](deploy/k8s/java21-knative.yml) |
+| Native      | `native-latest-rhbq-3.20` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
 
 > [!IMPORTANT]
 > As with the [Docker compose descriptors above](#running-locally-via-docker-compose), the running application will **NOT** make live calls to an OpenAI provider. You will need to [modify the descriptors accordingly](#making-live-calls-to-openai-providers) to have the application make live calls to an OpenAI provider.
 > 
-> Additionally, there are also `java21-latest-3.20.Final-azure-openai` and `native-latest-3.20.Final-azure-openai` image tags available. You would need to modify the Kubernetes descriptor manually before deploying.
+> Additionally, there are also `java21-latest-rhbq-3.20-azure-openai` and `native-latest-rhbq-3.20-azure-openai` image tags available. You would need to modify the Kubernetes descriptor manually before deploying.
 > 
 > You would first need to modify the image with the appropriate image tag, then update the environment variables according to the [Azure OpenAI properties](#azure-openai-properties).
 

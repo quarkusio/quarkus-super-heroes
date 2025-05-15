@@ -19,8 +19,8 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   annotations:
-    app.quarkus.io/vcs-ref: 3.20.Final
-    app.openshift.io/vcs-ref: 3.20.Final
+    app.quarkus.io/vcs-ref: rhbq-3.20
+    app.openshift.io/vcs-ref: rhbq-3.20
     app.openshift.io/connects-to: otel-collector
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
@@ -47,7 +47,7 @@ spec:
         - envFrom:
             - configMapRef:
                 name: rest-narration-config
-          image: quay.io/quarkus-super-heroes/rest-narration:java21-latest-3.20.Final
+          image: quay.io/quarkus-super-heroes/rest-narration:java21-latest-rhbq-3.20
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -84,8 +84,8 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   annotations:
-    app.quarkus.io/vcs-ref: 3.20.Final
-    app.openshift.io/vcs-ref: 3.20.Final
+    app.quarkus.io/vcs-ref: rhbq-3.20
+    app.openshift.io/vcs-ref: rhbq-3.20
     app.openshift.io/connects-to: otel-collector
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes

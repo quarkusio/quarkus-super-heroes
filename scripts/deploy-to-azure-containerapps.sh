@@ -29,8 +29,8 @@ help() {
   echo "  -s <database_server_sku>               The SKU to use for the PostgreSQL/MariaDB servers (see https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server / https://azure.microsoft.com/en-us/pricing/details/mysql/flexible-server)"
   echo "                                             Default: 'B1ms'"
   echo "  -t <tag>                               The tag for the images to deploy"
-  echo "                                             Accepted values: 'java21-latest-3.20.Final' or 'native-latest-3.20.Final'"
-  echo "                                             Default: 'java21-latest-3.20.Final'"
+  echo "                                             Accepted values: 'java21-latest-rhbq-3.20' or 'native-latest-rhbq-3.20'"
+  echo "                                             Default: 'java21-latest-rhbq-3.20'"
   echo "  -u <unique_identifier>                 A unique identifier to append to some resources. Some Azure services require unique names within a region (across users)."
   echo "                                             Default is to use the output of the 'whoami' command."
 }
@@ -443,7 +443,7 @@ create_azure_openai_resources() {
 # Define defaults
 RESOURCE_GROUP="super-heroes"
 LOCATION="eastus2"
-IMAGES_TAG="java21-latest-3.20.Final"
+IMAGES_TAG="java21-latest-rhbq-3.20"
 UNIQUE_IDENTIFIER=$(whoami)
 POSTGRES_SKU="B1ms"
 POSTGRES_TIER="Burstable"
