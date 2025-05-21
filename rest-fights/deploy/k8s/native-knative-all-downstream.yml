@@ -75,7 +75,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-16 - 01:57:59 +0000
+    app.quarkus.io/build-timestamp: 2025-05-21 - 01:59:24 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -85,9 +85,9 @@ metadata:
     system: quarkus-super-heroes
     application: villains-service
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: native-latest
   name: rest-villains
 spec:
   template:
@@ -221,15 +221,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-16 - 01:57:59 +0000
+    app.quarkus.io/build-timestamp: 2025-05-21 - 01:59:24 +0000
   labels:
     app: rest-villains
     system: quarkus-super-heroes
     application: villains-service
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/version: native-latest
   name: rest-villains
 spec:
   selector: {}
@@ -311,7 +311,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-16 - 01:58:38 +0000
+    app.quarkus.io/build-timestamp: 2025-05-21 - 02:00:03 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -458,7 +458,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-16 - 01:58:38 +0000
+    app.quarkus.io/build-timestamp: 2025-05-21 - 02:00:03 +0000
   labels:
     app: rest-heroes
     system: quarkus-super-heroes
@@ -504,7 +504,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-16 - 01:57:20 +0000
+    app.quarkus.io/build-timestamp: 2025-05-21 - 01:58:43 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8087"
@@ -514,9 +514,9 @@ metadata:
     system: quarkus-super-heroes
     application: narration-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
     app.kubernetes.io/version: native-latest
+    app.kubernetes.io/name: rest-narration
   name: rest-narration
 spec:
   template:
@@ -569,15 +569,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-16 - 01:57:20 +0000
+    app.quarkus.io/build-timestamp: 2025-05-21 - 01:58:43 +0000
   labels:
     app: rest-narration
     system: quarkus-super-heroes
     application: narration-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
     app.kubernetes.io/version: native-latest
+    app.kubernetes.io/name: rest-narration
   name: rest-narration
 spec:
   selector: {}
@@ -661,7 +661,7 @@ metadata:
     serverless.openshift.io/default-enable-http2: "true"
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-16 - 01:56:46 +0000
+    app.quarkus.io/build-timestamp: 2025-05-21 - 01:58:09 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -673,6 +673,7 @@ metadata:
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/name: grpc-locations
+    app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: native-latest
   name: grpc-locations
 spec:
@@ -680,11 +681,11 @@ spec:
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: grpc-locations-config
             - secretRef:
                 name: grpc-locations-config-creds
-          image: quay.io/quarkus-super-heroes/grpc-locations:native-latest-3.20.Final
+            - configMapRef:
+                name: grpc-locations-config
+          image: quay.io/quarkus-super-heroes/grpc-locations:native-latest
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -811,7 +812,7 @@ metadata:
     serverless.openshift.io/default-enable-http2: "true"
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-16 - 01:56:46 +0000
+    app.quarkus.io/build-timestamp: 2025-05-21 - 01:58:09 +0000
   labels:
     app: grpc-locations
     system: quarkus-super-heroes
@@ -819,6 +820,7 @@ metadata:
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/name: grpc-locations
+    app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: native-latest
   name: grpc-locations
 spec:
@@ -908,7 +910,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-16 - 01:59:29 +0000
+    app.quarkus.io/build-timestamp: 2025-05-21 - 02:00:55 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -934,7 +936,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.22.3
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2025-05-16 - 01:59:29 +0000
+        app.quarkus.io/build-timestamp: 2025-05-21 - 02:00:55 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -1209,7 +1211,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-16 - 01:59:29 +0000
+    app.quarkus.io/build-timestamp: 2025-05-21 - 02:00:55 +0000
   labels:
     app: rest-fights
     system: quarkus-super-heroes
