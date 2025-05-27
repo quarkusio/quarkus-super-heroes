@@ -70,7 +70,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-17 - 01:48:12 +0000
+    app.quarkus.io/build-timestamp: 2025-05-27 - 01:04:15 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -80,21 +80,19 @@ metadata:
     system: quarkus-super-heroes
     application: heroes-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: native-latest-rhbq-3.20
     app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: native-latest
+    app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   template:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-heroes-config-creds
             - configMapRef:
                 name: rest-heroes-config
+            - secretRef:
+                name: rest-heroes-config-creds
           image: quay.io/quarkus-super-heroes/rest-heroes:native-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -219,17 +217,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.22.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-05-17 - 01:48:12 +0000
+    app.quarkus.io/build-timestamp: 2025-05-27 - 01:04:15 +0000
   labels:
     app: rest-heroes
     system: quarkus-super-heroes
     application: heroes-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: heroes-service
-    app.kubernetes.io/version: native-latest-rhbq-3.20
     app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/version: native-latest
+    app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   selector: {}
