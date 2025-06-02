@@ -113,7 +113,7 @@ class OpenAiNarrationResourceIT extends NarrationResourceIT {
 		super.shouldGetAFallbackOnError();
 
 		this.wireMock.verifyThat(
-      2,
+      3,
       postRequestedFor(urlPathEqualTo("/v1/chat/completions"))
         .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
         .withHeader(HttpHeaders.CONTENT_TYPE, equalToIgnoreCase(MediaType.APPLICATION_JSON))

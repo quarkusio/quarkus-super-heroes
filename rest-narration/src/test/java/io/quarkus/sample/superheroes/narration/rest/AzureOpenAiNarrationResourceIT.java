@@ -114,7 +114,7 @@ class AzureOpenAiNarrationResourceIT extends NarrationResourceIT {
 		super.shouldGetAFallbackOnError();
 
 		this.wireMock.verifyThat(
-      2,
+      3,
       postRequestedFor(urlPathEqualTo("/v1/chat/completions"))
 	      .withQueryParam("api-version", matching(".+"))
         .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
