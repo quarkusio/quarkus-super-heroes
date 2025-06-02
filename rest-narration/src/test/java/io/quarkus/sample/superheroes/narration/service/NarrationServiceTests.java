@@ -161,7 +161,7 @@ class NarrationServiceTests {
       .isEqualTo(NarrationService.FALLBACK_NARRATION);
 
     this.wireMock.verifyThat(
-      2,
+      3,
       postRequestedFor(urlEqualTo("/v1/chat/completions"))
         .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
         .withHeader(HttpHeaders.CONTENT_TYPE, equalToIgnoreCase(MediaType.APPLICATION_JSON))
@@ -183,7 +183,7 @@ class NarrationServiceTests {
       .isEqualTo(NarrationService.FALLBACK_NARRATION);
 
     this.wireMock.verifyThat(
-      2,
+      3,
       postRequestedFor(urlEqualTo("/v1/chat/completions"))
         .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
         .withHeader(HttpHeaders.CONTENT_TYPE, equalToIgnoreCase(MediaType.APPLICATION_JSON))
