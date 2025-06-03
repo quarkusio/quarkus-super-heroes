@@ -97,9 +97,15 @@ jobs:
       - name: Calculate projects
         id: calculate_projects
         run: |
-          json=$(curl -Ls https://sh.jbang.dev | bash -s - .github/calculateModules.java "${{ env.DEFAULT_TIMEFRAME }}")
-          echo "modules = ${json}"
-          echo "projects_matrix=${json}" >> $GITHUB_OUTPUT
+          if [[ ${{ github.event_name }} == 'schedule' ]]; then
+            json=$(curl -Ls https://sh.jbang.dev | bash -s - .github/calculateModules.java "${{ needs.check-commit-count.outputs.timeframe }}")
+            echo "modules = ${json}"
+            echo "projects_matrix=${json}" >> $GITHUB_OUTPUT
+          else
+            json='[{ "name": "event-statistics" },{ "name": "grpc-locations" },{ "name": "rest-fights" },{ "name": "rest-heroes" },{ "name": "rest-villains" },{ "name": "ui-super-heroes" },{ "name": "rest-narration" },{ "name": "rest-narration", "openai-type": "azure-openai" }]'
+            echo "modules = ${json}"
+            echo "projects_matrix=${json}" >> $GITHUB_OUTPUT
+          fi
 
   build-jvm-images:
     needs:
