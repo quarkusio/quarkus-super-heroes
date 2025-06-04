@@ -614,7 +614,7 @@ az containerapp create \
   --ingress external \
   --target-port 8083 \
   --min-replicas 0 \
-  --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
+  --env-vars QUARKUS_HIBERNATE_ORM_SCHEMA_MANAGEMENT_STRATEGY=validate \
              QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT=no-file \
              QUARKUS_DATASOURCE_USERNAME="$POSTGRES_DB_ADMIN" \
              QUARKUS_DATASOURCE_PASSWORD="$POSTGRES_DB_PWD" \
@@ -662,7 +662,7 @@ az containerapp create \
   --ingress external \
   --target-port 8084 \
   --min-replicas 0 \
-  --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
+  --env-vars QUARKUS_HIBERNATE_ORM_SCHEMA_MANAGEMENT_STRATEGY=validate \
              QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT=no-file \
              QUARKUS_DATASOURCE_USERNAME="$POSTGRES_DB_ADMIN" \
              QUARKUS_DATASOURCE_PASSWORD="$POSTGRES_DB_PWD" \
@@ -709,7 +709,7 @@ az containerapp create \
   --transport http2 \
   --target-port 8089 \
   --min-replicas 1 \
-  --env-vars QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=validate \
+  --env-vars QUARKUS_HIBERNATE_ORM_SCHEMA_MANAGEMENT_STRATEGY=validate \
              QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT=no-file \
              QUARKUS_DATASOURCE_USERNAME="$MARIADB_ADMIN_USER" \
              QUARKUS_DATASOURCE_PASSWORD="$MARIADB_ADMIN_PWD" \
