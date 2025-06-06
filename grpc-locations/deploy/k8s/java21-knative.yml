@@ -70,10 +70,9 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     serverless.openshift.io/default-enable-http2: "true"
-    app.quarkus.io/quarkus-version: 3.20.1.redhat-00003
-    app.quarkus.io/commit-id: 70e1bf3e4cba00a5239e3212b4eafe7dedaf1480
+    app.quarkus.io/quarkus-version: 3.23.2
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-06-05 - 13:49:48 +0000
+    app.quarkus.io/build-timestamp: 2025-06-06 - 01:48:08 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -83,7 +82,7 @@ metadata:
     system: quarkus-super-heroes
     application: locations-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java21-latest-rhbq-3.20
+    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/name: grpc-locations
   name: grpc-locations
@@ -92,11 +91,11 @@ spec:
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: grpc-locations-config
             - secretRef:
                 name: grpc-locations-config-creds
-          image: quay.io/quarkus-super-heroes/grpc-locations:java21-latest-rhbq-3.20
+            - configMapRef:
+                name: grpc-locations-config
+          image: quay.io/quarkus-super-heroes/grpc-locations:java21-latest
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -221,16 +220,15 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     serverless.openshift.io/default-enable-http2: "true"
-    app.quarkus.io/quarkus-version: 3.20.1.redhat-00003
-    app.quarkus.io/commit-id: 70e1bf3e4cba00a5239e3212b4eafe7dedaf1480
+    app.quarkus.io/quarkus-version: 3.23.2
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-06-05 - 13:49:48 +0000
+    app.quarkus.io/build-timestamp: 2025-06-06 - 01:48:08 +0000
   labels:
     app: grpc-locations
     system: quarkus-super-heroes
     application: locations-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java21-latest-rhbq-3.20
+    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/name: grpc-locations
   name: grpc-locations
