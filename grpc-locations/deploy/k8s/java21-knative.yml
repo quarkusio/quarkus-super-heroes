@@ -71,9 +71,9 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     serverless.openshift.io/default-enable-http2: "true"
     app.quarkus.io/quarkus-version: 3.20.1
-    app.quarkus.io/commit-id: 0f3123c7eb9a9a9fa76f212cfdb05cf4c9d26acb
+    app.quarkus.io/commit-id: ebde650c142691c4a54d6d147763508a5adf081d
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-06-05 - 13:58:39 +0000
+    app.quarkus.io/build-timestamp: 2025-06-09 - 19:30:51 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -83,19 +83,19 @@ metadata:
     system: quarkus-super-heroes
     application: locations-service
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: java21-latest-3.20.Final
-    app.kubernetes.io/name: grpc-locations
   name: grpc-locations
 spec:
   template:
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: grpc-locations-config
             - secretRef:
                 name: grpc-locations-config-creds
+            - configMapRef:
+                name: grpc-locations-config
           image: quay.io/quarkus-super-heroes/grpc-locations:java21-latest-3.20.Final
           imagePullPolicy: Always
           livenessProbe:
@@ -222,17 +222,17 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     serverless.openshift.io/default-enable-http2: "true"
     app.quarkus.io/quarkus-version: 3.20.1
-    app.quarkus.io/commit-id: 0f3123c7eb9a9a9fa76f212cfdb05cf4c9d26acb
+    app.quarkus.io/commit-id: ebde650c142691c4a54d6d147763508a5adf081d
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-06-05 - 13:58:39 +0000
+    app.quarkus.io/build-timestamp: 2025-06-09 - 19:30:51 +0000
   labels:
     app: grpc-locations
     system: quarkus-super-heroes
     application: locations-service
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: java21-latest-3.20.Final
-    app.kubernetes.io/name: grpc-locations
   name: grpc-locations
 spec:
   selector: {}
