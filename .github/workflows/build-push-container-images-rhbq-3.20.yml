@@ -34,6 +34,15 @@ jobs:
       ref: ${{ steps.calculate_branch.outputs.ref }}
       branch: ${{ env.BRANCH }}
     steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'schedule'
+        with:
+          fetch-depth: 0
+
+      - name: Fetch ${{ env.BRANCH }} branch
+        if: github.event_name == 'schedule'
+        run: git fetch origin ${{ env.BRANCH }}
+
       - name: Calculate Branch
         id: calculate_branch
         run: |
@@ -42,7 +51,7 @@ jobs:
           elif [[ ${{ github.event_name}} == 'workflow_dispatch' ]]; then
             echo "ref=${{ github.sha }}" >> $GITHUB_OUTPUT
           elif [[ ${{ github.event_name }} == 'schedule' ]]; then
-            echo "ref=${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "ref=$(git rev-parse origin/${{ env.BRANCH }})" >> $GITHUB_OUTPUT
           fi
 
   check-commit-count:
