@@ -38,7 +38,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.23.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-06-13 - 02:02:13 +0000
+    app.quarkus.io/build-timestamp: 2025-06-25 - 01:30:46 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -48,6 +48,8 @@ metadata:
     system: quarkus-super-heroes
     application: event-stats
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/version: java21-latest
@@ -57,11 +59,11 @@ spec:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
-          image: quay.io/quarkus-super-heroes/event-statistics:java21-latest-3.20.Final
+            - secretRef:
+                name: event-statistics-config-creds
+          image: quay.io/quarkus-super-heroes/event-statistics:java21-latest
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -261,12 +263,14 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.23.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-06-13 - 02:02:13 +0000
+    app.quarkus.io/build-timestamp: 2025-06-25 - 01:30:46 +0000
   labels:
     app: event-statistics
     system: quarkus-super-heroes
     application: event-stats
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/version: java21-latest
