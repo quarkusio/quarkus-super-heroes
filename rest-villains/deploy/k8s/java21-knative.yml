@@ -70,7 +70,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.24.5
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-07-25 - 01:56:29 +0000
+    app.quarkus.io/build-timestamp: 2025-07-30 - 01:57:38 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -80,19 +80,19 @@ metadata:
     system: quarkus-super-heroes
     application: villains-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: java21-latest
+    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
   name: rest-villains
 spec:
   template:
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:java21-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -216,15 +216,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.24.5
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-07-25 - 01:56:29 +0000
+    app.quarkus.io/build-timestamp: 2025-07-30 - 01:57:38 +0000
   labels:
     app: rest-villains
     system: quarkus-super-heroes
     application: villains-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: villains-service
-    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/version: java21-latest
+    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/part-of: villains-service
   name: rest-villains
 spec:
   selector: {}
