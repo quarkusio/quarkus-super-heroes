@@ -85,9 +85,9 @@ metadata:
     app.openshift.io/connects-to: "locations-db,otel-collector"
     app.openshift.io/vcs-ref: rhbq-3.15
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.15.5.redhat-00002
+    app.quarkus.io/quarkus-version: 3.15.6.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-07-25 - 02:44:50 +0000
+    app.quarkus.io/build-timestamp: 2025-08-09 - 03:13:28 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -187,9 +187,9 @@ metadata:
     app.openshift.io/connects-to: "locations-db,otel-collector"
     app.openshift.io/vcs-ref: rhbq-3.15
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.15.5.redhat-00002
+    app.quarkus.io/quarkus-version: 3.15.6.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-07-25 - 02:44:50 +0000
+    app.quarkus.io/build-timestamp: 2025-08-09 - 03:13:28 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -200,17 +200,17 @@ metadata:
     system: quarkus-super-heroes
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/version: java17-latest-rhbq-3.15
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
-    app.kubernetes.io/version: java17-latest-rhbq-3.15
   name: grpc-locations
 spec:
   replicas: 1
   selector:
     matchLabels:
+      app.kubernetes.io/version: java17-latest-rhbq-3.15
       app.kubernetes.io/name: grpc-locations
       app.kubernetes.io/part-of: locations-service
-      app.kubernetes.io/version: java17-latest-rhbq-3.15
   template:
     metadata:
       annotations:
@@ -219,9 +219,9 @@ spec:
         app.openshift.io/connects-to: "locations-db,otel-collector"
         app.openshift.io/vcs-ref: rhbq-3.15
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/quarkus-version: 3.15.5.redhat-00002
+        app.quarkus.io/quarkus-version: 3.15.6.redhat-00003
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2025-07-25 - 02:44:50 +0000
+        app.quarkus.io/build-timestamp: 2025-08-09 - 03:13:28 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8089"
@@ -232,16 +232,16 @@ spec:
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/version: java17-latest-rhbq-3.15
         app.kubernetes.io/name: grpc-locations
         app.kubernetes.io/part-of: locations-service
-        app.kubernetes.io/version: java17-latest-rhbq-3.15
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: grpc-locations-config
             - secretRef:
                 name: grpc-locations-config-creds
+            - configMapRef:
+                name: grpc-locations-config
           image: quay.io/quarkus-super-heroes/grpc-locations:java17-latest-rhbq-3.15
           imagePullPolicy: Always
           livenessProbe:
@@ -293,9 +293,9 @@ metadata:
     app.openshift.io/connects-to: "locations-db,otel-collector"
     app.openshift.io/vcs-ref: rhbq-3.15
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.15.5.redhat-00002
+    app.quarkus.io/quarkus-version: 3.15.6.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-07-25 - 02:44:50 +0000
+    app.quarkus.io/build-timestamp: 2025-08-09 - 03:13:28 +0000
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
