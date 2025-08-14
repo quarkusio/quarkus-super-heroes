@@ -40,7 +40,7 @@ jobs:
       ref: ${{ steps.calculate_branch.outputs.ref }}
       branch: ${{ env.BRANCH }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.BRANCH }}
 
@@ -66,7 +66,7 @@ jobs:
       - name: Print inputs
         run: echo "ref = ${{ needs.calculate-refs.outputs.ref }}"
       
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ env.BRANCH }}
@@ -91,7 +91,7 @@ jobs:
     outputs:
       projects_matrix: ${{ steps.calculate_projects.outputs.projects_matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ env.BRANCH }}
@@ -126,7 +126,7 @@ jobs:
     name: "Build JVM images (${{ matrix.arch }}-${{ matrix.project.name }}-java${{ matrix.java }}-${{ matrix.project.openai-type }})"
     steps:
       - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.check-commit-count.outputs.ref }}
 
@@ -201,7 +201,7 @@ jobs:
     name: "Build Native images (${{ matrix.arch }}-${{ matrix.project.name }}-java${{ matrix.java.jvm }}-${{ matrix.project.openai-type }})"
     steps:
       - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.check-commit-count.outputs.ref }}
 
@@ -273,7 +273,7 @@ jobs:
     name: "Push app images (${{ matrix.arch }}-${{ matrix.project.name }}-${{ matrix.kind }}java${{ matrix.java }}-${{ matrix.project.openai-type }})"
     steps:
       - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.check-commit-count.outputs.ref }}
 
@@ -315,7 +315,7 @@ jobs:
     name: Create app multiarch manifests (${{ matrix.project.name }}-${{ matrix.kind }}java${{ matrix.java }}-${{ matrix.project.openai-type }})
     steps:
       - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.check-commit-count.outputs.ref }}
 
