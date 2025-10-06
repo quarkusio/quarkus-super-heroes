@@ -118,7 +118,7 @@ The project has a `.editorconfig` file checked into the root. Please make sure t
 
 ## Build
 
-Each application (`event-statistics`, `rest-fights`, `rest-heroes`, `rest-villains`, and `ui-super-heroes`) is a self-contained application. Details on how to run each are included in the `README.me` in each project's sub-directory.
+Each application (`event-statistics`, `rest-fights`, `rest-heroes`, `rest-villains`, and `ui-super-heroes`) is a self-contained application. Details on how to run each are included in the `README.md` in each project's sub-directory.
 
 ## The small print
 

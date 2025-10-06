@@ -25,7 +25,7 @@
 - [References](#references)
 
 # Introduction
-[Azure Container Apps](https://docs.microsoft.com/en-us/azure/container-apps/) allows to run containerized applications without worrying about orchestration or infrastructure (i.e. we don't have to directly use K8s, it's used under the hood).
+[Azure Container Apps](https://docs.microsoft.com/en-us/azure/container-apps/) allows you to run containerized applications without worrying about orchestration or infrastructure (i.e. we don't have to directly use K8s, it's used under the hood).
 This guide goes through setting up the Azure environment, the required services, and deploying the Super Hero application.
 Some of these services (i.e. databases/Kafka/etc) have been replaced with managed Azure services.
 This diagram shows the overall architecture:
@@ -55,7 +55,7 @@ Run `deploy-to-azure-containerapps.sh -h` for information and configuration opti
 
 ## Setting Up the Azure Environment
 
-You only have to setup this once.
+You only have to set this up once.
 Install the Azure Container Apps and Database extensions for the Azure CLI:
 
 ```shell
@@ -229,7 +229,7 @@ az containerapp env create \
 
 ## Create the managed Postgres Databases
 
-We need to create two PostgreSQL databases so the Heroes and Villains microservice can store data.
+We need to create two PostgreSQL databases so the Heroes and Villains microservices can store data.
 Because we also want to access these database from external SQL client, we make them available to the outside world thanks to the `-public all` parameter.
 Create the two databases with the following commands:
 
@@ -263,7 +263,7 @@ az postgres flexible-server create \
   --version "$POSTGRES_DB_VERSION"
 ```
 
-Then, we create two database schemas, one for Heroes, another one for Villains
+Then, we create two database schemas: one for Heroes and another one for Villains.
 
 ```shell
 az postgres flexible-server db create \
@@ -792,8 +792,8 @@ az containerapp logs show \
 
 ### Statistics Microservice
 
-The Statistics microservice listens to a Kafka topics and consumes all the fights.
-The fight messages are defined by an Avro schema stored in Apicurio (`APICURIO_URL` and we append `/apis/registry/v2`):.
+The Statistics microservice listens to a Kafka topic and consumes all the fights.
+The fight messages are defined by an Avro schema stored in Apicurio (`APICURIO_URL` with `/apis/registry/v2` appended).
 Notice that we use the value of the `$$KAFKA_JAAS_CONFIG` in the `password`.
 
 ```shell
@@ -842,7 +842,7 @@ az containerapp logs show \
 
 ### Fights Microservice
 
-The Fight microservice invokes the Heroes and Villains microserivces, sends fight messages to a Kafka topics and stores the fights into a MongoDB database.
+The Fight microservice invokes the Heroes and Villains microservices, sends fight messages to a Kafka topic and stores the fights into a MongoDB database.
 We need to configure Kafka (same connection string as the one used by the Statistics microservice) as well as Mongo and Apicurio (variable `APICURIO_URL` and append `apis/registry/v2`).
 As for the microservice invocations, you need to set the URLs of both Heroes and Villains microservices.
 
@@ -884,7 +884,7 @@ echo $FIGHTS_URL
 
 Use the following curl commands to access the Fight microservice.
 Remember that we've set the minimum replicas to 0.
-That means that pinging the Hero and Villain microservices might fallback (you will get a _That means that pinging the Hero and Villain microservices might fallback (you will get a That means that pinging the Hero and Villain microservices might fallback (you will get a _Could not invoke the Villains microservice_ message).
+That means that pinging the Hero and Villain microservices might fallback (you will get a _Could not invoke the Villains microservice_ message).
 Execute several times the same curl commands so Azure Containers Apps has time to instantiate one replica and process the requests:
 
 ```shell
@@ -909,7 +909,7 @@ az containerapp logs show \
 We can deploy the Super Hero UI in two different ways:
 
 * Using Azure Container Apps and deploying the Docker image as we did for the previous microservices
-* Using Azure Static Webapps witch is suited for Angular applications
+* Using Azure Static Webapps which is suited for Angular applications
 
 #### Super Hero UI (using Azure Container Apps)
 
@@ -938,7 +938,7 @@ echo $UI_URL
 open "$UI_URL"
 ```
 
-#### Super Hero UI (optional using Azure Static Webapps)
+#### Super Hero UI (Optional: Using Azure Static Webapps)
 
 If you are building the UI locally with Node 17 you have to set the `NODE_OPTIONS` variable:
 
@@ -1003,7 +1003,7 @@ Click on "Create":
 
 ![load-testing-2-create](../images/load-testing-2-create.png)
 
-Creating a load testing resource can take a few moment.
+Creating a load testing resource can take a few moments.
 Once created, you should see the Azure Load Testing available in your resource group:
 
 ![load-testing-3-list](../images/load-testing-3-list.png)
@@ -1014,7 +1014,7 @@ Choose this second option:
 
 ![load-testing-4-upload-jmeter](../images/load-testing-4-upload-jmeter.png)
 
-Before uploading a JMeter script, create a load test by entering a name (eg. "_Make them fight_"), a description and click "_Next: Test plan >_:
+Before uploading a JMeter script, create a load test by entering a name (e.g. "_Make them fight_"), a description and click "_Next: Test plan >_":
 
 ![load-testing-5-create-test-1](../images/load-testing-5-create-test-1.png)
 

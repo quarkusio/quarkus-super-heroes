@@ -51,8 +51,8 @@ The following table lists the available REST endpoints. The [OpenAPI document](o
 | `/api/fights/randomlocation`  | `GET`       | `200`           | [`FightLocation`](src/main/java/io/quarkus/sample/superheroes/fight/FightLocation.java) | Finds a random fight location                                                                                                                     |
 | `/api/fights/{id}`            | `GET`       | `200`           | [`Fight`](src/main/java/io/quarkus/sample/superheroes/fight/Fight.java)                 | Fight with id == `{id}`                                                                                                                           |
 | `/api/fights/{id}`            | `GET`       | `404`           |                                                                                         | No Fight with id == `{id}` found                                                                                                                  |
-| `/api/fights/narrate`         | `POST`      | `200`           | `String`                                                                                | Performs a narration of the given [`Fight`](src/main/java/io/quarkus/sample/superheroes/fight/client/FightToNarrate.java)                         |                                                                                                                                         |
-| `/api/fights/narrate`         | `POST`      | `400`           | `String`                                                                                | Invalid [`Fight`](src/main/java/io/quarkus/sample/superheroes/fight/client/FightToNarrate.java) passed in request body (or no request body found) |                                                                                                                                         |
+| `/api/fights/narrate`         | `POST`      | `200`           | `String`                                                                                | Performs a narration of the given [`Fight`](src/main/java/io/quarkus/sample/superheroes/fight/client/FightToNarrate.java)                         |
+| `/api/fights/narrate`         | `POST`      | `400`           | `String`                                                                                | Invalid [`Fight`](src/main/java/io/quarkus/sample/superheroes/fight/client/FightToNarrate.java) passed in request body (or no request body found) |
 | `/api/fights/narrate/image`   | `POST`      | `200`           | [`FightImage`](src/main/java/io/quarkus/sample/superheroes/fight/FightImage.java)       | Generate an image and caption using DALL-E for a narration                                                                                        |
 | `/api/fights/narrate/image`   | `POST`      | `400`           |                                                                                         | Invalid narration passed in                                                                                                                       |
 | `/api/fights/hello/heroes`    | `GET`       | `200`           | `String`                                                                                | Invokes the "hello" endpoint of the [Heroes microservice](../rest-heroes)                                                                         |
@@ -189,7 +189,7 @@ Pre-built images for this application can be found at [`quay.io/quarkus-super-he
 Pick one of the versions of the application from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
 
    > [!NOTE]
-   > You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
+   > You may see errors as the applications start up. This may happen if an application completes startup before one of its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
 
 | Description | Image Tag       | Docker Compose Run Command                                               |
 |-------------|-----------------|--------------------------------------------------------------------------|
@@ -200,7 +200,7 @@ Pick one of the versions of the application from the table below and execute the
 The above Docker Compose files are meant for standing up this application and the required database, Kafka broker, and Apicurio Schema Registry only. If you want to stand up this application and its downstream services ([rest-villains](../rest-villains), [rest-heroes](../rest-heroes), [rest-narration](../rest-narration), & [grpc-locations](../grpc-locations)), pick one of the versions from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/rest-fights` directory.
 
    > [!NOTE]
-   > You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
+   > You may see errors as the applications start up. This may happen if an application completes startup before one of its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
 
 | Description | Image Tag       | Docker Compose Run Command                                                              |
 |-------------|-----------------|-----------------------------------------------------------------------------------------|
