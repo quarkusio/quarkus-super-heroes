@@ -56,7 +56,7 @@ A sample payload might look like this:
         "score": 5
     },
     {
-        "nane": "Darth Vader",
+        "name": "Darth Vader",
         "score": 3
     },
     {
@@ -89,7 +89,7 @@ Pre-built images for this application can be found at [`quay.io/quarkus-super-he
 Pick one of the 4 versions of the application from the table below and execute the appropriate docker compose command from the `quarkus-super-heroes/event-statistics` directory.
 
    > [!NOTE]
-   > You may see errors as the applications start up. This may happen if an application completes startup before one if its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
+   > You may see errors as the applications start up. This may happen if an application completes startup before one of its required services (i.e. database, kafka, etc). This is fine. Once everything completes startup things will work fine.
 
 | Description | Image Tag       | Docker Compose Run Command                                               |
 |-------------|-----------------|--------------------------------------------------------------------------|

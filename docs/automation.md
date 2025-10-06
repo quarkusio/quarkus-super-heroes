@@ -128,11 +128,11 @@ Inside this directory are a set of yaml files with a particular naming conventio
 
 This table describes the different files that can be found inside a project's `src/main/docker-compose` directory.
 
-| File name                  | Description                                                                                                                                                 |
-|----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `infra.yml`                | Any infrastructure definitions that are needed by the application. Definitions in here a re-used for each version of the application (i.e. JVM 21, Native). |
-| `java{{java-version}}.yml` | Definition for the JVM version of application itself for a particular java version, denoted by `{{java-version}}`.                                          |
-| `native.yml`               | Definition for the native image version of the application itself.                                                                                          |
+| File name                  | Description                                                                                                                                                   |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `infra.yml`                | Any infrastructure definitions that are needed by the application. Definitions in here are re-used for each version of the application (i.e. JVM 21, Native). |
+| `java{{java-version}}.yml` | Definition for the JVM version of application itself for a particular java version, denoted by `{{java-version}}`.                                            |
+| `native.yml`               | Definition for the native image version of the application itself.                                                                                            |
 
 The [`generate-docker-compose-resources.sh` script](../scripts/generate-docker-compose-resources.sh) loops through all versions of each application (Java version 21, both JVM and native - 8 total versions) and merges contents of these files from each project's `src/main/docker-compose` directory into each project's `deploy/docker-compose` directory as well as the respective files in the [root `deploy/docker-compose` directory](../deploy/docker-compose).
 

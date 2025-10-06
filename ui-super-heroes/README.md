@@ -49,7 +49,7 @@ Use the following command:
 quarkus dev
 ```
 
-This starts both Quarkus and the React hot reloading server at http://localhost:3000. The Quarkus server to supplies the `env.js` file to the Javascript front-end. 
+This starts both Quarkus and the React hot reloading server at http://localhost:3000. The Quarkus server supplies the `env.js` file to the Javascript front-end. 
 
 The Quarkus server port can be changed in the usual way, with `application.properties`. 
 
