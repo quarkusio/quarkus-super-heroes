@@ -36,9 +36,9 @@ metadata:
     application: villains-service
     system: quarkus-super-heroes
 data:
-  POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
-  POSTGRESQL_USERNAME: c3VwZXJiYWQ=
-  POSTGRESQL_PASSWORD: c3VwZXJiYWQ=
+  POSTGRES_DB: dmlsbGFpbnNfZGF0YWJhc2U=
+  POSTGRES_USER: c3VwZXJiYWQ=
+  POSTGRES_PASSWORD: c3VwZXJiYWQ=
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -88,7 +88,7 @@ spec:
             - name: villains-db-init-data
               mountPath: /docker-entrypoint-initdb.d
       containers:
-        - image: bitnami/postgresql:16
+        - image: postgres:18
           name: villains-db
           ports:
             - containerPort: 5432
@@ -97,7 +97,7 @@ spec:
                 name: villains-db-config
           volumeMounts:
             - name: villains-db-data
-              mountPath: /bitnami/postgresql
+              mountPath: /var/lib/postgresql
             - name: villains-db-init-data
               mountPath: /docker-entrypoint-initdb.d
           resources:
