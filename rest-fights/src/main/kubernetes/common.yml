@@ -34,11 +34,9 @@ metadata:
     application: fights-service
     system: quarkus-super-heroes
 data:
-  MONGODB_DATABASE: ZmlnaHRz
-  MONGODB_USERNAME: c3VwZXJmaWdodA==
-  MONGODB_PASSWORD: c3VwZXJmaWdodA==
-  MONGODB_ROOT_USER: c3VwZXI=
-  MONGODB_ROOT_PASSWORD: c3VwZXI=
+  MONGODB_INITDB_DATABASE: ZmlnaHRz
+  MONGODB_INITDB_ROOT_USERNAME: c3VwZXI=
+  MONGODB_INITDB_ROOT_PASSWORD: c3VwZXI=
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -63,18 +61,24 @@ spec:
         system: quarkus-super-heroes
     spec:
       containers:
-        - image: bitnami/mongodb:7.0
+        - image: mongodb/mongodb-community-server:8.0-ubi9
           name: fights-db
           ports:
             - containerPort: 27017
           envFrom:
             - secretRef:
                 name: fights-db-config
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-data-dir
           resources:
             limits:
               memory: 256Mi
             requests:
               memory: 64Mi
+      volumes:
+        - name: mongo-data-dir
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
