@@ -78,7 +78,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-09 - 02:04:32 +0000
+    app.quarkus.io/build-timestamp: 2025-10-14 - 02:01:44 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -234,7 +234,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-09 - 02:04:32 +0000
+    app.quarkus.io/build-timestamp: 2025-10-14 - 02:01:44 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -248,8 +248,6 @@ metadata:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/version: native-latest
     app.kubernetes.io/part-of: event-stats
-    app.kubernetes.io/name: event-statistics
-    app.kubernetes.io/version: native-latest
   name: event-statistics
 spec:
   replicas: 1
@@ -258,8 +256,6 @@ spec:
       app.kubernetes.io/name: event-statistics
       app.kubernetes.io/version: native-latest
       app.kubernetes.io/part-of: event-stats
-      app.kubernetes.io/name: event-statistics
-      app.kubernetes.io/version: native-latest
   template:
     metadata:
       annotations:
@@ -272,7 +268,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.26.3
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2025-10-09 - 02:04:32 +0000
+        app.quarkus.io/build-timestamp: 2025-10-14 - 02:01:44 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -286,15 +282,13 @@ spec:
         app.kubernetes.io/name: event-statistics
         app.kubernetes.io/version: native-latest
         app.kubernetes.io/part-of: event-stats
-        app.kubernetes.io/name: event-statistics
-        app.kubernetes.io/version: native-latest
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: event-statistics-config
             - secretRef:
                 name: event-statistics-config-creds
+            - configMapRef:
+                name: event-statistics-config
           image: quay.io/quarkus-super-heroes/event-statistics:native-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -371,7 +365,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-09 - 02:04:32 +0000
+    app.quarkus.io/build-timestamp: 2025-10-14 - 02:01:44 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
