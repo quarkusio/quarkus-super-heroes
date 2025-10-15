@@ -41,7 +41,7 @@ metadata:
     system: quarkus-super-heroes
   name: grpc-locations-config
 data:
-  quarkus.hibernate-orm.database.generation: validate
+  quarkus.hibernate-orm.schema-management.strategy: validate
   quarkus.hibernate-orm.sql-load-script: no-file
   quarkus.datasource.jdbc.url: jdbc:mariadb://locations-db:3306/locations_database
   quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
@@ -58,7 +58,7 @@ data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-startdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/rhbq-3.20/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: serving.knative.dev/v1
 kind: Service
@@ -70,9 +70,9 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     serverless.openshift.io/default-enable-http2: "true"
-    app.quarkus.io/quarkus-version: 3.20.2.redhat-00003
+    app.quarkus.io/quarkus-version: 3.20.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:49:35 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 17:38:56 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -91,10 +91,10 @@ spec:
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: grpc-locations-config
             - secretRef:
                 name: grpc-locations-config-creds
+            - configMapRef:
+                name: grpc-locations-config
           image: quay.io/quarkus-super-heroes/grpc-locations:java21-latest-rhbq-3.20
           imagePullPolicy: Always
           livenessProbe:
@@ -175,7 +175,7 @@ spec:
           envFrom:
             - secretRef:
                 name: locations-db-config
-          image: bitnami/mariadb:11.5
+          image: mariadb:12-ubi
           name: locations-db
           ports:
             - containerPort: 3306
@@ -185,9 +185,9 @@ spec:
             requests:
               memory: 64Mi
           volumeMounts:
-            - mountPath: /bitnami/mariadb
+            - mountPath: /var/lib/mysql
               name: locations-db-data
-            - mountPath: /docker-entrypoint-startdb.d
+            - mountPath: /docker-entrypoint-initdb.d
               name: locations-initdata
       initContainers:
         - command:
@@ -196,7 +196,7 @@ spec:
           image: registry.access.redhat.com/ubi8-minimal:8.6
           name: get-data
           volumeMounts:
-            - mountPath: /docker-entrypoint-startdb.d
+            - mountPath: /docker-entrypoint-initdb.d
               name: locations-initdata
             - mountPath: /tmp/dbinit
               name: locations-db-init
@@ -220,9 +220,9 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     serverless.openshift.io/default-enable-http2: "true"
-    app.quarkus.io/quarkus-version: 3.20.2.redhat-00003
+    app.quarkus.io/quarkus-version: 3.20.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:49:35 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 17:38:56 +0000
   labels:
     app: grpc-locations
     system: quarkus-super-heroes

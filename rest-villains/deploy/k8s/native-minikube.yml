@@ -26,9 +26,9 @@ metadata:
     system: quarkus-super-heroes
   name: villains-db-config
 data:
-  POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
-  POSTGRESQL_USERNAME: c3VwZXJiYWQ=
-  POSTGRESQL_PASSWORD: c3VwZXJiYWQ=
+  POSTGRES_DB: dmlsbGFpbnNfZGF0YWJhc2U=
+  POSTGRES_USER: c3VwZXJiYWQ=
+  POSTGRES_PASSWORD: c3VwZXJiYWQ=
 type: Opaque
 ---
 apiVersion: v1
@@ -40,7 +40,7 @@ metadata:
     system: quarkus-super-heroes
   name: rest-villains-config
 data:
-  quarkus.hibernate-orm.database.generation: validate
+  quarkus.hibernate-orm.schema-management.strategy: validate
   quarkus.hibernate-orm.sql-load-script: no-file
   quarkus.datasource.jdbc.url: jdbc:postgresql://villains-db:5432/villains_database
   quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
@@ -57,7 +57,7 @@ data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/rhbq-3.20/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: v1
 kind: Service
@@ -83,9 +83,9 @@ metadata:
     app.quarkus.io/vcs-ref: rhbq-3.20
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.quarkus.io/quarkus-version: 3.20.2.redhat-00003
+    app.quarkus.io/quarkus-version: 3.20.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:51:55 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 17:41:10 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -118,9 +118,9 @@ metadata:
     app.quarkus.io/vcs-ref: rhbq-3.20
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.quarkus.io/quarkus-version: 3.20.2.redhat-00003
+    app.quarkus.io/quarkus-version: 3.20.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:51:55 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 17:41:10 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -147,9 +147,9 @@ spec:
         app.quarkus.io/vcs-ref: rhbq-3.20
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "villains-db,otel-collector"
-        app.quarkus.io/quarkus-version: 3.20.2.redhat-00003
+        app.quarkus.io/quarkus-version: 3.20.3.redhat-00003
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2025-10-14 - 01:51:55 +0000
+        app.quarkus.io/build-timestamp: 2025-10-15 - 17:41:10 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8084"
@@ -169,10 +169,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:native-latest-rhbq-3.20
           imagePullPolicy: IfNotPresent
           livenessProbe:
@@ -243,7 +243,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: villains-db-config
-          image: bitnami/postgresql:16
+          image: postgres:18
           name: villains-db
           ports:
             - containerPort: 5432
@@ -253,7 +253,7 @@ spec:
             requests:
               memory: 32Mi
           volumeMounts:
-            - mountPath: /bitnami/postgresql
+            - mountPath: /var/lib/postgresql
               name: villains-db-data
             - mountPath: /docker-entrypoint-initdb.d
               name: villains-db-init-data
@@ -285,9 +285,9 @@ metadata:
     app.quarkus.io/vcs-ref: rhbq-3.20
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "villains-db,otel-collector"
-    app.quarkus.io/quarkus-version: 3.20.2.redhat-00003
+    app.quarkus.io/quarkus-version: 3.20.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:51:55 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 17:41:10 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
