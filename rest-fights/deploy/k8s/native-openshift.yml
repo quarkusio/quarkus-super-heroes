@@ -26,11 +26,9 @@ metadata:
     system: quarkus-super-heroes
   name: fights-db-config
 data:
-  MONGODB_DATABASE: ZmlnaHRz
-  MONGODB_USERNAME: c3VwZXJmaWdodA==
-  MONGODB_PASSWORD: c3VwZXJmaWdodA==
-  MONGODB_ROOT_USER: c3VwZXI=
-  MONGODB_ROOT_PASSWORD: c3VwZXI=
+  MONGODB_INITDB_DATABASE: ZmlnaHRz
+  MONGODB_INITDB_ROOT_USERNAME: c3VwZXI=
+  MONGODB_INITDB_ROOT_PASSWORD: c3VwZXI=
 type: Opaque
 ---
 apiVersion: v1
@@ -142,7 +140,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.28.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:58:04 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 01:58:04 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -197,7 +195,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: fights-db-config
-          image: bitnami/mongodb:7.0
+          image: mongodb/mongodb-community-server:8.0-ubi9
           name: fights-db
           ports:
             - containerPort: 27017
@@ -206,6 +204,12 @@ spec:
               memory: 256Mi
             requests:
               memory: 64Mi
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-data-dir
+      volumes:
+        - emptyDir: {}
+          name: mongo-data-dir
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -336,7 +340,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.28.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:58:04 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 01:58:04 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -347,17 +351,17 @@ metadata:
     system: quarkus-super-heroes
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/part-of: fights-service
       app.kubernetes.io/version: native-latest
       app.kubernetes.io/name: rest-fights
+      app.kubernetes.io/part-of: fights-service
   template:
     metadata:
       annotations:
@@ -370,7 +374,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.28.3
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2025-10-14 - 01:58:04 +0000
+        app.quarkus.io/build-timestamp: 2025-10-15 - 01:58:04 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -381,16 +385,16 @@ spec:
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/version: native-latest
         app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
+            - secretRef:
+                name: rest-fights-config-creds
           image: quay.io/quarkus-super-heroes/rest-fights:native-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -467,7 +471,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.28.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:58:04 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 01:58:04 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
