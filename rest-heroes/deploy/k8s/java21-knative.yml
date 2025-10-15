@@ -26,9 +26,9 @@ metadata:
     system: quarkus-super-heroes
   name: heroes-db-config
 data:
-  POSTGRESQL_DATABASE: aGVyb2VzX2RhdGFiYXNl
-  POSTGRESQL_USERNAME: c3VwZXJtYW4=
-  POSTGRESQL_PASSWORD: c3VwZXJtYW4=
+  POSTGRES_DB: aGVyb2VzX2RhdGFiYXNl
+  POSTGRES_USER: c3VwZXJtYW4=
+  POSTGRES_PASSWORD: c3VwZXJtYW4=
 type: Opaque
 ---
 apiVersion: v1
@@ -57,7 +57,7 @@ data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/rhbq-3.20/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: serving.knative.dev/v1
 kind: Service
@@ -68,9 +68,9 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.20.2.redhat-00003
+    app.quarkus.io/quarkus-version: 3.20.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:52:19 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 17:41:33 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -80,9 +80,9 @@ metadata:
     system: quarkus-super-heroes
     application: heroes-service
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/version: java21-latest-rhbq-3.20
     app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/version: java21-latest-rhbq-3.20
   name: rest-heroes
 spec:
   template:
@@ -171,7 +171,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: heroes-db-config
-          image: bitnami/postgresql:16
+          image: postgres:18
           name: heroes-db
           ports:
             - containerPort: 5432
@@ -181,7 +181,7 @@ spec:
             requests:
               memory: 32Mi
           volumeMounts:
-            - mountPath: /bitnami/postgresql
+            - mountPath: /var/lib/postgresql
               name: heroes-db-data
             - mountPath: /docker-entrypoint-initdb.d
               name: heroes-db-init-data
@@ -215,17 +215,17 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-collector"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.20.2.redhat-00003
+    app.quarkus.io/quarkus-version: 3.20.3.redhat-00003
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:52:19 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 17:41:33 +0000
   labels:
     app: rest-heroes
     system: quarkus-super-heroes
     application: heroes-service
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/version: java21-latest-rhbq-3.20
     app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
-    app.kubernetes.io/version: java21-latest-rhbq-3.20
   name: rest-heroes
 spec:
   selector: {}
