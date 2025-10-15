@@ -58,7 +58,7 @@ data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-startdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: serving.knative.dev/v1
 kind: Service
@@ -72,7 +72,7 @@ metadata:
     serverless.openshift.io/default-enable-http2: "true"
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:57:46 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 01:58:49 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -82,9 +82,9 @@ metadata:
     system: quarkus-super-heroes
     application: locations-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
+    app.kubernetes.io/name: grpc-locations
+    app.kubernetes.io/version: java21-latest
   name: grpc-locations
 spec:
   template:
@@ -175,7 +175,7 @@ spec:
           envFrom:
             - secretRef:
                 name: locations-db-config
-          image: bitnami/mariadb:11.5
+          image: mariadb:12-ubi
           name: locations-db
           ports:
             - containerPort: 3306
@@ -185,9 +185,9 @@ spec:
             requests:
               memory: 64Mi
           volumeMounts:
-            - mountPath: /bitnami/mariadb
+            - mountPath: /var/lib/mysql
               name: locations-db-data
-            - mountPath: /docker-entrypoint-startdb.d
+            - mountPath: /docker-entrypoint-initdb.d
               name: locations-initdata
       initContainers:
         - command:
@@ -196,7 +196,7 @@ spec:
           image: registry.access.redhat.com/ubi8-minimal:8.6
           name: get-data
           volumeMounts:
-            - mountPath: /docker-entrypoint-startdb.d
+            - mountPath: /docker-entrypoint-initdb.d
               name: locations-initdata
             - mountPath: /tmp/dbinit
               name: locations-db-init
@@ -222,15 +222,15 @@ metadata:
     serverless.openshift.io/default-enable-http2: "true"
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:57:46 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 01:58:49 +0000
   labels:
     app: grpc-locations
     system: quarkus-super-heroes
     application: locations-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
+    app.kubernetes.io/name: grpc-locations
+    app.kubernetes.io/version: java21-latest
   name: grpc-locations
 spec:
   selector: {}
@@ -263,7 +263,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:58:29 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 01:59:29 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8087"
@@ -328,7 +328,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:58:29 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 01:59:29 +0000
   labels:
     app: rest-narration
     system: quarkus-super-heroes
@@ -369,9 +369,9 @@ metadata:
     system: quarkus-super-heroes
   name: villains-db-config
 data:
-  POSTGRESQL_DATABASE: dmlsbGFpbnNfZGF0YWJhc2U=
-  POSTGRESQL_USERNAME: c3VwZXJiYWQ=
-  POSTGRESQL_PASSWORD: c3VwZXJiYWQ=
+  POSTGRES_DB: dmlsbGFpbnNfZGF0YWJhc2U=
+  POSTGRES_USER: c3VwZXJiYWQ=
+  POSTGRES_PASSWORD: c3VwZXJiYWQ=
 type: Opaque
 ---
 apiVersion: v1
@@ -413,7 +413,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:59:09 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 02:00:07 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8084"
@@ -423,9 +423,9 @@ metadata:
     system: quarkus-super-heroes
     application: villains-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/version: java21-latest
   name: rest-villains
 spec:
   template:
@@ -513,7 +513,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: villains-db-config
-          image: bitnami/postgresql:16
+          image: postgres:18
           name: villains-db
           ports:
             - containerPort: 5432
@@ -523,7 +523,7 @@ spec:
             requests:
               memory: 32Mi
           volumeMounts:
-            - mountPath: /bitnami/postgresql
+            - mountPath: /var/lib/postgresql
               name: villains-db-data
             - mountPath: /docker-entrypoint-initdb.d
               name: villains-db-init-data
@@ -559,15 +559,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:59:09 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 02:00:07 +0000
   labels:
     app: rest-villains
     system: quarkus-super-heroes
     application: villains-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/name: rest-villains
+    app.kubernetes.io/version: java21-latest
   name: rest-villains
 spec:
   selector: {}
@@ -600,9 +600,9 @@ metadata:
     system: quarkus-super-heroes
   name: heroes-db-config
 data:
-  POSTGRESQL_DATABASE: aGVyb2VzX2RhdGFiYXNl
-  POSTGRESQL_USERNAME: c3VwZXJtYW4=
-  POSTGRESQL_PASSWORD: c3VwZXJtYW4=
+  POSTGRES_DB: aGVyb2VzX2RhdGFiYXNl
+  POSTGRES_USER: c3VwZXJtYW4=
+  POSTGRES_PASSWORD: c3VwZXJtYW4=
 type: Opaque
 ---
 apiVersion: v1
@@ -644,7 +644,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:59:48 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 02:00:46 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8083"
@@ -655,8 +655,8 @@ metadata:
     application: heroes-service
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   template:
@@ -745,7 +745,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: heroes-db-config
-          image: bitnami/postgresql:16
+          image: postgres:18
           name: heroes-db
           ports:
             - containerPort: 5432
@@ -755,7 +755,7 @@ spec:
             requests:
               memory: 32Mi
           volumeMounts:
-            - mountPath: /bitnami/postgresql
+            - mountPath: /var/lib/postgresql
               name: heroes-db-data
             - mountPath: /docker-entrypoint-initdb.d
               name: heroes-db-init-data
@@ -791,15 +791,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:59:48 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 02:00:46 +0000
   labels:
     app: rest-heroes
     system: quarkus-super-heroes
     application: heroes-service
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   selector: {}
@@ -832,11 +832,9 @@ metadata:
     system: quarkus-super-heroes
   name: fights-db-config
 data:
-  MONGODB_DATABASE: ZmlnaHRz
-  MONGODB_USERNAME: c3VwZXJmaWdodA==
-  MONGODB_PASSWORD: c3VwZXJmaWdodA==
-  MONGODB_ROOT_USER: c3VwZXI=
-  MONGODB_ROOT_PASSWORD: c3VwZXI=
+  MONGODB_INITDB_DATABASE: ZmlnaHRz
+  MONGODB_INITDB_ROOT_USERNAME: c3VwZXI=
+  MONGODB_INITDB_ROOT_PASSWORD: c3VwZXI=
 type: Opaque
 ---
 apiVersion: v1
@@ -888,7 +886,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 02:00:42 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 02:01:38 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -916,7 +914,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.26.3
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2025-10-14 - 02:00:42 +0000
+        app.quarkus.io/build-timestamp: 2025-10-15 - 02:01:38 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -1055,7 +1053,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: fights-db-config
-          image: bitnami/mongodb:7.0
+          image: mongodb/mongodb-community-server:8.0-ubi9
           name: fights-db
           ports:
             - containerPort: 27017
@@ -1064,6 +1062,12 @@ spec:
               memory: 256Mi
             requests:
               memory: 64Mi
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-data-dir
+      volumes:
+        - emptyDir: {}
+          name: mongo-data-dir
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1193,7 +1197,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 02:00:42 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 02:01:38 +0000
   labels:
     app: rest-fights
     system: quarkus-super-heroes
@@ -1248,7 +1252,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 02:01:26 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 02:02:21 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -1258,9 +1262,9 @@ metadata:
     system: quarkus-super-heroes
     application: event-stats
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/version: java21-latest
+    app.kubernetes.io/part-of: event-stats
   name: event-statistics
 spec:
   template:
@@ -1471,15 +1475,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 02:01:26 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 02:02:21 +0000
   labels:
     app: event-statistics
     system: quarkus-super-heroes
     application: event-stats
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/version: java21-latest
+    app.kubernetes.io/part-of: event-stats
   name: event-statistics
 spec:
   selector: {}
@@ -1501,7 +1505,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 02:02:01 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 02:02:55 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8080"
@@ -1511,6 +1515,7 @@ metadata:
     system: quarkus-super-heroes
     application: ui-super-heroes
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/part-of: ui-super-heroes
     app.kubernetes.io/version: java21-latest
     app.kubernetes.io/name: ui-super-heroes
     app.kubernetes.io/part-of: ui-super-heroes
@@ -1527,7 +1532,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.26.3
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2025-10-14 - 02:02:01 +0000
+        app.quarkus.io/build-timestamp: 2025-10-15 - 02:02:55 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8080"
@@ -1537,6 +1542,7 @@ spec:
         system: quarkus-super-heroes
         application: ui-super-heroes
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/part-of: ui-super-heroes
         app.kubernetes.io/version: java21-latest
         app.kubernetes.io/name: ui-super-heroes
         app.kubernetes.io/part-of: ui-super-heroes
@@ -1589,12 +1595,13 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 02:02:01 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 02:02:55 +0000
   labels:
     app: ui-super-heroes
     system: quarkus-super-heroes
     application: ui-super-heroes
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/part-of: ui-super-heroes
     app.kubernetes.io/version: java21-latest
     app.kubernetes.io/name: ui-super-heroes
     app.kubernetes.io/part-of: ui-super-heroes

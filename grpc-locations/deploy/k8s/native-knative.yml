@@ -58,7 +58,7 @@ data:
   get-data.sh: |-
     #!/bin/bash
 
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-startdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: serving.knative.dev/v1
 kind: Service
@@ -72,7 +72,7 @@ metadata:
     serverless.openshift.io/default-enable-http2: "true"
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:58:12 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 01:59:13 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -82,9 +82,9 @@ metadata:
     system: quarkus-super-heroes
     application: locations-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: native-latest
+    app.kubernetes.io/name: grpc-locations
   name: grpc-locations
 spec:
   template:
@@ -175,7 +175,7 @@ spec:
           envFrom:
             - secretRef:
                 name: locations-db-config
-          image: bitnami/mariadb:11.5
+          image: mariadb:12-ubi
           name: locations-db
           ports:
             - containerPort: 3306
@@ -185,9 +185,9 @@ spec:
             requests:
               memory: 64Mi
           volumeMounts:
-            - mountPath: /bitnami/mariadb
+            - mountPath: /var/lib/mysql
               name: locations-db-data
-            - mountPath: /docker-entrypoint-startdb.d
+            - mountPath: /docker-entrypoint-initdb.d
               name: locations-initdata
       initContainers:
         - command:
@@ -196,7 +196,7 @@ spec:
           image: registry.access.redhat.com/ubi8-minimal:8.6
           name: get-data
           volumeMounts:
-            - mountPath: /docker-entrypoint-startdb.d
+            - mountPath: /docker-entrypoint-initdb.d
               name: locations-initdata
             - mountPath: /tmp/dbinit
               name: locations-db-init
@@ -222,15 +222,15 @@ metadata:
     serverless.openshift.io/default-enable-http2: "true"
     app.quarkus.io/quarkus-version: 3.26.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-14 - 01:58:12 +0000
+    app.quarkus.io/build-timestamp: 2025-10-15 - 01:59:13 +0000
   labels:
     app: grpc-locations
     system: quarkus-super-heroes
     application: locations-service
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: native-latest
+    app.kubernetes.io/name: grpc-locations
   name: grpc-locations
 spec:
   selector: {}
