@@ -34,9 +34,23 @@ metadata:
     application: fights-service
     system: quarkus-super-heroes
 data:
-  MONGODB_INITDB_DATABASE: ZmlnaHRz
-  MONGODB_INITDB_ROOT_USERNAME: c3VwZXI=
-  MONGODB_INITDB_ROOT_PASSWORD: c3VwZXI=
+  MONGO_INITDB_DATABASE: ZmlnaHRz
+  MONGO_INITDB_ROOT_USERNAME: c3VwZXI=
+  MONGO_INITDB_ROOT_PASSWORD: c3VwZXI=
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fights-db-init
+  labels:
+    app: fights-db
+    application: fights-service
+    system: quarkus-super-heroes
+data:
+  get-data.sh: |-
+    #!/bin/bash
+    
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-fights/deploy/db-init/initialize-database.js --output /docker-entrypoint-initdb.d/1-init-database.js
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -60,25 +74,44 @@ spec:
         name: fights-db
         system: quarkus-super-heroes
     spec:
+      initContainers:
+        - name: get-data
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          workingDir: /tmp/dbinit
+          command:
+            - 'sh'
+            - 'get-data.sh'
+          volumeMounts:
+            - name: fights-initdata
+              mountPath: /docker-entrypoint-initdb.d
+            - name: fights-db-init
+              mountPath: /tmp/dbinit
       containers:
-        - image: mongodb/mongodb-community-server:8.0-ubi9
+        - envFrom:
+            - secretRef:
+                name: fights-db-config
+          image: docker.io/mongo:8
           name: fights-db
           ports:
             - containerPort: 27017
-          envFrom:
-            - secretRef:
-                name: fights-db-config
-          volumeMounts:
-            - mountPath: /data/db
-              name: mongo-data-dir
           resources:
             limits:
               memory: 256Mi
             requests:
               memory: 64Mi
+          volumeMounts:
+            - name: fights-db-data
+              mountPath: /data/db
+            - name: fights-initdata
+              mountPath: /docker-entrypoint-initdb.d
       volumes:
-        - name: mongo-data-dir
-          emptyDir: {}
+        - name: fights-db-data
+          emptyDir: { }
+        - name: fights-initdata
+          emptyDir: { }
+        - name: fights-db-init
+          configMap:
+            name: fights-db-init
 ---
 apiVersion: v1
 kind: Service
