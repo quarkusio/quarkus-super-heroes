@@ -8,7 +8,7 @@ metadata:
     application: locations-service
     system: quarkus-super-heroes
 data:
-  quarkus.hibernate-orm.database.generation: validate
+  quarkus.hibernate-orm.schema-management.strategy: validate
   quarkus.hibernate-orm.sql-load-script: no-file
   quarkus.datasource.jdbc.url: jdbc:mariadb://locations-db:3306/locations_database
   quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
@@ -53,7 +53,7 @@ data:
   get-data.sh: |-
     #!/bin/bash
     
-    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-startdb.d/1-init-tables.sql
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/rhbq-3.20/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -85,11 +85,11 @@ spec:
             - 'get-data.sh'
           volumeMounts:
             - name: locations-initdata
-              mountPath: /docker-entrypoint-startdb.d
+              mountPath: /docker-entrypoint-initdb.d
             - name: locations-db-init
               mountPath: /tmp/dbinit
       containers:
-        - image: bitnami/mariadb:11.5
+        - image: mariadb:12-ubi
           name: locations-db
           ports:
             - containerPort: 3306
@@ -101,9 +101,9 @@ spec:
                 name: locations-db-config
           volumeMounts:
             - name: locations-db-data
-              mountPath: /bitnami/mariadb
+              mountPath: /var/lib/mysql
             - name: locations-initdata
-              mountPath: /docker-entrypoint-startdb.d
+              mountPath: /docker-entrypoint-initdb.d
           resources:
             limits:
               memory: 256Mi
