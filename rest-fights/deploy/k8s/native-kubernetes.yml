@@ -26,9 +26,9 @@ metadata:
     system: quarkus-super-heroes
   name: fights-db-config
 data:
-  MONGODB_INITDB_DATABASE: ZmlnaHRz
-  MONGODB_INITDB_ROOT_USERNAME: c3VwZXI=
-  MONGODB_INITDB_ROOT_PASSWORD: c3VwZXI=
+  MONGO_INITDB_DATABASE: ZmlnaHRz
+  MONGO_INITDB_ROOT_USERNAME: c3VwZXI=
+  MONGO_INITDB_ROOT_PASSWORD: c3VwZXI=
 type: Opaque
 ---
 apiVersion: v1
@@ -59,6 +59,20 @@ data:
   quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
   kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: fights-db
+    application: fights-service
+    system: quarkus-super-heroes
+  name: fights-db-init
+data:
+  get-data.sh: |-
+    #!/bin/bash
+
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-fights/deploy/db-init/initialize-database.js --output /docker-entrypoint-initdb.d/1-init-database.js
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -137,7 +151,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
     app.quarkus.io/quarkus-version: 3.28.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-15 - 01:58:04 +0000
+    app.quarkus.io/build-timestamp: 2025-10-16 - 01:55:57 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -172,7 +186,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
     app.quarkus.io/quarkus-version: 3.28.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-15 - 01:58:04 +0000
+    app.quarkus.io/build-timestamp: 2025-10-16 - 01:55:57 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -190,9 +204,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/part-of: fights-service
       app.kubernetes.io/name: rest-fights
       app.kubernetes.io/version: native-latest
+      app.kubernetes.io/part-of: fights-service
   template:
     metadata:
       annotations:
@@ -202,7 +216,7 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
         app.quarkus.io/quarkus-version: 3.28.3
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2025-10-15 - 01:58:04 +0000
+        app.quarkus.io/build-timestamp: 2025-10-16 - 01:55:57 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -212,9 +226,9 @@ spec:
         application: fights-service
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
-        app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: native-latest
+        app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - env:
@@ -223,10 +237,10 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
           envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:native-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -298,7 +312,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: fights-db-config
-          image: mongodb/mongodb-community-server:8.0-ubi9
+          image: docker.io/mongo:8
           name: fights-db
           ports:
             - containerPort: 27017
@@ -309,10 +323,29 @@ spec:
               memory: 64Mi
           volumeMounts:
             - mountPath: /data/db
-              name: mongo-data-dir
+              name: fights-db-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: fights-initdata
+      initContainers:
+        - command:
+            - sh
+            - get-data.sh
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          name: get-data
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: fights-initdata
+            - mountPath: /tmp/dbinit
+              name: fights-db-init
+          workingDir: /tmp/dbinit
       volumes:
         - emptyDir: {}
-          name: mongo-data-dir
+          name: fights-db-data
+        - emptyDir: {}
+          name: fights-initdata
+        - configMap:
+            name: fights-db-init
+          name: fights-db-init
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -440,7 +473,7 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
     app.quarkus.io/quarkus-version: 3.28.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-10-15 - 01:58:04 +0000
+    app.quarkus.io/build-timestamp: 2025-10-16 - 01:55:57 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
