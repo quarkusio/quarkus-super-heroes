@@ -12,6 +12,7 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
 
 /**
+ * TEST2
  * Mongo entity class for a Fight. Re-used in the API layer
  */
 @MongoEntity(collection = "Fights")
