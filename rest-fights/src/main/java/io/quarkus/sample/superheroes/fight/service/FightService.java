@@ -66,6 +66,7 @@ public class FightService {
   }
 
 	/**
+	 * TEST
 	 * Adds a pre-configured delay to a response. Can be used to showcase/demo how to add delays as well as how to use fault tolerance.
 	 * @param fighters The {@link Fighters}.
 	 * @return A {@link Uni} with a configured delay added
