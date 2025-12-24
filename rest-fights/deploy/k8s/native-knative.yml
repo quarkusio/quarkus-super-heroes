@@ -94,7 +94,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.20.4.redhat-00001
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-12-12 - 01:03:49 +0000
+    app.quarkus.io/build-timestamp: 2025-12-24 - 01:24:27 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -104,9 +104,9 @@ metadata:
     system: quarkus-super-heroes
     application: fights-service
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/version: native-latest-rhbq-3.20
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-latest-rhbq-3.20
   name: rest-fights
 spec:
   template:
@@ -120,7 +120,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.20.4.redhat-00001
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2025-12-12 - 01:03:49 +0000
+        app.quarkus.io/build-timestamp: 2025-12-24 - 01:24:27 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -130,16 +130,16 @@ spec:
         system: quarkus-super-heroes
         application: fights-service
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/version: native-latest-rhbq-3.20
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/version: native-latest-rhbq-3.20
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:native-latest-rhbq-3.20
           imagePullPolicy: Always
           livenessProbe:
@@ -420,15 +420,15 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.20.4.redhat-00001
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2025-12-12 - 01:03:49 +0000
+    app.quarkus.io/build-timestamp: 2025-12-24 - 01:24:27 +0000
   labels:
     app: rest-fights
     system: quarkus-super-heroes
     application: fights-service
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/version: native-latest-rhbq-3.20
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-latest-rhbq-3.20
   name: rest-fights
 spec:
   selector: {}
