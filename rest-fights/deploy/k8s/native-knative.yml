@@ -5,6 +5,29 @@
 
 ---
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.openshift.io/vcs-ref: main
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.quarkus.io/quarkus-version: 3.31.1
+    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
+    app.quarkus.io/build-timestamp: 2026-01-30 - 02:02:16 +0000
+  labels:
+    app: rest-fights
+    system: quarkus-super-heroes
+    application: fights-service
+    app.openshift.io/runtime: quarkus
+    app.kubernetes.io/managed-by: quarkus
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/version: native-latest
+  name: rest-fights
+---
+apiVersion: v1
 kind: Secret
 metadata:
   labels:
@@ -92,9 +115,9 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.30.8
+    app.quarkus.io/quarkus-version: 3.31.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-01-29 - 01:11:01 +0000
+    app.quarkus.io/build-timestamp: 2026-01-30 - 02:02:16 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -104,9 +127,10 @@ metadata:
     system: quarkus-super-heroes
     application: fights-service
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/managed-by: quarkus
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/version: native-latest
   name: rest-fights
 spec:
   template:
@@ -118,9 +142,9 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/quarkus-version: 3.30.8
+        app.quarkus.io/quarkus-version: 3.31.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-01-29 - 01:11:01 +0000
+        app.quarkus.io/build-timestamp: 2026-01-30 - 02:02:16 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -130,16 +154,17 @@ spec:
         system: quarkus-super-heroes
         application: fights-service
         app.openshift.io/runtime: quarkus
+        app.kubernetes.io/managed-by: quarkus
         app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/version: native-latest
         app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/version: native-latest
     spec:
       containers:
         - envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:native-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -172,6 +197,7 @@ spec:
               memory: 128Mi
             requests:
               memory: 32Mi
+      serviceAccountName: rest-fights
 ---
 apiVersion: v1
 kind: Service
@@ -418,17 +444,18 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.30.8
+    app.quarkus.io/quarkus-version: 3.31.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-01-29 - 01:11:01 +0000
+    app.quarkus.io/build-timestamp: 2026-01-30 - 02:02:16 +0000
   labels:
     app: rest-fights
     system: quarkus-super-heroes
     application: fights-service
     app.openshift.io/runtime: quarkus
+    app.kubernetes.io/managed-by: quarkus
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-latest
     app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/version: native-latest
   name: rest-fights
 spec:
   selector: {}

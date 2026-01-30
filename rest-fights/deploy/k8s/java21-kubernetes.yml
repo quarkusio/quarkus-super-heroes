@@ -5,6 +5,26 @@
 
 ---
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
+    app.quarkus.io/quarkus-version: 3.31.1
+    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
+    app.quarkus.io/build-timestamp: 2026-01-30 - 02:01:49 +0000
+  labels:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: java21-latest
+    app: rest-fights
+    application: fights-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/managed-by: quarkus
+  name: rest-fights
+---
+apiVersion: v1
 kind: Secret
 metadata:
   labels:
@@ -75,6 +95,22 @@ data:
     curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-fights/deploy/db-init/initialize-database.js --output /docker-entrypoint-initdb.d/1-init-database.js
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: java21-latest
+  name: view-jobs
+rules:
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: default_view
@@ -85,6 +121,23 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: java21-latest
+  name: rest-fights-view-jobs
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: view-jobs
+subjects:
+  - kind: ServiceAccount
+    apiGroup: ""
+    name: rest-fights
 ---
 apiVersion: v1
 kind: Service
@@ -149,9 +202,9 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
-    app.quarkus.io/quarkus-version: 3.30.8
+    app.quarkus.io/quarkus-version: 3.31.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-01-29 - 01:10:36 +0000
+    app.quarkus.io/build-timestamp: 2026-01-30 - 02:01:49 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -184,9 +237,9 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
-    app.quarkus.io/quarkus-version: 3.30.8
+    app.quarkus.io/quarkus-version: 3.31.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-01-29 - 01:10:36 +0000
+    app.quarkus.io/build-timestamp: 2026-01-30 - 02:01:49 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8082"
@@ -204,9 +257,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/part-of: fights-service
-      app.kubernetes.io/version: java21-latest
       app.kubernetes.io/name: rest-fights
+      app.kubernetes.io/version: java21-latest
+      app.kubernetes.io/part-of: fights-service
   template:
     metadata:
       annotations:
@@ -214,9 +267,9 @@ spec:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
-        app.quarkus.io/quarkus-version: 3.30.8
+        app.quarkus.io/quarkus-version: 3.31.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-01-29 - 01:10:36 +0000
+        app.quarkus.io/build-timestamp: 2026-01-30 - 02:01:49 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8082"
@@ -226,9 +279,9 @@ spec:
         application: fights-service
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
-        app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/version: java21-latest
         app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/version: java21-latest
+        app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - env:
@@ -236,6 +289,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: QUARKUS_LIQUIBASE_MONGODB_ENABLED
+              value: "false"
           envFrom:
             - secretRef:
                 name: rest-fights-config-creds
@@ -283,6 +338,14 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
+      initContainers:
+        - args:
+            - job
+            - rest-fights-liquibase-mongodb-init
+          image: groundnuty/k8s-wait-for:no-root-v1.7
+          imagePullPolicy: Always
+          name: wait-for-liquibase-mongodb
+      serviceAccountName: rest-fights
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -464,6 +527,33 @@ spec:
             requests:
               memory: 128Mi
 ---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rest-fights-liquibase-mongodb-init
+spec:
+  completionMode: NonIndexed
+  template:
+    metadata:
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
+    spec:
+      containers:
+        - env:
+            - name: QUARKUS_LIQUIBASE_MONGODB_ENABLED
+              value: "true"
+            - name: QUARKUS_INIT_AND_EXIT
+              value: "true"
+          envFrom:
+            - secretRef:
+                name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
+          image: quay.io/quarkus-super-heroes/rest-fights:java21-latest
+          name: rest-fights-liquibase-mongodb-init
+      restartPolicy: OnFailure
+      serviceAccountName: rest-fights
+---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -471,9 +561,9 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-collector"
-    app.quarkus.io/quarkus-version: 3.30.8
+    app.quarkus.io/quarkus-version: 3.31.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-01-29 - 01:10:36 +0000
+    app.quarkus.io/build-timestamp: 2026-01-30 - 02:01:49 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
