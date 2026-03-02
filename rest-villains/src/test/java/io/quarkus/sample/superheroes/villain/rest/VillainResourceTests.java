@@ -5,8 +5,8 @@ import static io.restassured.http.ContentType.*;
 import static jakarta.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
@@ -23,8 +23,8 @@ import org.mockito.ArgumentMatcher;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit5.virtual.ShouldNotPin;
-import io.quarkus.test.junit5.virtual.VirtualThreadUnit;
+import io.quarkus.test.junit.virtual.ShouldNotPin;
+import io.quarkus.test.junit.virtual.VirtualThreadUnit;
 
 import io.quarkus.sample.superheroes.villain.Villain;
 import io.quarkus.sample.superheroes.villain.service.VillainService;

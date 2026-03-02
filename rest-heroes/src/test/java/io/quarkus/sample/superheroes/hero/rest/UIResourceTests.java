@@ -16,9 +16,12 @@ import io.quarkus.sample.superheroes.hero.Hero;
 
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Locator.WaitForOptions;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
+import com.microsoft.playwright.options.WaitForSelectorState;
 import io.quarkiverse.playwright.InjectPlaywright;
 import io.quarkiverse.playwright.WithPlaywright;
 
@@ -71,7 +74,10 @@ class UIResourceTests {
     getAndVerifyTable(page, NB_HEROES);
 
     // Fill in the filter
-    page.getByPlaceholder("Filter by name").fill(SPIDERMAN.getName());
+    var filterByName = page.getByPlaceholder("Filter by name");
+    filterByName.waitFor(new WaitForOptions().setState(WaitForSelectorState.VISIBLE));
+    filterByName.scrollIntoViewIfNeeded();
+    filterByName.fill(SPIDERMAN.getName());
 
     // Click the filter button
     page.getByText("Filter Heroes").click();
@@ -113,12 +119,19 @@ class UIResourceTests {
 
   private Page loadPage() {
     var page = this.browserContext.newPage();
+
+    // Force a desktop viewport so responsive toolbars don't collapse inputs into overflow menus
+    page.setViewportSize(1280, 800);
+
     var response = page.navigate(this.index.toString());
 
     assertThat(response)
       .isNotNull()
       .extracting(Response::status)
       .isEqualTo(Status.OK.getStatusCode());
+
+    // Make sure initial render has happened before tests start interacting
+    page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
     return page;
   }
@@ -128,6 +141,9 @@ class UIResourceTests {
 
     assertThat(table)
       .isNotNull();
+
+    // Ensure the table is actually visible/rendered
+    table.waitFor(new WaitForOptions().setState(WaitForSelectorState.VISIBLE));
 
     var tableRowCount = table.getByRole(AriaRole.ROW).count();
     assertThat(tableRowCount)
