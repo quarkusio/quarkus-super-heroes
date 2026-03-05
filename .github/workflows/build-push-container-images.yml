@@ -285,7 +285,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
       - name: Login to quay
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
@@ -322,7 +322,7 @@ jobs:
         run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "${{ matrix.kind }}" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ needs.check-commit-count.outputs.branch }} "${{ matrix.project.openai-type }}")" >> $GITHUB_ENV
 
       - name: Login to quay
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
