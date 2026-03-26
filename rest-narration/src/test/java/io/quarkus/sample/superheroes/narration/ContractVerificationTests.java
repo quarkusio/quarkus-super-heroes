@@ -1,6 +1,7 @@
 package io.quarkus.sample.superheroes.narration;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.quarkus.vertx.http.HttpServer;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,9 +24,6 @@ import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder;
 //@PactBroker(url = "https://quarkus-super-heroes.pactflow.io")
 //@EnabledIfSystemProperty(named = "pactbroker.auth.token", matches = ".+", disabledReason = "pactbroker.auth.token system property not set")
 public class ContractVerificationTests {
-  @ConfigProperty(name = "quarkus.http.test-port")
-  int quarkusPort;
-
   @TestTemplate
   @ExtendWith(PactVerificationInvocationContextProvider.class)
   void pactVerificationTestTemplate(PactVerificationContext context) {
@@ -33,8 +31,8 @@ public class ContractVerificationTests {
   }
 
   @BeforeEach
-  void beforeEach(PactVerificationContext context) {
-    context.setTarget(new HttpTestTarget("localhost", this.quarkusPort));
+  void beforeEach(PactVerificationContext context, HttpServer httpServer) {
+    context.setTarget(new HttpTestTarget("localhost", httpServer.getPort()));
   }
 
   @PactBrokerConsumerVersionSelectors

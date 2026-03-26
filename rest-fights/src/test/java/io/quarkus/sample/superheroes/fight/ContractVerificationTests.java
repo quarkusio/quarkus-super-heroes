@@ -5,7 +5,8 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.quarkus.vertx.http.HttpServer;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,9 +34,6 @@ import io.smallrye.mutiny.Uni;
 public class ContractVerificationTests {
   private static final String NO_FIGHTS_FOUND_STATE = "No fights exist";
 
-  @ConfigProperty(name = "quarkus.http.test-port")
-  int quarkusPort;
-
   @TestTemplate
   @ExtendWith(PactVerificationInvocationContextProvider.class)
   void pactVerificationTestTemplate(PactVerificationContext context) {
@@ -43,8 +41,8 @@ public class ContractVerificationTests {
   }
 
   @BeforeEach
-  void beforeEach(PactVerificationContext context) {
-    context.setTarget(new HttpTestTarget("localhost", this.quarkusPort));
+  void beforeEach(PactVerificationContext context, HttpServer httpServer) {
+    context.setTarget(new HttpTestTarget("localhost", httpServer.getPort()));
 
     // Have to do this here because the CDI context doesn't seem to be available
     // in the @State method below

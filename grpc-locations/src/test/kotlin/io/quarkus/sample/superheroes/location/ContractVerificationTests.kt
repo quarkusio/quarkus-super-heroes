@@ -10,9 +10,9 @@ import au.com.dius.pact.provider.junitsupport.loader.PactFolder
 import au.com.dius.pact.provider.junitsupport.loader.SelectorBuilder
 import io.mockk.every
 import io.quarkiverse.test.junit.mockk.InjectSpy
+import io.quarkus.grpc.runtime.GrpcServer
 import io.quarkus.sample.superheroes.location.repository.LocationRepository
 import io.quarkus.test.junit.QuarkusTest
-import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestTemplate
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 // if you'd like to use a Pact broker. You'd also un-comment the following 2 annotations
 //@PactBroker(url = "https://quarkus-super-heroes.pactflow.io")
 //@EnabledIfSystemProperty(named = "pactbroker.auth.token", matches = ".+", disabledReason = "pactbroker.auth.token system property not set")
-class ContractVerificationTests(@ConfigProperty(name = "quarkus.grpc.server.test-port") val quarkusPort: Int) {
+class ContractVerificationTests() {
   @InjectSpy
 	lateinit var locationRepository: LocationRepository
 
@@ -44,10 +44,10 @@ class ContractVerificationTests(@ConfigProperty(name = "quarkus.grpc.server.test
   }
 
   @BeforeEach
-  fun beforeEach(context: PactVerificationContext) {
+  fun beforeEach(context: PactVerificationContext, grpcServer: GrpcServer) {
     context.target = PluginTestTarget(mutableMapOf(
       "host" to "localhost",
-      "port" to quarkusPort,
+      "port" to grpcServer.port,
       "transport" to "grpc"
     ))
 

@@ -4,6 +4,7 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status.Code
 import io.grpc.StatusRuntimeException
+import io.quarkus.grpc.runtime.GrpcServer
 import io.quarkus.test.junit.QuarkusIntegrationTest
 import io.quarkus.sample.superheroes.location.Location
 import io.quarkus.sample.superheroes.location.LocationType
@@ -11,7 +12,6 @@ import io.quarkus.sample.superheroes.location.grpc.LocationsGrpc.LocationsBlocki
 import io.quarkus.sample.superheroes.location.mapping.LocationMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.eclipse.microprofile.config.ConfigProvider
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
@@ -49,9 +49,8 @@ class LocationGrpcServiceIT {
 
 		@BeforeAll
 		@JvmStatic
-		internal fun beforeAll() {
-			val port = ConfigProvider.getConfig().getValue("quarkus.http.test-port", Integer::class.java)
-			channel = ManagedChannelBuilder.forAddress("localhost", port.toInt())
+		internal fun beforeAll(grpcserver: GrpcServer) {
+			channel = ManagedChannelBuilder.forAddress("localhost", grpcserver.port)
 				.usePlaintext()
 				.build()
 
