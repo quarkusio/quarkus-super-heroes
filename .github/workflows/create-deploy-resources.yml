@@ -57,29 +57,53 @@ jobs:
         shell: bash
         run: scripts/generate-docker-compose-resources.sh
 
-      - name: Commit generated resources via PR
+      - name: Create PR with generated resources
         id: create-pr
-        uses: peter-evans/create-pull-request@v8
-        with:
-          add-paths: |
-            **/deploy/k8s/*.yml
-            deploy/k8s/*.yml
-            **/deploy/docker-compose/*.yml
-            deploy/docker-compose/*.yml
-            deploy/db-init/**
-          commit-message: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
-          branch: create-deploy-resources/sourceref
-          branch-suffix: short-commit-hash
-          delete-branch: true
-          base: ${{ env.BRANCH }}
-          title: "Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
-          body: "Generated deployment resource changes from [${{ github.workflow }} run # ${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}), which was triggered by commit ${{ env.REF }}."
-          labels: |
-            Generated Resources
+        env:
+          GH_TOKEN: ${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}
+        run: |
+          SHORT_SHA=$(echo "${{ env.REF }}" | cut -c1-8)
+          PR_BRANCH="create-deploy-resources/sourceref-${SHORT_SHA}"
+          COMMIT_MSG="Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
+          PR_TITLE="Generate deploy resources (from ${{ github.workflow }} run # ${{ github.run_number }})"
+          PR_BODY="Generated deployment resource changes from [${{ github.workflow }} run # ${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}), which was triggered by commit ${{ env.REF }}."
+
+          # Check for changes in deploy resource files
+          git add \
+            '**/deploy/k8s/*.yml' \
+            'deploy/k8s/*.yml' \
+            '**/deploy/docker-compose/*.yml' \
+            'deploy/docker-compose/*.yml' \
+            'deploy/db-init/**'
+
+          if git diff --cached --quiet; then
+            echo "No deploy resource changes detected"
+            echo "pr_number=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Configure git and create branch
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${PR_BRANCH}"
+          git commit -m "${COMMIT_MSG}"
+          git push --set-upstream origin "${PR_BRANCH}"
+
+          # Create the PR
+          PR_URL=$(gh pr create \
+            --base "${{ env.BRANCH }}" \
+            --title "${PR_TITLE}" \
+            --body "${PR_BODY}" \
+            --label "Generated Resources")
+
+          PR_NUMBER=$(echo "${PR_URL}" | grep -o '[0-9]*$')
+          echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
+          echo "pr_branch=${PR_BRANCH}" >> $GITHUB_OUTPUT
 
       - name: Merge PR
-        if: (steps.create-pr.outputs.pull-request-operation == 'created') && (steps.create-pr.outputs.pull-request-number)
+        if: steps.create-pr.outputs.pr_number
+        env:
+          GH_TOKEN: ${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}
         run: |
-          echo "${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}" | gh auth login --with-token
-          gh pr review --approve ${{ steps.create-pr.outputs.pull-request-number }}
-          gh pr merge --squash --admin ${{ steps.create-pr.outputs.pull-request-number }}
+          gh pr review --approve ${{ steps.create-pr.outputs.pr_number }}
+          gh pr merge --squash --delete-branch --admin ${{ steps.create-pr.outputs.pr_number }}

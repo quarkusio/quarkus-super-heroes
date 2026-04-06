@@ -1,0 +1,28 @@
+name: Save Container Image
+description: Save a container image as a GitHub Actions artifact
+
+inputs:
+  image:
+    description: The full container image name (including tag) to save
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Generate artifact name
+      id: artifact-name
+      shell: bash
+      run: |
+        ARTIFACT_NAME=$(echo "${{ inputs.image }}" | tr '/:' '_')
+        echo "name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+
+    - name: Save image to tarball
+      shell: bash
+      run: docker save "${{ inputs.image }}" -o "/tmp/${{ steps.artifact-name.outputs.name }}.tar"
+
+    - name: Upload image artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ steps.artifact-name.outputs.name }}
+        path: /tmp/${{ steps.artifact-name.outputs.name }}.tar
+        retention-days: 1

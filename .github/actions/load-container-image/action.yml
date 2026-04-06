@@ -1,0 +1,27 @@
+name: Load Container Image
+description: Load a container image from a GitHub Actions artifact
+
+inputs:
+  image:
+    description: The full container image name (including tag) that was saved
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Generate artifact name
+      id: artifact-name
+      shell: bash
+      run: |
+        ARTIFACT_NAME=$(echo "${{ inputs.image }}" | tr '/:' '_')
+        echo "name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+
+    - name: Download image artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ steps.artifact-name.outputs.name }}
+        path: /tmp
+
+    - name: Load image from tarball
+      shell: bash
+      run: docker load -i "/tmp/${{ steps.artifact-name.outputs.name }}.tar"

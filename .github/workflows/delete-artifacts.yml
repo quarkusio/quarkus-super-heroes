@@ -8,9 +8,14 @@ jobs:
     steps:
       - name: Delete artifacts
         if: github.event.action == 'delete_all_artifacts'
-        uses: christian-korneck/delete-run-artifacts-action@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          parent_runid: ${{ github.event.client_payload.parent_runid  }}
-          parent_repo: ${{ github.event.client_payload.parent_repo }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PARENT_REPO="${{ github.event.client_payload.parent_repo }}"
+          PARENT_RUNID="${{ github.event.client_payload.parent_runid }}"
+
+          gh api "repos/${PARENT_REPO}/actions/runs/${PARENT_RUNID}/artifacts" \
+            --paginate --jq '.artifacts[].id' | while read -r ARTIFACT_ID; do
+              echo "Deleting artifact ${ARTIFACT_ID}..."
+              gh api -X DELETE "repos/${PARENT_REPO}/actions/artifacts/${ARTIFACT_ID}" || true
+          done
