@@ -7,6 +7,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.atIndex;
 import static org.hamcrest.Matchers.matchesPattern;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -24,6 +27,7 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Page.GetByRoleOptions;
 import com.microsoft.playwright.Response;
+import com.microsoft.playwright.Route;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
@@ -43,6 +47,58 @@ import io.restassured.RestAssured;
 @WithPlaywright(recordVideoDir = "target/playwright", slowMo = 500)
 class WebUITests {
 	private static final String IMAGE_LOCATION_TEMPLATE = "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/%s";
+
+	/**
+	 * Paginated {@code GET .../api/fights?page=...} is not reliably mocked by Microcks for this UI test;
+	 * stub the list response so the fight table is populated like the OpenAPI example.
+	 */
+	private static final Pattern GET_FIGHTS_LIST_URL = Pattern.compile("^.*/api/fights(\\?.*)?$");
+	private static final String GET_RANDOM_LOCATION_URL = "/api/fights/randomlocation";
+	private static final String GET_RANDOM_FIGHTERS_URL = "/api/fights/randomfighters";
+
+	private static final String FIGHTS_LIST_PAGE_FIXTURE = readFixture("/mock-fights-list-page.json");
+	private static final String RANDOM_LOCATION_FIXTURE = readFixture("/mock-random-location.json");
+	private static final String RANDOM_FIGHTERS_FIXTURE = readFixture("/mock-random-fighters.json");
+
+	private static String readFixture(String path) {
+		try (var in = WebUITests.class.getResourceAsStream(path)) {
+			if (in == null) {
+				throw new IllegalStateException("classpath resource %s not found".formatted(path));
+			}
+			return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	private static void installStubs(Page page) {
+		page.route(
+			GET_FIGHTS_LIST_URL,
+			route -> {
+				if (!HttpMethod.GET.equals(route.request().method())) {
+					route.resume();
+					return;
+				}
+				route.fulfill(new Route.FulfillOptions()
+					.setStatus(200)
+					.setContentType("application/json")
+					.setBody(FIGHTS_LIST_PAGE_FIXTURE));
+			});
+
+		page.route(
+			url -> url.contains(GET_RANDOM_LOCATION_URL),
+			route -> route.fulfill(new Route.FulfillOptions()
+				.setStatus(200)
+				.setContentType("application/json")
+				.setBody(RANDOM_LOCATION_FIXTURE)));
+
+		page.route(
+			url -> url.contains(GET_RANDOM_FIGHTERS_URL),
+			route -> route.fulfill(new Route.FulfillOptions()
+				.setStatus(200)
+				.setContentType("application/json")
+				.setBody(RANDOM_FIGHTERS_FIXTURE)));
+	}
 
 	@InjectPlaywright
 	BrowserContext context;
@@ -81,6 +137,7 @@ class WebUITests {
 
 	private Page loadPage() {
 		var page = this.context.newPage();
+		installStubs(page);
 		var response = page.navigate("%s:%d".formatted(RestAssured.baseURI, RestAssured.port));
 
 		assertThat(response).isNotNull()

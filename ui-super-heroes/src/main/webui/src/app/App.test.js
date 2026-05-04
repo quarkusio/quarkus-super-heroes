@@ -79,6 +79,7 @@ describe("renders the elements", () => {
     })
 
     expect(getFights).toHaveBeenCalledTimes(getFightCallCount + 1)
+    expect(getFights).toHaveBeenLastCalledWith({page: 0, size: 20})
   })
 
   it("renders a new fight row on a fight", async () => {
@@ -100,5 +101,56 @@ describe("renders the elements", () => {
     // There should be an extra row, which means an extra occurrence of the villain name
     const newWinners = screen.queryAllByText("Some villain")
     expect(newWinners).toHaveLength(winnerCount + 1)
+  })
+})
+
+describe("fight list pagination", () => {
+  beforeEach(() => {
+    getRandomFighters.mockResolvedValue(fighters)
+    getRandomLocation.mockResolvedValue(location)
+    startFight.mockResolvedValue(fight)
+    getFights.mockReset()
+  })
+
+  afterAll(() => {
+    jest.resetAllMocks()
+  })
+
+  it("requests the first page of 20 fights on load", async () => {
+    getFights.mockResolvedValue([fight])
+    await act(async () => {
+      render(<App/>)
+    })
+    expect(getFights).toHaveBeenCalledWith({page: 0, size: 20})
+  })
+
+  it("enables Next when the page is full and loads the next page on click", async () => {
+    const page0 = Array.from({length: 20}, (_, i) => ({...fight, id: 300 + i}))
+    const page1 = [{...fight, id: 401}]
+    getFights.mockResolvedValueOnce(page0).mockResolvedValueOnce(page1)
+
+    await act(async () => {
+      render(<App/>)
+    })
+
+    const next = screen.getByRole("button", {name: /next page of fights/i})
+    expect(next).not.toBeDisabled()
+
+    await act(async () => {
+      fireEvent.click(next)
+    })
+
+    expect(getFights).toHaveBeenLastCalledWith({page: 1, size: 20})
+    expect(screen.getByText("401")).toBeInTheDocument()
+  })
+
+  it("disables Next when fewer than 20 fights are returned", async () => {
+    getFights.mockResolvedValue([fight, {...fight, id: 201}])
+
+    await act(async () => {
+      render(<App/>)
+    })
+
+    expect(screen.getByRole("button", {name: /next page of fights/i})).toBeDisabled()
   })
 })
