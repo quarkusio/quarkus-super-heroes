@@ -3,7 +3,8 @@ package io.quarkus.sample.superheroes.ui;
 import static io.restassured.RestAssured.get;
 import static io.restassured.http.ContentType.HTML;
 import static jakarta.ws.rs.core.Response.Status.OK;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.atIndex;
 import static org.hamcrest.Matchers.matchesPattern;
 
 import java.util.List;
