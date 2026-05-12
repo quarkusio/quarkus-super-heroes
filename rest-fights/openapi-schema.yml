@@ -25,6 +25,14 @@ paths:
         A page beyond available data returns HTTP 200 with an empty array.
 
         Non-integer `page` or `size` values return HTTP 400.
+      x-microcks-operation:
+        dispatcher: FALLBACK
+        dispatcherRules: |
+          {
+            "dispatcher": "URI_PARAMS",
+            "dispatcherRules": "page && size",
+            "fallback": "fights"
+          }
       parameters:
       - name: page
         in: query
