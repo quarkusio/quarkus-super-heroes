@@ -84,9 +84,9 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "locations-db,otel-collector"
-    app.quarkus.io/quarkus-version: 3.34.6
+    app.quarkus.io/quarkus-version: 3.35.2
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-05-05 - 02:21:25 +0000
+    app.quarkus.io/build-timestamp: 2026-05-12 - 02:12:48 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8089"
@@ -111,113 +111,6 @@ spec:
     app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: java21-latest
   type: ClusterIP
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  annotations:
-    app.quarkus.io/vcs-ref: main
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "locations-db,otel-collector"
-    app.quarkus.io/quarkus-version: 3.34.6
-    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-05-05 - 02:21:25 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
-    prometheus.io/port: "8089"
-    prometheus.io/scheme: http
-  labels:
-    app.kubernetes.io/name: grpc-locations
-    app.kubernetes.io/part-of: locations-service
-    app.kubernetes.io/version: java21-latest
-    app: grpc-locations
-    application: locations-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-  name: grpc-locations
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/part-of: locations-service
-      app.kubernetes.io/version: java21-latest
-      app.kubernetes.io/name: grpc-locations
-  template:
-    metadata:
-      annotations:
-        alpha.image.policy.openshift.io/resolve-names: '*'
-        app.quarkus.io/vcs-ref: main
-        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.openshift.io/connects-to: "locations-db,otel-collector"
-        app.quarkus.io/quarkus-version: 3.34.6
-        app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-05-05 - 02:21:25 +0000
-        prometheus.io/scrape: "true"
-        prometheus.io/path: /q/metrics
-        prometheus.io/port: "8089"
-        prometheus.io/scheme: http
-      labels:
-        app: grpc-locations
-        application: locations-service
-        system: quarkus-super-heroes
-        app.kubernetes.io/managed-by: quarkus
-        app.kubernetes.io/part-of: locations-service
-        app.kubernetes.io/version: java21-latest
-        app.kubernetes.io/name: grpc-locations
-    spec:
-      containers:
-        - env:
-            - name: KUBERNETES_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-          envFrom:
-            - secretRef:
-                name: grpc-locations-config-creds
-            - configMapRef:
-                name: grpc-locations-config
-          image: quay.io/quarkus-super-heroes/grpc-locations:java21-latest
-          imagePullPolicy: Always
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/live
-              port: 8089
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-          name: grpc-locations
-          ports:
-            - containerPort: 8089
-              name: http
-              protocol: TCP
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/ready
-              port: 8089
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-          resources:
-            limits:
-              memory: 768Mi
-            requests:
-              memory: 256Mi
-          startupProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/started
-              port: 8089
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -284,16 +177,20 @@ spec:
             name: locations-db-init
           name: locations-db-init
 ---
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "locations-db,otel-collector"
-    app.quarkus.io/quarkus-version: 3.34.6
+    app.quarkus.io/quarkus-version: 3.35.2
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-05-05 - 02:21:25 +0000
+    app.quarkus.io/build-timestamp: 2026-05-12 - 02:12:48 +0000
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /q/metrics
+    prometheus.io/port: "8089"
+    prometheus.io/scheme: http
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
@@ -304,11 +201,108 @@ metadata:
     app.kubernetes.io/managed-by: quarkus
   name: grpc-locations
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: grpc-locations
-      app.kubernetes.io/part-of: locations-service
       app.kubernetes.io/version: java21-latest
+      app.kubernetes.io/part-of: locations-service
+  template:
+    metadata:
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
+        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.openshift.io/connects-to: "locations-db,otel-collector"
+        app.quarkus.io/quarkus-version: 3.35.2
+        app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
+        app.quarkus.io/build-timestamp: 2026-05-12 - 02:12:48 +0000
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /q/metrics
+        prometheus.io/port: "8089"
+        prometheus.io/scheme: http
+      labels:
+        app: grpc-locations
+        application: locations-service
+        system: quarkus-super-heroes
+        app.kubernetes.io/managed-by: quarkus
+        app.kubernetes.io/name: grpc-locations
+        app.kubernetes.io/version: java21-latest
+        app.kubernetes.io/part-of: locations-service
+    spec:
+      containers:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          envFrom:
+            - secretRef:
+                name: grpc-locations-config-creds
+            - configMapRef:
+                name: grpc-locations-config
+          image: quay.io/quarkus-super-heroes/grpc-locations:java21-latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8089
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: grpc-locations
+          ports:
+            - containerPort: 8089
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: 8089
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              memory: 768Mi
+            requests:
+              memory: 256Mi
+          startupProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/started
+              port: 8089
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+      terminationGracePeriodSeconds: 10
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: locations-db
+    application: locations-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/part-of: locations-service
+    app.openshift.io/runtime: mariadb
+  name: locations-db
+spec:
+  selector:
+    matchLabels:
+      app: locations-db
+      application: locations-service
+      system: quarkus-super-heroes
+      app.kubernetes.io/part-of: locations-service
+      app.openshift.io/runtime: mariadb
   endpoints:
     - scheme: http
       targetPort: 8089
