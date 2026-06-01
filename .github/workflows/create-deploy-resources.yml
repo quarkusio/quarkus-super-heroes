@@ -104,4 +104,7 @@ jobs:
         if: steps.create-pr.outputs.pr_number
         env:
           GH_TOKEN: ${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}
-        run: gh pr merge --squash --delete-branch --admin ${{ steps.create-pr.outputs.pr_number }}
+        run: |
+          gh api --method PUT repos/${{ github.repository }}/pulls/${{ steps.create-pr.outputs.pr_number }}/merge \
+            -f merge_method=squash
+          git push origin --delete ${{ steps.create-pr.outputs.pr_branch }}
