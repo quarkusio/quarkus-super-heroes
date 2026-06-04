@@ -36,21 +36,30 @@ public class ShorterTimeoutsProfile implements QuarkusTestProfile {
       "quarkus.fault-tolerance.\"%s/findRandomHero\".timeout.value".formatted(FIGHT_SERVICE_CLASS_NAME), String.valueOf(FIND_RANDOM_OVERRIDDEN_TIMEOUT),
       "quarkus.fault-tolerance.\"%s/findRandomVillain\".timeout.value".formatted(FIGHT_SERVICE_CLASS_NAME), String.valueOf(FIND_RANDOM_OVERRIDDEN_TIMEOUT)
     ));
+    
+    vals.putAll(Map.of(
+      "quarkus.fault-tolerance.\"%s/narrateFight\".timeout.unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds",
+      "quarkus.fault-tolerance.\"%s/generateImageFromNarration\".timeout.unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds",
+      "quarkus.fault-tolerance.\"%s/helloHeroes\".timeout.unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds",
+      "quarkus.fault-tolerance.\"%s/helloVillains\".timeout.unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds",
+      "quarkus.fault-tolerance.\"%s/helloNarration\".timeout.unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds",
+      "quarkus.fault-tolerance.\"%s/helloLocations\".timeout.unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds",
+      "quarkus.fault-tolerance.\"%s/findRandomFighters\".timeout.unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds",
+      "quarkus.fault-tolerance.\"%s/findRandomLocation\".timeout.unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds",
+      "quarkus.fault-tolerance.\"%s/findRandomHero\".timeout.unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds",
+      "quarkus.fault-tolerance.\"%s/findRandomVillain\".timeout.unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds"
+    ));
 
     vals.putAll(Map.of(
-      "quarkus.fault-tolerance.\"%s/generateImageFromNarration\".timeout.unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds",
       "quarkus.fault-tolerance.\"%s/findRandomVillain\".circuit-breaker.delay".formatted(VillainClient.class.getName()), String.valueOf(CIRCUIT_BREAKER_OVERRIDDEN_DELAY),
-      "quarkus.fault-tolerance.\"%s/findRandomHero\".curcuit-breaker.delay".formatted(HeroClient.class.getName()), String.valueOf(CIRCUIT_BREAKER_OVERRIDDEN_DELAY),
+      "quarkus.fault-tolerance.\"%s/findRandomHero\".circuit-breaker.delay".formatted(HeroClient.class.getName()), String.valueOf(CIRCUIT_BREAKER_OVERRIDDEN_DELAY),
       "quarkus.fault-tolerance.\"%s/findRandomLocation\".circuit-breaker.delay".formatted(LocationClient.class.getName()), String.valueOf(CIRCUIT_BREAKER_OVERRIDDEN_DELAY),
       "quarkus.fault-tolerance.\"%s/narrateFight\".circuit-breaker.delay".formatted(FIGHT_SERVICE_CLASS_NAME), String.valueOf(CIRCUIT_BREAKER_OVERRIDDEN_DELAY),
       "quarkus.fault-tolerance.\"%s/generateImageFromNarration\".circuit-breaker.delay".formatted(FIGHT_SERVICE_CLASS_NAME), String.valueOf(CIRCUIT_BREAKER_OVERRIDDEN_DELAY),
       "quarkus.fault-tolerance.\"%s/findRandomVillain\".circuit-breaker.delay-unit".formatted(VillainClient.class.getName()), "seconds",
-      "quarkus.fault-tolerance.\"%s/findRandomHero\".curcuit-breaker.delay-unit".formatted(HeroClient.class.getName()), "seconds",
+      "quarkus.fault-tolerance.\"%s/findRandomHero\".circuit-breaker.delay-unit".formatted(HeroClient.class.getName()), "seconds",
       "quarkus.fault-tolerance.\"%s/findRandomLocation\".circuit-breaker.delay-unit".formatted(LocationClient.class.getName()), "seconds",
-      "quarkus.fault-tolerance.\"%s/narrateFight\".circuit-breaker.delay-unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds"
-    ));
-
-    vals.putAll(Map.of(
+      "quarkus.fault-tolerance.\"%s/narrateFight\".circuit-breaker.delay-unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds",
       "quarkus.fault-tolerance.\"%s/generateImageFromNarration\".circuit-breaker.delay-unit".formatted(FIGHT_SERVICE_CLASS_NAME), "seconds"
     ));
 
