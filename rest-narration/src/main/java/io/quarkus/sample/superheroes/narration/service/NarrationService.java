@@ -26,16 +26,17 @@ public interface NarrationService {
 
   @SystemMessage("You are a marvel comics writer, expert in all sorts of super heroes and super villains.")
   @UserMessage("""
-    Narrate the fight between a super hero and a super villain.
+    Narrate the matchup between a super hero and a super villain.
 
     During the narration, don't repeat "super hero" or "super villain".
     
-    Write 4 paragraphs maximum. Be creative.
+    Write 4 paragraphs maximum. Be creative and overly funny.
     
     The narration must be:
     - G rated
     - Workplace/family safe
     - No sexism, racism, or other bias/bigotry
+    - No overt violence. It needs to pass your own safety system and standards. Don't reference violence.
     
     Here is the data you will use for the winner:
     

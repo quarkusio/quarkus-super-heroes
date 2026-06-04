@@ -2,7 +2,6 @@ package io.quarkus.sample.superheroes.narration.rest;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import jakarta.ws.rs.core.HttpHeaders;
@@ -16,6 +15,7 @@ import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 
 import io.quarkus.sample.superheroes.narration.rest.AzureOpenAiNarrationResourceIT.WiremockAzureOpenAITestProfile;
+import io.quarkus.sample.superheroes.narration.service.ImageGenerationService;
 
 import io.quarkiverse.wiremock.devservice.WireMockConfigKey;
 
@@ -57,13 +57,12 @@ class AzureOpenAiNarrationResourceIT extends NarrationResourceIT {
 
   private static final String IMAGE_REQUEST_JSON = """
     {
-      "prompt": "In the gritty streets of Gotham City, a clash of epic proportions unfolded. Han Solo, a hero known for his sharpshooting skills and unwavering skepticism towards the force, faced off against Storm Trooper, a villain armed with nothing more than a small gun. The odds seemed stacked against the Storm Trooper, but he was determined to prove his worth.\\n\\nAs the battle commenced, Han Solo swiftly dodged the Storm Trooper's feeble shots, his agility and experience shining through. With a smirk on his face, Han Solo aimed his big gun with precision, firing shots that echoed through the city. The Storm Trooper, though outmatched, refused to back down, his determination fueling his every move.\\n\\nWith each passing moment, Han Solo's level of expertise became more apparent. His shots were calculated and deadly, while the Storm Trooper struggled to keep up. The hero's confidence grew, his movements becoming more fluid and effortless. It was clear that the Storm Trooper's small gun was no match for Han Solo's superior firepower.\\n\\nIn a final, decisive moment, Han Solo's shot found its mark, incapacitating the Storm Trooper. The hero emerged victorious, his unwavering resolve prevailing over the villain's futile attempts. As the city rejoiced in the triumph of justice, Han Solo stood tall, a symbol of hope and resilience in the face of adversity.\\nYou must answer strictly in the following JSON format: {\\n\\"url\\": (type: java.net.URI),\\n\\"base64Data\\": (type: string),\\n\\"mimeType\\": (type: string),\\n\\"revisedPrompt\\": (type: string)\\n}",
+      "prompt": "%s\\nIn the gritty streets of Gotham City, a clash of epic proportions unfolded. Han Solo, a hero known for his sharpshooting skills and unwavering skepticism towards the force, faced off against Storm Trooper, a villain armed with nothing more than a small gun. The odds seemed stacked against the Storm Trooper, but he was determined to prove his worth.\\n\\nAs the battle commenced, Han Solo swiftly dodged the Storm Trooper's feeble shots, his agility and experience shining through. With a smirk on his face, Han Solo aimed his big gun with precision, firing shots that echoed through the city. The Storm Trooper, though outmatched, refused to back down, his determination fueling his every move.\\n\\nWith each passing moment, Han Solo's level of expertise became more apparent. His shots were calculated and deadly, while the Storm Trooper struggled to keep up. The hero's confidence grew, his movements becoming more fluid and effortless. It was clear that the Storm Trooper's small gun was no match for Han Solo's superior firepower.\\n\\nIn a final, decisive moment, Han Solo's shot found its mark, incapacitating the Storm Trooper. The hero emerged victorious, his unwavering resolve prevailing over the villain's futile attempts. As the city rejoiced in the triumph of justice, Han Solo stood tall, a symbol of hope and resilience in the face of adversity.\\nYou must answer strictly in the following JSON format: {\\n\\"url\\": (type: java.net.URI),\\n\\"base64Data\\": (type: string),\\n\\"mimeType\\": (type: string),\\n\\"revisedPrompt\\": (type: string)\\n}",
       "n": 1,
       "size": "1024x1024",
-      "quality": "standard",
-      "response_format": "url"
+      "quality": "low"
     }
-    """;
+    """.formatted(ImageGenerationService.SYSTEM_MESSAGE.replaceAll("\n", "\\\\n"));
 
 	@Test
   @Override
@@ -128,23 +127,14 @@ class AzureOpenAiNarrationResourceIT extends NarrationResourceIT {
     public Map<String, String> getConfigOverrides() {
 	    var hostname = Boolean.getBoolean("quarkus.container-image.build") ? "host.docker.internal" : "localhost";
 
-      var vals = new HashMap<>(Map.of(
+      return Map.of(
 				"quarkus.langchain4j.azure-openai.enable-integration", "true",
         "quarkus.langchain4j.azure-openai.log-requests", "true",
         "quarkus.langchain4j.azure-openai.log-responses", "true",
         "quarkus.langchain4j.azure-openai.endpoint", "http://%s:${%s}/v1/".formatted(hostname, WireMockConfigKey.PORT),
         "quarkus.langchain4j.azure-openai.max-retries", "2",
         "quarkus.langchain4j.azure-openai.timeout", "3s"
-      ));
-
-      vals.put("quarkus.langchain4j.azure-openai.dalle3.enable-integration", vals.get("quarkus.langchain4j.azure-openai.enable-integration"));
-      vals.put("quarkus.langchain4j.azure-openai.dalle3.log-requests", vals.get("quarkus.langchain4j.azure-openai.log-requests"));
-      vals.put("quarkus.langchain4j.azure-openai.dalle3.log-responses", vals.get("quarkus.langchain4j.azure-openai.log-responses"));
-      vals.put("quarkus.langchain4j.azure-openai.dalle3.endpoint", vals.get("quarkus.langchain4j.azure-openai.endpoint"));
-      vals.put("quarkus.langchain4j.azure-openai.dalle3.max-retries", vals.get("quarkus.langchain4j.azure-openai.max-retries"));
-      vals.put("quarkus.langchain4j.azure-openai.dalle3.timeout", vals.get("quarkus.langchain4j.azure-openai.timeout"));
-
-      return vals;
+      );
     }
   }
 }
