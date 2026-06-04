@@ -93,7 +93,7 @@ class OpenAiNarrationResourceIT extends NarrationResourceIT {
         .withHeader(HttpHeaders.ACCEPT, equalToIgnoreCase(MediaType.APPLICATION_JSON))
         .withHeader(HttpHeaders.CONTENT_TYPE, equalToIgnoreCase(MediaType.APPLICATION_JSON))
         .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer change-me"))
-        .withRequestBody(equalToJson(IMAGE_REQUEST_JSON, true, true))
+        .withRequestBody(equalToJson(IMAGE_REQUEST_JSON, true, false))
     );
   }
 
