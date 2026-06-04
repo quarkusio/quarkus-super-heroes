@@ -2,6 +2,8 @@ package io.quarkus.sample.superheroes.narration.jackson;
 
 import io.quarkus.jackson.JacksonMixin;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
 import io.quarkus.sample.superheroes.narration.jackson.GenerateImagesRequestMixin.ModerationPropertyWriter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -19,6 +21,7 @@ import dev.langchain4j.model.openai.internal.image.GenerateImagesRequest;
 @JacksonMixin(GenerateImagesRequest.class)
 @JsonAppend(props = @JsonAppend.Prop(value = ModerationPropertyWriter.class, name = "moderation", type = String.class))
 @JsonIgnoreProperties({ "style", "response_format" })
+@RegisterForReflection
 public interface GenerateImagesRequestMixin {
   class ModerationPropertyWriter extends VirtualBeanPropertyWriter {
     public ModerationPropertyWriter() {
