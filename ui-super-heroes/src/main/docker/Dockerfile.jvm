@@ -77,12 +77,13 @@
 ###
 FROM registry.access.redhat.com/ubi10/openjdk-21-runtime:1.24
 
-# This is here because of
-# https://www.redhat.com/en/blog/rhel-security-sha-1-package-signatures-distrusted-rhel-9
-#
-# https://access.redhat.com/solutions/6992400 provides the solution to add SHA1 back
+# The DEFAULT:SHA1 subpolicy was removed in RHEL 10.
+# Use the LEGACY crypto policy to allow SHA-1 signatures.
+# See https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/considerations_in_adopting_rhel_10/security
 USER root
-RUN update-crypto-policies --set DEFAULT:SHA1
+RUN microdnf install -y crypto-policies-scripts && \
+    update-crypto-policies --set LEGACY && \
+    microdnf clean all
 
 ENV LANGUAGE='en_US:en'
 
