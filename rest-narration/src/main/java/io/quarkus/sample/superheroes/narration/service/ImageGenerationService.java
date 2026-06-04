@@ -11,7 +11,7 @@ import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkiverse.langchain4j.RegisterAiService;
 
-@RegisterAiService(modelName = "dalle3")
+@RegisterAiService
 @ApplicationScoped
 public interface ImageGenerationService {
   Image generateImage(String narration);

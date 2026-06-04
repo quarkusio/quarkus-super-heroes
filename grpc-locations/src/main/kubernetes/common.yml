@@ -89,7 +89,7 @@ spec:
             - name: locations-db-init
               mountPath: /tmp/dbinit
       containers:
-        - image: mariadb:12-ubi
+        - image: mariadb:12-ubi10
           name: locations-db
           ports:
             - containerPort: 3306
@@ -102,6 +102,8 @@ spec:
           volumeMounts:
             - name: locations-db-data
               mountPath: /var/lib/mysql
+            - name: locations-db-run
+              mountPath: /run/mariadb
             - name: locations-initdata
               mountPath: /docker-entrypoint-initdb.d
           resources:
@@ -111,6 +113,8 @@ spec:
               memory: 64Mi
       volumes:
         - name: locations-db-data
+          emptyDir: {}
+        - name: locations-db-run
           emptyDir: {}
         - name: locations-initdata
           emptyDir: {}

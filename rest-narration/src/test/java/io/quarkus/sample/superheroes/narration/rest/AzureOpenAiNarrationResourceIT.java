@@ -61,7 +61,6 @@ class AzureOpenAiNarrationResourceIT extends NarrationResourceIT {
       "n": 1,
       "size": "1024x1024",
       "quality": "standard",
-      "style": "vivid",
       "response_format": "url"
     }
     """;

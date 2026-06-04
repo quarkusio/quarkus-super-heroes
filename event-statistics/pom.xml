@@ -19,8 +19,9 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>3.35.4</quarkus.platform.version>
-    <surefire-plugin.version>3.5.5</surefire-plugin.version>
+    <quarkus.platform.version>3.36.1</quarkus.platform.version>
+    <quarkus.test.arg-line/>
+    <surefire-plugin.version>3.5.6</surefire-plugin.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -209,7 +210,7 @@
                 <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
                 <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                 <maven.home>${maven.home}</maven.home>
-                <quarkus.test.arg-line>${argLine}</quarkus.test.arg-line>
+                <quarkus.test.arg-line>${quarkus.test.arg-line}</quarkus.test.arg-line>
               </systemPropertyVariables>
               <reportFormat>plain</reportFormat>
               <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
@@ -248,6 +249,9 @@
           <name>it-coverage</name>
         </property>
       </activation>
+      <properties>
+        <quarkus.test.arg-line>${argLine}</quarkus.test.arg-line>
+      </properties>
       <build>
         <plugins>
           <plugin>

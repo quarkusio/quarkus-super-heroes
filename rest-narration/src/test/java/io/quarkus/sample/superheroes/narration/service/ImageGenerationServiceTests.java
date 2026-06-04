@@ -15,7 +15,6 @@ import io.quarkus.sample.superheroes.narration.FightImage;
 import dev.langchain4j.data.image.Image;
 import dev.langchain4j.model.image.ImageModel;
 import dev.langchain4j.model.output.Response;
-import io.quarkiverse.langchain4j.ModelName;
 
 @QuarkusTest
 class ImageGenerationServiceTests {
@@ -24,7 +23,6 @@ class ImageGenerationServiceTests {
   private static final String NARRATION = "Lorem ipsum dolor sit amet";
 
   @InjectMock
-  @ModelName("dalle3")
   ImageModel imageModel;
 
   @Inject
