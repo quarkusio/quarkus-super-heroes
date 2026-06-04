@@ -18,9 +18,9 @@ import dev.langchain4j.model.output.Response;
 
 @QuarkusTest
 class ImageGenerationServiceTests {
-  private static final String DEFAULT_IMAGE_URL = "https://somewhere.com/someImage.png";
   private static final String DEFAULT_IMAGE_NARRATION = "Alternate image narration";
   private static final String NARRATION = "Lorem ipsum dolor sit amet";
+  private static final String PROMPT = ImageGenerationService.SYSTEM_MESSAGE + "\n" + NARRATION;
 
   @InjectMock
   ImageModel imageModel;
@@ -31,12 +31,13 @@ class ImageGenerationServiceTests {
   @Test
   void generateImageForNarration() {
     var image = Image.builder()
-      .url(DEFAULT_IMAGE_URL)
       .revisedPrompt(DEFAULT_IMAGE_NARRATION)
+      .base64Data("base64Data")
+      .mimeType("image/png")
       .build();
 
-    when(this.imageModel.generate(startsWith(NARRATION)))
-      .thenReturn(new Response<>(image));
+    when(this.imageModel.generate(startsWith(PROMPT)))
+      .thenReturn(Response.from(image));
 
     assertThat(this.imageGenerationService.generateImageForNarration(NARRATION))
       .isNotNull()
@@ -46,10 +47,10 @@ class ImageGenerationServiceTests {
       )
       .containsExactly(
         image.revisedPrompt(),
-        image.url().toString()
+        "data:image/png;base64,base64Data"
       );
 
-    verify(this.imageModel).generate(startsWith(NARRATION));
+    verify(this.imageModel).generate(startsWith(PROMPT));
     verifyNoMoreInteractions(this.imageModel);
   }
 }

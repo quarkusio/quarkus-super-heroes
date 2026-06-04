@@ -2,9 +2,9 @@ package io.quarkus.sample.superheroes.narration.service;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.*;
 
 import java.time.Duration;
 
@@ -39,13 +39,13 @@ class NarrationServiceTests {
         },
         {
           "role": "user",
-          "content": "Narrate the fight between a super hero and a super villain.\\n\\nDuring the narration, don't repeat \\"super hero\\" or \\"super villain\\".\\n\\nWrite 4 paragraphs maximum. Be creative.\\n\\nThe narration must be:\\n- G rated\\n- Workplace/family safe\\n- No sexism, racism, or other bias/bigotry\\n\\nHere is the data you will use for the winner:\\n\\n+++++\\nName: Han Solo\\nPowers: Big gun, doesn't believe in the force\\nLevel: 1000\\n+++++\\n\\nHere is the data you will use for the loser:\\n\\n+++++\\nName: Storm Trooper\\nPowers: Small gun\\nLevel: 500\\n+++++\\n\\nHere is the data you will use for the fight:\\n\\n+++++\\nHan Solo who is a Heroes has won the fight against Storm Trooper who is a Villains.\\n\\nThe fight took place in Gotham City, which can be described as An American city rife with corruption and crime, the home of its iconic protector Batman..\\n+++++\\n"
+          "content": "Narrate the matchup between a super hero and a super villain.\\n\\nDuring the narration, don't repeat \\"super hero\\" or \\"super villain\\".\\n\\nWrite 4 paragraphs maximum. Be creative and overly funny.\\n\\nThe narration must be:\\n- G rated\\n- Workplace/family safe\\n- No sexism, racism, or other bias/bigotry\\n- No overt violence. It needs to pass your own safety system and standards. Don't reference violence.\\n\\nHere is the data you will use for the winner:\\n\\n+++++\\nName: Han Solo\\nPowers: Big gun, doesn't believe in the force\\nLevel: 1000\\n+++++\\n\\nHere is the data you will use for the loser:\\n\\n+++++\\nName: Storm Trooper\\nPowers: Small gun\\nLevel: 500\\n+++++\\n\\nHere is the data you will use for the fight:\\n\\n+++++\\nHan Solo who is a Heroes has won the fight against Storm Trooper who is a Villains.\\n\\nThe fight took place in Gotham City, which can be described as An American city rife with corruption and crime, the home of its iconic protector Batman..\\n+++++\\n"
         }
       ],
-      "temperature": 0.7,
+      "temperature": 1.0,
       "top_p": 0.5,
-      "presence_penalty": 0,
-      "frequency_penalty": 0
+      "presence_penalty": 0.0,
+      "frequency_penalty": 0.0
     }
     """;
 
