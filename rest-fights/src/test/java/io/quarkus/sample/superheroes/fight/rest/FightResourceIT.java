@@ -1514,18 +1514,6 @@ class FightResourceIT {
 		);
 
 		// The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
-//    await()
-//      .untilAsserted(() -> {
-//        var fighters = get("/api/fights/randomfighters").then()
-//					.statusCode(OK.getStatusCode())
-//					.contentType(JSON)
-//          .extract().as(Fighters.class);
-//
-//        assertThat(fighters)
-//          .isNotNull()
-//          .usingRecursiveComparison()
-//          .isEqualTo(new Fighters(DEFAULT_HERO, DEFAULT_VILLAIN));
-//      });
 		IntStream.rangeClosed(0, 8)
 			.forEach(i -> {
 				var fighters = get("/api/fights/randomfighters").then()
