@@ -66,12 +66,8 @@ The base JVM version for all the applications is Java 21.
 - [Statistics](event-statistics)
     - [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_event-statistics&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_event-statistics) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_event-statistics&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_event-statistics) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_event-statistics&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_event-statistics) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_event-statistics&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_event-statistics) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_event-statistics&metric=coverage)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_event-statistics) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_event-statistics&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_event-statistics)
     - Calculates statistics about each fight and serves them to an HTML + JQuery UI using [WebSockets](https://quarkus.io/guides/websockets).
-- [Prometheus](https://prometheus.io/)
-    - Polls metrics from all the services within the system.
-- [OpenTelemetry Collector](https://opentelemetry.io/docs/collector)
-    - All services export distributed trace information to the collector.
-- [Jaeger](https://www.jaegertracing.io)
-    - The collector exports trace information into Jaeger.
+- [Grafana LGTM Stack](https://github.com/grafana/docker-otel-lgtm)
+    - All services export traces, metrics, and logs via OpenTelemetry (OTLP) to the Grafana LGTM stack (Loki, Grafana, Tempo, Prometheus).
 
 Here is an architecture diagram of the application:
 ![Superheroes architecture diagram](images/application-architecture.png)
@@ -109,7 +105,7 @@ Pick one of the 4 versions of the application from the table below and execute t
 
 Once started the main application will be exposed at `http://localhost:8080`. If you want to watch the [Event Statistics UI](event-statistics), that will be available at `http://localhost:8085`. The Apicurio Registry will be available at `http://localhost:8086`.
 
-If you launched the monitoring stack, Prometheus will be available at `http://localhost:9090` and Jaeger will be available at `http://localhost:16686`.
+If you launched the monitoring stack, Grafana will be available at `http://localhost:3000`.
 
 ## Deploying to Kubernetes
 Pre-built images for all of the applications in the system can be found at [`quay.io/quarkus-super-heroes`](http://quay.io/quarkus-super-heroes).
@@ -149,39 +145,19 @@ Pick one of the 4 versions of the system from the table below and deploy the app
 | Native      | `native-latest` | [`native-openshift.yml`](deploy/k8s/native-openshift.yml) | [`native-minikube.yml`](deploy/k8s/native-minikube.yml) | [`native-kubernetes.yml`](deploy/k8s/native-kubernetes.yml) | [`native-knative.yml`](deploy/k8s/native-knative.yml) |
 
 ### Monitoring
-There are also Kubernetes deployment descriptors for monitoring with [OpenTelemetry](https://opentelemetry.io), [Prometheus](https://prometheus.io), and [Jaeger](https://www.jaegertracing.io) in the [`deploy/k8s` directory](deploy/k8s) ([`monitoring-openshift.yml`](deploy/k8s/monitoring-openshift.yml), [`monitoring-minikube.yml`](deploy/k8s/monitoring-minikube.yml), [`monitoring-kubernetes.yml`](deploy/k8s/monitoring-kubernetes.yml)). Each descriptor contains the resources necessary to monitor and gather metrics and traces from all of the applications in the system. Deploy the appropriate descriptor to your cluster if you want it.
+There are also Kubernetes deployment descriptors for monitoring with the [Grafana LGTM stack](https://github.com/grafana/docker-otel-lgtm) (Grafana, Loki, Tempo, Prometheus) in the [`deploy/k8s` directory](deploy/k8s) ([`monitoring-openshift.yml`](deploy/k8s/monitoring-openshift.yml), [`monitoring-minikube.yml`](deploy/k8s/monitoring-minikube.yml), [`monitoring-kubernetes.yml`](deploy/k8s/monitoring-kubernetes.yml)). Each descriptor contains the resources necessary to monitor and gather metrics, traces, and logs from all of the applications in the system. Deploy the appropriate descriptor to your cluster if you want it.
 
-The OpenShift descriptor will automatically create `Route`s for Prometheus and Jaeger. On Kubernetes/Minikube you may need to expose the Prometheus and Jaeger services in order to access them from outside your cluster, either by using an `Ingress` or by using `kubectl port-forward`. On Minikube, the Prometheus and Jaeger `Service`s are also exposed as a `NodePort`.
+The OpenShift descriptor will automatically create a `Route` for Grafana. On Kubernetes/Minikube you may need to expose the Grafana service in order to access it from outside your cluster, either by using an `Ingress` or by using `kubectl port-forward`. On Minikube, the Grafana `Service` is also exposed as a `NodePort`.
 
 > [!WARNING]
-> These descriptors are **NOT** considered to be production-ready. They are basic enough to deploy Prometheus, Jaeger, and the [OpenTelemetry Collector](https://opentelemetry.io/docs/collector) with as little configuration as possible. They are not highly-available and do not use any Kubernetes operators for management or monitoring. They also only use ephemeral storage.
->
-> For production-ready Prometheus instances, please see the [Prometheus Operator documentation](https://operatorhub.io/operator/prometheus) for how to properly deploy and configure production-ready instances. 
->
-> For production-ready Jaeger instances, please see the [Jaeger Operator documentation](https://operatorhub.io/operator/jaeger) for how to properly deploy and configure production-ready instances.
->
-> For production-ready OpenTelemetry Collector instances, please see the [OpenTelemetry Operator documentation](https://operatorhub.io/operator/opentelemetry-operator) for how to properly deploy and configure production-ready instances.
+> These descriptors are **NOT** considered to be production-ready. They are basic enough to deploy the Grafana LGTM stack with as little configuration as possible. It is not highly-available and does not use any Kubernetes operators for management or monitoring. It also only uses ephemeral storage.
 
-### Jaeger
+### Observability with Grafana
 
 By now you've performed a few battles, so let's analyze the telemetry data.
-Open the Jaeger UI based on how you are running the system, either through Docker Compose or by deploying the monitoring stack to kubernetes.
+Open the Grafana UI based on how you are running the system, either through Docker Compose (`http://localhost:3000`) or by deploying the monitoring stack to Kubernetes.
 
-![Jaeger Filters](images/jaeger-1-inputs.png)
-
-Now, let's analyze the traces for when requesting new fighters.
-When clicking the **New Fighters** button in the Superheroes UI, the browser makes an HTTP request to the `/api/fights/randomfighters` endpoint within the `rest-fights` application.
-In the Jaeger UI, select `rest-fights` for the Service and `/api/fights/randomfighters` for the Operation, then click **Find Traces**.
-You should see all the traces corresponding to the request of getting new fighters.
-
-![Jaeger Filters](images/jaeger-2-list-traces.png)
-
-Then, select one trace.
-A trace consists of a series of spans.
-Each span is a time interval representing a unit of work.
-Spans can have a parent/child relationship and form a hierarchy.
-You can see that each trace contains 14 total spans:
-six spans in the `rest-fights` application, four spans in the `rest-heroes` application, and four spans in the `rest-villains` application.
-Each trace also provides the total round-trip time of the request into the `/api/fights/randomfighters` endpoint within the `rest-fights` application and the total time spent within each unit of work.
-
-![Jaeger Filters](images/jaeger-3-trace.png)
+All services export traces, metrics, and logs via [OpenTelemetry](https://opentelemetry.io) (OTLP) to the Grafana LGTM stack. In the Grafana UI you can:
+- **Explore traces** using the Tempo data source
+- **View metrics** using the pre-provisioned "Quarkus Micrometer OpenTelemetry" dashboard
+- **Search logs** using the Loki data source, with automatic log-to-trace correlation

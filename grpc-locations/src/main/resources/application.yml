@@ -9,7 +9,6 @@ quarkus:
       "io.quarkus.sample.superheroes":
         level: DEBUG
     console:
-      format: "%d{HH:mm:ss} %-5p traceId=%X{traceId}, parentId=%X{parentId}, spanId=%X{spanId}, sampled=%X{sampled} [%c{2.}] (%t) %s%e%n"
       level: INFO
       darken: 1
   http:
@@ -31,8 +30,11 @@ quarkus:
       attributes: "app=${quarkus.application.name},application=grpc-locations,system=quarkus-super-heroes"
     exporter:
       otlp:
-        traces:
-          endpoint: http://localhost:4317
+        protocol: http/protobuf
+    metrics:
+      enabled: true
+    logs:
+      enabled: true
   hibernate-orm:
     schema-management:
       strategy: drop-and-create
@@ -44,7 +46,7 @@ quarkus:
   kubernetes:
     part-of: locations-service
     annotations:
-      "app.openshift.io/connects-to": locations-db,otel-collector
+      "app.openshift.io/connects-to": locations-db,otel-lgtm
     env:
       configmaps: "${quarkus.application.name}-config"
       secrets: "${quarkus.application.name}-config-creds"
@@ -62,14 +64,14 @@ quarkus:
         termination: edge
         insecure-edge-termination-policy: Redirect
     annotations:
-      "app.openshift.io/connects-to": locations-db,otel-collector
+      "app.openshift.io/connects-to": locations-db,otel-lgtm
     labels:
       app: "${quarkus.kubernetes.labels.app}"
       application: "${quarkus.kubernetes.part-of}"
       system: "${quarkus.kubernetes.labels.system}"
   knative:
     annotations:
-      "app.openshift.io/connects-to": locations-db,otel-collector
+      "app.openshift.io/connects-to": locations-db,otel-lgtm
       "serverless.openshift.io/default-enable-http2": 'true'
     labels:
       app: "${quarkus.kubernetes.labels.app}"
@@ -80,7 +82,6 @@ quarkus:
   quarkus:
     log:
       console:
-        format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
         level: DEBUG
 
 "%prod":

@@ -1,32 +1,19 @@
-version: "3"
 services:
 
-  prometheus:
-    image: quay.io/prometheus/prometheus:v3.1.0
-    container_name: prometheus
+  otel-lgtm:
+    image: docker.io/grafana/otel-lgtm:0.24.0
+    container_name: otel-lgtm
     ports:
-      - "9090:9090"
+      - "3000:3000"  # Grafana UI
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
     volumes:
-      - ../../deploy/docker-compose/monitoring/prometheus_scrape_configs.yml:/etc/prometheus/prometheus.yml
-
-  jaeger:
-    image: jaegertracing/all-in-one:1
-    container_name: jaeger
-    ports:
-      - "16686:16686" # Jaeger UI
-      - "14268"       # Accept thrift spans
-      - "14250"       # Accept gRPC spans
-      - "4317"        # Otel gRPC
-
-  otel-collector:
-    image: otel/opentelemetry-collector:0.119.0
-    container_name: otel-collector
-    command:
-      - "--config=/conf/otel-collector-config.yml"
-    volumes:
-      - ../../deploy/docker-compose/monitoring/otel-collector-config.yml:/conf/otel-collector-config.yml
-    ports:
-      - "13133:13133" # health_check extension
-      - "4317:4317"   # OTLP gRPC receiver
-    depends_on:
-      - jaeger
+      - ../../deploy/docker-compose/dashboards/grafana-dashboards-override.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/grafana-dashboards.yaml:ro
+      - ../../deploy/docker-compose/dashboards/dashboards-provisioning.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml:ro
+      - ../../deploy/docker-compose/dashboards/grafana-dashboard-quarkus-micrometer-opentelemetry.json:/otel-lgtm/grafana/conf/provisioning/dashboards/custom/grafana-dashboard-quarkus-micrometer-opentelemetry.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 30s
