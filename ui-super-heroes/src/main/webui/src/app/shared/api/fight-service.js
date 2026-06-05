@@ -141,6 +141,7 @@ export async function generateImage(narration) {
     {
       crossDomain: true,
       headers,
+      timeout: 120000,
     }
   )
 
