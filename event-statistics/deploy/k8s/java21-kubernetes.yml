@@ -75,7 +75,7 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-05 - 13:56:38 +0000
+    app.quarkus.io/build-timestamp: 2026-06-05 - 17:24:00 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -143,6 +143,12 @@ spec:
               value: CONTROLLER
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+              value: "1"
           image: apache/kafka-native:4.2.0
           name: fights-kafka
           ports:
@@ -233,7 +239,7 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-05 - 13:56:38 +0000
+    app.quarkus.io/build-timestamp: 2026-06-05 - 17:24:00 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8085"
@@ -252,8 +258,8 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: event-statistics
-      app.kubernetes.io/version: java21-latest
       app.kubernetes.io/part-of: event-stats
+      app.kubernetes.io/version: java21-latest
   template:
     metadata:
       annotations:
@@ -263,7 +269,7 @@ spec:
         app.openshift.io/connects-to: "fights-kafka,apicurio,otel-collector"
         app.quarkus.io/quarkus-version: 3.36.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-05 - 13:56:38 +0000
+        app.quarkus.io/build-timestamp: 2026-06-05 - 17:24:00 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8085"
@@ -274,8 +280,8 @@ spec:
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
         app.kubernetes.io/name: event-statistics
-        app.kubernetes.io/version: java21-latest
         app.kubernetes.io/part-of: event-stats
+        app.kubernetes.io/version: java21-latest
     spec:
       containers:
         - env:
