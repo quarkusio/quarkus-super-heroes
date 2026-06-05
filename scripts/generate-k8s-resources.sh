@@ -188,7 +188,7 @@ create_apps() {
 
 rm -rf $OUTPUT_DIR/*.yml
 
-#create_apps
+create_apps
 
 ## Handle the monitoring
 create_monitoring
