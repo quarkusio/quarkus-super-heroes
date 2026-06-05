@@ -141,40 +141,44 @@ create_monitoring() {
   cp -r $monitoring_name/dashboards $OUTPUT_DIR/dashboards
 }
 
+create_apps() {
+  for project in "grpc-locations" "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
+  do
+    rm -rf $project/$OUTPUT_DIR/*.yml
+
+    kinds=("" "native-")
+
+    for kind in "${kinds[@]}"
+    do
+      # Keeping this if/else here for the future when we might want to build multiple java versions
+      if [[ "$kind" == "native-" ]]; then
+        javaVersions=(21)
+      else
+        javaVersions=(21)
+    #    javaVersions=(11 21)
+      fi
+
+      for javaVersion in ${javaVersions[@]}
+      do
+        if [[ "$kind" == "native-" ]]; then
+          versionFilename="native"
+        else
+          versionFilename="${kind}java${javaVersion}"
+        fi
+
+        filename=$versionFilename
+
+        create_project_output $project $filename $versionFilename
+      done
+    done
+  done
+}
+
 rm -rf $OUTPUT_DIR/*.yml
 rm -rf $OUTPUT_DIR/dashboards
 rm -rf deploy/db-init
 
-for project in "grpc-locations" "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"
-do
-  rm -rf $project/$OUTPUT_DIR/*.yml
-
-  kinds=("" "native-")
-
-  for kind in "${kinds[@]}"
-  do
-    # Keeping this if/else here for the future when we might want to build multiple java versions
-    if [[ "$kind" == "native-" ]]; then
-      javaVersions=(21)
-    else
-      javaVersions=(21)
-  #    javaVersions=(11 21)
-    fi
-
-    for javaVersion in ${javaVersions[@]}
-    do
-      if [[ "$kind" == "native-" ]]; then
-        versionFilename="native"
-      else
-        versionFilename="${kind}java${javaVersion}"
-      fi
-
-      filename=$versionFilename
-
-      create_project_output $project $filename $versionFilename
-    done
-  done
-done
+create_apps
 
 # Now handle the monitoring
 create_monitoring
