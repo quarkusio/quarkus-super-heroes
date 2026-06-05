@@ -21,7 +21,6 @@ create_output_file() {
   echo '#######################################################################' >> $output_file
   echo '' >> $output_file
 
-  echo 'version: "3"' >> $output_file
   echo 'services:' >> $output_file
 }
 
@@ -138,13 +137,12 @@ create_monitoring() {
   echo "-----------------------------------------"
   echo "Creating monitoring"
 
-  mkdir -p $OUTPUT_DIR/$monitoring_name
-  cp $monitoring_name/config/*.yml $OUTPUT_DIR/$monitoring_name
   cp $monitoring_name/docker-compose/*.yml $OUTPUT_DIR
+  cp -r $monitoring_name/dashboards $OUTPUT_DIR/dashboards
 }
 
 rm -rf $OUTPUT_DIR/*.yml
-rm -rf $OUTPUT_DIR/monitoring
+rm -rf $OUTPUT_DIR/dashboards
 rm -rf deploy/db-init
 
 for project in "grpc-locations" "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes"

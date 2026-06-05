@@ -158,33 +158,37 @@ create_monitoring() {
   done
 }
 
-rm -rf $OUTPUT_DIR/*.yml
-
-for project in "${PROJECTS[@]}"
-do
-  rm -rf $project/$OUTPUT_DIR/*.yml
-
-  for kind in "" "native-"
+create_apps() {
+  for project in "${PROJECTS[@]}"
   do
-    for javaVersion in "${JAVA_VERSIONS[@]}"
+    rm -rf $project/$OUTPUT_DIR/*.yml
+
+    for kind in "" "native-"
     do
-      if [[ "$kind" == "native-" ]]; then
-        version_tag="native"
-      else
-        version_tag="${kind}java${javaVersion}"
-      fi
-
-      # Generate all the k8s resources for all deployment types in one shot
-      do_build "$project" "$version_tag" "$javaVersion" "$kind"
-
-      for deployment_type in "${DEPLOYMENT_TYPES[@]}"
+      for javaVersion in "${JAVA_VERSIONS[@]}"
       do
-        # For each deployment type, process the quarkus project
-        process_quarkus_project "$project" "$deployment_type" "$version_tag" "$javaVersion" "$kind"
+        if [[ "$kind" == "native-" ]]; then
+          version_tag="native"
+        else
+          version_tag="${kind}java${javaVersion}"
+        fi
+
+        # Generate all the k8s resources for all deployment types in one shot
+        do_build "$project" "$version_tag" "$javaVersion" "$kind"
+
+        for deployment_type in "${DEPLOYMENT_TYPES[@]}"
+        do
+          # For each deployment type, process the quarkus project
+          process_quarkus_project "$project" "$deployment_type" "$version_tag" "$javaVersion" "$kind"
+        done
       done
     done
   done
-done
+}
+
+rm -rf $OUTPUT_DIR/*.yml
+
+#create_apps
 
 ## Handle the monitoring
 create_monitoring

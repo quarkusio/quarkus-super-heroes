@@ -58,7 +58,7 @@ cd rest-heroes && ./mvnw quarkus:dev
 - rest-fights → Kafka (Avro messages via Apicurio Registry)
 - event-statistics ← Kafka consumer
 
-**Observability:** OpenTelemetry → Jaeger (tracing), Prometheus (metrics)
+**Observability:** OpenTelemetry → Grafana LGTM stack (Grafana, Loki, Tempo, Prometheus) via OTLP
 
 ## Key Technical Details
 
