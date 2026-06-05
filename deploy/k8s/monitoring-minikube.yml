@@ -4,309 +4,121 @@
 #######################################################################
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: default_view
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: view
-subjects:
-  - kind: ServiceAccount
-    name: default
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: prometheus-config
+  name: otel-lgtm-init
   labels:
     system: quarkus-super-heroes
-    app: prometheus
+    app: otel-lgtm
     role: monitoring
 data:
-  prometheus.yml: |2
-    global:
-      scrape_interval: 10s
-      external_labels:
-        system: quarkus-super-heroes
-    
-    scrape_configs:
-      - job_name: prometheus
-        static_configs:
-          - targets: ['localhost:9090']
+  get-dashboards.sh: |-
+    #!/bin/bash
 
-      - job_name: k8s-discovery
-        kubernetes_sd_configs:
-          - role: pod
-            namespaces:
-              own_namespace: true
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-            action: keep
-            regex: true
-          
-          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
-            action: replace
-            target_label: __metrics_path__
-            regex: (.+)
-          
-          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
-            action: replace
-            regex: ([^:]+)(?::\d+)?;(\d+)
-            replacement: $1:$2
-            target_label: __address__
-          
-          - action: labelmap
-            regex: __meta_kubernetes_pod_label_(.+)
-          
-          - source_labels: [__meta_kubernetes_namespace]
-            action: replace
-            target_label: kubernetes_namespace
-          
-          - source_labels: [__meta_kubernetes_pod_name]
-            action: replace
-            target_label: kubernetes_pod_name
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: otel-collector-config
-  labels:
-    system: quarkus-super-heroes
-    app: otel-collector
-    role: monitoring
-data:
-  otel-collector-config.yml: |2
-    receivers:
-      otlp:
-        protocols:
-          grpc:
-            endpoint: 0.0.0.0:4317
-    
-    exporters:
-      otlp/jaeger:
-        endpoint: jaeger:4317
-        tls:
-          insecure: true
-    
-    processors:
-      batch:
-    
-    extensions:
-      health_check:
-      health_check/1:
-    
-    service:
-      extensions:
-        - health_check/1
-      pipelines:
-        traces:
-          receivers:
-            - otlp
-          processors:
-            - batch
-          exporters:
-            - otlp/jaeger
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/monitoring/dashboards/grafana-dashboards-override.yaml --output /provisioning/grafana-dashboards.yaml
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/monitoring/dashboards/dashboards-provisioning.yaml --output /provisioning/custom.yaml
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/monitoring/dashboards/grafana-dashboard-quarkus-micrometer-opentelemetry.json --output /dashboards/grafana-dashboard-quarkus-micrometer-opentelemetry.json
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prometheus
+  name: otel-lgtm
   labels:
     system: quarkus-super-heroes
-    name: prometheus
-    app: prometheus
+    name: otel-lgtm
+    app: otel-lgtm
     role: monitoring
     app.kubernetes.io/part-of: monitoring
-    app.openshift.io/runtime: prometheus
-  annotations:
-    app.openshift.io/connects-to: ui-super-heroes,rest-fights,rest-villains,rest-heroes,event-statistics,apicurio
+    app.openshift.io/runtime: grafana
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: prometheus
+      name: otel-lgtm
   template:
     metadata:
       labels:
         system: quarkus-super-heroes
-        name: prometheus
-        app: prometheus
+        name: otel-lgtm
+        app: otel-lgtm
         role: monitoring
     spec:
-      containers:
-        - image: quay.io/prometheus/prometheus:v3.1.0
-          name: prometheus
-          ports:
-            - containerPort: 9090
+      initContainers:
+        - name: get-dashboards
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          workingDir: /tmp/init
+          command:
+            - 'sh'
+            - 'get-dashboards.sh'
           volumeMounts:
-            - name: prometheus-config
-              mountPath: /etc/prometheus
-            - name: prometheus-data
-              mountPath: /prometheus
-          resources:
-            limits:
-              memory: 128Mi
-            requests:
-              memory: 32Mi
-      volumes:
-        - name: prometheus-data
-          emptyDir: { }
-        - name: prometheus-config
-          configMap:
-            name: prometheus-config
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: jaeger
-  labels:
-    system: quarkus-super-heroes
-    name: jaeger
-    app: jaeger
-    role: monitoring
-    app.kubernetes.io/part-of: monitoring
-    app.openshift.io/runtime: jaeger
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: jaeger
-  template:
-    metadata:
-      labels:
-        system: quarkus-super-heroes
-        name: jaeger
-        app: jaeger
-        role: monitoring
-    spec:
+            - name: otel-lgtm-init
+              mountPath: /tmp/init
+            - name: grafana-dashboards-provisioning
+              mountPath: /provisioning
+            - name: grafana-dashboards
+              mountPath: /dashboards
       containers:
-        - image: jaegertracing/all-in-one:1
-          name: jaeger
+        - image: docker.io/grafana/otel-lgtm:0.24.0
+          name: otel-lgtm
           ports:
-            - containerPort: 16686
-            - containerPort: 14268
-            - containerPort: 14250
+            - containerPort: 3000
+              name: grafana
             - containerPort: 4317
-          resources:
-            limits:
-              memory: 128Mi
-            requests:
-              memory: 32Mi
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: otel-collector
-  labels:
-    system: quarkus-super-heroes
-    name: otel-collector
-    app: otel-collector
-    role: monitoring
-    app.kubernetes.io/part-of: monitoring
-    app.openshift.io/runtime: opentelemetry
-  annotations:
-    app.openshift.io/connects-to: jaeger
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: otel-collector
-  template:
-    metadata:
-      labels:
-        system: quarkus-super-heroes
-        name: otel-collector
-        app: otel-collector
-        role: monitoring
-    spec:
-      containers:
-        - image: otel/opentelemetry-collector:0.119.0
-          name: otel-collector
-          args:
-            - "--config=/conf/otel-collector-config.yml"
-          ports:
-            - name: otlp-receiver
-              containerPort: 4317
+              name: otlp-grpc
+            - containerPort: 4318
+              name: otlp-http
+          readinessProbe:
+            exec:
+              command:
+                - cat
+                - /tmp/ready
           volumeMounts:
-            - name: otel-collector-config
-              mountPath: /conf
+            - name: grafana-dashboards-provisioning
+              mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/grafana-dashboards.yaml
+              subPath: grafana-dashboards.yaml
+            - name: grafana-dashboards-provisioning
+              mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml
+              subPath: custom.yaml
+            - name: grafana-dashboards
+              mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/custom
           resources:
             limits:
-              memory: 128Mi
+              memory: 256Mi
             requests:
-              memory: 32Mi
+              memory: 64Mi
       volumes:
-        - name: otel-collector-config
+        - name: grafana-dashboards-provisioning
+          emptyDir: {}
+        - name: grafana-dashboards
+          emptyDir: {}
+        - name: otel-lgtm-init
           configMap:
-            name: otel-collector-config
+            name: otel-lgtm-init
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: prometheus
+  name: otel-lgtm
   labels:
-    name: prometheus
+    name: otel-lgtm
     system: quarkus-super-heroes
-    app: prometheus
+    app: otel-lgtm
     role: monitoring
 spec:
   ports:
-    - port: 9090
-      name: scrape
+    - port: 3000
+      name: grafana
       protocol: TCP
-      targetPort: 9090
-  selector:
-    name: prometheus
-  type: NodePort
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: jaeger
-  labels:
-    name: jaeger
-    system: quarkus-super-heroes
-    app: jaeger
-    role: monitoring
-spec:
-  ports:
-    - port: 16686
-      name: ui
-      protocol: TCP
-      targetPort: 16686
-    - port: 14268
-      name: thrift
-      protocol: TCP
-      targetPort: 14268
-    - port: 14250
-      name: grpc
-      protocol: TCP
-      targetPort: 14250
-  selector:
-    name: jaeger
-  type: NodePort
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: otel-collector
-  labels:
-    name: otel-collector
-    system: quarkus-super-heroes
-    app: otel-collector
-    role: monitoring
-spec:
-  ports:
-    - port: 13133
-      name: healthcheck
-      protocol: TCP
-      targetPort: 13133
+      targetPort: 3000
     - port: 4317
-      name: grpc
+      name: otlp-grpc
       protocol: TCP
       targetPort: 4317
+    - port: 4318
+      name: otlp-http
+      protocol: TCP
+      targetPort: 4318
   selector:
-    name: otel-collector
+    name: otel-lgtm
   type: NodePort

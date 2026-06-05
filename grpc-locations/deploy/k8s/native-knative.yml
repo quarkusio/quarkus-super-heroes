@@ -44,7 +44,7 @@ data:
   quarkus.hibernate-orm.schema-management.strategy: validate
   quarkus.hibernate-orm.sql-load-script: no-file
   quarkus.datasource.jdbc.url: jdbc:mariadb://locations-db:3306/locations_database
-  quarkus.otel.exporter.otlp.traces.endpoint: http://otel-collector:4317
+  quarkus.otel.exporter.otlp.endpoint: http://otel-lgtm:4318
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -66,17 +66,13 @@ metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.openshift.io/vcs-ref: main
-    app.openshift.io/connects-to: "locations-db,otel-collector"
+    app.openshift.io/connects-to: "locations-db,otel-lgtm"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     serverless.openshift.io/default-enable-http2: "true"
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-05 - 17:20:45 +0000
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /q/metrics
-    prometheus.io/port: "8089"
-    prometheus.io/scheme: http
+    app.quarkus.io/build-timestamp: 2026-06-05 - 20:17:50 +0000
   labels:
     app: grpc-locations
     system: quarkus-super-heroes
@@ -235,35 +231,3 @@ spec:
         - configMap:
             name: locations-db-init
           name: locations-db-init
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  annotations:
-    app.quarkus.io/vcs-ref: main
-    app.openshift.io/vcs-ref: main
-    app.openshift.io/connects-to: "locations-db,otel-collector"
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    serverless.openshift.io/default-enable-http2: "true"
-    app.quarkus.io/quarkus-version: 3.36.1
-    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-05 - 17:20:45 +0000
-  labels:
-    app: grpc-locations
-    system: quarkus-super-heroes
-    application: locations-service
-    app.openshift.io/runtime: quarkus
-    app.kubernetes.io/managed-by: quarkus
-    app.kubernetes.io/version: native-latest
-    app.kubernetes.io/part-of: locations-service
-    app.kubernetes.io/name: grpc-locations
-  name: grpc-locations
-spec:
-  selector: {}
-  endpoints:
-    - scheme: http
-      targetPort: 8089
-      path: /q/metrics
-      interval: 10s
-      honorLabels: true
