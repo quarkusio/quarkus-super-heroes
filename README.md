@@ -11,7 +11,6 @@
     - [Versions](#versions)
     - [Monitoring](#monitoring)
     - [Jaeger](#jaeger)
-- [Deploying to Azure Container Apps](docs/deploying-to-azure-containerapps.md)
 
 ## Introduction
 
@@ -43,7 +42,7 @@ The base JVM version for all the applications is Java 21.
     - Contains [contract verification tests](rest-heroes/README.md#contract-testing-with-pact) using [Pact](https://pact.io).
 - [Narration REST API](rest-narration)
     - [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=coverage)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=quarkusio-quarkus-super-heroes_rest-narration&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=quarkusio-quarkus-super-heroes_rest-narration)
-    - A blocking HTTP microservice integrating with [OpenAI](https://openai.com/) or [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service) to narrate a fight.
+    - A blocking HTTP microservice integrating with [OpenAI](https://openai.com/) to narrate a fight.
     - Implemented with blocking endpoints using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive).
     - Favors constructor injection of beans over field injection (`@Inject` annotation).
     - Contains [contract verification tests](rest-narration/README.md#contract-testing-with-pact) using [Pact](https://pact.io).
@@ -77,7 +76,7 @@ The main UI allows you to pick one random Hero and Villain by clicking on _New F
 You can then click the _Narrate Fight_ button if you want to perform a narration using the [Narration Service](rest-narration).
 
 > [!CAUTION]
-> Using Azure OpenAI or OpenAI may not be a free resource for you, so please understand this! Unless configured otherwise, the [Narration Service](rest-narration) does **NOT** communicate with any external service. Instead, by default, it just returns a default narration. See the [Integration with OpenAI Providers](rest-narration/README.md#integration-with-openai-providers) for more details.
+> Using OpenAI may not be a free resource for you, so please understand this! Unless configured otherwise, the [Narration Service](rest-narration) does **NOT** communicate with any external service. Instead, by default, it just returns a default narration. See the [Integration with OpenAI Providers](rest-narration/README.md#integration-with-openai-providers) for more details.
 
 ![Fight screen](images/fight-screen.png)
 

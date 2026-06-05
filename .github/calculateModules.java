@@ -62,14 +62,7 @@ class calculateModules {
 	}
 
 	private static Stream<String> convertModuleToJson(String moduleName) {
-		var moduleJson = "{ \"name\": \"%s\" }".formatted(moduleName);
-
-		return "rest-narration".equals(moduleName) ?
-		       Stream.of(
-						 moduleJson,
-			       "{ \"name\": \"%s\", \"openai-type\": \"azure-openai\" }".formatted(moduleName)
-		       ) :
-		       Stream.of(moduleJson);
+		return Stream.of("{ \"name\": \"%s\" }".formatted(moduleName));
 	}
 
 	public static void main(String... args) throws IOException, InterruptedException {
