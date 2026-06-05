@@ -16,14 +16,10 @@ services:
       QUARKUS_HTTP_PORT: 8086
 
   fights-kafka:
-    image: quay.io/strimzi/kafka:0.43.0-kafka-3.8.0
+    image: apache/kafka-native:4.2.0
     container_name: fights-kafka
     depends_on:
       - apicurio
-    command:
-      - "sh"
-      - "-c"
-      - "export CLUSTER_ID=$$(bin/kafka-storage.sh random-uuid) && bin/kafka-storage.sh format -t $${CLUSTER_ID} -c config/kraft/server.properties && bin/kafka-server-start.sh config/kraft/server.properties --override advertised.listeners=$${KAFKA_ADVERTISED_LISTENERS}"
     ports:
       - "9092:9092"
     environment:
