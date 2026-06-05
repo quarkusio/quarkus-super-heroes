@@ -11,6 +11,7 @@ data:
   get-dashboards.sh: |-
     #!/bin/bash
 
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/monitoring/dashboards/dashboards-provisioning.yaml --output /provisioning/custom.yaml
     curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/monitoring/dashboards/grafana-dashboard-quarkus-micrometer-opentelemetry.json --output /dashboards/grafana-dashboard-quarkus-micrometer-opentelemetry.json
 ---
 apiVersion: apps/v1
@@ -47,6 +48,8 @@ spec:
           volumeMounts:
             - name: otel-lgtm-init
               mountPath: /tmp/init
+            - name: grafana-dashboards-provisioning
+              mountPath: /provisioning
             - name: grafana-dashboards
               mountPath: /dashboards
       containers:
@@ -65,14 +68,19 @@ spec:
                 - cat
                 - /tmp/ready
           volumeMounts:
+            - name: grafana-dashboards-provisioning
+              mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml
+              subPath: custom.yaml
             - name: grafana-dashboards
-              mountPath: /otel-lgtm/grafana/dashboards
+              mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/custom
           resources:
             limits:
               memory: 256Mi
             requests:
               memory: 64Mi
       volumes:
+        - name: grafana-dashboards-provisioning
+          emptyDir: {}
         - name: grafana-dashboards
           emptyDir: {}
         - name: otel-lgtm-init
