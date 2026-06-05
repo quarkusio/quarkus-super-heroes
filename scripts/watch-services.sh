@@ -148,8 +148,7 @@ else
   echo "Apicurio Schema Registry: http://localhost:8086"
   echo
   echo "---- Monitoring (if started) ----"
-  echo "Prometheus: http://localhost:9090"
-  echo "Jaeger: http://localhost:16686"
+  echo "Grafana: http://localhost:3000"
 fi
 
 exit 0
