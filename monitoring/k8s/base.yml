@@ -11,6 +11,7 @@ data:
   get-dashboards.sh: |-
     #!/bin/bash
 
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/monitoring/dashboards/grafana-dashboards-override.yaml --output /provisioning/grafana-dashboards.yaml
     curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/monitoring/dashboards/dashboards-provisioning.yaml --output /provisioning/custom.yaml
     curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/monitoring/dashboards/grafana-dashboard-quarkus-micrometer-opentelemetry.json --output /dashboards/grafana-dashboard-quarkus-micrometer-opentelemetry.json
 ---
@@ -68,6 +69,9 @@ spec:
                 - cat
                 - /tmp/ready
           volumeMounts:
+            - name: grafana-dashboards-provisioning
+              mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/grafana-dashboards.yaml
+              subPath: grafana-dashboards.yaml
             - name: grafana-dashboards-provisioning
               mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml
               subPath: custom.yaml

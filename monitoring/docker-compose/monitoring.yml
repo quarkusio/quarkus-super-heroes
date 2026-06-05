@@ -8,6 +8,7 @@ services:
       - "4317:4317"  # OTLP gRPC
       - "4318:4318"  # OTLP HTTP
     volumes:
+      - ../../deploy/docker-compose/dashboards/grafana-dashboards-override.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/grafana-dashboards.yaml:ro
       - ../../deploy/docker-compose/dashboards/dashboards-provisioning.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml:ro
       - ../../deploy/docker-compose/dashboards/grafana-dashboard-quarkus-micrometer-opentelemetry.json:/otel-lgtm/grafana/conf/provisioning/dashboards/custom/grafana-dashboard-quarkus-micrometer-opentelemetry.json:ro
     healthcheck:
