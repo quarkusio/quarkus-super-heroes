@@ -25,10 +25,4 @@ if [[ "$branch" != "main" ]]; then
   container_tag="${container_tag}-${branch}"
 fi
 
-if [[ $# -eq 5 && $5 != "" ]]; then
-  # They specified an openai type
-  openai_type=$5
-  container_tag="${container_tag}-${openai_type}"
-fi
-
 echo "$container_tag"
