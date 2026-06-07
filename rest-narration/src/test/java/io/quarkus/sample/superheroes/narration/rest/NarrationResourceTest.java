@@ -48,7 +48,6 @@ class NarrationResourceTest {
     new FightLocation(DEFAULT_LOCATION_NAME, DEFAULT_LOCATION_DESCRIPTION)
   );
   private static final String DEFAULT_IMAGE_URL = "https://somewhere.com/someImage.png";
-  private static final String DEFAULT_IMAGE_NARRATION = "Alternate image narration";
 
   @InjectMock
   NarrationService narrationService;
@@ -106,7 +105,7 @@ class NarrationResourceTest {
 
   @Test
   void shouldGenerateAnImageFromNarration() {
-    var image = new FightImage(DEFAULT_IMAGE_URL, DEFAULT_IMAGE_NARRATION);
+    var image = new FightImage(DEFAULT_IMAGE_URL);
 
     when(this.imageGenerationService.generateImageForNarration(NARRATION))
       .thenReturn(image);

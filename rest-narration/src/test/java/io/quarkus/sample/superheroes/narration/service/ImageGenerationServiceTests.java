@@ -18,7 +18,6 @@ import dev.langchain4j.model.output.Response;
 
 @QuarkusTest
 class ImageGenerationServiceTests {
-  private static final String DEFAULT_IMAGE_NARRATION = "Alternate image narration";
   private static final String NARRATION = "Lorem ipsum dolor sit amet";
   private static final String PROMPT = ImageGenerationService.SYSTEM_MESSAGE + "\n" + NARRATION;
 
@@ -31,7 +30,7 @@ class ImageGenerationServiceTests {
   @Test
   void generateImageForNarration() {
     var image = Image.builder()
-      .revisedPrompt(DEFAULT_IMAGE_NARRATION)
+      .revisedPrompt("Alternate image narration")
       .base64Data("base64Data")
       .mimeType("image/png")
       .build();
@@ -41,14 +40,8 @@ class ImageGenerationServiceTests {
 
     assertThat(this.imageGenerationService.generateImageForNarration(NARRATION))
       .isNotNull()
-      .extracting(
-        FightImage::imageNarration,
-        FightImage::imageUrl
-      )
-      .containsExactly(
-        image.revisedPrompt(),
-        "data:image/png;base64,base64Data"
-      );
+      .extracting(FightImage::imageUrl)
+      .isEqualTo("data:image/png;base64,base64Data");
 
     verify(this.imageModel).generate(startsWith(PROMPT));
     verifyNoMoreInteractions(this.imageModel);

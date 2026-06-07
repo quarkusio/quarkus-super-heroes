@@ -51,7 +51,6 @@ public abstract class FightServiceTestsBase {
   static final String DEFAULT_LOCATION_PICTURE = "http://www.somewhere.com/gotham_city.png";
 
   static final String DEFAULT_NARRATION_IMAGE_URL = "https://dummyimage.com/240x320/1e8fff/ffffff&text=Fallback+Image+Caption";
-  static final String DEFAULT_NARRATION_IMAGE_NARRATION = "Fallback image caption (something happened while generating the image)";
 
   @Inject
   FightConfig fightConfig;

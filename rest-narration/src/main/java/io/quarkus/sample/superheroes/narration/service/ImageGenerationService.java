@@ -35,9 +35,6 @@ public interface ImageGenerationService {
       .map(URI::toString)
       .orElseGet(() -> "data:%s;base64,%s".formatted(Optional.ofNullable(image.mimeType()).orElse("image/png"), image.base64Data()));
 
-    var imageNarration = Optional.ofNullable(image.revisedPrompt())
-      .orElse(narration);
-
-    return new FightImage(imageUrl, imageNarration);
+    return new FightImage(imageUrl);
   }
 }
