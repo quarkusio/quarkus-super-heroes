@@ -11,6 +11,7 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 
 import io.quarkus.sample.superheroes.narration.FightImage;
+import io.quarkus.sample.superheroes.narration.ImageGenerationRequest;
 
 import dev.langchain4j.data.image.Image;
 import dev.langchain4j.model.image.ImageModel;
@@ -38,7 +39,7 @@ class ImageGenerationServiceTests {
     when(this.imageModel.generate(startsWith(PROMPT)))
       .thenReturn(Response.from(image));
 
-    assertThat(this.imageGenerationService.generateImageForNarration(NARRATION))
+    assertThat(this.imageGenerationService.generateImageForNarration(new ImageGenerationRequest(NARRATION, null, null)))
       .isNotNull()
       .extracting(FightImage::imageUrl)
       .isEqualTo("data:image/png;base64,base64Data");

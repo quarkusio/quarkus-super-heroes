@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -37,6 +36,7 @@ import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.ImageGenerationRequest;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.service.FightService;
 
@@ -228,7 +228,7 @@ public class FightResource {
   @POST
   @Path("/narrate/image")
   @Produces(MediaType.APPLICATION_JSON)
-  @Consumes(MediaType.TEXT_PLAIN)
+  @Consumes(MediaType.APPLICATION_JSON)
   @Operation(summary = "Generate an image from a narration")
   @APIResponse(
     responseCode = "200",
@@ -240,20 +240,20 @@ public class FightResource {
   )
   @APIResponse(
     responseCode = "400",
-    description = "Invalid (or missing) narration"
+    description = "Invalid (or missing) request"
   )
   public Uni<FightImage> generateImageFromNarration(
     @RequestBody(
-      name = "narration",
+      name = "request",
       required = true,
       content = @Content(
-        schema = @Schema(implementation = String.class),
-        examples = @ExampleObject(name = "narration", value = "This is your fight narration!")
+        schema = @Schema(implementation = ImageGenerationRequest.class),
+        examples = @ExampleObject(name = "request", value = Examples.EXAMPLE_IMAGE_GENERATION_REQUEST)
       )
     )
-    @NotBlank String narration) {
-    return this.service.generateImageFromNarration(narration)
-      .invoke(image -> Log.debugf("Image (%s) generated from narration: %s", image, narration));
+    @NotNull @Valid ImageGenerationRequest request) {
+    return this.service.generateImageFromNarration(request)
+      .invoke(image -> Log.debugf("Image (%s) generated from request: %s", image, request));
   }
 
 	@GET

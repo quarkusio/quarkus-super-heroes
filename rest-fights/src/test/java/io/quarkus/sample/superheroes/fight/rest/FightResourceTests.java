@@ -25,6 +25,7 @@ import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.ImageGenerationRequest;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate.FightToNarrateLocation;
 import io.quarkus.sample.superheroes.fight.client.Hero;
@@ -187,13 +188,14 @@ public class FightResourceTests {
   @Test
   void shouldGenerateAnImageFromNarration() {
     var image = new FightImage(DEFAULT_IMAGE_URL);
+    var request = new ImageGenerationRequest(DEFAULT_NARRATION, null, null);
 
-    when(this.fightService.generateImageFromNarration(DEFAULT_NARRATION))
+    when(this.fightService.generateImageFromNarration(request))
       .thenReturn(Uni.createFrom().item(image));
 
     var generatedImage = given()
-      .body(DEFAULT_NARRATION)
-      .contentType(TEXT)
+      .body(request)
+      .contentType(JSON)
       .accept(JSON)
       .when().post("/api/fights/narrate/image").then()
         .statusCode(OK.getStatusCode())
@@ -205,14 +207,14 @@ public class FightResourceTests {
       .usingRecursiveAssertion()
       .isEqualTo(image);
 
-    verify(this.fightService).generateImageFromNarration(DEFAULT_NARRATION);
+    verify(this.fightService).generateImageFromNarration(request);
     verifyNoMoreInteractions(this.fightService);
   }
 
   @Test
   void shouldNotGetGeneratedImageForNarrationBecauseInvalidNarration() {
     given()
-      .contentType(TEXT)
+      .contentType(JSON)
       .accept(JSON)
       .when().post("/api/fights/narrate/image").then()
       .statusCode(BAD_REQUEST.getStatusCode());

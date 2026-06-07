@@ -127,17 +127,19 @@ export async function narrateFight(body) {
  * Generates an image from a narration
  *
  * @param narration the narration
+ * @param winnerPictureUrl the winner's picture URL
+ * @param loserPictureUrl the loser's picture URL
  */
-export async function generateImage(narration) {
+export async function generateImage(narration, winnerPictureUrl, loserPictureUrl) {
 
   if (narration === null || narration === undefined) {
     throw new Error('Required parameter narration was null or undefined when calling generateImage.')
   }
 
-  const headers = {...defaultHeaders, 'Accept': 'application/json', 'Content-Type': 'text/plain'}
+  const headers = {...defaultHeaders, 'Accept': 'application/json'}
 
   const response = await axios.post(`${basePath}/api/fights/narrate/image`,
-    narration,
+    { narration, winnerPictureUrl, loserPictureUrl },
     {
       crossDomain: true,
       headers,

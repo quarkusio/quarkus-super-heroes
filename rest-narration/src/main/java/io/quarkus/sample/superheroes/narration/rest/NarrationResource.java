@@ -1,6 +1,6 @@
 package io.quarkus.sample.superheroes.narration.rest;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -21,6 +21,7 @@ import io.quarkus.logging.Log;
 
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.FightImage;
+import io.quarkus.sample.superheroes.narration.ImageGenerationRequest;
 import io.quarkus.sample.superheroes.narration.service.ImageGenerationService;
 import io.quarkus.sample.superheroes.narration.service.NarrationService;
 
@@ -75,7 +76,7 @@ public class NarrationResource {
   @POST
   @Path("/image")
   @Produces(MediaType.APPLICATION_JSON)
-  @Consumes(MediaType.TEXT_PLAIN)
+  @Consumes(MediaType.APPLICATION_JSON)
   @Operation(summary = "Generate an image from a narration")
   @APIResponse(
     responseCode = "200",
@@ -87,21 +88,21 @@ public class NarrationResource {
   )
   @APIResponse(
     responseCode = "400",
-    description = "Invalid (or missing) narration"
+    description = "Invalid (or missing) request"
   )
   public FightImage generateImageFromNarration(
     @RequestBody(
-      name = "narration",
+      name = "request",
       required = true,
       content = @Content(
-        schema = @Schema(implementation = String.class),
-        examples = @ExampleObject(name = "narration", value = Examples.EXAMPLE_NARRATION)
+        schema = @Schema(implementation = ImageGenerationRequest.class),
+        examples = @ExampleObject(name = "request", value = Examples.EXAMPLE_IMAGE_GENERATION_REQUEST)
       )
     )
-    @NotBlank String narration) {
+    @NotNull @Valid ImageGenerationRequest request) {
 
-    var image = this.imageGenerationService.generateImageForNarration(narration);
-    Log.debugf("Image (%s) generated from narration: %s", image, narration);
+    var image = this.imageGenerationService.generateImageForNarration(request);
+    Log.debugf("Image (%s) generated from request: %s", image, request);
 
     return image;
   }

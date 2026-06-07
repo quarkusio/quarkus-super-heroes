@@ -233,13 +233,13 @@ describe("the fight service", () => {
     })
 
     it("invokes the remote api", async () => {
-      await generateImage(narrationData)
+      await generateImage(narrationData, "https://winner.png", "https://loser.png")
       expect(axios.post).toHaveBeenCalled()
-      expect(axios.post).toHaveBeenLastCalledWith(expect.anything(), narrationData, expect.anything())
+      expect(axios.post).toHaveBeenLastCalledWith(expect.anything(), { narration: narrationData, winnerPictureUrl: "https://winner.png", loserPictureUrl: "https://loser.png" }, expect.anything())
     })
 
     it("generates an image", async () => {
-      const answer = await generateImage(narrationData)
+      const answer = await generateImage(narrationData, null, null)
       expect(answer).toStrictEqual(narrationImageData)
     })
   })

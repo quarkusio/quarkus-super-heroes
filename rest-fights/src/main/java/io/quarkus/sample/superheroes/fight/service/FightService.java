@@ -27,6 +27,7 @@ import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.ImageGenerationRequest;
 import io.quarkus.sample.superheroes.fight.client.FightToNarrate;
 import io.quarkus.sample.superheroes.fight.client.Hero;
 import io.quarkus.sample.superheroes.fight.client.HeroClient;
@@ -36,6 +37,7 @@ import io.quarkus.sample.superheroes.fight.client.Villain;
 import io.quarkus.sample.superheroes.fight.client.VillainClient;
 import io.quarkus.sample.superheroes.fight.config.FightConfig;
 import io.quarkus.sample.superheroes.fight.mapping.FightMapper;
+import io.quarkus.sample.superheroes.fight.mapping.ImageGenerationRequestMapper;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
@@ -55,9 +57,11 @@ public class FightService {
 	private final MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter;
 	private final FightConfig fightConfig;
   private final FightMapper fightMapper;
+  private final ImageGenerationRequestMapper imageGenerationRequestMapper;
 	private final Random random = new Random();
 
-	public FightService(HeroClient heroClient, VillainClient villainClient, @RestClient NarrationClient narrationClient, LocationClient locationClient, @Channel("fights") MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter, FightConfig fightConfig, FightMapper fightMapper) {
+  @SuppressWarnings("java:S107") // Suppressing "Methods should not have too many parameters" for constructor injection
+	public FightService(HeroClient heroClient, VillainClient villainClient, @RestClient NarrationClient narrationClient, LocationClient locationClient, @Channel("fights") MutinyEmitter<io.quarkus.sample.superheroes.fight.schema.Fight> emitter, FightConfig fightConfig, FightMapper fightMapper, ImageGenerationRequestMapper imageGenerationRequestMapper) {
 		this.heroClient = heroClient;
 		this.villainClient = villainClient;
     this.narrationClient = narrationClient;
@@ -65,6 +69,7 @@ public class FightService {
 		this.emitter = emitter;
 		this.fightConfig = fightConfig;
     this.fightMapper = fightMapper;
+    this.imageGenerationRequestMapper = imageGenerationRequestMapper;
   }
 
 	/**
@@ -245,7 +250,8 @@ public class FightService {
       .invoke(n -> Log.warn("Falling back on Narration"));
   }
 
-  Uni<FightImage> fallbackGenerateImageFromNarration(String narration) {
+  @SuppressWarnings("unused")
+  Uni<FightImage> fallbackGenerateImageFromNarration(ImageGenerationRequest request) {
     var fallbackImageGeneration = this.fightConfig.narration().fallbackImageGeneration();
 
     return Uni.createFrom().item(new FightImage(fallbackImageGeneration.imageUrl()))
@@ -285,9 +291,9 @@ public class FightService {
   @Retry(maxRetries = 3, delay = 200, delayUnit = ChronoUnit.MILLIS)
 	@Fallback(fallbackMethod = "fallbackGenerateImageFromNarration")
   @WithSpan("FightService.generateImageFromNarration")
-  public Uni<FightImage> generateImageFromNarration(@SpanAttribute("arg.narration") String narration) {
-    Log.debugf("Generating image for narration: %s", narration);
-    return this.narrationClient.generateImageFromNarration(narration);
+  public Uni<FightImage> generateImageFromNarration(@SpanAttribute("arg.request") ImageGenerationRequest request) {
+    Log.debugf("Generating image for request: %s", request);
+    return this.narrationClient.generateImageFromNarration(this.imageGenerationRequestMapper.toClientRequest(request));
   }
 
   @WithSpan("FightService.persistFight")
