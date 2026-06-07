@@ -68,11 +68,22 @@ spec:
               name: otlp-grpc
             - containerPort: 4318
               name: otlp-http
+          startupProbe:
+            exec:
+              command:
+                - cat
+                - /tmp/ready
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 30
           readinessProbe:
             exec:
               command:
                 - cat
                 - /tmp/ready
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 24
           volumeMounts:
             - name: grafana-dashboards-provisioning
               mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/grafana-dashboards.yaml
@@ -82,11 +93,13 @@ spec:
               subPath: custom.yaml
             - name: grafana-dashboards
               mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/custom
+            - name: otel-lgtm-data
+              mountPath: /data
           resources:
             limits:
-              memory: 256Mi
+              memory: 1Gi
             requests:
-              memory: 64Mi
+              memory: 256Mi
       volumes:
         - name: grafana-dashboards-provisioning
           emptyDir: {}
@@ -95,6 +108,8 @@ spec:
         - name: otel-lgtm-init
           configMap:
             name: otel-lgtm-init
+        - name: otel-lgtm-data
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
