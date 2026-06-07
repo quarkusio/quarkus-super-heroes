@@ -58,11 +58,6 @@ public interface FightConfig {
 
     interface NarrationImageFallback {
       /**
-       * The fallback narration
-       */
-      String imageNarration();
-
-      /**
        * The URL to the fallback image for the narration
        */
       String imageUrl();

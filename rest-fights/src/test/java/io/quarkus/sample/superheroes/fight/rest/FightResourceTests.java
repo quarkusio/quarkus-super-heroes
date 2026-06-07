@@ -68,7 +68,6 @@ public class FightResourceTests {
   private static final String DEFAULT_LOCATION_PICTURE = "gotham_city.png";
 
   private static final String DEFAULT_IMAGE_URL = "https://somewhere.com/someImage.png";
-  private static final String DEFAULT_IMAGE_NARRATION = "Alternate image narration";
 
 	@InjectMock
 	FightService fightService;
@@ -187,7 +186,7 @@ public class FightResourceTests {
 
   @Test
   void shouldGenerateAnImageFromNarration() {
-    var image = new FightImage(DEFAULT_IMAGE_URL, DEFAULT_IMAGE_NARRATION);
+    var image = new FightImage(DEFAULT_IMAGE_URL);
 
     when(this.fightService.generateImageFromNarration(DEFAULT_NARRATION))
       .thenReturn(Uni.createFrom().item(image));

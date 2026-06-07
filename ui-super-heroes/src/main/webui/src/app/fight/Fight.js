@@ -172,7 +172,6 @@ function Fight({onFight}) {
                         <div className="narration-text flip-card flip-card-front">{narration}</div>
                         <div className="narration-text flip-card flip-card-back">
                           <div><img alt="Generated fight" className="squared" src={generatedImage?.imageUrl}></img></div>
-                          <div className="narration-text"><strong><span data-testid="generated-image-caption">Generated Image Caption: </span></strong>{generatedImage?.imageNarration}</div>
                         </div>
                       </div>
                     </div>

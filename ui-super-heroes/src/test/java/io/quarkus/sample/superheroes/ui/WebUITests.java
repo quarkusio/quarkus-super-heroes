@@ -272,12 +272,6 @@ class WebUITests {
 	}
 
 	private void narrationImageGenerationOk(Page page, ElementHandle narrationImage) {
-		var generatedCaption = page.getByText("Generated Image Caption");
-		generatedCaption.scrollIntoViewIfNeeded();
-
-		PlaywrightAssertions.assertThat(generatedCaption)
-		                    .isVisible();
-
 		narrationImage.scrollIntoViewIfNeeded();
 
 		assertThat(narrationImage)

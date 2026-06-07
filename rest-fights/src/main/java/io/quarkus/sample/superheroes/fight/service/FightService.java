@@ -248,7 +248,7 @@ public class FightService {
   Uni<FightImage> fallbackGenerateImageFromNarration(String narration) {
     var fallbackImageGeneration = this.fightConfig.narration().fallbackImageGeneration();
 
-    return Uni.createFrom().item(new FightImage(fallbackImageGeneration.imageUrl(), fallbackImageGeneration.imageNarration()))
+    return Uni.createFrom().item(new FightImage(fallbackImageGeneration.imageUrl()))
       .invoke(i -> Log.warn("Falling back on narration image generation"));
   }
 

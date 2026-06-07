@@ -36,7 +36,6 @@ import io.restassured.RestAssured;
 @TestProfile(WiremockOpenAITestProfile.class)
 @ConnectWireMock
 class NarrationResourceIT {
-  private static final String EXPECTED_IMAGE_NARRATION = "In a city reminiscent of a dark, gritty metropolitan at night, two characters are caught in a confrontation of epic proportions. One figure, a heroic roguish character, renowned for his agile precision and disbelief in mystic powers, is engaged in a standoff against a menacing adversary, outfitted in futuristic armor and armed with a modest energy weapon. The hero, quick on his feet, evades his opponent's inadequate shots while retorting with his more formidable blaster causing loud reverberations throughout the urban landscape. Despite being outgunned, the villain continues the fight, showing a relentless spirit. With each passing second, the hero's superior skill and command over his weapon become increasingly visible. His counter-attacks are perfectly timed and lethal, overwhelming the adversary struggling to match him. Displaying a growing confidence, the hero's movements transition to being more seamless. A final, pinpoint shot from the hero incapacitates the villain, signaling a decisive victory for the hero, much to the city's relief. The hero's unwavering resilience standing victorious brings hope and strength to a city under duress.";
   private static final String EXPECTED_IMAGE_URL = "https://somewhere.com/someImage.png";
   private static final String HERO_NAME = "Super Baguette";
   private static final int HERO_LEVEL = 42;
@@ -159,14 +158,8 @@ class NarrationResourceIT {
 
     assertThat(generatedImage)
       .isNotNull()
-      .extracting(
-        FightImage::imageNarration,
-        FightImage::imageUrl
-      )
-      .containsExactly(
-        EXPECTED_IMAGE_NARRATION,
-        EXPECTED_IMAGE_URL
-      );
+      .extracting(FightImage::imageUrl)
+      .isEqualTo(EXPECTED_IMAGE_URL);
 
     this.wireMock.verifyThat(
       1,

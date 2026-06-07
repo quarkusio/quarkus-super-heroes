@@ -263,7 +263,6 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
     var imageGenBody = newJsonBody(body ->
       body
         .stringType("imageUrl", DEFAULT_NARRATION_IMAGE_URL)
-        .stringType("imageNarration", DEFAULT_NARRATION_IMAGE_NARRATION)
     ).build();
 
     return builder
@@ -538,7 +537,7 @@ public class FightServiceConsumerContractTests extends FightServiceTestsBase {
     assertThat(fightImage)
       .isNotNull()
       .usingRecursiveAssertion()
-      .isEqualTo(new FightImage(DEFAULT_NARRATION_IMAGE_URL, DEFAULT_NARRATION_IMAGE_NARRATION));
+      .isEqualTo(new FightImage(DEFAULT_NARRATION_IMAGE_URL));
 
     verify(this.narrationClient).generateImageFromNarration(DEFAULT_NARRATION);
     verify(this.fightService, never()).fallbackGenerateImageFromNarration(DEFAULT_NARRATION);

@@ -65,7 +65,7 @@ class FightServiceTests extends FightServiceTestsBase {
                                                    The people knew that their protector had once again ensured their safety.
                                                    """;
 
-  private static final FightImage IMAGE = new FightImage("https://somewhere.com/someImage.png", "Fallback image");
+  private static final FightImage IMAGE = new FightImage("https://somewhere.com/someImage.png");
 
   @InjectMock
   HeroClient heroClient;
@@ -1031,7 +1031,7 @@ class FightServiceTests extends FightServiceTestsBase {
 
   private FightImage getFallbackImage() {
     var image = this.fightConfig.narration().fallbackImageGeneration();
-    return new FightImage(image.imageUrl(), image.imageNarration());
+    return new FightImage(image.imageUrl());
   }
 
   private static Fight createFightHeroWon() {
