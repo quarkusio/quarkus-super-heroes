@@ -3,9 +3,10 @@
 !include <logos/postgresql>
 !include <logos/mariadb>
 !include <logos/mongodb>
-!include <logos/prometheus>
 !include <logos/react>
-!include <logos/jaeger>
+!include <logos/grafana>
+!include <logos/quarkus>
+!include <logos/jquery>
 !include style.puml
 
 skinparam NodePadding 40
@@ -15,10 +16,7 @@ skinparam backgroundColor transparent
 left to right direction
 
 together {
-    node "<$prometheus>" as prometheus {
-    }
-
-    node "<$jaeger>" as jaeger {
+    node "<$grafana>" as grafana {
     }
 
     node "OpenTelemetry Collector" as otelCollector {
@@ -26,39 +24,39 @@ together {
 
     node "Super Hero UI" as ui {
       agent "<$react>" <<frontend>> as reactUi
-      agent "Quarkus" <<application>> as uiQuarkus
+      agent "`<$quarkus>" as uiQuarkus
       reactUi .up> uiQuarkus
     }
 }
 
 node "Fight" as fight {
-    agent "Quarkus" <<application>> as fightQuarkus
+    agent "<$quarkus> <<reactive>>" as fightQuarkus
     database "<$mongodb>" as fightMongoDb
     fightQuarkus .up> fightMongoDb
 }
 
 node "Narration" as narration {
-  agent "Quarkus (blocking)" <<application>> as narrationQuarkus
-  hexagon "Langchain4J" as langchain
+  agent "<$quarkus>" <<blocking>> as narrationQuarkus
+  hexagon "LangChain4j" as langchain
   narrationQuarkus .up> langchain
 }
 
 cloud "OpenAI" as openai
 
 node "Hero" as hero {
-    agent "Quarkus (reactive)" <<application>> as heroQuarkus
+    agent "<$quarkus>" <<reactive>> as heroQuarkus
     database "<$postgresql>" as heroPostgresql
     heroQuarkus .up> heroPostgresql
 }
 
 node "Villain" as villain {
-    agent "Quarkus (imperative)" <<application>> as villainQuarkus
+    agent "<$quarkus>" <<blocking>> as villainQuarkus
     database "<$postgresql>" as villainPostgresql
     villainQuarkus .up> villainPostgresql
 }
 
 node "Location" as location {
-		agent "Quarkus (imperative)" <<application>> as locationQuarkus
+		agent "<$quarkus>" <<blocking>> as locationQuarkus
 		database "<$mariadb>" as locationMariadb
 		locationQuarkus .up> locationMariadb
 }
@@ -71,17 +69,11 @@ together {
   }
 }
 
-package "stats" {
-    node "Statistics" as stat {
-        agent "HTML + jQuery" <<frontend>> as statUI
-        agent "Quarkus (reactive event-driven)" <<application>> as statQuarkus
-        statUI .up> statQuarkus
+'package "stats" {
+    node "Event Statistics" as stat {
+        agent "<$quarkus>" <<reactive>><<event-driven>> as statQuarkus
+        agent "<$jquery>" <<html>> as uiStats
     }
-
-    node "Statistics UI" as statUi {
-            agent "Browser" <<frontend>> as uiStats
-    }
-}
 
 reactUi --> fightQuarkus : HTTP
 fightQuarkus --> narrationQuarkus : HTTP
@@ -96,20 +88,13 @@ fightQuarkus --> apicurio : HTTP
 
 statQuarkus <.. kafka : Message
 statQuarkus --> apicurio : HTTP
-statQuarkus ..> uiStats : Web Sockets
+statQuarkus ..> uiStats : WebSocket
 
-prometheus .> fight : polling
-prometheus .> narration : polling
-prometheus .> hero : polling
-prometheus .> villain : polling
-prometheus .> stats : polling
-prometheus .> location : polling
-
-otelCollector .> jaeger : gRPC
-otelCollector <-[dotted]- fight : gRPC
-otelCollector <-[dotted]- hero : gRPC
-otelCollector <-[dotted]- villain : gRPC
-otelCollector <-[dotted]- narration : gRPC
-otelCollector <-[dotted]- stats : gRPC
-otelCollector <-[dotted]- location : gRPC
+otelCollector .> grafana
+otelCollector <-[dotted]- fightQuarkus : http/protobuf
+otelCollector <-[dotted]- heroQuarkus : http/protobuf
+otelCollector <-[dotted]- villainQuarkus : http/protobuf
+otelCollector <-[dotted]- narrationQuarkus : http/protobuf
+otelCollector <-[dotted]- statQuarkus : http/protobuf
+otelCollector <-[dotted]- locationQuarkus : http/protobuf
 @enduml
