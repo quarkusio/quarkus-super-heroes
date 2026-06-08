@@ -122,6 +122,19 @@ The application is exposed outside of the cluster on port `80`.
 
 These are only the descriptors for this application and the required Kafka broker and Apicurio Schema Registry only. If you want to deploy the entire system, [follow these instructions](../README.md#deploying-to-kubernetes).
 
+### Using Helm
+Helm charts for this application are provided in the [`deploy/helm`](deploy/helm) directory with separate charts per deployment target.
+
+To deploy using Helm (e.g. JVM Java 21 on Kubernetes):
+```shell
+helm install event-statistics deploy/helm/kubernetes/ -f deploy/helm/kubernetes/values-java21.yaml
+```
+
+For native:
+```shell
+helm install event-statistics deploy/helm/kubernetes/ -f deploy/helm/kubernetes/values-native.yaml
+```
+
 ### Deploying directly via Kubernetes Extensions
 Following the [deployment section](https://quarkus.io/guides/deploying-to-kubernetes#deployment) of the [Quarkus Kubernetes Extension Guide](https://quarkus.io/guides/deploying-to-kubernetes) (or the [deployment section](https://quarkus.io/guides/deploying-to-openshift#build-and-deployment) of the [Quarkus OpenShift Extension Guide](https://quarkus.io/guides/deploying-to-openshift) if deploying to [OpenShift](https://openshift.com)), you can run one of the following commands to deploy the application and any of its dependencies (see [Kubernetes (and variants) resource generation](../docs/automation.md#kubernetes-and-variants-resource-generation) of the [automation strategy document](../docs/automation.md)) to your preferred Kubernetes distribution.
 
@@ -139,4 +152,4 @@ Following the [deployment section](https://quarkus.io/guides/deploying-to-kubern
 You may need to adjust other configuration options as well (see [Quarkus Kubernetes Extension configuration options](https://quarkus.io/guides/deploying-to-kubernetes#configuration-options) and [Quarkus OpenShift Extension configuration options](https://quarkus.io/guides/deploying-to-openshift#configuration-reference)).
 
 > [!TIP]
-> The [`do_build` function in the `generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) uses these extensions to generate the manifests in the [`deploy/k8s` directory](deploy/k8s).
+> The [`do_build` function in the `generate-k8s-helm-resources.sh` script](../scripts/generate-k8s-helm-resources.sh) uses these extensions to generate the manifests in the [`deploy/k8s` directory](deploy/k8s).

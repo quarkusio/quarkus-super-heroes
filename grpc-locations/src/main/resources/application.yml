@@ -77,6 +77,16 @@ quarkus:
       app: "${quarkus.kubernetes.labels.app}"
       application: "${quarkus.kubernetes.part-of}"
       system: "${quarkus.kubernetes.labels.system}"
+  helm:
+    name: "${quarkus.application.name}"
+    description: "Helm chart for ${quarkus.application.name}"
+    version: 1.0.0
+    create-tar-file: false
+    values:
+      memoryLimit:
+        paths: "(kind == Deployment && metadata.name == ${quarkus.application.name}).spec.template.spec.containers.resources.limits.memory"
+      memoryRequest:
+        paths: "(kind == Deployment && metadata.name == ${quarkus.application.name}).spec.template.spec.containers.resources.requests.memory"
 
 "%dev,test":
   quarkus:
