@@ -49,9 +49,9 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Create k8s resources
+      - name: Create k8s and helm resources
         shell: bash
-        run: scripts/generate-k8s-resources.sh
+        run: scripts/generate-k8s-helm-resources.sh
 
       - name: Create docker-compose resources
         shell: bash
@@ -74,7 +74,9 @@ jobs:
             'deploy/k8s/*.yml' \
             '**/deploy/docker-compose/*.yml' \
             'deploy/docker-compose/*.yml' \
-            'deploy/db-init/**'
+            'deploy/db-init/**' \
+            '**/deploy/helm/**' \
+            'deploy/helm/**'
 
           if git diff --cached --quiet; then
             echo "No deploy resource changes detected"

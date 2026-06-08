@@ -110,11 +110,11 @@ Each Quarkus project ([`event-statistics`](../event-statistics), [`rest-fights`]
 
 These extensions generate the manifests needed for the application itself but not for any other services. [These extensions can also incorporate additional resources](https://quarkus.io/guides/deploying-to-kubernetes#using-existing-resources) by placing additional resources in each project's `src/main/kubernetes` directory.
 
-The [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) loops through all versions of each application (Java version 21, both JVM and native - 8 total versions) and merges the contents of files these extensions generate and places them into each project's `deploy/k8s` directory as well as the respective files in the [root `deploy/k8s` directory](../deploy/k8s).
+The [`generate-k8s-helm-resources.sh` script](../scripts/generate-k8s-helm-resources.sh) loops through all versions of each application (Java version 21, both JVM and native - 8 total versions) and merges the contents of files these extensions generate and places them into each project's `deploy/k8s` directory as well as the respective files in the [root `deploy/k8s` directory](../deploy/k8s).
 
-The [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) additionally creates the monitoring ([Grafana LGTM stack](https://github.com/grafana/docker-otel-lgtm)) descriptors within the [root `deploy/k8s` directory](../deploy/k8s) for each Kubernetes variant platform.
+The [`generate-k8s-helm-resources.sh` script](../scripts/generate-k8s-helm-resources.sh) additionally creates the monitoring ([Grafana LGTM stack](https://github.com/grafana/docker-otel-lgtm)) descriptors within the [root `deploy/k8s` directory](../deploy/k8s) for each Kubernetes variant platform.
 
-In the [`rest-fights` project](../rest-fights), the [`generate-k8s-resources.sh` script](../scripts/generate-k8s-resources.sh) additionally copies in generated resources from the [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration), and [`grpc-locations`](../grpc-locations) projects into the `all-downstream.yml` files in the [`deploy/k8s` directory of the `rest-fights` project](../rest-fights/deploy/k8s).
+In the [`rest-fights` project](../rest-fights), the [`generate-k8s-helm-resources.sh` script](../scripts/generate-k8s-helm-resources.sh) additionally copies in generated resources from the [`rest-heroes`](../rest-heroes), [`rest-villains`](../rest-villains), [`rest-narration`](../rest-narration), and [`grpc-locations`](../grpc-locations) projects into the `all-downstream.yml` files in the [`deploy/k8s` directory of the `rest-fights` project](../rest-fights/deploy/k8s).
 
 ## Docker compose resource generation
 Docker compose resource generation follows a similar pattern as the [Kubernetes resource generation](#kubernetes-and-variants-resource-generation).
