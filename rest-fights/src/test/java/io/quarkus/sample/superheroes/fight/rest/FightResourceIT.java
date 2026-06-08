@@ -46,6 +46,7 @@ import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
+import io.quarkus.sample.superheroes.fight.ImageGenerationRequest;
 import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
 import io.quarkus.sample.superheroes.fight.InjectGrpcWireMock;
 import io.quarkus.sample.superheroes.fight.InjectWireMock;
@@ -600,14 +601,16 @@ class FightResourceIT {
     this.wireMockServer.stubFor(
       WireMock.post(urlEqualTo(NARRATION_API_IMAGE_GEN_URI))
         .withHeader(ACCEPT, containing(APPLICATION_JSON))
-        .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
+        .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
         .willReturn(okJson(getDefaultImageJson()))
     );
 
+    var request = new ImageGenerationRequest(DEFAULT_NARRATION, null, null);
+
     var image = given()
       .accept(JSON)
-      .contentType(TEXT)
-      .body(DEFAULT_NARRATION)
+      .contentType(JSON)
+      .body(request)
       .when().post("/api/fights/narrate/image").then()
       .contentType(JSON)
       .extract().as(FightImage.class);
@@ -619,7 +622,7 @@ class FightResourceIT {
 
     this.wireMockServer.verify(postRequestedFor(urlEqualTo(NARRATION_API_IMAGE_GEN_URI))
         .withHeader(ACCEPT, containing(APPLICATION_JSON))
-        .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
+        .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
     );
   }
 
@@ -633,10 +636,12 @@ class FightResourceIT {
         .willReturn(serverError())
     );
 
+    var request = new ImageGenerationRequest(DEFAULT_NARRATION, null, null);
+
     var image = given()
       .accept(JSON)
-      .contentType(TEXT)
-      .body(DEFAULT_NARRATION)
+      .contentType(JSON)
+      .body(request)
       .when().post("/api/fights/narrate/image").then()
       .contentType(JSON)
       .extract().as(FightImage.class);
@@ -649,7 +654,7 @@ class FightResourceIT {
     this.wireMockServer.verify(moreThanOrExactly(3),
       postRequestedFor(urlEqualTo(NARRATION_API_IMAGE_GEN_URI))
         .withHeader(ACCEPT, containing(APPLICATION_JSON))
-        .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
+        .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
     );
   }
 
@@ -676,11 +681,13 @@ class FightResourceIT {
 					.setParam("http.socket.timeout", delay * 4)
 			);
 
+    var request = new ImageGenerationRequest(DEFAULT_NARRATION, null, null);
+
     var image = given()
 	    .config(config)
       .accept(JSON)
-      .contentType(TEXT)
-      .body(DEFAULT_NARRATION)
+      .contentType(JSON)
+      .body(request)
       .when().post("/api/fights/narrate/image").then()
         .contentType(JSON)
         .extract().as(FightImage.class);
@@ -693,7 +700,7 @@ class FightResourceIT {
     this.wireMockServer.verify(moreThanOrExactly(3),
       postRequestedFor(urlEqualTo(NARRATION_API_IMAGE_GEN_URI))
         .withHeader(ACCEPT, containing(APPLICATION_JSON))
-        .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
+        .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
     );
   }
 
@@ -1607,6 +1614,7 @@ class FightResourceIT {
     );
 
     var fight = createFightToNarrateHeroWon();
+    var imageRequest = new ImageGenerationRequest(DEFAULT_NARRATION, null, null);
 
     // The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
     IntStream.rangeClosed(0, 8)
@@ -1626,8 +1634,8 @@ class FightResourceIT {
 
           var image = given()
             .accept(JSON)
-            .contentType(TEXT)
-            .body(DEFAULT_NARRATION)
+            .contentType(JSON)
+            .body(imageRequest)
             .when().post("/api/fights/narrate/image").then()
             .statusCode(OK.getStatusCode())
             .contentType(JSON)
@@ -1650,7 +1658,7 @@ class FightResourceIT {
     this.wireMockServer.verify(9,
 			postRequestedFor(urlEqualTo(NARRATION_API_IMAGE_GEN_URI))
 				.withHeader(ACCEPT, containing(APPLICATION_JSON))
-        .withHeader(CONTENT_TYPE, containing(TEXT_PLAIN))
+        .withHeader(CONTENT_TYPE, containing(APPLICATION_JSON))
 		);
 
 		// Reset all the mocks on the WireMockServer

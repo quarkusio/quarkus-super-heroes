@@ -260,12 +260,16 @@ paths:
       summary: Generate an image from a narration
       requestBody:
         content:
-          text/plain:
+          application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/ImageGenerationRequest'
             examples:
-              narration:
-                value: This is your fight narration!
+              request:
+                value:
+                  narration: In the dark, shadowy alleys of Gotham City, a fierce battle
+                    unfolded between two formidable opponents.
+                  winnerPictureUrl: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg
+                  loserPictureUrl: https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg
         required: true
       responses:
         "200":
@@ -279,7 +283,7 @@ paths:
                   value:
                     imageUrl: https://dummyimage.com/240x320/1e8fff/ffffff&text=Fallback+Image
         "400":
-          description: Invalid (or missing) narration
+          description: Invalid (or missing) request
   /api/fights/randomfighters:
     get:
       tags:
@@ -425,6 +429,19 @@ components:
       type: object
       properties:
         imageUrl:
+          type: string
+    ImageGenerationRequest:
+      description: Request for image generation from a narration
+      required:
+      - narration
+      type: object
+      properties:
+        narration:
+          pattern: \S
+          type: string
+        winnerPictureUrl:
+          type: string
+        loserPictureUrl:
           type: string
     FightLocation:
       description: Location of a fight

@@ -29,7 +29,7 @@ function Fight({onFight}) {
 
   const createImage = () => {
     trackPromise(
-        generateImage(narration)
+        generateImage(narration, fightResult?.winnerPicture, fightResult?.loserPicture)
             .then(answer => setGeneratedImage(answer))
             .then(answer => flipCard('narration-flip-card'))
     )

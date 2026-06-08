@@ -96,4 +96,12 @@ final class Examples {
       "imageUrl": "https://dummyimage.com/240x320/1e8fff/ffffff&text=Fallback+Image"
     }
     """;
+
+  static final String EXAMPLE_IMAGE_GENERATION_REQUEST = """
+    {
+      "narration": "In the dark, shadowy alleys of Gotham City, a fierce battle unfolded between two formidable opponents.",
+      "winnerPictureUrl": "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/luke-skywalker-2563509063968639219.jpg",
+      "loserPictureUrl": "https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/characterdata/images/anakin-skywalker--8429855148488965479.jpg"
+    }
+    """;
 }

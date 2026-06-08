@@ -193,7 +193,7 @@ describe("the fight visualisation", () => {
       await act(async () => {
         fireEvent.click(screen.getByText(/GENERATE NARRATION IMAGE/i))
       })
-      expect(generateImage).toHaveBeenLastCalledWith(narration)
+      expect(generateImage).toHaveBeenLastCalledWith(narration, fight.winnerPicture, fight.loserPicture)
     })
 
      it("triggers the onFight callback", async () => {

@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import io.quarkus.logging.Log;
 
 import io.quarkus.sample.superheroes.narration.FightImage;
+import io.quarkus.sample.superheroes.narration.ImageGenerationRequest;
 
 import dev.langchain4j.data.image.Image;
 import dev.langchain4j.service.SystemMessage;
@@ -28,9 +29,20 @@ public interface ImageGenerationService {
   Image generateImage(String narration);
 
   @WithSpan("ImageGenerationService.generateImageForNarration")
-  default FightImage generateImageForNarration(@SpanAttribute("arg.narration") String narration) {
-    Log.debugf("Generating image for narration: %s", narration);
-    var image = generateImage(narration);
+  default FightImage generateImageForNarration(@SpanAttribute("arg.request") ImageGenerationRequest request) {
+    Log.debugf("Generating image for request: %s", request);
+
+    var promptBuilder = new StringBuilder(request.narration());
+
+    if (request.winnerPictureUrl() != null && !request.winnerPictureUrl().isBlank()) {
+      promptBuilder.append("\n\nThe winner's appearance can be referenced from: ").append(request.winnerPictureUrl());
+    }
+
+    if (request.loserPictureUrl() != null && !request.loserPictureUrl().isBlank()) {
+      promptBuilder.append("\nThe loser's appearance can be referenced from: ").append(request.loserPictureUrl());
+    }
+
+    var image = generateImage(promptBuilder.toString());
     var imageUrl = Optional.ofNullable(image.url())
       .map(URI::toString)
       .orElseGet(() -> "data:%s;base64,%s".formatted(Optional.ofNullable(image.mimeType()).orElse("image/png"), image.base64Data()));

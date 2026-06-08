@@ -23,6 +23,7 @@ import io.quarkus.test.junit.TestProfile;
 import io.quarkus.sample.superheroes.narration.Fight;
 import io.quarkus.sample.superheroes.narration.Fight.FightLocation;
 import io.quarkus.sample.superheroes.narration.FightImage;
+import io.quarkus.sample.superheroes.narration.ImageGenerationRequest;
 import io.quarkus.sample.superheroes.narration.rest.NarrationResourceIT.WiremockOpenAITestProfile;
 import io.quarkus.sample.superheroes.narration.service.ImageGenerationService;
 import io.quarkus.sample.superheroes.narration.service.NarrationService;
@@ -147,9 +148,11 @@ class NarrationResourceIT {
 
   @Test
   void shouldGenerateAnImageFromNarration() {
+    var request = new ImageGenerationRequest(EXPECTED_NARRATION, null, null);
+
     var generatedImage = given()
-      .body(EXPECTED_NARRATION)
-      .contentType(TEXT)
+      .body(request)
+      .contentType(JSON)
       .accept(JSON)
       .when().post("/api/narration/image").then()
         .statusCode(OK.getStatusCode())
@@ -213,7 +216,7 @@ class NarrationResourceIT {
   @Test
   void invalidNarrationToFetchImage() {
     given()
-      .contentType(TEXT)
+      .contentType(JSON)
       .accept(JSON)
       .when()
       .post("/api/narration/image").then()

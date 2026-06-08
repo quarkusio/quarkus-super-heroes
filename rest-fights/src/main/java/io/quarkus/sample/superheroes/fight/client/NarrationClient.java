@@ -39,9 +39,9 @@ public interface NarrationClient {
   @POST
   @Path("/image")
   @Produces(MediaType.APPLICATION_JSON)
-  @Consumes(MediaType.TEXT_PLAIN)
+  @Consumes(MediaType.APPLICATION_JSON)
   @WithSpan(kind = SpanKind.CLIENT, value = "NarrationClient.generateImageFromNarration")
-  Uni<FightImage> generateImageFromNarration(@SpanAttribute("arg.narration") String narration);
+  Uni<FightImage> generateImageFromNarration(@SpanAttribute("arg.request") NarrationImageGenerationRequest request);
 
   /**
    * HTTP <code>GET</code> call to {@code /api/narration/hello} on the Narration service
