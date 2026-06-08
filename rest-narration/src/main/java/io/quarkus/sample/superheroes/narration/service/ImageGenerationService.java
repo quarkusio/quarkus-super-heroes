@@ -12,6 +12,7 @@ import io.quarkus.sample.superheroes.narration.ImageGenerationRequest;
 
 import dev.langchain4j.data.image.Image;
 import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkiverse.langchain4j.RegisterAiService;
@@ -26,23 +27,22 @@ public interface ImageGenerationService {
     """;
 
   @SystemMessage(SYSTEM_MESSAGE)
-  Image generateImage(String narration);
+  @UserMessage("""
+    Here is the fight narration: "{request.narration}"
+    
+    ---------
+    If possible, please use the pictures provided for the winner and loser:
+    
+    Winner picture URL: {request.winnerPictureUrl}
+    Loser picture URL: {request.loserPictureUrl}
+    """)
+  Image generateImage(ImageGenerationRequest request);
 
   @WithSpan("ImageGenerationService.generateImageForNarration")
   default FightImage generateImageForNarration(@SpanAttribute("arg.request") ImageGenerationRequest request) {
     Log.debugf("Generating image for request: %s", request);
 
-    var promptBuilder = new StringBuilder(request.narration());
-
-    if (request.winnerPictureUrl() != null && !request.winnerPictureUrl().isBlank()) {
-      promptBuilder.append("\n\nThe winner's appearance can be referenced from: ").append(request.winnerPictureUrl());
-    }
-
-    if (request.loserPictureUrl() != null && !request.loserPictureUrl().isBlank()) {
-      promptBuilder.append("\nThe loser's appearance can be referenced from: ").append(request.loserPictureUrl());
-    }
-
-    var image = generateImage(promptBuilder.toString());
+    var image = generateImage(request);
     var imageUrl = Optional.ofNullable(image.url())
       .map(URI::toString)
       .orElseGet(() -> "data:%s;base64,%s".formatted(Optional.ofNullable(image.mimeType()).orElse("image/png"), image.base64Data()));
