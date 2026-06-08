@@ -332,35 +332,25 @@ create_umbrella_charts() {
 
   for deployment_type in "${DEPLOYMENT_TYPES[@]}"
   do
-    for kind in "" "native-"
+    local umbrella_dir="$HELM_OUTPUT_DIR/${deployment_type}"
+
+    echo "Creating umbrella chart at $umbrella_dir"
+    mkdir -p "$umbrella_dir"
+
+    local deps=""
+
+    for project in "${PROJECTS[@]}"
     do
-      for javaVersion in "${JAVA_VERSIONS[@]}"
-      do
-        if [[ "$kind" == "native-" ]]; then
-          version_tag="native"
-        else
-          version_tag="${kind}java${javaVersion}"
-        fi
-
-        local umbrella_dir="$HELM_OUTPUT_DIR/${version_tag}-${deployment_type}"
-
-        echo "Creating umbrella chart at $umbrella_dir"
-        mkdir -p "$umbrella_dir"
-
-        local deps=""
-
-        for project in "${PROJECTS[@]}"
-        do
-          local project_chart_dir="$project/$HELM_OUTPUT_DIR/${deployment_type}"
-          if [[ -d "$project_chart_dir" ]]; then
-            deps="${deps}
+      local project_chart_dir="$project/$HELM_OUTPUT_DIR/${deployment_type}"
+      if [[ -d "$project_chart_dir" ]]; then
+        deps="${deps}
   - name: ${project}
     version: \"*\"
-    repository: \"file://../../${project}/${HELM_OUTPUT_DIR}/${deployment_type}\""
-          fi
-        done
+    repository: \"file://../../../${project}/${HELM_OUTPUT_DIR}/${deployment_type}\""
+      fi
+    done
 
-        cat > "$umbrella_dir/Chart.yaml" <<CHART_EOF
+    cat > "$umbrella_dir/Chart.yaml" <<CHART_EOF
 ---
 apiVersion: v2
 name: super-heroes
@@ -369,7 +359,12 @@ version: "1.0.0"
 dependencies:${deps}
 CHART_EOF
 
-        # Generate umbrella values file by namespacing each sub-chart's values
+    echo '# Use -f values-java<java-version>.yaml or -f values-native.yaml when installing this chart' > "$umbrella_dir/values.yaml"
+
+    for kind in "" "native-"
+    do
+      for javaVersion in "${JAVA_VERSIONS[@]}"
+      do
         if [[ "$kind" == "" ]]; then
           local sub_values_filename="values-java${javaVersion}.yaml"
         else
@@ -384,7 +379,6 @@ CHART_EOF
           local project_values="$project/$HELM_OUTPUT_DIR/${deployment_type}/$sub_values_filename"
           if [[ -f "$project_values" ]]; then
             echo "${project}:" >> "$umbrella_values_file"
-            # Indent each line of the sub-chart's values (skip the leading --- if present)
             sed '/^---$/d' "$project_values" | sed 's/^/  /' >> "$umbrella_values_file"
           fi
         done
