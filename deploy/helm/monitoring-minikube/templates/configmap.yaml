@@ -1,0 +1,17 @@
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-lgtm-init
+  labels:
+    system: quarkus-super-heroes
+    app: otel-lgtm
+    role: monitoring
+data:
+  get-dashboards.sh: |-
+    #!/bin/bash
+
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/monitoring/dashboards/grafana-dashboards-override.yaml --output /provisioning/grafana-dashboards.yaml
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/monitoring/dashboards/dashboards-provisioning.yaml --output /provisioning/custom.yaml
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/monitoring/dashboards/grafana-dashboard-quarkus-micrometer-opentelemetry.json --output /dashboards/grafana-dashboard-quarkus-micrometer-opentelemetry.json

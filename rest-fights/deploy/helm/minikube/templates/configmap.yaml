@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: rest-fights
+    application: fights-service
+    system: quarkus-super-heroes
+  name: rest-fights-config
+data:
+  quarkus.liquibase-mongodb.migrate-at-start: "false"
+  quarkus.mongodb.hosts: fights-db:27017
+  quarkus.stork.hero-service.service-discovery.type: kubernetes
+  quarkus.stork.hero-service.service-discovery.application: rest-heroes
+  quarkus.stork.hero-service.service-discovery.refresh-period: 1H
+  quarkus.stork.hero-service.service-discovery.port-name: http
+  quarkus.stork.villain-service.service-discovery.type: kubernetes
+  quarkus.stork.villain-service.service-discovery.application: rest-villains
+  quarkus.stork.villain-service.service-discovery.refresh-period: 1H
+  quarkus.stork.villain-service.service-discovery.port-name: http
+  quarkus.stork.narration-service.service-discovery.type: kubernetes
+  quarkus.stork.narration-service.service-discovery.application: rest-narration
+  quarkus.stork.narration-service.service-discovery.refresh-period: 1H
+  quarkus.stork.narration-service.service-discovery.port-name: http
+  quarkus.grpc.clients.locations.host: grpc-locations
+  quarkus.grpc.clients.locations.port: "80"
+  quarkus.otel.exporter.otlp.endpoint: http://otel-lgtm:4318
+  kafka.bootstrap.servers: PLAINTEXT://fights-kafka:9092
+  mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: fights-db
+    application: fights-service
+    system: quarkus-super-heroes
+  name: fights-db-init
+data:
+  get-data.sh: |-
+    #!/bin/bash
+
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-fights/deploy/db-init/initialize-database.js --output /docker-entrypoint-initdb.d/1-init-database.js

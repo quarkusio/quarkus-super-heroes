@@ -1,0 +1,16 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: java21-latest
+  name: view-jobs
+rules:
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - get

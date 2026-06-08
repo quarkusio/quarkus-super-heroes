@@ -1,0 +1,28 @@
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-lgtm
+  labels:
+    name: otel-lgtm
+    system: quarkus-super-heroes
+    app: otel-lgtm
+    role: monitoring
+spec:
+  ports:
+    - port: 3000
+      name: grafana
+      protocol: TCP
+      targetPort: 3000
+    - port: 4317
+      name: otlp-grpc
+      protocol: TCP
+      targetPort: 4317
+    - port: 4318
+      name: otlp-http
+      protocol: TCP
+      targetPort: 4318
+  selector:
+    name: otel-lgtm
+  type: ClusterIP

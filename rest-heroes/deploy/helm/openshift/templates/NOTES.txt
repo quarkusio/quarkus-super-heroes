@@ -1,0 +1,72 @@
+# Quarkus Helm Notes
+
+To access the Helm annotations or properties you just need to have the following dependency in your
+class path:
+
+    <dependency>
+        <groupId>io.quarkiverse.helm</groupId>
+        <artifactId>quarkus-helm</artifactId>
+        <version>{quarkus-helm-version}</version>
+    </dependency>
+
+Build the project using:
+
+    mvn clean package
+
+You can find the generated Helm artifacts under: `target/helm/kubernetes/<chart name>/` that should look like:
+- Chart.yaml
+- values.yaml
+- templates/*.yml the generated resources by Quarkus Helm
+
+**Note**: The `<chart name>` is set from either the property `quarkus.helm.name` or the `@HelmChart` annotation or the Quarkus application.
+
+# Requirements
+
+- Have installed [the Helm command line](https://helm.sh/docs/intro/install/)
+- Have connected/logged to a kubernetes cluster
+- Configure your Quarkus application to use any of the Quarkus Kubernetes extensions like Quarkus Kubernetes, Quarkus OpenShift or Quarkus Knative.
+- Configure your Quarkus application to use any of [the Quarkus Container Image extensions](https://quarkus.io/guides/container-image) - This example uses `container-image-docker`.
+
+# How can it be used?
+
+You can run the following Maven command in order to generate the Helm artifacts and build/push the image into a container registry:
+
+```shell
+mvn clean package -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true -Dquarkus.container-image.registry=<your container registry> -Dquarkus.container-image.group=<your container registry namespace>
+```
+
+This command will push the image to a container registry and will become available when a pod or container is created.
+
+Finally, let's use Helm to deploy it into the cluster:
+
+```shell
+helm install helm-example ./target/helm/kubernetes/<chart name>
+```
+
+The above command will deploy a chart using the default values (as defined within the `values.yaml` file). We can override the default values to use your `values.dev.yaml` file by executing the following command:
+
+```shell
+helm install helm-example ./target/helm/kubernetes/<chart name> --values ./target/helm/<chart name>/kubernetes/values.dev.yaml
+```
+
+How can I update my deployment?
+
+- Via the `upgrade` option of Helm command line:
+
+After making changes to your project and regenerating the Helm resources and the application container image, then you need to upgrade your deployment:
+
+```shell
+helm upgrade helm-example ./target/helm/kubernetes/<chart name>
+```
+
+- Via the `set` option of Helm command line:
+
+```shell
+helm upgrade helm-example ./target/helm/kubernetes/<chart name> --set <app name>.replicas=1
+```
+
+How can we delete my deployment?
+
+```shell
+helm uninstall helm-example
+```

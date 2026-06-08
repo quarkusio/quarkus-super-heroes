@@ -1,0 +1,153 @@
+{
+  "$schema" : "https://json-schema.org/draft-07/schema#",
+  "properties" : {
+    "app" : {
+      "type" : "object",
+      "properties" : {
+        "livenessProbe" : {
+          "type" : "object",
+          "properties" : {
+            "failureThreshold" : {
+              "description" : "The failure threshold to use.",
+              "type" : "integer"
+            },
+            "periodSeconds" : {
+              "description" : "The period in which the action should be called.",
+              "type" : "integer"
+            },
+            "timeoutSeconds" : {
+              "description" : "The amount of time to wait for each action.",
+              "type" : "integer"
+            },
+            "successThreshold" : {
+              "description" : "The success threshold to use.",
+              "type" : "integer"
+            },
+            "initialDelaySeconds" : {
+              "description" : "The amount of time to wait before starting to probe.",
+              "type" : "integer"
+            },
+            "httpGet" : {
+              "type" : "object",
+              "properties" : {
+                "path" : {
+                  "description" : "The http path to use for the probe.",
+                  "type" : "string"
+                },
+                "scheme" : {
+                  "description" : "The http schema to use for the probe.",
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        },
+        "image" : {
+          "description" : "The container image to use.",
+          "type" : "string"
+        },
+        "envs" : {
+          "type" : "object",
+          "properties" : {
+            "QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME" : {
+              "type" : "string"
+            },
+            "quarkus" : {
+              "type" : "object",
+              "properties" : {
+                "microcks" : {
+                  "type" : "object",
+                  "properties" : {
+                    "default" : {
+                      "type" : "object",
+                      "properties" : {
+                        "http" : {
+                          "type" : "object",
+                          "properties" : {
+                            "port" : {
+                              "type" : "string"
+                            },
+                            "host" : {
+                              "type" : "string"
+                            }
+                          }
+                        },
+                        "grpc" : {
+                          "type" : "object",
+                          "properties" : {
+                            "port" : {
+                              "type" : "string"
+                            },
+                            "host" : {
+                              "type" : "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME" : {
+              "type" : "string"
+            }
+          }
+        },
+        "readinessProbe" : {
+          "type" : "object",
+          "properties" : {
+            "failureThreshold" : {
+              "description" : "The failure threshold to use.",
+              "type" : "integer"
+            },
+            "timeoutSeconds" : {
+              "description" : "The amount of time to wait for each action.",
+              "type" : "integer"
+            },
+            "periodSeconds" : {
+              "description" : "The period in which the action should be called.",
+              "type" : "integer"
+            },
+            "successThreshold" : {
+              "description" : "The success threshold to use.",
+              "type" : "integer"
+            },
+            "initialDelaySeconds" : {
+              "description" : "The amount of time to wait before starting to probe.",
+              "type" : "integer"
+            },
+            "httpGet" : {
+              "type" : "object",
+              "properties" : {
+                "path" : {
+                  "description" : "The http path to use for the probe.",
+                  "type" : "string"
+                },
+                "scheme" : {
+                  "description" : "The http schema to use for the probe.",
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        },
+        "ports" : {
+          "type" : "object",
+          "properties" : {
+            "http1" : {
+              "description" : "The http port to use for the probe.",
+              "type" : "integer"
+            },
+            "http" : {
+              "description" : "The port number to use for http.",
+              "type" : "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "title" : "Values",
+  "type" : "object"
+}

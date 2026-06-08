@@ -1,0 +1,28 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: grpc-locations
+    application: locations-service
+    system: quarkus-super-heroes
+  name: grpc-locations-config
+data:
+  quarkus.hibernate-orm.schema-management.strategy: validate
+  quarkus.hibernate-orm.sql-load-script: no-file
+  quarkus.datasource.jdbc.url: jdbc:mariadb://locations-db:3306/locations_database
+  quarkus.otel.exporter.otlp.endpoint: http://otel-lgtm:4318
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: locations-db
+    application: locations-service
+    system: quarkus-super-heroes
+  name: locations-db-init
+data:
+  get-data.sh: |-
+    #!/bin/bash
+
+    curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql

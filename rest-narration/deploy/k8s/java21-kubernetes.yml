@@ -24,7 +24,7 @@ metadata:
     app.openshift.io/connects-to: otel-lgtm
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:18:52 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:31:53 +0000
   labels:
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
@@ -55,7 +55,7 @@ metadata:
     app.openshift.io/connects-to: otel-lgtm
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:18:52 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:31:53 +0000
   labels:
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
@@ -69,8 +69,8 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: rest-narration
       app.kubernetes.io/version: java21-latest
+      app.kubernetes.io/name: rest-narration
       app.kubernetes.io/part-of: narration-service
   template:
     metadata:
@@ -81,14 +81,14 @@ spec:
         app.openshift.io/connects-to: otel-lgtm
         app.quarkus.io/quarkus-version: 3.36.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-08 - 02:18:52 +0000
+        app.quarkus.io/build-timestamp: 2026-06-08 - 17:31:53 +0000
       labels:
         app: rest-narration
         application: narration-service
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
-        app.kubernetes.io/name: rest-narration
         app.kubernetes.io/version: java21-latest
+        app.kubernetes.io/name: rest-narration
         app.kubernetes.io/part-of: narration-service
     spec:
       containers:
@@ -97,6 +97,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: OPENAI_API_KEY
+              value: change-me
+            - name: quarkus.wiremock.devservices.port
+              value: ""
             - name: QUARKUS_OTEL_K8S_RESOURCE_NAMESPACE
               valueFrom:
                 fieldRef:

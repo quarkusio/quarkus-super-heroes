@@ -89,7 +89,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:18:03 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:31:01 +0000
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
@@ -193,23 +193,23 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:18:03 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:31:01 +0000
   labels:
     app: grpc-locations
     application: locations-service
     system: quarkus-super-heroes
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/part-of: locations-service
+    app.kubernetes.io/version: java21-latest
     app.kubernetes.io/name: grpc-locations
   name: grpc-locations
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/version: java21-latest
       app.kubernetes.io/part-of: locations-service
+      app.kubernetes.io/version: java21-latest
       app.kubernetes.io/name: grpc-locations
   template:
     metadata:
@@ -223,15 +223,15 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.36.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-08 - 02:18:03 +0000
+        app.quarkus.io/build-timestamp: 2026-06-08 - 17:31:01 +0000
       labels:
         app: grpc-locations
         application: locations-service
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/version: java21-latest
         app.kubernetes.io/part-of: locations-service
+        app.kubernetes.io/version: java21-latest
         app.kubernetes.io/name: grpc-locations
     spec:
       containers:
@@ -317,7 +317,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:18:03 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:31:01 +0000
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
@@ -361,7 +361,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:18:52 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:31:53 +0000
   labels:
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
@@ -396,7 +396,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:18:52 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:31:53 +0000
   labels:
     app: rest-narration
     application: narration-service
@@ -404,16 +404,16 @@ metadata:
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/part-of: narration-service
     app.kubernetes.io/name: rest-narration
+    app.kubernetes.io/part-of: narration-service
   name: rest-narration
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/version: java21-latest
-      app.kubernetes.io/part-of: narration-service
       app.kubernetes.io/name: rest-narration
+      app.kubernetes.io/part-of: narration-service
   template:
     metadata:
       annotations:
@@ -426,7 +426,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.36.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-08 - 02:18:52 +0000
+        app.quarkus.io/build-timestamp: 2026-06-08 - 17:31:53 +0000
       labels:
         app: rest-narration
         application: narration-service
@@ -434,11 +434,15 @@ spec:
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/version: java21-latest
-        app.kubernetes.io/part-of: narration-service
         app.kubernetes.io/name: rest-narration
+        app.kubernetes.io/part-of: narration-service
     spec:
       containers:
         - env:
+            - name: OPENAI_API_KEY
+              value: change-me
+            - name: quarkus.wiremock.devservices.port
+              value: ""
             - name: QUARKUS_OTEL_K8S_RESOURCE_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -518,7 +522,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:18:52 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:31:53 +0000
   labels:
     app.kubernetes.io/name: rest-narration
     app.kubernetes.io/part-of: narration-service
@@ -623,7 +627,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:19:33 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:32:37 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -720,7 +724,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:19:33 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:32:37 +0000
   labels:
     app: rest-villains
     application: villains-service
@@ -728,16 +732,16 @@ metadata:
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/name: rest-villains
   name: rest-villains
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/version: java21-latest
-      app.kubernetes.io/name: rest-villains
       app.kubernetes.io/part-of: villains-service
+      app.kubernetes.io/name: rest-villains
   template:
     metadata:
       annotations:
@@ -750,7 +754,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.36.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-08 - 02:19:33 +0000
+        app.quarkus.io/build-timestamp: 2026-06-08 - 17:32:37 +0000
       labels:
         app: rest-villains
         application: villains-service
@@ -758,8 +762,8 @@ spec:
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/version: java21-latest
-        app.kubernetes.io/name: rest-villains
         app.kubernetes.io/part-of: villains-service
+        app.kubernetes.io/name: rest-villains
     spec:
       containers:
         - env:
@@ -784,10 +788,10 @@ spec:
             - name: QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME
               value: rest-villains
           envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:java21-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -844,7 +848,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:19:33 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:32:37 +0000
   labels:
     app.kubernetes.io/name: rest-villains
     app.kubernetes.io/part-of: villains-service
@@ -949,7 +953,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:20:15 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:33:22 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -1047,7 +1051,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:20:15 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:33:22 +0000
   labels:
     app: rest-heroes
     application: heroes-service
@@ -1055,16 +1059,16 @@ metadata:
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/part-of: heroes-service
     app.kubernetes.io/name: rest-heroes
+    app.kubernetes.io/part-of: heroes-service
   name: rest-heroes
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/version: java21-latest
-      app.kubernetes.io/part-of: heroes-service
       app.kubernetes.io/name: rest-heroes
+      app.kubernetes.io/part-of: heroes-service
   template:
     metadata:
       annotations:
@@ -1077,7 +1081,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.36.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-08 - 02:20:15 +0000
+        app.quarkus.io/build-timestamp: 2026-06-08 - 17:33:22 +0000
       labels:
         app: rest-heroes
         application: heroes-service
@@ -1085,8 +1089,8 @@ spec:
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/version: java21-latest
-        app.kubernetes.io/part-of: heroes-service
         app.kubernetes.io/name: rest-heroes
+        app.kubernetes.io/part-of: heroes-service
     spec:
       containers:
         - env:
@@ -1171,7 +1175,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:20:15 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:33:22 +0000
   labels:
     app.kubernetes.io/name: rest-heroes
     app.kubernetes.io/part-of: heroes-service
@@ -1204,7 +1208,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:21:08 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:34:20 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -1371,7 +1375,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:21:08 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:34:20 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -1589,24 +1593,24 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:21:08 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:34:20 +0000
   labels:
     app: rest-fights
     application: fights-service
     system: quarkus-super-heroes
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
-    app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: java21-latest
+    app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/part-of: fights-service
       app.kubernetes.io/name: rest-fights
       app.kubernetes.io/version: java21-latest
+      app.kubernetes.io/part-of: fights-service
   template:
     metadata:
       annotations:
@@ -1619,19 +1623,27 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.36.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-08 - 02:21:08 +0000
+        app.quarkus.io/build-timestamp: 2026-06-08 - 17:34:20 +0000
       labels:
         app: rest-fights
         application: fights-service
         system: quarkus-super-heroes
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
-        app.kubernetes.io/part-of: fights-service
         app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: java21-latest
+        app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - env:
+            - name: quarkus.microcks.default.http.port
+              value: ""
+            - name: quarkus.microcks.default.grpc.port
+              value: ""
+            - name: quarkus.microcks.default.grpc.host
+              value: ""
+            - name: quarkus.microcks.default.http.host
+              value: ""
             - name: QUARKUS_OTEL_K8S_RESOURCE_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -1653,10 +1665,10 @@ spec:
             - name: QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME
               value: rest-fights
           envFrom:
-            - configMapRef:
-                name: rest-fights-config
             - secretRef:
                 name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:java21-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -1730,7 +1742,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:21:08 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:34:20 +0000
     haproxy.router.openshift.io/timeout: 150s
   labels:
     app.kubernetes.io/name: rest-fights
@@ -1821,7 +1833,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:21:55 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:35:16 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -1976,7 +1988,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:21:55 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:35:16 +0000
   labels:
     app: event-statistics
     application: event-stats
@@ -1984,16 +1996,16 @@ metadata:
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
+    app.kubernetes.io/name: event-statistics
   name: event-statistics
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/version: java21-latest
-      app.kubernetes.io/name: event-statistics
       app.kubernetes.io/part-of: event-stats
+      app.kubernetes.io/name: event-statistics
   template:
     metadata:
       annotations:
@@ -2006,7 +2018,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.36.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-08 - 02:21:55 +0000
+        app.quarkus.io/build-timestamp: 2026-06-08 - 17:35:16 +0000
       labels:
         app: event-statistics
         application: event-stats
@@ -2014,8 +2026,8 @@ spec:
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/version: java21-latest
-        app.kubernetes.io/name: event-statistics
         app.kubernetes.io/part-of: event-stats
+        app.kubernetes.io/name: event-statistics
     spec:
       containers:
         - env:
@@ -2040,10 +2052,10 @@ spec:
             - name: QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME
               value: event-statistics
           envFrom:
-            - secretRef:
-                name: event-statistics-config-creds
             - configMapRef:
                 name: event-statistics-config
+            - secretRef:
+                name: event-statistics-config-creds
           image: quay.io/quarkus-super-heroes/event-statistics:java21-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -2116,7 +2128,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:21:55 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:35:16 +0000
   labels:
     app.kubernetes.io/name: event-statistics
     app.kubernetes.io/part-of: event-stats
@@ -2149,7 +2161,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:22:32 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:35:57 +0000
   labels:
     app.kubernetes.io/name: ui-super-heroes
     app.kubernetes.io/part-of: ui-super-heroes
@@ -2184,7 +2196,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:22:32 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:35:57 +0000
   labels:
     app: ui-super-heroes
     application: ui-super-heroes
@@ -2192,16 +2204,16 @@ metadata:
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/version: java21-latest
-    app.kubernetes.io/name: ui-super-heroes
     app.kubernetes.io/part-of: ui-super-heroes
+    app.kubernetes.io/name: ui-super-heroes
   name: ui-super-heroes
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/version: java21-latest
-      app.kubernetes.io/name: ui-super-heroes
       app.kubernetes.io/part-of: ui-super-heroes
+      app.kubernetes.io/name: ui-super-heroes
   template:
     metadata:
       annotations:
@@ -2214,7 +2226,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.36.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-08 - 02:22:32 +0000
+        app.quarkus.io/build-timestamp: 2026-06-08 - 17:35:57 +0000
       labels:
         app: ui-super-heroes
         application: ui-super-heroes
@@ -2222,11 +2234,15 @@ spec:
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/version: java21-latest
-        app.kubernetes.io/name: ui-super-heroes
         app.kubernetes.io/part-of: ui-super-heroes
+        app.kubernetes.io/name: ui-super-heroes
     spec:
       containers:
         - env:
+            - name: quarkus.microcks.default.http.port
+              value: ""
+            - name: quarkus.microcks.default.http.host
+              value: ""
             - name: CALCULATE_API_BASE_URL
               value: "true"
             - name: QUARKUS_OTEL_K8S_RESOURCE_NAMESPACE
@@ -2305,7 +2321,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-08 - 02:22:32 +0000
+    app.quarkus.io/build-timestamp: 2026-06-08 - 17:35:57 +0000
   labels:
     app.kubernetes.io/name: ui-super-heroes
     app.kubernetes.io/part-of: ui-super-heroes
