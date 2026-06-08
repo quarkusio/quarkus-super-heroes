@@ -29,6 +29,21 @@ create_output_file() {
   fi
 }
 
+split_yaml_by_kind() {
+  local outdir="$1"
+  shift
+
+  for source_file in "$@"; do
+    if [[ -f "$source_file" ]]; then
+      (cd "$outdir" && yq eval-all --split-exp '(.kind | downcase)' "$OLDPWD/$source_file")
+
+      for f in "$outdir"/*.yml; do
+        [[ -f "$f" ]] && mv "$f" "${f%.yml}.yaml"
+      done
+    fi
+  done
+}
+
 do_build() {
   local project=$1
   local version_tag=$2
@@ -221,8 +236,7 @@ CHART_EOF
 
     # Add rest-fights values
     if [[ -f "$output_chart_dir/$values_filename" ]]; then
-      echo "rest-fights:" >> "$downstream_umbrella_values"
-      sed '/^---$/d' "$output_chart_dir/$values_filename" | sed 's/^/  /' >> "$downstream_umbrella_values"
+      yq eval '{"rest-fights": .}' "$output_chart_dir/$values_filename" >> "$downstream_umbrella_values"
     fi
 
     # Add each downstream project's values
@@ -230,8 +244,7 @@ CHART_EOF
     do
       local downstream_values="$downstream/$HELM_OUTPUT_DIR/${deployment_type}/$values_filename"
       if [[ -f "$downstream_values" ]]; then
-        echo "${downstream}:" >> "$downstream_umbrella_values"
-        sed '/^---$/d' "$downstream_values" | sed 's/^/  /' >> "$downstream_umbrella_values"
+        key="$downstream" yq eval '{ strenv(key): . }' "$downstream_values" >> "$downstream_umbrella_values"
       fi
     done
   fi
@@ -279,49 +292,7 @@ version: "1.0.0"
 CHART_EOF
 
     # Split base.yml and target-specific YAML into individual template files by resource kind
-    for source_file in "$input_dir/base.yml" "$input_dir/${deployment_type}.yml"
-    do
-      if [[ -f "$source_file" ]]; then
-        # Use awk to split on --- and extract kind for filename
-        awk -v outdir="$monitoring_dir/templates" '
-          BEGIN { doc="" }
-          /^---$/ {
-            if (doc != "") {
-              kind = tolower(doc_kind)
-              # Handle duplicate kinds by appending a suffix
-              if (kind in seen) {
-                seen[kind]++
-                fname = outdir "/" kind "-" seen[kind] ".yaml"
-              } else {
-                seen[kind] = 1
-                fname = outdir "/" kind ".yaml"
-              }
-              print "---" > fname
-              print doc >> fname
-            }
-            doc = ""
-            doc_kind = ""
-            next
-          }
-          /^kind:/ { doc_kind = $2 }
-          { doc = doc "\n" $0 }
-          END {
-            if (doc != "" && doc_kind != "") {
-              kind = tolower(doc_kind)
-              if (kind in seen) {
-                seen[kind]++
-                fname = outdir "/" kind "-" seen[kind] ".yaml"
-              } else {
-                seen[kind] = 1
-                fname = outdir "/" kind ".yaml"
-              }
-              print "---" > fname
-              print doc >> fname
-            }
-          }
-        ' "$source_file"
-      fi
-    done
+    split_yaml_by_kind "$monitoring_dir/templates" "$input_dir/base.yml" "$input_dir/${deployment_type}.yml"
   done
 }
 
@@ -378,8 +349,7 @@ CHART_EOF
         do
           local project_values="$project/$HELM_OUTPUT_DIR/${deployment_type}/$sub_values_filename"
           if [[ -f "$project_values" ]]; then
-            echo "${project}:" >> "$umbrella_values_file"
-            sed '/^---$/d' "$project_values" | sed 's/^/  /' >> "$umbrella_values_file"
+            key="$project" yq eval '{ strenv(key): . }' "$project_values" >> "$umbrella_values_file"
           fi
         done
       done
