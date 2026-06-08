@@ -1,0 +1,92 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-lgtm
+  labels:
+    system: quarkus-super-heroes
+    name: otel-lgtm
+    app: otel-lgtm
+    role: monitoring
+    app.kubernetes.io/part-of: monitoring
+    app.openshift.io/runtime: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: otel-lgtm
+  template:
+    metadata:
+      labels:
+        system: quarkus-super-heroes
+        name: otel-lgtm
+        app: otel-lgtm
+        role: monitoring
+    spec:
+      initContainers:
+        - name: get-dashboards
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          workingDir: /tmp/init
+          command:
+            - 'sh'
+            - 'get-dashboards.sh'
+          volumeMounts:
+            - name: otel-lgtm-init
+              mountPath: /tmp/init
+            - name: grafana-dashboards-provisioning
+              mountPath: /provisioning
+            - name: grafana-dashboards
+              mountPath: /dashboards
+      containers:
+        - image: docker.io/grafana/otel-lgtm:0.24.0
+          name: otel-lgtm
+          ports:
+            - containerPort: 3000
+              name: grafana
+            - containerPort: 4317
+              name: otlp-grpc
+            - containerPort: 4318
+              name: otlp-http
+          startupProbe:
+            exec:
+              command:
+                - cat
+                - /tmp/ready
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command:
+                - cat
+                - /tmp/ready
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 24
+          volumeMounts:
+            - name: grafana-dashboards-provisioning
+              mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/grafana-dashboards.yaml
+              subPath: grafana-dashboards.yaml
+            - name: grafana-dashboards-provisioning
+              mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/custom.yaml
+              subPath: custom.yaml
+            - name: grafana-dashboards
+              mountPath: /otel-lgtm/grafana/conf/provisioning/dashboards/custom
+            - name: otel-lgtm-data
+              mountPath: /data
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              memory: 256Mi
+      volumes:
+        - name: grafana-dashboards-provisioning
+          emptyDir: {}
+        - name: grafana-dashboards
+          emptyDir: {}
+        - name: otel-lgtm-init
+          configMap:
+            name: otel-lgtm-init
+        - name: otel-lgtm-data
+          emptyDir: {}

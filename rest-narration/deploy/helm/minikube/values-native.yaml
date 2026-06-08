@@ -1,0 +1,42 @@
+---
+app:
+  envs:
+    OPENAI_API_KEY: change-me
+    QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME: rest-narration
+    QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME: rest-narration
+    quarkus:
+      wiremock:
+        devservices:
+          port: ""
+  image: quay.io/quarkus-super-heroes/rest-narration:native-latest
+  livenessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /q/health/live
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 10
+  memoryLimit: 128Mi
+  memoryRequest: 32Mi
+  ports:
+    http: 8087
+  readinessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /q/health/ready
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 10
+  startupProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /q/health/started
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 10

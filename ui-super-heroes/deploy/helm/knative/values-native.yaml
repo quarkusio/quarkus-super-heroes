@@ -1,0 +1,34 @@
+---
+app:
+  envs:
+    CALCULATE_API_BASE_URL: "true"
+    QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME: ui-super-heroes
+    QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME: ui-super-heroes
+    quarkus:
+      microcks:
+        default:
+          http:
+            host: ""
+            port: ""
+  image: quay.io/quarkus-super-heroes/ui-super-heroes:native-latest
+  livenessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /q/health/live
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 10
+  ports:
+    http: 8080
+    http1: 8080
+  readinessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /q/health/ready
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 10
