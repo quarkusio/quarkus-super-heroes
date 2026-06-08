@@ -20,7 +20,7 @@ import dev.langchain4j.model.output.Response;
 @QuarkusTest
 class ImageGenerationServiceTests {
   private static final String NARRATION = "Lorem ipsum dolor sit amet";
-  private static final String PROMPT = ImageGenerationService.SYSTEM_MESSAGE + "\n" + NARRATION;
+  private static final String PROMPT = ImageGenerationService.SYSTEM_MESSAGE + "\nHere is the fight narration: \"" + NARRATION + "\"";
 
   @InjectMock
   ImageModel imageModel;
@@ -39,7 +39,7 @@ class ImageGenerationServiceTests {
     when(this.imageModel.generate(startsWith(PROMPT)))
       .thenReturn(Response.from(image));
 
-    assertThat(this.imageGenerationService.generateImageForNarration(new ImageGenerationRequest(NARRATION, null, null)))
+    assertThat(this.imageGenerationService.generateImageForNarration(new ImageGenerationRequest(NARRATION, "http://somewhere.com", "http://somewhereelse.com")))
       .isNotNull()
       .extracting(FightImage::imageUrl)
       .isEqualTo("data:image/png;base64,base64Data");
