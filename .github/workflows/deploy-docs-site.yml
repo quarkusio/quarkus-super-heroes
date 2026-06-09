@@ -1,0 +1,47 @@
+name: Deploy documentation site
+
+on:
+  workflow_run:
+    workflows: ["Basic build and test"]
+    types:
+      - completed
+    branches:
+      - main
+
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: docs
+    shell: bash
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    if: github.repository == 'quarkusio/quarkus-super-heroes' && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Generate Roq Site
+        uses: quarkiverse/quarkus-roq@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-docs:
+    needs: build-docs
+    runs-on: ubuntu-latest
+    if: github.repository == 'quarkusio/quarkus-super-heroes'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
