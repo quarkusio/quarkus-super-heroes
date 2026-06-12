@@ -9,7 +9,7 @@ content-toc: true
 
 This is the event statistics microservice. It is an event-driven microservice, listening for fight event messages on an [Apache Kafka](https://kafka.apache.org/) topic utilizing [SmallRye Reactive Messaging](https://quarkus.io/guides/kafka).
 
-![event-statistics](/images/event-statistics.png)
+![event-statistics]({site.image('event-statistics.png')})
 
 Messages arrive on the `fights` topic. The `SuperStats` class listens to these events and keeps track of 2 kinds of statistics: _team_ stats and _winner_ stats.
 
@@ -17,7 +17,7 @@ Messages are stored in [Apache Avro](https://avro.apache.org/docs/current) forma
 
 This service also has its own UI where you can see the top winners and the percentage of hero victories!
 
-![event-statistics-ui](/images/event-statistics-ui.png)
+![event-statistics-ui]({site.image('event-statistics-ui.png')})
 
 ## Team Stats
 

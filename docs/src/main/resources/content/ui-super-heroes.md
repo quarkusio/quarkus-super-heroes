@@ -9,13 +9,13 @@ content-toc: true
 
 This is the main user interface for the application. The application is a React application served via [Quinoa](https://quarkus.io/extensions/io.quarkiverse.quinoa/quarkus-quinoa).
 
-![ui-super-heroes](/images/ui-super-heroes.png)
+![ui-super-heroes]({site.image('ui-super-heroes.png')})
 
 The main UI allows you to pick up one random Hero and Villain by clicking on "New Fighters", then pick a random location for the fight to take place by clicking on "New Location".
 
 Then it's just a matter of clicking on "Fight!" to get them to fight. The table at the bottom shows the list of the previous fights.
 
-![main-ui](/images/main-ui.png)
+![main-ui]({site.image('main-ui.png')})
 
 ## Building the Application
 
@@ -23,7 +23,7 @@ Environment variables can be injected into the build using the [ngx-env](https:/
 
 Production builds are served using a Quarkus server. This server serves the compiled React application and an `env.js` file. This `env.js` file is generated at startup, and adds a `window.APP_CONFIG` property that the React application can read from.
 
-Currently, the `env.js` will expose just the `API_BASE_URL` that's set at runtime. This will control the base URL to connect to the [fights](/rest-fights) service. The default if unset is `http://localhost:8082`. You can control the base URL using normal Quarkus configuration, such as setting `api.base.url` in `application.properties` or an `API_BASE_URL` environment variable.
+Currently, the `env.js` will expose just the `API_BASE_URL` that's set at runtime. This will control the base URL to connect to the [fights]({site.url('/rest-fights')}) service. The default if unset is `http://localhost:8082`. You can control the base URL using normal Quarkus configuration, such as setting `api.base.url` in `application.properties` or an `API_BASE_URL` environment variable.
 
 ```bash
 quarkus package
@@ -51,13 +51,13 @@ The Quarkus server port can be changed in the usual way, with `application.prope
 
 [Microcks](https://microcks.io) is an open source tool for API mocking and testing. It allows developers to turn an API contract or [Postman Collection](https://learning.postman.com/docs/getting-started/first-steps/creating-the-first-collection) into live mocks.
 
-This can be especially useful while developing applications that have downstream dependencies, like the `ui-super-heroes` application does. The `ui-super-heroes` application depends on [rest-fights](/rest-fights).
+This can be especially useful while developing applications that have downstream dependencies, like the `ui-super-heroes` application does. The `ui-super-heroes` application depends on [rest-fights]({site.url('/rest-fights')}).
 
-This problem is what the [Microcks Quarkus extension](https://github.com/microcks/microcks-quarkus) solves. This extension has been integrated into `ui-super-heroes` so that when live coding in dev mode, mock responses from [rest-fights](/rest-fights) will automatically get served.
+This problem is what the [Microcks Quarkus extension](https://github.com/microcks/microcks-quarkus) solves. This extension has been integrated into `ui-super-heroes` so that when live coding in dev mode, mock responses from [rest-fights]({site.url('/rest-fights')}) will automatically get served.
 
 Furthermore, the [Microcks user interface](https://microcks.io/documentation/using/mocks) is accessible from the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui):
 
-![Microcks user interface](/images/microcks-dev-ui.png)
+![Microcks user interface]({site.image('microcks-dev-ui.png')})
 
 If you wish to disable this functionality, simply add `-Dquarkus.profile=no-microcks` when you run Quarkus dev mode (via [Maven](https://quarkus.io/guides/maven-tooling#dev-mode), [Gradle](https://quarkus.io/guides/gradle-tooling#dev-mode), or the [Quarkus CLI](https://quarkus.io/guides/cli-tooling#development-mode)). In this case, the Microcks dev service will be disabled and the `ui-super-heroes` application will attempt to make live calls to the downstream services.
 
@@ -67,8 +67,8 @@ As discussed in the [Integration with Microcks](#integration-with-microcks) sect
 
 If you want _real_ backend services, follow these instructions:
 
-1. Start up all of the downstream services ([Heroes Service](/rest-heroes), [Villains Service](/rest-villains), [Location Service](/grpc-locations), and [Fights Service](/rest-fights)).
-    - The [Event Statistics Service](/event-statistics) is optional.
+1. Start up all of the downstream services ([Heroes Service]({site.url('/rest-heroes')}), [Villains Service]({site.url('/rest-villains')}), [Location Service]({site.url('/grpc-locations')}), and [Fights Service]({site.url('/rest-fights')})).
+    - The [Event Statistics Service]({site.url('/event-statistics')}) is optional.
 2. Follow the steps in the *Building the Application* section above.
 3. Start the service using the command `quarkus dev -Dquarkus.profile=no-microcks`.
     - You can also set the environment variable `CALCULATE_API_BASE_URL=true` to have it compute the base URL. Only use this option if the UI url is in the form of `ui-super-heroes.somewhere.com`. In this instance, setting `CALCULATE_API_BASE_URL=true` will replace `ui-super-heroes` in the URL with `rest-fights`.
@@ -152,11 +152,11 @@ Following the [deployment section](https://quarkus.io/guides/deploying-to-kubern
 
 ### Routing
 
-There are 2 environment variables that can be set on this application to control how the React UI communicates with the [rest-fights](/rest-fights) application:
+There are 2 environment variables that can be set on this application to control how the React UI communicates with the [rest-fights]({site.url('/rest-fights')}) application:
 
 | Env Var                  | Default Value                                        | Description                                                                                                                                                                                                                                                                                                      |
 |--------------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `API_BASE_URL`           | `undefined`                                          | The base URL for the [rest-fights](/rest-fights) application. Set this to a fully qualified URL (i.e. `http://www.example.com` or `http://somehost.com:someport`) to define the URL for the [rest-fights](/rest-fights) application.                                                                              |
+| `API_BASE_URL`           | `undefined`                                          | The base URL for the [rest-fights]({site.url('/rest-fights')}) application. Set this to a fully qualified URL (i.e. `http://www.example.com` or `http://somehost.com:someport`) to define the URL for the [rest-fights]({site.url('/rest-fights')}) application.                                                                              |
 | `CALCULATE_API_BASE_URL` | `false` on Minikube/Kubernetes. `true` on OpenShift. | If `true`, look at the URL in the browser and replace the `ui-super-heroes` host name with `rest-fights`. This is because on OpenShift, each application has its own `Route` which exposes a unique hostname within the cluster. On Minikube and Kubernetes, an `Ingress` using different paths is used instead. |
 
 ---

@@ -12,19 +12,19 @@ A sample application demonstrating Quarkus features and best practices. Superher
 
 The application consists of several microservices, communicating either synchronously via REST or asynchronously using Kafka. The base JVM version for all the applications is Java 21.
 
-![Superheroes architecture diagram](/images/application-architecture.png)
+![Superheroes architecture diagram]({site.image('application-architecture.png')})
 
 ## Services
 
 | Service | Port | Type | Database | Language |
 |---------|------|------|----------|----------|
-| [Hero REST API](/rest-heroes) | 8083 | REST (reactive) | PostgreSQL | Java |
-| [Villain REST API](/rest-villains) | 8084 | REST (blocking) | PostgreSQL | Java |
-| [Fight REST API](/rest-fights) | 8082 | REST (reactive) | MongoDB | Java |
-| [Narration REST API](/rest-narration) | 8087 | REST (blocking) | — (OpenAI) | Java |
-| [Location gRPC API](/grpc-locations) | 8089 | gRPC (blocking) | MariaDB | Kotlin |
-| [Event Statistics](/event-statistics) | 8085 | Kafka consumer + WebSocket | — | Java |
-| [Battle UI](/ui-super-heroes) | 8080 | React (via Quinoa) | — | TypeScript |
+| [Hero REST API]({site.url('/rest-heroes')}) | 8083 | REST (reactive) | PostgreSQL | Java |
+| [Villain REST API]({site.url('/rest-villains')}) | 8084 | REST (blocking) | PostgreSQL | Java |
+| [Fight REST API]({site.url('/rest-fights')}) | 8082 | REST (reactive) | MongoDB | Java |
+| [Narration REST API]({site.url('/rest-narration')}) | 8087 | REST (blocking) | — (OpenAI) | Java |
+| [Location gRPC API]({site.url('/grpc-locations')}) | 8089 | gRPC (blocking) | MariaDB | Kotlin |
+| [Event Statistics]({site.url('/event-statistics')}) | 8085 | Kafka consumer + WebSocket | — | Java |
+| [Battle UI]({site.url('/ui-super-heroes')}) | 8080 | React (via Quinoa) | — | TypeScript |
 
 ## Demo
 
@@ -44,6 +44,6 @@ All services export traces, metrics, and logs via [OpenTelemetry](https://opente
 
 ## Getting Started
 
-- [Running Locally via Docker Compose](/running-locally)
-- [Deploying to Kubernetes](/deploying)
-- [CI/CD Automation](/automation)
+- [Running Locally via Docker Compose]({site.url('/running-locally')})
+- [Deploying to Kubernetes]({site.url('/deploying')})
+- [CI/CD Automation]({site.url('/automation')})
