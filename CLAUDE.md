@@ -78,7 +78,7 @@ cd rest-heroes && ./mvnw quarkus:dev
 
 ## Documentation Site
 
-- **Published at**: https://quarkus-super-heroes.quarkus.io
+- **Published at**: https://quarkus.io/quarkus-super-heroes
 - **Source**: `docs/` module — a Quarkus Roq static site (not a traditional application module)
 - **Theme**: `quarkus-roq-theme-default` (Tailwind CSS, sidebar navigation, dark mode)
 - **Build**: `cd docs && mvn quarkus:dev` for local dev, or `QUARKUS_ROQ_GENERATOR_BATCH=true mvn -B package quarkus:run -DskipTests` for static generation
