@@ -32,7 +32,7 @@ Each individual service also has its own descriptors in its `deploy/k8s` directo
 
 ## Routing
 
-For **Minikube and Kubernetes**, you will need an [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) to expose services outside the cluster. At minimum, the [Battle UI](/ui-super-heroes) and [Fight REST API](/rest-fights) need to be externally accessible. The [Event Statistics](/event-statistics) service is available on port `8085`.
+For **Minikube and Kubernetes**, you will need an [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) to expose services outside the cluster. At minimum, the [Battle UI]({site.url('/ui-super-heroes')}) and [Fight REST API]({site.url('/rest-fights')}) need to be externally accessible. The [Event Statistics]({site.url('/event-statistics')}) service is available on port `8085`.
 
 For **OpenShift**, Route objects are automatically created for exposed services. No additional configuration is required.
 
@@ -92,6 +92,6 @@ Each service can be deployed directly using the Quarkus Kubernetes, OpenShift, M
 
 **Note:** For non-OpenShift Kubernetes variants (other than Minikube), you will most likely need to [push the image to a container registry](https://quarkus.io/guides/container-image#pushing) by adding `-Dquarkus.container-image.push=true`, and setting `quarkus.container-image.registry`, `quarkus.container-image.group`, and/or `quarkus.container-image.name` as needed.
 
-See the [CI/CD Automation](/automation) page for details on how these extensions are used to generate the deployment descriptors in the `deploy/k8s` directory.
+See the [CI/CD Automation]({site.url('/automation')}) page for details on how these extensions are used to generate the deployment descriptors in the `deploy/k8s` directory.
 
 **WARNING:** The deployment descriptors and Helm charts deploy infrastructure (databases, Kafka, schema registry) as containers. This is **not production-ready**. For production deployments, use managed database services, [Strimzi](https://strimzi.io) for Kafka, and the [Apicurio Registry Operator](https://www.apicur.io/registry/docs/apicurio-registry-operator/1.0.0/index.html) for schema registry.

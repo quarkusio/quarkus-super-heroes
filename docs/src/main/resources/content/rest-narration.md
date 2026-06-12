@@ -15,7 +15,7 @@ Additionally, the service can generate images and image captions from a narratio
 
 This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with blocking endpoints. Additionally, this application favors constructor injection of beans over field injection (i.e. `@Inject` annotation).
 
-![rest-narration](/images/rest-narration.png)
+![rest-narration]({site.image('rest-narration.png')})
 
 ## Exposed Endpoints
 
