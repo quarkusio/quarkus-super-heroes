@@ -19,6 +19,10 @@ defaults:
     working-directory: docs
     shell: bash
 
+permissions:
+  pages: write
+  id-token: write
+
 jobs:
   build-docs:
     runs-on: ubuntu-latest
@@ -26,18 +30,34 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Generate Roq Site
-        uses: quarkiverse/quarkus-roq@v1
+      - name: Setup Java
+        uses: actions/setup-java@v5
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: Generate Roq site
+        env:
+          QUARKUS_ROQ_GENERATOR_BATCH: true
+        run: |
+          ./mvnw -B package quarkus:run \
+            -DskipTests \
+            -Dquarkus.http.root-path=/ \
+            -Dsite.url=https://quarkus-super-heroes.quarkus.io
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs/target/roq
 
   deploy-docs:
     needs: build-docs
     runs-on: ubuntu-latest
     if: github.repository == 'quarkusio/quarkus-super-heroes'
-    permissions:
-      pages: write
-      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
