@@ -37,10 +37,10 @@ spec:
             - name: QUARKUS_INIT_AND_EXIT
               value: "true"
           envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
             - configMapRef:
                 name: rest-fights-config
+            - secretRef:
+                name: rest-fights-config-creds
           image: quay.io/quarkus-super-heroes/rest-fights:java21-latest
           name: rest-fights-liquibase-mongodb-init
       restartPolicy: OnFailure
