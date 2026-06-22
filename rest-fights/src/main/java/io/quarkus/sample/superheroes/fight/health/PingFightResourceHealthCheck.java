@@ -6,7 +6,7 @@ import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
 
-import io.quarkus.sample.superheroes.fight.rest.FightResource;
+import io.quarkus.sample.superheroes.fight.rest.HelloFightResource;
 
 /**
  * {@link HealthCheck} to ping the fight service
@@ -14,11 +14,11 @@ import io.quarkus.sample.superheroes.fight.rest.FightResource;
 @Liveness
 public class PingFightResourceHealthCheck implements HealthCheck {
 	@Inject
-	FightResource fightResource;
+	HelloFightResource helloFightResource;
 
 	@Override
 	public HealthCheckResponse call() {
-		String response = this.fightResource.hello();
+		String response = this.helloFightResource.hello().await().indefinitely();
 
 		return HealthCheckResponse.named("Ping Fight REST Endpoint")
 			.withData("Response", response)

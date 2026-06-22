@@ -1,5 +1,5 @@
 ---
-openapi: 3.0.3
+openapi: 3.1.2
 info:
   title: Villain API
   description: This API allows CRUD operations on a villain
@@ -16,6 +16,7 @@ paths:
       tags:
       - villains
       summary: Returns all the villains from the database
+      operationId: getAllVillains
       parameters:
       - name: name_filter
         in: query
@@ -44,6 +45,8 @@ paths:
       tags:
       - villains
       summary: Completely replace all villains with the passed-in villains
+      operationId: replaceAllVillains
+      x-return-type: jakarta.ws.rs.core.Response
       requestBody:
         content:
           application/json:
@@ -75,6 +78,8 @@ paths:
       tags:
       - villains
       summary: Creates a valid villain
+      operationId: createVillain
+      x-return-type: jakarta.ws.rs.core.Response
       requestBody:
         content:
           application/json:
@@ -103,6 +108,7 @@ paths:
       tags:
       - villains
       summary: Delete all villains
+      operationId: deleteAllVillains
       responses:
         "204":
           description: Deletes all villains
@@ -111,6 +117,7 @@ paths:
       tags:
       - hello
       summary: Ping hello
+      operationId: hello
       responses:
         "200":
           description: Ping hello
@@ -126,6 +133,8 @@ paths:
       tags:
       - villains
       summary: Returns a random villain
+      operationId: getRandomVillain
+      x-return-type: jakarta.ws.rs.core.Response
       responses:
         "200":
           description: Gets random villain
@@ -148,6 +157,8 @@ paths:
       tags:
       - villains
       summary: Returns a villain for a given identifier
+      operationId: getVillain
+      x-return-type: jakarta.ws.rs.core.Response
       parameters:
       - name: id
         in: path
@@ -177,6 +188,8 @@ paths:
       - villains
       summary: Completely updates/replaces an exiting villain by replacing it with
         the passed-in villain
+      operationId: fullyUpdateVillain
+      x-return-type: jakarta.ws.rs.core.Response
       parameters:
       - name: id
         in: path
@@ -209,6 +222,7 @@ paths:
       tags:
       - villains
       summary: Deletes an exiting villain
+      operationId: deleteVillain
       parameters:
       - name: id
         in: path
@@ -223,6 +237,8 @@ paths:
       tags:
       - villains
       summary: Partially updates an exiting villain
+      operationId: partiallyUpdateVillain
+      x-return-type: jakarta.ws.rs.core.Response
       parameters:
       - name: id
         in: path
@@ -234,7 +250,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Villain'
+              $ref: '#/components/schemas/VillainPatch'
             examples:
               valid_villain:
                 value:
@@ -265,176 +281,32 @@ paths:
           description: No villain found
 components:
   schemas:
-    Charset:
-      type: object
-      properties:
-        name:
-          type: string
-        aliases:
-          type: array
-          items:
-            type: string
-        aliasSet:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        registered:
-          type: boolean
-    Expression:
-      type: object
-      properties:
-        namespace:
-          type: string
-        parts:
-          type: array
-          items:
-            $ref: '#/components/schemas/Part'
-        literal:
-          type: boolean
-        literalValue: {}
-        origin:
-          $ref: '#/components/schemas/Origin'
-        generatedId:
-          format: int32
-          type: integer
-    Locale:
-      type: object
-      properties:
-        language:
-          type: string
-        script:
-          type: string
-        country:
-          type: string
-        variant:
-          type: string
-        extensionKeys:
-          uniqueItems: true
-          type: array
-          items:
-            format: byte
-            type: string
-        unicodeLocaleAttributes:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        unicodeLocaleKeys:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        iSO3Language:
-          type: string
-        iSO3Country:
-          type: string
-        displayLanguage:
-          type: string
-        displayScript:
-          type: string
-        displayCountry:
-          type: string
-        displayVariant:
-          type: string
-        displayName:
-          type: string
-    Origin:
-      type: object
-      properties:
-        line:
-          format: int32
-          type: integer
-        lineCharacterStart:
-          format: int32
-          type: integer
-        lineCharacterEnd:
-          format: int32
-          type: integer
-        templateId:
-          type: string
-        templateGeneratedId:
-          type: string
-        variant:
-          type: object
-          allOf:
-          - $ref: '#/components/schemas/Variant'
-          nullable: true
-    ParameterDeclaration:
-      type: object
-      properties:
-        typeInfo:
-          type: string
-        key:
-          type: string
-        defaultValue:
-          $ref: '#/components/schemas/Expression'
-        origin:
-          $ref: '#/components/schemas/Origin'
-    Part:
-      type: object
-      properties:
-        name:
-          type: string
-        typeInfo:
-          type: string
-        virtualMethod:
-          type: boolean
-    Template:
-      type: object
-      properties:
-        expressions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Expression'
-        generatedId:
-          type: string
-        id:
-          type: string
-        variant:
-          type: object
-          allOf:
-          - $ref: '#/components/schemas/Variant'
-          nullable: true
-        parameterDeclarations:
-          type: array
-          items:
-            $ref: '#/components/schemas/ParameterDeclaration'
-        fragmentIds:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        fragment:
-          type: boolean
-    TemplateInstance:
-      type: object
-      properties:
-        timeout:
-          format: int64
-          type: integer
-        template:
-          $ref: '#/components/schemas/Template'
-    Variant:
-      type: object
-      properties:
-        locale:
-          $ref: '#/components/schemas/Locale'
-        contentType:
-          type: string
-        encoding:
-          $ref: '#/components/schemas/Charset'
-        hashCode:
-          format: int32
-          type: integer
-        mediaType:
-          type: string
-        charset:
-          $ref: '#/components/schemas/Charset'
     Villain:
       required:
       - name
       - level
+      type: object
+      properties:
+        id:
+          format: int64
+          type: integer
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        otherName:
+          type: string
+        level:
+          format: int32
+          minimum: 0
+          exclusiveMinimum: true
+          type: integer
+        picture:
+          type: string
+        powers:
+          type: string
+    VillainPatch:
+      description: Partial villain update - all fields are optional
       type: object
       properties:
         id:

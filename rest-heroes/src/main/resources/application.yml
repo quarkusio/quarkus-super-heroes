@@ -36,14 +36,17 @@ quarkus:
     jackson:
       optimization:
         enable-reflection-free-serializers: true
-  smallrye-openapi:
-    info-title: Hero API
-    info-description: This API allows CRUD operations on a hero
-    info-version: 1.0
-    info-contact-name: Quarkus
-    info-contact-url: https://github.com/quarkusio
   swagger-ui:
     always-include: true
+  openapi:
+    generator:
+      server:
+        spec: openapi.yml
+        base-package: io.quarkus.sample.superheroes.hero.api
+        use: openapitools
+        use-bean-validation: true
+        use-builder: true
+        use-reactive: true
   container-image:
     builder: docker
     registry: quay.io

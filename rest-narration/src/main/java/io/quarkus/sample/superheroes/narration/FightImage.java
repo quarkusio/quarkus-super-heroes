@@ -1,7 +1,7 @@
 package io.quarkus.sample.superheroes.narration;
 
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 
-@Schema(description = "The generated image from the narration")
+@RegisterForReflection
 public record FightImage(String imageUrl) {
 }

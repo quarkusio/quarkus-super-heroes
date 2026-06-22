@@ -66,6 +66,7 @@ cd rest-heroes && ./mvnw quarkus:dev
 - **Quarkus platform version** managed via `quarkus.platform.version` property in root pom.xml
 - **Maven wrapper** (`./mvnw`) — do not use system Maven
 - **Reactive vs blocking**: rest-heroes and rest-fights use Hibernate Reactive with Panache; rest-villains uses Hibernate ORM with Panache (blocking)
+- **Contract-first**: All REST services (rest-villains, rest-heroes, rest-narration, rest-fights) use the [Quarkiverse OpenAPI Generator Server extension](https://docs.quarkiverse.io/quarkus-openapi-generator/dev/server.html) to generate JAX-RS resource interfaces from `src/main/resources/openapi/openapi.yml` at build time
 - **Contract testing**: Pact consumer/provider tests across services (pact files in `src/test/resources/pacts/`)
 - **Dev Services**: Quarkus auto-starts databases, Kafka, etc. in dev/test mode — Docker/Podman must be running
 - **Test messaging**: Kafka replaced with `smallrye-in-memory` connector in `%test` profile

@@ -6,7 +6,7 @@ import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
 
-import io.quarkus.sample.superheroes.villain.rest.VillainResource;
+import io.quarkus.sample.superheroes.villain.rest.HelloVillainResource;
 
 /**
  * {@link HealthCheck} to ping the Villain service
@@ -14,11 +14,11 @@ import io.quarkus.sample.superheroes.villain.rest.VillainResource;
 @Liveness
 public class PingVillainResourceHealthCheck implements HealthCheck {
 	@Inject
-	VillainResource villainResource;
+	HelloVillainResource helloVillainResource;
 
 	@Override
 	public HealthCheckResponse call() {
-		var response = this.villainResource.hello();
+		var response = this.helloVillainResource.hello();
 
 		return HealthCheckResponse.named("Ping Villain REST Endpoint")
 			.withData("Response", response)

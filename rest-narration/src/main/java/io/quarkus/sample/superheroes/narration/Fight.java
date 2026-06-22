@@ -1,8 +1,8 @@
 package io.quarkus.sample.superheroes.narration;
 
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 
-@Schema(description = "The fight that is narrated")
+@RegisterForReflection
 public record Fight(
   String winnerName,
   int winnerLevel,
@@ -14,6 +14,6 @@ public record Fight(
   String loserTeam,
   FightLocation location
 ) {
-  @Schema(description = "Location of a fight")
+  @RegisterForReflection
   public record FightLocation(String name, String description) { }
 }
