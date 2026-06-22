@@ -3,7 +3,6 @@ package io.quarkus.sample.superheroes.fight.rest;
 import java.util.List;
 
 import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
@@ -36,7 +35,7 @@ public class FightResource implements FightsResource {
 
   @Override
   public Uni<List<Fight>> getAllFights(@DefaultValue("0") Integer page, @DefaultValue("20") Integer size) {
-    if (page == null && size == null) {
+    if ((page == null) && (size == null)) {
       return this.service.findAllFights()
         .invoke(fights -> Log.debugf("Total number of fights: %d", fights.size()))
         .map(this.mapper::toApiModels);
