@@ -8,7 +8,9 @@ This is the Narration REST API microservice. It is a blocking HTTP microservice 
 
 The Narration microservice needs to access an AI service to generate the text narrating the fight. The codebase uses [OpenAI](https://openai.com/) via the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html). Additionally, the service can generate images and image captions from a narration using [DALL-E](https://openai.com/research/dall-e).
 
-This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with blocking endpoints. Additionally, this application favors constructor injection of beans over field injection (i.e. `@Inject` annotation).
+This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with blocking endpoints. It uses a **contract-first** approach: the REST API interface is generated at build time from the OpenAPI specification ([`src/main/resources/openapi/openapi.yml`](src/main/resources/openapi/openapi.yml)) using the [Quarkiverse OpenAPI Generator Server extension](https://docs.quarkiverse.io/quarkus-openapi-generator/dev/server.html).
+
+Additionally, this application favors constructor injection of beans over field injection (i.e. `@Inject` annotation).
 
 ![rest-narration](images/rest-narration.png)
 

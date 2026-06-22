@@ -1,127 +1,40 @@
 package io.quarkus.sample.superheroes.narration.rest;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-
-import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.media.Content;
-import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
-import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-
 import io.quarkus.logging.Log;
 
-import io.quarkus.sample.superheroes.narration.Fight;
-import io.quarkus.sample.superheroes.narration.FightImage;
-import io.quarkus.sample.superheroes.narration.ImageGenerationRequest;
+import io.quarkus.sample.superheroes.narration.api.model.Fight;
+import io.quarkus.sample.superheroes.narration.api.model.FightImage;
+import io.quarkus.sample.superheroes.narration.api.model.ImageGenerationRequest;
+import io.quarkus.sample.superheroes.narration.mapping.NarrationMapper;
 import io.quarkus.sample.superheroes.narration.service.ImageGenerationService;
 import io.quarkus.sample.superheroes.narration.service.NarrationService;
 
-import io.smallrye.common.annotation.NonBlocking;
-
-/**
- * JAX-RS API endpoints with <code>/api/narration</code> as the base URI for all endpoints
- */
-@Path("/api/narration")
-@Produces(MediaType.TEXT_PLAIN)
-@Tag(name = "narration")
-public class NarrationResource {
+public class NarrationResource implements io.quarkus.sample.superheroes.narration.api.resources.NarrationResource {
   private final NarrationService narrationService;
   private final ImageGenerationService imageGenerationService;
+  private final NarrationMapper narrationMapper;
 
-  public NarrationResource(NarrationService narrationService, ImageGenerationService imageGenerationService) {
+  public NarrationResource(NarrationService narrationService, ImageGenerationService imageGenerationService, NarrationMapper narrationMapper) {
     this.narrationService = narrationService;
     this.imageGenerationService = imageGenerationService;
+    this.narrationMapper = narrationMapper;
   }
 
-  @POST
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Creates a narration for the fight")
-  @APIResponse(
-    responseCode = "200",
-    description = "The narration",
-    content = @Content(
-      schema = @Schema(implementation = String.class),
-      examples = @ExampleObject(name = "narration_success", value = Examples.EXAMPLE_NARRATION)
-    )
-  )
-  @APIResponse(
-    responseCode = "400",
-    description = "Invalid (or missing) fight"
-  )
-  public String narrate(
-    @RequestBody(
-      name = "fight",
-      required = true,
-      content = @Content(
-        schema = @Schema(implementation = Fight.class),
-        examples = @ExampleObject(name = "valid_fight", value = Examples.EXAMPLE_FIGHT)
-      )
-    )
-    @NotNull Fight fight) {
-    var narration = this.narrationService.narrate(fight);
-    Log.debugf("Narration for fight %s = \"%s\"", fight, narration);
+  @Override
+  public String narrate(Fight fight) {
+    var domainFight = this.narrationMapper.toFight(fight);
+    var narration = this.narrationService.narrate(domainFight);
+    Log.debugf("Narration for fight %s = \"%s\"", domainFight, narration);
 
     return narration;
   }
 
-  @POST
-  @Path("/image")
-  @Produces(MediaType.APPLICATION_JSON)
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Generate an image from a narration")
-  @APIResponse(
-    responseCode = "200",
-    description = "An image from a narration",
-    content = @Content(
-      schema = @Schema(implementation = FightImage.class),
-      examples = @ExampleObject(name = "image", value = Examples.EXAMPLE_FIGHT_IMAGE)
-    )
-  )
-  @APIResponse(
-    responseCode = "400",
-    description = "Invalid (or missing) request"
-  )
-  public FightImage generateImageFromNarration(
-    @RequestBody(
-      name = "request",
-      required = true,
-      content = @Content(
-        schema = @Schema(implementation = ImageGenerationRequest.class),
-        examples = @ExampleObject(name = "request", value = Examples.EXAMPLE_IMAGE_GENERATION_REQUEST)
-      )
-    )
-    @NotNull @Valid ImageGenerationRequest request) {
+  @Override
+  public FightImage generateImageFromNarration(ImageGenerationRequest request) {
+    var domainRequest = this.narrationMapper.toImageGenerationRequest(request);
+    var image = this.imageGenerationService.generateImageForNarration(domainRequest);
+    Log.debugf("Image (%s) generated from request: %s", image, domainRequest);
 
-    var image = this.imageGenerationService.generateImageForNarration(request);
-    Log.debugf("Image (%s) generated from request: %s", image, request);
-
-    return image;
-  }
-
-  @GET
-  @Path("/hello")
-  @Tag(name = "hello")
-  @Operation(summary = "Ping hello")
-  @APIResponse(
-    responseCode = "200",
-    description = "Ping hello",
-    content = @Content(
-      schema = @Schema(implementation = String.class),
-      examples = @ExampleObject(name = "hello_success", value = "Hello Narration Resource")
-    )
-  )
-  @NonBlocking
-  public String hello() {
-    Log.debug("Hello Narration Resource");
-    return "Hello Narration Resource";
+    return this.narrationMapper.toApiFightImage(image);
   }
 }

@@ -1,5 +1,5 @@
 ---
-openapi: 3.0.3
+openapi: 3.1.2
 info:
   title: Hero API
   description: This API allows CRUD operations on a hero
@@ -16,6 +16,7 @@ paths:
       tags:
       - heroes
       summary: Returns all the heroes from the database
+      operationId: getAllHeroes
       parameters:
       - name: name_filter
         in: query
@@ -44,6 +45,8 @@ paths:
       tags:
       - heroes
       summary: Completely replace all heroes with the passed-in heroes
+      operationId: replaceAllHeroes
+      x-return-type: jakarta.ws.rs.core.Response
       requestBody:
         content:
           application/json:
@@ -75,6 +78,8 @@ paths:
       tags:
       - heroes
       summary: Creates a valid hero
+      operationId: createHero
+      x-return-type: jakarta.ws.rs.core.Response
       requestBody:
         content:
           application/json:
@@ -103,6 +108,7 @@ paths:
       tags:
       - heroes
       summary: Delete all heroes
+      operationId: deleteAllHeroes
       responses:
         "204":
           description: Deletes all heroes
@@ -111,6 +117,7 @@ paths:
       tags:
       - hello
       summary: Ping hello
+      operationId: hello
       responses:
         "200":
           description: Ping hello
@@ -126,6 +133,8 @@ paths:
       tags:
       - heroes
       summary: Returns a random hero
+      operationId: getRandomHero
+      x-return-type: jakarta.ws.rs.core.Response
       responses:
         "200":
           description: Gets a random hero
@@ -148,6 +157,8 @@ paths:
       tags:
       - heroes
       summary: Returns a hero for a given identifier
+      operationId: getHero
+      x-return-type: jakarta.ws.rs.core.Response
       parameters:
       - name: id
         in: path
@@ -177,6 +188,8 @@ paths:
       - heroes
       summary: Completely updates/replaces an exiting hero by replacing it with the
         passed-in hero
+      operationId: fullyUpdateHero
+      x-return-type: jakarta.ws.rs.core.Response
       parameters:
       - name: id
         in: path
@@ -209,6 +222,7 @@ paths:
       tags:
       - heroes
       summary: Deletes an exiting hero
+      operationId: deleteHero
       parameters:
       - name: id
         in: path
@@ -223,6 +237,8 @@ paths:
       tags:
       - heroes
       summary: Partially updates an exiting hero
+      operationId: partiallyUpdateHero
+      x-return-type: jakarta.ws.rs.core.Response
       parameters:
       - name: id
         in: path
@@ -234,7 +250,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Hero'
+              $ref: '#/components/schemas/HeroPatch'
             examples:
               valid_hero:
                 value:
@@ -269,6 +285,28 @@ components:
       required:
       - name
       - level
+      type: object
+      properties:
+        id:
+          format: int64
+          type: integer
+        name:
+          maxLength: 50
+          minLength: 3
+          type: string
+        otherName:
+          type: string
+        level:
+          format: int32
+          minimum: 0
+          exclusiveMinimum: true
+          type: integer
+        picture:
+          type: string
+        powers:
+          type: string
+    HeroPatch:
+      description: Partial hero update - all fields are optional
       type: object
       properties:
         id:
