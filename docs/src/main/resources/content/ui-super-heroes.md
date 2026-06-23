@@ -88,7 +88,7 @@ The application can be started outside of docker compose simply with `docker run
 If you want to use docker compose, from the `quarkus-super-heroes/ui-super-heroes` directory run:
 
 ```bash
-docker compose -f deploy/docker-compose/java21.yml up
+docker compose -f deploy/docker-compose/java25.yml up
 ```
 
 or
@@ -115,7 +115,7 @@ Pick one of the versions of the application from the table below and deploy the 
 
 | Description | Image Tag       | OpenShift Descriptor            | Minikube Descriptor            | Kubernetes Descriptor              | Knative Descriptor            |
 |-------------|-----------------|---------------------------------|--------------------------------|------------------------------------|-------------------------------|
-| JVM Java 21 | `java21-latest` | `java21-openshift.yml`          | `java21-minikube.yml`          | `java21-kubernetes.yml`            | `java21-knative.yml`          |
+| JVM Java 25 | `java25-latest` | `java25-openshift.yml`          | `java25-minikube.yml`          | `java25-kubernetes.yml`            | `java25-knative.yml`          |
 | Native      | `native-latest` | `native-openshift.yml`          | `native-minikube.yml`          | `native-kubernetes.yml`            | `native-knative.yml`          |
 
 The application is exposed outside of the cluster on port `80`.
@@ -124,10 +124,10 @@ The application is exposed outside of the cluster on port `80`.
 
 Helm charts for this application are provided in the `deploy/helm` directory with separate charts per deployment target.
 
-To deploy using Helm (e.g. JVM Java 21 on Kubernetes):
+To deploy using Helm (e.g. JVM Java 25 on Kubernetes):
 
 ```shell
-helm install ui-super-heroes deploy/helm/kubernetes/ -f deploy/helm/kubernetes/values-java21.yaml
+helm install ui-super-heroes deploy/helm/kubernetes/ -f deploy/helm/kubernetes/values-java25.yaml
 ```
 
 For native:
@@ -144,11 +144,11 @@ Following the [deployment section](https://quarkus.io/guides/deploying-to-kubern
 
 | Target Platform        | Java Version | Command                                                                                                                                                                                                                                      |
 |------------------------|:------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Kubernetes             |      21      | `./mvnw clean package -Dquarkus.profile=kubernetes -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                             |
-| OpenShift              |      21      | `./mvnw clean package -Dquarkus.profile=openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests`         |
-| Minikube               |      21      | `./mvnw clean package -Dquarkus.profile=minikube -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                               |
-| Knative                |      21      | `./mvnw clean package -Dquarkus.profile=knative -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                                |
-| Knative (on OpenShift) |      21      | `./mvnw clean package -Dquarkus.profile=knative-openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests` |
+| Kubernetes             | 25 | `./mvnw clean package -Dquarkus.profile=kubernetes -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                             |
+| OpenShift              | 25 | `./mvnw clean package -Dquarkus.profile=openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests`         |
+| Minikube               | 25 | `./mvnw clean package -Dquarkus.profile=minikube -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                               |
+| Knative                | 25 | `./mvnw clean package -Dquarkus.profile=knative -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                                |
+| Knative (on OpenShift) | 25 | `./mvnw clean package -Dquarkus.profile=knative-openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests` |
 
 ### Routing
 

@@ -10,7 +10,7 @@ This is **NOT** the workshop with the step-by-step instructions. If you are look
 
 This is **NOT** a single multi-module project. Each service in the system is its own sub-directory of this parent directory. As such, each individual service needs to be run on its own.
 
-The base JVM version for all the applications is Java 21.
+The base JVM version for all the applications is Java 25.
 
 - [Super Hero Battle UI](ui-super-heroes) - A React application served via [Quarkus Quinoa](https://quarkiverse.github.io/quarkiverse-docs/quarkus-quinoa/dev/index.html)
 - [Villain REST API](rest-villains) - A classical HTTP microservice with [Hibernate ORM with Panache](https://quarkus.io/guides/hibernate-orm-panache) (active record pattern)

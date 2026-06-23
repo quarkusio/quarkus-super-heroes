@@ -10,7 +10,7 @@ A sample application demonstrating Quarkus features and best practices. Superher
 
 ## Architecture
 
-The application consists of several microservices, communicating either synchronously via REST or asynchronously using Kafka. The base JVM version for all the applications is Java 21.
+The application consists of several microservices, communicating either synchronously via REST or asynchronously using Kafka. The base JVM version for all the applications is Java 25.
 
 ![Superheroes architecture diagram]({site.image('application-architecture.png')})
 

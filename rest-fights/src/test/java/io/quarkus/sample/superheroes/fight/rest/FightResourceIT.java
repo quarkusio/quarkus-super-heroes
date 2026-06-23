@@ -1522,7 +1522,7 @@ class FightResourceIT {
 
 		// The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
 		IntStream.rangeClosed(0, 8)
-			.forEach(i -> {
+			.forEach(_ -> {
 				var fighters = get("/api/fights/randomfighters").then()
 					.statusCode(OK.getStatusCode())
 					.contentType(JSON)
@@ -1570,7 +1570,7 @@ class FightResourceIT {
 
 		// The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
 		IntStream.rangeClosed(0, 8)
-			.forEach(i -> {
+			.forEach(_ -> {
         var location = get("/api/fights/randomlocation").then()
           .statusCode(OK.getStatusCode())
           .contentType(JSON)
@@ -1618,7 +1618,7 @@ class FightResourceIT {
 
     // The circuit breaker requestVolumeThreshold == 8, so we need to make n+1 successful requests for it to clear
     IntStream.rangeClosed(0, 8)
-      .forEach(i -> {
+      .forEach(_ -> {
           var narration = given()
             .accept(TEXT)
             .contentType(JSON)

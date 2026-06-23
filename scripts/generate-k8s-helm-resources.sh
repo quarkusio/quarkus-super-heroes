@@ -8,7 +8,7 @@ K8S_OUTPUT_DIR=deploy/k8s
 HELM_OUTPUT_DIR=deploy/helm
 DEPLOYMENT_TYPES=("kubernetes" "minikube" "openshift" "knative")
 MONITORING_DEPLOYMENT_TYPES=("kubernetes" "minikube" "openshift")
-JAVA_VERSIONS=(21)
+JAVA_VERSIONS=(25)
 PROJECTS=("grpc-locations" "rest-narration" "rest-villains" "rest-heroes" "rest-fights" "event-statistics" "ui-super-heroes")
 DOWNSTREAM_PROJECTS=("rest-villains" "rest-heroes" "rest-narration" "grpc-locations")
 
@@ -67,7 +67,7 @@ do_build() {
 
   printf -v deployment_types_str '%s,' "${DEPLOYMENT_TYPES[@]}"
 
-  $project/mvnw -f $project/pom.xml versions:set -DnewVersion=$container_tag && \
+  $project/mvnw -f $project/pom.xml versions:set -DnewVersion=$container_tag -DgenerateBackupPoms=false && \
   $project/mvnw -f $project/pom.xml clean package \
     -DskipTests \
     -Dmaven.compiler.release=$javaVersion \
@@ -190,7 +190,7 @@ process_helm_chart() {
   fi
 
   # Create a placeholder values.yaml so helm lint passes
-  # Users must use -f values-java21.yaml or -f values-native.yaml
+  # Users must use -f values-java25.yaml or -f values-native.yaml
   if [[ ! -f "$output_chart_dir/values.yaml" ]]; then
     echo '# Use -f values-java<java-version>.yaml or -f values-native.yaml when installing this chart' > "$output_chart_dir/values.yaml"
   fi
