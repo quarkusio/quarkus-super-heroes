@@ -152,10 +152,10 @@ create_apps() {
     do
       # Keeping this if/else here for the future when we might want to build multiple java versions
       if [[ "$kind" == "native-" ]]; then
-        javaVersions=(21)
+        javaVersions=(25)
       else
-        javaVersions=(21)
-    #    javaVersions=(11 21)
+        javaVersions=(25)
+    #    javaVersions=(21 25)
       fi
 
       for javaVersion in ${javaVersions[@]}

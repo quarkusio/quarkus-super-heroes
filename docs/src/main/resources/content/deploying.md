@@ -17,13 +17,13 @@ Pick one of the versions from the table below and deploy the appropriate descrip
 
 | Description | OpenShift | Minikube | Kubernetes | Knative |
 |-------------|-----------|----------|------------|---------|
-| JVM Java 21 | `java21-openshift.yml` | `java21-minikube.yml` | `java21-kubernetes.yml` | `java21-knative.yml` |
+| JVM Java 25 | `java25-openshift.yml` | `java25-minikube.yml` | `java25-kubernetes.yml` | `java25-knative.yml` |
 | Native      | `native-openshift.yml` | `native-minikube.yml` | `native-kubernetes.yml` | `native-knative.yml` |
 
 For example, to deploy the JVM version to Minikube:
 
 ```bash
-kubectl apply -f deploy/k8s/java21-minikube.yml
+kubectl apply -f deploy/k8s/java25-minikube.yml
 ```
 
 Each individual service also has its own descriptors in its `deploy/k8s` directory, allowing you to deploy services independently.
@@ -54,11 +54,11 @@ kubectl port-forward svc/grafana 3000:3000
 
 Umbrella Helm charts for the full system are provided in the [`deploy/helm`](https://github.com/quarkusio/quarkus-super-heroes/tree/main/deploy/helm) directory, with a separate chart for each target platform: `openshift`, `minikube`, `kubernetes`, and `knative`.
 
-To deploy the full system using Helm (e.g. JVM Java 21 on Kubernetes):
+To deploy the full system using Helm (e.g. JVM Java 25 on Kubernetes):
 
 ```bash
 helm dependency update deploy/helm/kubernetes
-helm install super-heroes deploy/helm/kubernetes -f deploy/helm/kubernetes/values-java21.yaml
+helm install super-heroes deploy/helm/kubernetes -f deploy/helm/kubernetes/values-java25.yaml
 ```
 
 For native:
@@ -73,7 +73,7 @@ Replace `kubernetes` with `openshift`, `minikube`, or `knative` as appropriate.
 Individual service Helm charts are available in each service's `deploy/helm` directory. For example, to deploy just the Hero service:
 
 ```bash
-helm install rest-heroes rest-heroes/deploy/helm/kubernetes/ -f rest-heroes/deploy/helm/kubernetes/values-java21.yaml
+helm install rest-heroes rest-heroes/deploy/helm/kubernetes/ -f rest-heroes/deploy/helm/kubernetes/values-java25.yaml
 ```
 
 Monitoring Helm charts are also available under `deploy/helm/monitoring-openshift`, `deploy/helm/monitoring-minikube`, and `deploy/helm/monitoring-kubernetes`.

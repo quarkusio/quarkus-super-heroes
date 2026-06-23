@@ -84,7 +84,7 @@ class VillainClientTests {
     );
 
     IntStream.range(0, 5)
-      .forEach(i -> {
+      .forEach(_ -> {
         var villain = this.villainClient.findRandomVillain()
           .subscribe().withSubscriber(UniAssertSubscriber.create())
           .assertSubscribed()
@@ -110,7 +110,7 @@ class VillainClientTests {
     );
 
     IntStream.range(0, 5)
-      .forEach(i -> this.villainClient.findRandomVillain()
+      .forEach(_ -> this.villainClient.findRandomVillain()
         .subscribe().withSubscriber(UniAssertSubscriber.create())
         .assertSubscribed()
         .awaitItem(Duration.ofSeconds(5))
@@ -142,7 +142,7 @@ class VillainClientTests {
     // First 2 calls (and 3 subsequent retries) should just fail with WebApplicationException
     // While making actual calls to the service
     IntStream.rangeClosed(1, 2)
-      .forEach(i ->
+      .forEach(_ ->
         this.villainClient.findRandomVillain()
           .subscribe().withSubscriber(UniAssertSubscriber.create())
           .assertSubscribed()

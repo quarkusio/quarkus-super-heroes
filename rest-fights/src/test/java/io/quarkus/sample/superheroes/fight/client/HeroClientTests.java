@@ -83,7 +83,7 @@ class HeroClientTests {
     );
 
     IntStream.range(0, 5)
-      .forEach(i -> {
+      .forEach(_ -> {
         var hero = this.heroClient.findRandomHero()
           .subscribe().withSubscriber(UniAssertSubscriber.create())
           .assertSubscribed()
@@ -109,7 +109,7 @@ class HeroClientTests {
     );
 
     IntStream.range(0, 5)
-      .forEach(i -> this.heroClient.findRandomHero()
+      .forEach(_ -> this.heroClient.findRandomHero()
         .subscribe().withSubscriber(UniAssertSubscriber.create())
         .assertSubscribed()
         .awaitItem(Duration.ofSeconds(5))
@@ -141,7 +141,7 @@ class HeroClientTests {
     // First 2 calls (and 3 subsequent retries) should just fail with WebApplicationException
     // While making actual calls to the service
     IntStream.rangeClosed(1, 2)
-      .forEach(i ->
+      .forEach(_ ->
         this.heroClient.findRandomHero()
           .subscribe().withSubscriber(UniAssertSubscriber.create())
           .assertSubscribed()

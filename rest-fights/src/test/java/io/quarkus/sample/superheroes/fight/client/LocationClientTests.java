@@ -93,7 +93,7 @@ class LocationClientTests {
     );
 
 		IntStream.range(0, 5)
-      .forEach(i -> {
+      .forEach(_ -> {
         var location = this.locationClient.findRandomLocation()
           .subscribe().withSubscriber(UniAssertSubscriber.create())
           .assertSubscribed()
@@ -117,7 +117,7 @@ class LocationClientTests {
     );
 
 		IntStream.range(0, 5)
-			.forEach(i -> this.locationClient.findRandomLocation()
+			.forEach(_ -> this.locationClient.findRandomLocation()
 				.subscribe().withSubscriber(UniAssertSubscriber.create())
 				.assertSubscribed()
 				.awaitItem(Duration.ofSeconds(5))
@@ -147,7 +147,7 @@ class LocationClientTests {
 		// First 2 calls (and 3 subsequent retries) should just fail with WebApplicationException
     // While making actual calls to the service
 		IntStream.rangeClosed(1, 2)
-      .forEach(i ->
+      .forEach(_ ->
         this.locationClient.findRandomLocation()
           .subscribe().withSubscriber(UniAssertSubscriber.create())
           .assertSubscribed()

@@ -13,12 +13,4 @@ public record Score(String name, int score) {
 	public Score() {
 		this(null, 0);
 	}
-
-	@Override
-	public String toString() {
-		return "Score{" +
-			"name='" + this.name + '\'' +
-			", score=" + this.score +
-			'}';
-	}
 }

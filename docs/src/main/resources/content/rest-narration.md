@@ -97,7 +97,7 @@ Pick one of the versions of the application from the table below and execute the
 
 | Description | Image Tag       | Docker Compose Run Command                                               |
 |-------------|-----------------|--------------------------------------------------------------------------|
-| JVM Java 21 | `java21-latest` | `docker compose -f deploy/docker-compose/java21.yml up --remove-orphans` |
+| JVM Java 25 | `java25-latest` | `docker compose -f deploy/docker-compose/java25.yml up --remove-orphans` |
 | Native      | `native-latest` | `docker compose -f deploy/docker-compose/native.yml up --remove-orphans` |
 
 **Important:** The running application will **NOT** make live calls to an OpenAI provider. You will need to [modify the descriptors accordingly](#making-live-calls-to-openai-providers) to have the application make live calls to an OpenAI provider.
@@ -120,7 +120,7 @@ Pick one of the versions of the application from the table below and deploy the 
 
 | Description | Image Tag       | OpenShift Descriptor            | Minikube Descriptor            | Kubernetes Descriptor              | Knative Descriptor            |
 |-------------|-----------------|---------------------------------|--------------------------------|------------------------------------|-------------------------------|
-| JVM Java 21 | `java21-latest` | `java21-openshift.yml`          | `java21-minikube.yml`          | `java21-kubernetes.yml`            | `java21-knative.yml`          |
+| JVM Java 25 | `java25-latest` | `java25-openshift.yml`          | `java25-minikube.yml`          | `java25-kubernetes.yml`            | `java25-knative.yml`          |
 | Native      | `native-latest` | `native-openshift.yml`          | `native-minikube.yml`          | `native-kubernetes.yml`            | `native-knative.yml`          |
 
 **Important:** As with the Docker Compose descriptors above, the running application will **NOT** make live calls to an OpenAI provider. You will need to [modify the descriptors accordingly](#making-live-calls-to-openai-providers) to have the application make live calls to an OpenAI provider.
@@ -131,10 +131,10 @@ The application is exposed outside of the cluster on port `80`.
 
 Helm charts for this application are provided in the `deploy/helm` directory with separate charts per deployment target.
 
-To deploy using Helm (e.g. JVM Java 21 on Kubernetes):
+To deploy using Helm (e.g. JVM Java 25 on Kubernetes):
 
 ```shell
-helm install rest-narration deploy/helm/kubernetes/ -f deploy/helm/kubernetes/values-java21.yaml
+helm install rest-narration deploy/helm/kubernetes/ -f deploy/helm/kubernetes/values-java25.yaml
 ```
 
 For native:
@@ -151,11 +151,11 @@ Following the [deployment section](https://quarkus.io/guides/deploying-to-kubern
 
 | Target Platform        | Java Version | Command                                                                                                                                                                                                                                      |
 |------------------------|:------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Kubernetes             |      21      | `./mvnw clean package -Dquarkus.profile=kubernetes -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                             |
-| OpenShift              |      21      | `./mvnw clean package -Dquarkus.profile=openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests`         |
-| Minikube               |      21      | `./mvnw clean package -Dquarkus.profile=minikube -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                               |
-| Knative                |      21      | `./mvnw clean package -Dquarkus.profile=knative -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                                |
-| Knative (on OpenShift) |      21      | `./mvnw clean package -Dquarkus.profile=knative-openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests` |
+| Kubernetes             | 25 | `./mvnw clean package -Dquarkus.profile=kubernetes -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                             |
+| OpenShift              | 25 | `./mvnw clean package -Dquarkus.profile=openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests`         |
+| Minikube               | 25 | `./mvnw clean package -Dquarkus.profile=minikube -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                               |
+| Knative                | 25 | `./mvnw clean package -Dquarkus.profile=knative -Dquarkus.kubernetes.deploy=true -DskipTests`                                                                                                                                                |
+| Knative (on OpenShift) | 25 | `./mvnw clean package -Dquarkus.profile=knative-openshift -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc:5000 -Dquarkus.container-image.group=$(oc project -q) -Dquarkus.kubernetes.deploy=true -DskipTests` |
 
 ---
 

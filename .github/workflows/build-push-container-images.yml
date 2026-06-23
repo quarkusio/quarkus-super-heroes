@@ -91,7 +91,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v5.2.0
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
 
       - name: Calculate projects
@@ -116,7 +116,7 @@ jobs:
     strategy:
       matrix:
         java:
-          - '21'
+          - '25'
         project: ${{ fromJson(needs.calculate-modules.outputs.projects_matrix) }}
         arch:
           - amd64
@@ -138,7 +138,7 @@ jobs:
       - name: Create env vars
         working-directory: ${{ matrix.project.name }}
         run: |
-          if [[ ${{ matrix.java }} == '21' ]]; then
+          if [[ ${{ matrix.java }} == '25' ]]; then
             echo "JVM_DOCKERFILE=Dockerfile.jvm" >> "$GITHUB_ENV"
           else
             echo "JVM_DOCKERFILE=Dockerfile.jvm${{ matrix.java }}" >> "$GITHUB_ENV"
@@ -186,7 +186,7 @@ jobs:
       fail-fast: false
       matrix:
         java:
-          - { jvm: '21', mandrel: '21' }
+          - { jvm: '25', mandrel: '25' }
         project: ${{ fromJson(needs.calculate-modules.outputs.projects_matrix) }}
         arch:
           - amd64
@@ -250,7 +250,7 @@ jobs:
     strategy:
       matrix:
         java:
-          - '21'
+          - '25'
         kind:
           - ""
           - "native-"
@@ -295,7 +295,7 @@ jobs:
     strategy:
       matrix:
         java:
-          - '21'
+          - '25'
         kind:
           - ""
           - "native-"
