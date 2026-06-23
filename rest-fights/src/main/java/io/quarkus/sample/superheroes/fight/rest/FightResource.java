@@ -42,7 +42,7 @@ public class FightResource implements FightsResource {
     }
 
     int safePage = Math.max(0, (page != null) ? page : 0);
-    int safeSize = Math.min(100, Math.max(1, (size != null) ? size : 20));
+    int safeSize = Math.clamp((size != null) ? size : 20, 1, 100);
 
     return this.service.findFights(safePage, safeSize)
       .invoke(fights -> Log.debugf("Returned fights page=%d size=%d count=%d", safePage, safeSize, fights.size()))
