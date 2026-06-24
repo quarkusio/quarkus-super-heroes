@@ -10,7 +10,7 @@ metadata:
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.36.3
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-23 - 02:23:47 +0000
+    app.quarkus.io/build-timestamp: 2026-06-24 - 02:45:10 +0000
   labels:
     app: rest-fights
     system: quarkus-super-heroes
@@ -18,8 +18,8 @@ metadata:
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/managed-by: quarkus
     app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/version: java25-latest
     app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: java21-latest
   name: rest-fights
 spec:
   template:
@@ -33,7 +33,7 @@ spec:
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.36.3
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-23 - 02:23:47 +0000
+        app.quarkus.io/build-timestamp: 2026-06-24 - 02:45:10 +0000
       labels:
         app: rest-fights
         system: quarkus-super-heroes
@@ -41,19 +41,19 @@ spec:
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/managed-by: quarkus
         app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/version: java25-latest
         app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/version: java21-latest
     spec:
       containers:
         - env:
-            - name: quarkus.microcks.default.http.port
-              value: {{ .Values.app.envs.quarkus.microcks.default.http.port | quote }}
             - name: quarkus.microcks.default.http.host
               value: {{ .Values.app.envs.quarkus.microcks.default.http.host | quote }}
-            - name: quarkus.microcks.default.grpc.host
-              value: {{ .Values.app.envs.quarkus.microcks.default.grpc.host | quote }}
             - name: quarkus.microcks.default.grpc.port
               value: {{ .Values.app.envs.quarkus.microcks.default.grpc.port | quote }}
+            - name: quarkus.microcks.default.http.port
+              value: {{ .Values.app.envs.quarkus.microcks.default.http.port | quote }}
+            - name: quarkus.microcks.default.grpc.host
+              value: {{ .Values.app.envs.quarkus.microcks.default.grpc.host | quote }}
             - name: QUARKUS_OTEL_K8S_RESOURCE_NAMESPACE
               valueFrom:
                 fieldRef:

@@ -1,0 +1,281 @@
+---
+grpc-locations:
+  app:
+    envs:
+      QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME: grpc-locations
+      QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME: grpc-locations
+    image: quay.io/quarkus-super-heroes/grpc-locations:java25-latest
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/live
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    memoryLimit: 768Mi
+    memoryRequest: 256Mi
+    ports:
+      http: 8089
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/ready
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    startupProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/started
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+rest-narration:
+  app:
+    envs:
+      OPENAI_API_KEY: change-me
+      QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME: rest-narration
+      QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME: rest-narration
+      quarkus:
+        wiremock:
+          devservices:
+            port: ""
+    image: quay.io/quarkus-super-heroes/rest-narration:java25-latest
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/live
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    memoryLimit: 768Mi
+    memoryRequest: 256Mi
+    ports:
+      http: 8087
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/ready
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    startupProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/started
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+rest-villains:
+  app:
+    envs:
+      QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME: rest-villains
+      QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME: rest-villains
+    image: quay.io/quarkus-super-heroes/rest-villains:java25-latest
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/live
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    memoryLimit: 768Mi
+    memoryRequest: 256Mi
+    ports:
+      http: 8084
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/ready
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    startupProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/started
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+rest-heroes:
+  app:
+    envs:
+      QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME: rest-heroes
+      QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME: rest-heroes
+    image: quay.io/quarkus-super-heroes/rest-heroes:java25-latest
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/live
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    memoryLimit: 768Mi
+    memoryRequest: 256Mi
+    ports:
+      http: 8083
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/ready
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    startupProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/started
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+rest-fights:
+  app:
+    envs:
+      QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME: rest-fights
+      QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME: rest-fights
+      quarkus:
+        microcks:
+          default:
+            grpc:
+              host: ""
+              port: ""
+            http:
+              host: ""
+              port: ""
+    image: quay.io/quarkus-super-heroes/rest-fights:java25-latest
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/live
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    memoryLimit: 768Mi
+    memoryRequest: 256Mi
+    ports:
+      http: 8082
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/ready
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    startupProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/started
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+event-statistics:
+  app:
+    envs:
+      QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME: event-statistics
+      QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME: event-statistics
+    image: quay.io/quarkus-super-heroes/event-statistics:java25-latest
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/live
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    memoryLimit: 768Mi
+    memoryRequest: 256Mi
+    ports:
+      http: 8085
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/ready
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    startupProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/started
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+ui-super-heroes:
+  app:
+    envs:
+      CALCULATE_API_BASE_URL: "true"
+      QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME: ui-super-heroes
+      QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME: ui-super-heroes
+      quarkus:
+        microcks:
+          default:
+            http:
+              host: ""
+              port: ""
+    image: quay.io/quarkus-super-heroes/ui-super-heroes:java25-latest
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/live
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    memoryLimit: 768Mi
+    memoryRequest: 256Mi
+    ports:
+      http: 8080
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/ready
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    startupProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /q/health/started
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
