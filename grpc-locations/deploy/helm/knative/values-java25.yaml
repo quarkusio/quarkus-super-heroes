@@ -1,0 +1,27 @@
+---
+app:
+  envs:
+    QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME: grpc-locations
+    QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME: grpc-locations
+  image: quay.io/quarkus-super-heroes/grpc-locations:java25-latest
+  livenessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /q/health/live
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 10
+  ports:
+    http: 8089
+    http1: 8089
+  readinessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /q/health/ready
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 10

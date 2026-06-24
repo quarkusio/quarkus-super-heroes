@@ -14,7 +14,7 @@ The following table lists the configurable parameters and their default values.
 | `app.envs.quarkus.microcks.default.grpc.port` |   |   |
 | `app.envs.quarkus.microcks.default.http.host` |   |   |
 | `app.envs.quarkus.microcks.default.http.port` |   |   |
-| `app.image` | The container image to use. | quay.io/quarkus-super-heroes/rest-fights:java21-latest |
+| `app.image` | The container image to use. | quay.io/quarkus-super-heroes/rest-fights:java25-latest |
 | `app.livenessProbe.failureThreshold` | The failure threshold to use. | 3 |
 | `app.livenessProbe.httpGet.path` | The http path to use for the probe. | /q/health/live |
 | `app.livenessProbe.httpGet.scheme` | The http schema to use for the probe. | HTTP |

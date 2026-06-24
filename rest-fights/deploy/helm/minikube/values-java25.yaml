@@ -1,0 +1,47 @@
+---
+app:
+  envs:
+    QUARKUS_LIQUIBASE_MONGODB_ENABLED: "false"
+    QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME: rest-fights
+    QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME: rest-fights
+    quarkus:
+      microcks:
+        default:
+          grpc:
+            host: ""
+            port: ""
+          http:
+            host: ""
+            port: ""
+  image: quay.io/quarkus-super-heroes/rest-fights:java25-latest
+  livenessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /q/health/live
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 10
+  memoryLimit: 768Mi
+  memoryRequest: 256Mi
+  ports:
+    http: 8082
+  readinessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /q/health/ready
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 10
+  startupProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /q/health/started
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 10
