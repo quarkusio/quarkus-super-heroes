@@ -1,6 +1,6 @@
 # Superheroes Hero Microservice
 
-> **Full documentation: [https://quarkus-super-heroes.quarkus.io/rest-heroes](https://quarkus-super-heroes.quarkus.io/rest-heroes)**
+> **Full documentation: [https://quarkus.io/quarkus-super-heroes/rest-heroes](https://quarkus.io/quarkus-super-heroes/rest-heroes)**
 
 ## Introduction
 

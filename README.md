@@ -1,6 +1,6 @@
 # Quarkus Superheroes Sample
 
-> **Full documentation: [https://quarkus-super-heroes.quarkus.io](https://quarkus-super-heroes.quarkus.io)**
+> **Full documentation: [https://quarkus.io/quarkus-super-heroes](https://quarkus.io/quarkus-super-heroes)**
 
 ## Introduction
 
@@ -29,7 +29,7 @@ The main UI allows you to pick one random Hero and Villain by clicking on _New F
 
 ## Running Locally
 
-See the [Running Locally](https://quarkus-super-heroes.quarkus.io/running-locally) guide for Docker Compose instructions, or run any individual service in dev mode:
+See the [Running Locally](https://quarkus.io/quarkus-super-heroes/running-locally) guide for Docker Compose instructions, or run any individual service in dev mode:
 
 ```bash
 cd rest-heroes && ./mvnw quarkus:dev
@@ -37,8 +37,8 @@ cd rest-heroes && ./mvnw quarkus:dev
 
 ## Deploying to Kubernetes
 
-See the [Deploying to Kubernetes](https://quarkus-super-heroes.quarkus.io/deploying) guide for full instructions on deploying to OpenShift, Minikube, Kubernetes, and Knative using pre-built images, Helm charts, or Quarkus Kubernetes Extensions.
+See the [Deploying to Kubernetes](https://quarkus.io/quarkus-super-heroes/deploying) guide for full instructions on deploying to OpenShift, Minikube, Kubernetes, and Knative using pre-built images, Helm charts, or Quarkus Kubernetes Extensions.
 
 ## CI/CD Automation
 
-See the [CI/CD Automation](https://quarkus-super-heroes.quarkus.io/automation) guide for details on the GitHub Action workflows and application resource generation.
+See the [CI/CD Automation](https://quarkus.io/quarkus-super-heroes/automation) guide for details on the GitHub Action workflows and application resource generation.

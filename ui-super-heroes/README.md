@@ -1,6 +1,6 @@
 # Superheroes Battle UI
 
-> **Full documentation: [https://quarkus-super-heroes.quarkus.io/ui-super-heroes](https://quarkus-super-heroes.quarkus.io/ui-super-heroes)**
+> **Full documentation: [https://quarkus.io/quarkus-super-heroes/ui-super-heroes](https://quarkus.io/quarkus-super-heroes/ui-super-heroes)**
 
 ## Introduction
 

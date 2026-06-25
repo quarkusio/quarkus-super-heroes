@@ -1,6 +1,6 @@
 # Superheroes Location Microservice
 
-> **Full documentation: [https://quarkus-super-heroes.quarkus.io/grpc-locations](https://quarkus-super-heroes.quarkus.io/grpc-locations)**
+> **Full documentation: [https://quarkus.io/quarkus-super-heroes/grpc-locations](https://quarkus.io/quarkus-super-heroes/grpc-locations)**
 
 ## Introduction
 

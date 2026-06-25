@@ -1,6 +1,6 @@
 # Superheroes Fight Microservice
 
-> **Full documentation: [https://quarkus-super-heroes.quarkus.io/rest-fights](https://quarkus-super-heroes.quarkus.io/rest-fights)**
+> **Full documentation: [https://quarkus.io/quarkus-super-heroes/rest-fights](https://quarkus.io/quarkus-super-heroes/rest-fights)**
 
 ## Introduction
 

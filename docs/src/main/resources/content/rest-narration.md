@@ -9,7 +9,7 @@ content-toc: true
 
 This is the Narration REST API microservice. It is a blocking HTTP microservice using the [Quarkus LangChain4J extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/index.html) to integrate with an AI service to generate text narrating a given fight.
 
-The Narration microservice needs to access an AI service to generate the text narrating the fight. The codebase uses [OpenAI](https://openai.com/) via the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html).
+The Narration microservice needs to access an AI service to generate the text narrating the fight. The codebase uses [OpenAI](https://openai.com/) via the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai-chat-model.html).
 
 Additionally, the service can generate images and image captions from a narration using [DALL-E](https://openai.com/research/dall-e).
 
@@ -51,7 +51,7 @@ From the `quarkus-super-heroes/rest-narration` directory, simply run `./mvnw qua
 
 ## Integration with OpenAI Providers
 
-The application uses [OpenAI](https://openai.com/) via the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html). This integration requires creating resources on OpenAI in order to work properly.
+The application uses [OpenAI](https://openai.com/) via the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai-chat-model.html). This integration requires creating resources on OpenAI in order to work properly.
 
 **CAUTION:** Using OpenAI may not be a free resource for you, so please understand this! Unless configured otherwise, this application does **NOT** communicate with any external service. Instead, by default, it just returns a default narration.
 
