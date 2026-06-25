@@ -1,12 +1,12 @@
 # Superheroes Narration Microservice
 
-> **Full documentation: [https://quarkus-super-heroes.quarkus.io/rest-narration](https://quarkus-super-heroes.quarkus.io/rest-narration)**
+> **Full documentation: [https://quarkus.io/quarkus-super-heroes/rest-narration](https://quarkus.io/quarkus-super-heroes/rest-narration)**
 
 ## Introduction
 
 This is the Narration REST API microservice. It is a blocking HTTP microservice using the [Quarkus LangChain4J extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/index.html) to integrate with an AI service to generate text narrating a given fight.
 
-The Narration microservice needs to access an AI service to generate the text narrating the fight. The codebase uses [OpenAI](https://openai.com/) via the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai.html). Additionally, the service can generate images and image captions from a narration using [DALL-E](https://openai.com/research/dall-e).
+The Narration microservice needs to access an AI service to generate the text narrating the fight. The codebase uses [OpenAI](https://openai.com/) via the [`quarkus-langchain4j-openai` extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/openai-chat-model.html). Additionally, the service can generate images and image captions from a narration using [DALL-E](https://openai.com/research/dall-e).
 
 This service is implemented using [RESTEasy Reactive](https://quarkus.io/guides/resteasy-reactive) with blocking endpoints. It uses a **contract-first** approach: the REST API interface is generated at build time from the OpenAPI specification ([`src/main/resources/openapi/openapi.yml`](src/main/resources/openapi/openapi.yml)) using the [Quarkiverse OpenAPI Generator Server extension](https://docs.quarkiverse.io/quarkus-openapi-generator/dev/server.html).
 

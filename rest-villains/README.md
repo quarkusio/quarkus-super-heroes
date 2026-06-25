@@ -1,6 +1,6 @@
 # Superheroes Villain Microservice
 
-> **Full documentation: [https://quarkus-super-heroes.quarkus.io/rest-villains](https://quarkus-super-heroes.quarkus.io/rest-villains)**
+> **Full documentation: [https://quarkus.io/quarkus-super-heroes/rest-villains](https://quarkus.io/quarkus-super-heroes/rest-villains)**
 
 ## Introduction
 

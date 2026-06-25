@@ -1,6 +1,6 @@
 # Superheroes Event Statistics Microservice
 
-> **Full documentation: [https://quarkus-super-heroes.quarkus.io/event-statistics](https://quarkus-super-heroes.quarkus.io/event-statistics)**
+> **Full documentation: [https://quarkus.io/quarkus-super-heroes/event-statistics](https://quarkus.io/quarkus-super-heroes/event-statistics)**
 
 ## Introduction
 
