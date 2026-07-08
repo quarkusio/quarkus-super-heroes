@@ -11,9 +11,9 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-lgtm"
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:09:57 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:50:55 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -213,9 +213,9 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-lgtm"
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:09:57 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:50:55 +0000
   labels:
     app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
@@ -237,143 +237,6 @@ spec:
     app.kubernetes.io/part-of: fights-service
     app.kubernetes.io/version: native-latest
   type: NodePort
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  annotations:
-    app.quarkus.io/vcs-ref: main
-    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-lgtm"
-    app.quarkus.io/quarkus-version: 3.36.3
-    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:09:57 +0000
-  labels:
-    app.kubernetes.io/name: rest-fights
-    app.kubernetes.io/part-of: fights-service
-    app.kubernetes.io/version: native-latest
-    app: rest-fights
-    application: fights-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/managed-by: quarkus
-  name: rest-fights
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: rest-fights
-      app.kubernetes.io/part-of: fights-service
-      app.kubernetes.io/version: native-latest
-  template:
-    metadata:
-      annotations:
-        alpha.image.policy.openshift.io/resolve-names: '*'
-        app.quarkus.io/vcs-ref: main
-        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-lgtm"
-        app.quarkus.io/quarkus-version: 3.36.3
-        app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-26 - 02:09:57 +0000
-      labels:
-        app.kubernetes.io/name: rest-fights
-        app.kubernetes.io/part-of: fights-service
-        app.kubernetes.io/version: native-latest
-        app: rest-fights
-        application: fights-service
-        system: quarkus-super-heroes
-        app.kubernetes.io/managed-by: quarkus
-    spec:
-      containers:
-        - env:
-            - name: KUBERNETES_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-            - name: quarkus.microcks.default.grpc.host
-              value: ""
-            - name: quarkus.microcks.default.http.host
-              value: ""
-            - name: quarkus.microcks.default.grpc.port
-              value: ""
-            - name: quarkus.microcks.default.http.port
-              value: ""
-            - name: QUARKUS_LIQUIBASE_MONGODB_ENABLED
-              value: "false"
-            - name: QUARKUS_OTEL_K8S_RESOURCE_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-            - name: QUARKUS_OTEL_K8S_RESOURCE_POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: QUARKUS_OTEL_K8S_RESOURCE_POD_UID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.uid
-            - name: QUARKUS_OTEL_K8S_RESOURCE_NODE_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-            - name: QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME
-              value: rest-fights
-            - name: QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME
-              value: rest-fights
-          envFrom:
-            - secretRef:
-                name: rest-fights-config-creds
-            - configMapRef:
-                name: rest-fights-config
-          image: quay.io/quarkus-super-heroes/rest-fights:native-latest
-          imagePullPolicy: IfNotPresent
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/live
-              port: 8082
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-          name: rest-fights
-          ports:
-            - containerPort: 8082
-              name: http
-              protocol: TCP
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/ready
-              port: 8082
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-          resources:
-            limits:
-              memory: 128Mi
-            requests:
-              memory: 32Mi
-          startupProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/started
-              port: 8082
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-      initContainers:
-        - args:
-            - job
-            - rest-fights-liquibase-mongodb-init
-          image: groundnuty/k8s-wait-for:no-root-v1.7
-          imagePullPolicy: Always
-          name: wait-for-liquibase-mongodb
-      serviceAccountName: rest-fights
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -558,12 +421,152 @@ spec:
             requests:
               memory: 128Mi
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.quarkus.io/vcs-ref: main
+    app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+    app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-lgtm"
+    app.quarkus.io/quarkus-version: 3.37.1
+    app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:50:55 +0000
+  labels:
+    app.kubernetes.io/name: rest-fights
+    app.kubernetes.io/part-of: fights-service
+    app.kubernetes.io/version: native-latest
+    app: rest-fights
+    application: fights-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/managed-by: quarkus
+  name: rest-fights
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rest-fights
+      app.kubernetes.io/part-of: fights-service
+      app.kubernetes.io/version: native-latest
+  template:
+    metadata:
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
+        app.quarkus.io/vcs-ref: main
+        app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
+        app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-lgtm"
+        app.quarkus.io/quarkus-version: 3.37.1
+        app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
+        app.quarkus.io/build-timestamp: 2026-07-08 - 02:50:55 +0000
+      labels:
+        app.kubernetes.io/name: rest-fights
+        app.kubernetes.io/part-of: fights-service
+        app.kubernetes.io/version: native-latest
+        app: rest-fights
+        application: fights-service
+        system: quarkus-super-heroes
+        app.kubernetes.io/managed-by: quarkus
+    spec:
+      containers:
+        - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: quarkus.microcks.default.grpc.host
+              value: ""
+            - name: quarkus.microcks.default.grpc.port
+              value: ""
+            - name: quarkus.microcks.default.http.port
+              value: ""
+            - name: quarkus.microcks.default.http.host
+              value: ""
+            - name: QUARKUS_LIQUIBASE_MONGODB_ENABLED
+              value: "false"
+            - name: QUARKUS_OTEL_K8S_RESOURCE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: QUARKUS_OTEL_K8S_RESOURCE_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: QUARKUS_OTEL_K8S_RESOURCE_POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            - name: QUARKUS_OTEL_K8S_RESOURCE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: QUARKUS_OTEL_K8S_RESOURCE_CONTAINER_NAME
+              value: rest-fights
+            - name: QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME
+              value: rest-fights
+          envFrom:
+            - secretRef:
+                name: rest-fights-config-creds
+            - configMapRef:
+                name: rest-fights-config
+          image: quay.io/quarkus-super-heroes/rest-fights:native-latest
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8082
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: rest-fights
+          ports:
+            - containerPort: 8082
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: 8082
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
+          startupProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/started
+              port: 8082
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+      initContainers:
+        - args:
+            - job
+            - rest-fights-liquibase-mongodb-init
+          image: groundnuty/k8s-wait-for:no-root-v1.7
+          imagePullPolicy: Always
+          name: wait-for-liquibase-mongodb
+      serviceAccountName: rest-fights
+      terminationGracePeriodSeconds: 10
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: rest-fights-liquibase-mongodb-init
 spec:
   completionMode: NonIndexed
+  selector: {}
+  suspend: false
   template:
     metadata:
       annotations:
@@ -602,5 +605,11 @@ spec:
                 name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:native-latest
           name: rest-fights-liquibase-mongodb-init
+          resources:
+            limits:
+              memory: 128Mi
+            requests:
+              memory: 32Mi
       restartPolicy: OnFailure
       serviceAccountName: rest-fights
+      terminationGracePeriodSeconds: 10

@@ -8,9 +8,9 @@ metadata:
     app.openshift.io/connects-to: "rest-fights,otel-lgtm"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:10:53 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:51:57 +0000
   labels:
     app: ui-super-heroes
     system: quarkus-super-heroes
@@ -31,9 +31,9 @@ spec:
         app.openshift.io/connects-to: "rest-fights,otel-lgtm"
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/quarkus-version: 3.36.3
+        app.quarkus.io/quarkus-version: 3.37.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-26 - 02:10:53 +0000
+        app.quarkus.io/build-timestamp: 2026-07-08 - 02:51:57 +0000
       labels:
         app: ui-super-heroes
         system: quarkus-super-heroes
@@ -46,10 +46,10 @@ spec:
     spec:
       containers:
         - env:
-            - name: quarkus.microcks.default.http.host
-              value: {{ .Values.app.envs.quarkus.microcks.default.http.host | quote }}
             - name: quarkus.microcks.default.http.port
               value: {{ .Values.app.envs.quarkus.microcks.default.http.port | quote }}
+            - name: quarkus.microcks.default.http.host
+              value: {{ .Values.app.envs.quarkus.microcks.default.http.host | quote }}
             - name: CALCULATE_API_BASE_URL
               value: {{ .Values.app.envs.CALCULATE_API_BASE_URL | quote }}
             - name: QUARKUS_OTEL_K8S_RESOURCE_NAMESPACE
@@ -102,3 +102,4 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
+      terminationGracePeriodSeconds: 10

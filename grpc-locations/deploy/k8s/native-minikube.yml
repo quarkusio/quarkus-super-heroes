@@ -84,9 +84,9 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "locations-db,otel-lgtm"
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:06:30 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:47:16 +0000
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
@@ -112,13 +112,82 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    app: locations-db
+    application: locations-service
+    system: quarkus-super-heroes
+    app.kubernetes.io/part-of: locations-service
+    app.openshift.io/runtime: mariadb
+  name: locations-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: locations-db
+  template:
+    metadata:
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
+      labels:
+        application: locations-service
+        name: locations-db
+    spec:
+      containers:
+        - env:
+            - name: MARIADB_SKIP_TEST_DB
+              value: "true"
+          envFrom:
+            - secretRef:
+                name: locations-db-config
+          image: mariadb:12-ubi10
+          name: locations-db
+          ports:
+            - containerPort: 3306
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              memory: 64Mi
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: locations-db-data
+            - mountPath: /run/mariadb
+              name: locations-db-run
+            - mountPath: /docker-entrypoint-initdb.d
+              name: locations-initdata
+      initContainers:
+        - command:
+            - sh
+            - get-data.sh
+          image: registry.access.redhat.com/ubi8-minimal:8.6
+          name: get-data
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: locations-initdata
+            - mountPath: /tmp/dbinit
+              name: locations-db-init
+          workingDir: /tmp/dbinit
+      volumes:
+        - emptyDir: {}
+          name: locations-db-data
+        - emptyDir: {}
+          name: locations-db-run
+        - emptyDir: {}
+          name: locations-initdata
+        - configMap:
+            name: locations-db-init
+          name: locations-db-init
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   annotations:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "locations-db,otel-lgtm"
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:06:30 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:47:16 +0000
   labels:
     app.kubernetes.io/name: grpc-locations
     app.kubernetes.io/part-of: locations-service
@@ -142,9 +211,9 @@ spec:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "locations-db,otel-lgtm"
-        app.quarkus.io/quarkus-version: 3.36.3
+        app.quarkus.io/quarkus-version: 3.37.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-26 - 02:06:30 +0000
+        app.quarkus.io/build-timestamp: 2026-07-08 - 02:47:16 +0000
       labels:
         app.kubernetes.io/name: grpc-locations
         app.kubernetes.io/part-of: locations-service
@@ -227,72 +296,4 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: locations-db
-    application: locations-service
-    system: quarkus-super-heroes
-    app.kubernetes.io/part-of: locations-service
-    app.openshift.io/runtime: mariadb
-  name: locations-db
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: locations-db
-  template:
-    metadata:
-      annotations:
-        alpha.image.policy.openshift.io/resolve-names: '*'
-      labels:
-        application: locations-service
-        name: locations-db
-    spec:
-      containers:
-        - env:
-            - name: MARIADB_SKIP_TEST_DB
-              value: "true"
-          envFrom:
-            - secretRef:
-                name: locations-db-config
-          image: mariadb:12-ubi10
-          name: locations-db
-          ports:
-            - containerPort: 3306
-          resources:
-            limits:
-              memory: 256Mi
-            requests:
-              memory: 64Mi
-          volumeMounts:
-            - mountPath: /var/lib/mysql
-              name: locations-db-data
-            - mountPath: /run/mariadb
-              name: locations-db-run
-            - mountPath: /docker-entrypoint-initdb.d
-              name: locations-initdata
-      initContainers:
-        - command:
-            - sh
-            - get-data.sh
-          image: registry.access.redhat.com/ubi8-minimal:8.6
-          name: get-data
-          volumeMounts:
-            - mountPath: /docker-entrypoint-initdb.d
-              name: locations-initdata
-            - mountPath: /tmp/dbinit
-              name: locations-db-init
-          workingDir: /tmp/dbinit
-      volumes:
-        - emptyDir: {}
-          name: locations-db-data
-        - emptyDir: {}
-          name: locations-db-run
-        - emptyDir: {}
-          name: locations-initdata
-        - configMap:
-            name: locations-db-init
-          name: locations-db-init
+      terminationGracePeriodSeconds: 10

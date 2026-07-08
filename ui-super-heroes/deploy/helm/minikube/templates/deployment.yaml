@@ -6,9 +6,9 @@ metadata:
     app.quarkus.io/vcs-ref: main
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/connects-to: "rest-fights,otel-lgtm"
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:10:53 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:51:57 +0000
   labels:
     app.kubernetes.io/name: ui-super-heroes
     app.kubernetes.io/part-of: ui-super-heroes
@@ -19,7 +19,7 @@ metadata:
     app.kubernetes.io/managed-by: quarkus
   name: ui-super-heroes
 spec:
-  replicas: 1
+  replicas: {{ .Values.app.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: ui-super-heroes
@@ -32,9 +32,9 @@ spec:
         app.quarkus.io/vcs-ref: main
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/connects-to: "rest-fights,otel-lgtm"
-        app.quarkus.io/quarkus-version: 3.36.3
+        app.quarkus.io/quarkus-version: 3.37.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-26 - 02:10:53 +0000
+        app.quarkus.io/build-timestamp: 2026-07-08 - 02:51:57 +0000
       labels:
         app.kubernetes.io/name: ui-super-heroes
         app.kubernetes.io/part-of: ui-super-heroes
@@ -50,10 +50,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            - name: quarkus.microcks.default.http.host
-              value: {{ .Values.app.envs.quarkus.microcks.default.http.host | quote }}
             - name: quarkus.microcks.default.http.port
               value: {{ .Values.app.envs.quarkus.microcks.default.http.port | quote }}
+            - name: quarkus.microcks.default.http.host
+              value: {{ .Values.app.envs.quarkus.microcks.default.http.host | quote }}
             - name: QUARKUS_OTEL_K8S_RESOURCE_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -116,3 +116,4 @@ spec:
             periodSeconds: {{ .Values.app.startupProbe.periodSeconds }}
             successThreshold: {{ .Values.app.startupProbe.successThreshold }}
             timeoutSeconds: {{ .Values.app.startupProbe.timeoutSeconds }}
+      terminationGracePeriodSeconds: 10
