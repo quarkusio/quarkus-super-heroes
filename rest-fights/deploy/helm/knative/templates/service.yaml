@@ -1,4 +1,55 @@
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-db
+    application: fights-service
+    system: quarkus-super-heroes
+  name: fights-db
+spec:
+  ports:
+    - port: 27017
+      protocol: TCP
+      targetPort: 27017
+  selector:
+    name: fights-db
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-kafka
+    application: fights-service
+    system: quarkus-super-heroes
+  name: fights-kafka
+spec:
+  ports:
+    - port: 9092
+      protocol: TCP
+      targetPort: 9092
+  selector:
+    name: fights-kafka
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: apicurio
+    application: fights-service
+    system: quarkus-super-heroes
+  name: apicurio
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    name: apicurio
+  type: ClusterIP
+---
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
@@ -8,17 +59,17 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-lgtm"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:09:27 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:50:24 +0000
   labels:
     app: rest-fights
     system: quarkus-super-heroes
     application: fights-service
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/managed-by: quarkus
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: java25-latest
+    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
@@ -31,27 +82,27 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-lgtm"
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/quarkus-version: 3.36.3
+        app.quarkus.io/quarkus-version: 3.37.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-26 - 02:09:27 +0000
+        app.quarkus.io/build-timestamp: 2026-07-08 - 02:50:24 +0000
       labels:
         app: rest-fights
         system: quarkus-super-heroes
         application: fights-service
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/managed-by: quarkus
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: java25-latest
+        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - env:
             - name: quarkus.microcks.default.grpc.host
               value: {{ .Values.app.envs.quarkus.microcks.default.grpc.host | quote }}
-            - name: quarkus.microcks.default.grpc.port
-              value: {{ .Values.app.envs.quarkus.microcks.default.grpc.port | quote }}
             - name: quarkus.microcks.default.http.port
               value: {{ .Values.app.envs.quarkus.microcks.default.http.port | quote }}
+            - name: quarkus.microcks.default.grpc.port
+              value: {{ .Values.app.envs.quarkus.microcks.default.grpc.port | quote }}
             - name: quarkus.microcks.default.http.host
               value: {{ .Values.app.envs.quarkus.microcks.default.http.host | quote }}
             - name: QUARKUS_OTEL_K8S_RESOURCE_NAMESPACE
@@ -110,54 +161,4 @@ spec:
             requests:
               memory: 256Mi
       serviceAccountName: rest-fights
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: fights-db
-    application: fights-service
-    system: quarkus-super-heroes
-  name: fights-db
-spec:
-  ports:
-    - port: 27017
-      protocol: TCP
-      targetPort: 27017
-  selector:
-    name: fights-db
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: fights-kafka
-    application: fights-service
-    system: quarkus-super-heroes
-  name: fights-kafka
-spec:
-  ports:
-    - port: 9092
-      protocol: TCP
-      targetPort: 9092
-  selector:
-    name: fights-kafka
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: apicurio
-    application: fights-service
-    system: quarkus-super-heroes
-  name: apicurio
-spec:
-  ports:
-    - port: 8080
-      protocol: TCP
-      targetPort: 8080
-  selector:
-    name: apicurio
-  type: ClusterIP
+      terminationGracePeriodSeconds: 10

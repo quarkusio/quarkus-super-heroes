@@ -5,6 +5,8 @@ metadata:
   name: rest-fights-liquibase-mongodb-init
 spec:
   completionMode: NonIndexed
+  selector: {}
+  suspend: false
   template:
     metadata:
       annotations:
@@ -43,5 +45,11 @@ spec:
                 name: rest-fights-config
           image: quay.io/quarkus-super-heroes/rest-fights:java25-latest
           name: rest-fights-liquibase-mongodb-init
+          resources:
+            limits:
+              memory: 768Mi
+            requests:
+              memory: 256Mi
       restartPolicy: OnFailure
       serviceAccountName: rest-fights
+      terminationGracePeriodSeconds: 10

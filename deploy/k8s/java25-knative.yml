@@ -60,6 +60,23 @@ data:
 
     curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/grpc-locations/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: locations-db
+    application: locations-service
+    system: quarkus-super-heroes
+  name: locations-db
+spec:
+  ports:
+    - port: 3306
+      protocol: TCP
+      targetPort: 3306
+  selector:
+    name: locations-db
+  type: ClusterIP
+---
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
@@ -70,18 +87,18 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     serverless.openshift.io/default-enable-http2: "true"
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:06:04 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:46:48 +0000
   labels:
     app: grpc-locations
     system: quarkus-super-heroes
     application: locations-service
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/managed-by: quarkus
+    app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: java25-latest
     app.kubernetes.io/name: grpc-locations
-    app.kubernetes.io/part-of: locations-service
   name: grpc-locations
 spec:
   template:
@@ -109,10 +126,10 @@ spec:
             - name: QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME
               value: grpc-locations
           envFrom:
-            - configMapRef:
-                name: grpc-locations-config
             - secretRef:
                 name: grpc-locations-config-creds
+            - configMapRef:
+                name: grpc-locations-config
           image: quay.io/quarkus-super-heroes/grpc-locations:java25-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -145,23 +162,7 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: locations-db
-    application: locations-service
-    system: quarkus-super-heroes
-  name: locations-db
-spec:
-  ports:
-    - port: 3306
-      protocol: TCP
-      targetPort: 3306
-  selector:
-    name: locations-db
-  type: ClusterIP
+      terminationGracePeriodSeconds: 10
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -252,18 +253,18 @@ metadata:
     app.openshift.io/connects-to: otel-lgtm
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:07:00 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:47:46 +0000
   labels:
     app: rest-narration
     system: quarkus-super-heroes
     application: narration-service
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/managed-by: quarkus
-    app.kubernetes.io/name: rest-narration
     app.kubernetes.io/version: java25-latest
     app.kubernetes.io/part-of: narration-service
+    app.kubernetes.io/name: rest-narration
   name: rest-narration
 spec:
   template:
@@ -329,6 +330,7 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
+      terminationGracePeriodSeconds: 10
 ---
 apiVersion: v1
 kind: Secret
@@ -385,6 +387,23 @@ data:
 
     curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-villains/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: villains-db
+    application: villains-service
+    system: quarkus-super-heroes
+  name: villains-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: villains-db
+  type: ClusterIP
+---
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
@@ -394,17 +413,17 @@ metadata:
     app.openshift.io/connects-to: "villains-db,otel-lgtm"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:07:43 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:48:33 +0000
   labels:
     app: rest-villains
     system: quarkus-super-heroes
     application: villains-service
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/managed-by: quarkus
-    app.kubernetes.io/version: java25-latest
     app.kubernetes.io/part-of: villains-service
+    app.kubernetes.io/version: java25-latest
     app.kubernetes.io/name: rest-villains
   name: rest-villains
 spec:
@@ -433,10 +452,10 @@ spec:
             - name: QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME
               value: rest-villains
           envFrom:
-            - secretRef:
-                name: rest-villains-config-creds
             - configMapRef:
                 name: rest-villains-config
+            - secretRef:
+                name: rest-villains-config-creds
           image: quay.io/quarkus-super-heroes/rest-villains:java25-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -469,23 +488,7 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: villains-db
-    application: villains-service
-    system: quarkus-super-heroes
-  name: villains-db
-spec:
-  ports:
-    - port: 5432
-      protocol: TCP
-      targetPort: 5432
-  selector:
-    name: villains-db
-  type: ClusterIP
+      terminationGracePeriodSeconds: 10
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -604,6 +607,23 @@ data:
 
     curl https://raw.githubusercontent.com/quarkusio/quarkus-super-heroes/main/rest-heroes/deploy/db-init/initialize-tables.sql --output /docker-entrypoint-initdb.d/1-init-tables.sql
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: heroes-db
+    application: heroes-service
+    system: quarkus-super-heroes
+  name: heroes-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: heroes-db
+  type: ClusterIP
+---
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
@@ -613,9 +633,9 @@ metadata:
     app.openshift.io/connects-to: "heroes-db,otel-lgtm"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:08:28 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:49:23 +0000
   labels:
     app: rest-heroes
     system: quarkus-super-heroes
@@ -652,10 +672,10 @@ spec:
             - name: QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME
               value: rest-heroes
           envFrom:
-            - configMapRef:
-                name: rest-heroes-config
             - secretRef:
                 name: rest-heroes-config-creds
+            - configMapRef:
+                name: rest-heroes-config
           image: quay.io/quarkus-super-heroes/rest-heroes:java25-latest
           imagePullPolicy: Always
           livenessProbe:
@@ -688,23 +708,7 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: heroes-db
-    application: heroes-service
-    system: quarkus-super-heroes
-  name: heroes-db
-spec:
-  ports:
-    - port: 5432
-      protocol: TCP
-      targetPort: 5432
-  selector:
-    name: heroes-db
-  type: ClusterIP
+      terminationGracePeriodSeconds: 10
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -778,17 +782,17 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-lgtm"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:09:27 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:50:24 +0000
   labels:
     app: rest-fights
     system: quarkus-super-heroes
     application: fights-service
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/managed-by: quarkus
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: java25-latest
+    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
   name: rest-fights
 ---
@@ -883,6 +887,57 @@ subjects:
   - kind: ServiceAccount
     name: rest-fights
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-db
+    application: fights-service
+    system: quarkus-super-heroes
+  name: fights-db
+spec:
+  ports:
+    - port: 27017
+      protocol: TCP
+      targetPort: 27017
+  selector:
+    name: fights-db
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-kafka
+    application: fights-service
+    system: quarkus-super-heroes
+  name: fights-kafka
+spec:
+  ports:
+    - port: 9092
+      protocol: TCP
+      targetPort: 9092
+  selector:
+    name: fights-kafka
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: apicurio
+    application: fights-service
+    system: quarkus-super-heroes
+  name: apicurio
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    name: apicurio
+  type: ClusterIP
+---
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
@@ -892,17 +947,17 @@ metadata:
     app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-lgtm"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:09:27 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:50:24 +0000
   labels:
     app: rest-fights
     system: quarkus-super-heroes
     application: fights-service
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/managed-by: quarkus
-    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/version: java25-latest
+    app.kubernetes.io/name: rest-fights
     app.kubernetes.io/part-of: fights-service
   name: rest-fights
 spec:
@@ -915,26 +970,26 @@ spec:
         app.openshift.io/connects-to: "fights-db,fights-kafka,apicurio,rest-villains,rest-heroes,rest-narration,grpc-locations,otel-lgtm"
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/quarkus-version: 3.36.3
+        app.quarkus.io/quarkus-version: 3.37.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-26 - 02:09:27 +0000
+        app.quarkus.io/build-timestamp: 2026-07-08 - 02:50:24 +0000
       labels:
         app: rest-fights
         system: quarkus-super-heroes
         application: fights-service
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/managed-by: quarkus
-        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/version: java25-latest
+        app.kubernetes.io/name: rest-fights
         app.kubernetes.io/part-of: fights-service
     spec:
       containers:
         - env:
             - name: quarkus.microcks.default.grpc.host
               value: ""
-            - name: quarkus.microcks.default.grpc.port
-              value: ""
             - name: quarkus.microcks.default.http.port
+              value: ""
+            - name: quarkus.microcks.default.grpc.port
               value: ""
             - name: quarkus.microcks.default.http.host
               value: ""
@@ -996,57 +1051,7 @@ spec:
             requests:
               memory: 256Mi
       serviceAccountName: rest-fights
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: fights-db
-    application: fights-service
-    system: quarkus-super-heroes
-  name: fights-db
-spec:
-  ports:
-    - port: 27017
-      protocol: TCP
-      targetPort: 27017
-  selector:
-    name: fights-db
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: fights-kafka
-    application: fights-service
-    system: quarkus-super-heroes
-  name: fights-kafka
-spec:
-  ports:
-    - port: 9092
-      protocol: TCP
-      targetPort: 9092
-  selector:
-    name: fights-kafka
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: apicurio
-    application: fights-service
-    system: quarkus-super-heroes
-  name: apicurio
-spec:
-  ports:
-    - port: 8080
-      protocol: TCP
-      targetPort: 8080
-  selector:
-    name: apicurio
-  type: ClusterIP
+      terminationGracePeriodSeconds: 10
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1254,6 +1259,40 @@ data:
   mp.messaging.connector.smallrye-kafka.apicurio.registry.url: http://apicurio:8080/apis/registry/v2
   quarkus.otel.exporter.otlp.endpoint: http://otel-lgtm:4318
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: fights-kafka
+    application: fights-service
+    system: quarkus-super-heroes
+  name: fights-kafka
+spec:
+  ports:
+    - port: 9092
+      protocol: TCP
+      targetPort: 9092
+  selector:
+    name: fights-kafka
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: apicurio
+    application: fights-service
+    system: quarkus-super-heroes
+  name: apicurio
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    name: apicurio
+  type: ClusterIP
+---
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
@@ -1263,18 +1302,18 @@ metadata:
     app.openshift.io/connects-to: "fights-kafka,apicurio,otel-lgtm"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:10:17 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:51:17 +0000
   labels:
     app: event-statistics
     system: quarkus-super-heroes
     application: event-stats
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/managed-by: quarkus
-    app.kubernetes.io/version: java25-latest
     app.kubernetes.io/part-of: event-stats
     app.kubernetes.io/name: event-statistics
+    app.kubernetes.io/version: java25-latest
   name: event-statistics
 spec:
   template:
@@ -1338,40 +1377,7 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: fights-kafka
-    application: fights-service
-    system: quarkus-super-heroes
-  name: fights-kafka
-spec:
-  ports:
-    - port: 9092
-      protocol: TCP
-      targetPort: 9092
-  selector:
-    name: fights-kafka
-  type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    name: apicurio
-    application: fights-service
-    system: quarkus-super-heroes
-  name: apicurio
-spec:
-  ports:
-    - port: 8080
-      protocol: TCP
-      targetPort: 8080
-  selector:
-    name: apicurio
-  type: ClusterIP
+      terminationGracePeriodSeconds: 10
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1502,9 +1508,9 @@ metadata:
     app.openshift.io/connects-to: "rest-fights,otel-lgtm"
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-    app.quarkus.io/quarkus-version: 3.36.3
+    app.quarkus.io/quarkus-version: 3.37.1
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-06-26 - 02:10:53 +0000
+    app.quarkus.io/build-timestamp: 2026-07-08 - 02:51:57 +0000
   labels:
     app: ui-super-heroes
     system: quarkus-super-heroes
@@ -1525,9 +1531,9 @@ spec:
         app.openshift.io/connects-to: "rest-fights,otel-lgtm"
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
-        app.quarkus.io/quarkus-version: 3.36.3
+        app.quarkus.io/quarkus-version: 3.37.1
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-06-26 - 02:10:53 +0000
+        app.quarkus.io/build-timestamp: 2026-07-08 - 02:51:57 +0000
       labels:
         app: ui-super-heroes
         system: quarkus-super-heroes
@@ -1540,9 +1546,9 @@ spec:
     spec:
       containers:
         - env:
-            - name: quarkus.microcks.default.http.host
-              value: ""
             - name: quarkus.microcks.default.http.port
+              value: ""
+            - name: quarkus.microcks.default.http.host
               value: ""
             - name: CALCULATE_API_BASE_URL
               value: "true"
@@ -1598,3 +1604,4 @@ spec:
               memory: 768Mi
             requests:
               memory: 256Mi
+      terminationGracePeriodSeconds: 10
