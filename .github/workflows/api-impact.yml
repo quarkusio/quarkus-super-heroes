@@ -1,0 +1,96 @@
+name: API impact analysis
+
+on:
+  pull_request:
+    paths:
+      - '**/src/main/resources/openapi/openapi.yml'
+      - '**/src/main/resources/openapi/openapi.yaml'
+      - '**/src/main/resources/openapi/openapi.json'
+      - '**/src/main/resources/META-INF/openapi.yml'
+      - '**/src/main/resources/META-INF/openapi.yaml'
+      - '**/src/main/resources/META-INF/openapi.json'
+      - '**/src/main/java/**'
+      - 'api-impact-analyzer/**'
+      - '.github/copilot-instructions.md'
+      - '.github/workflows/api-impact.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: api-impact-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Detect affected API consumers
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the pull request
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java 17 for the analyzer
+        uses: actions/setup-java@v5.5.0
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build and test the analyzer
+        run: bash api-impact-analyzer/build.sh
+
+      - name: Analyze the OpenAPI diff
+        id: analyze
+        continue-on-error: true
+        run: |
+          java -jar api-impact-analyzer/target/api-impact-analyzer.jar \
+            --repo-root . \
+            --base-ref "${{ github.event.pull_request.base.sha }}" \
+            --report api-impact-report.md \
+            --index api-dependency-index.json \
+            --fail-on-breaking
+
+      - name: Add the report to the workflow summary
+        if: always() && hashFiles('api-impact-report.md') != ''
+        run: cat api-impact-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create or update the pull request comment
+        if: >-
+          always() &&
+          hashFiles('api-impact-report.md') != '' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- api-impact-report -->';
+            const body = `${marker}\n${fs.readFileSync('api-impact-report.md', 'utf8')}`;
+            const parameters = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            };
+            const comments = await github.paginate(github.rest.issues.listComments, parameters);
+            const previous = comments.find(comment =>
+              comment.user?.type === 'Bot' && comment.body?.includes(marker));
+
+            if (previous) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previous.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({ ...parameters, body });
+            }
+
+      - name: Enforce the API compatibility check
+        if: steps.analyze.outcome == 'failure'
+        run: |
+          echo "The API impact analyzer found a breaking change or failed to run."
+          exit 1
