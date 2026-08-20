@@ -55,7 +55,7 @@ jobs:
           echo "ref = ${{ needs.calculate-refs.outputs.ref }}"
           echo "branch = ${{ needs.calculate-refs.outputs.branch }}"
       
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           ref: ${{ needs.calculate-refs.outputs.branch }}
@@ -83,13 +83,13 @@ jobs:
     outputs:
       projects_matrix: ${{ steps.calculate_projects.outputs.projects_matrix }}
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           ref: ${{ needs.check-commit-count.outputs.branch }}
 
       - name: Setup Java
-        uses: actions/setup-java@v5.5.0
+        uses: actions/setup-java@v5.7.0
         with:
           java-version: 25
           distribution: temurin
@@ -124,12 +124,12 @@ jobs:
     name: "Build JVM images (${{ matrix.arch }}-${{ matrix.project.name }}-java${{ matrix.java }})"
     steps:
       - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ needs.check-commit-count.outputs.ref }}
 
       - name: Setup Java
-        uses: actions/setup-java@v5.5.0
+        uses: actions/setup-java@v5.7.0
         with:
           java-version: ${{ matrix.java }}
           distribution: temurin
@@ -194,12 +194,12 @@ jobs:
     name: "Build Native images (${{ matrix.arch }}-${{ matrix.project.name }}-java${{ matrix.java.jvm }})"
     steps:
       - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ needs.check-commit-count.outputs.ref }}
 
       - name: Setup Java
-        uses: actions/setup-java@v5.5.0
+        uses: actions/setup-java@v5.7.0
         with:
           java-version: ${{ matrix.java.jvm }}
           distribution: temurin
@@ -261,7 +261,7 @@ jobs:
     name: "Push app images (${{ matrix.arch }}-${{ matrix.project.name }}-${{ matrix.kind }}java${{ matrix.java }})"
     steps:
       - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ needs.check-commit-count.outputs.ref }}
 
@@ -275,7 +275,7 @@ jobs:
           image: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.project.name }}:${{ env.CONTAINER_TAG }}-${{ matrix.arch }}"
 
       - name: Login to quay
-        uses: docker/login-action@v4.4.0
+        uses: docker/login-action@v4.6.0
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
@@ -303,7 +303,7 @@ jobs:
     name: Create app multiarch manifests (${{ matrix.project.name }}-${{ matrix.kind }}java${{ matrix.java }})
     steps:
       - name: Checkout from ${{ needs.check-commit-count.outputs.ref }}
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ needs.check-commit-count.outputs.ref }}
 
@@ -312,7 +312,7 @@ jobs:
         run: echo "CONTAINER_TAG=$(./compute-container-tag.sh "${{ matrix.kind }}" ${{ matrix.java }} ${{ env.LATEST_IMAGE_TAG }} ${{ needs.check-commit-count.outputs.branch }})" >> $GITHUB_ENV
 
       - name: Login to quay
-        uses: docker/login-action@v4.4.0
+        uses: docker/login-action@v4.6.0
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_REPO_USERNAME }}
