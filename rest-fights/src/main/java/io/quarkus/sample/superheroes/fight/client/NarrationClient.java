@@ -21,7 +21,7 @@ import io.smallrye.mutiny.Uni;
 /**
  * <a href="https://quarkus.io/guides/rest-client-reactive">Quarkus Reactive Rest Client</a> that talks to the Narration service.
  */
-@Path("/api/narration")
+@Path("/api/narrationN")
 @Produces(MediaType.TEXT_PLAIN)
 @Consumes(MediaType.APPLICATION_JSON)
 @RegisterRestClient(configKey = "narration-client")
