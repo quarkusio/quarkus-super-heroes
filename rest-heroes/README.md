@@ -19,3 +19,43 @@ The application runs on port `8083` (defined by `quarkus.http.port` in [`applica
 From the `quarkus-super-heroes/rest-heroes` directory, simply run `./mvnw quarkus:dev` to run [Quarkus Dev Mode](https://quarkus.io/guides/maven-tooling#dev-mode). The application will be exposed at http://localhost:8083 and the [Quarkus Dev UI](https://quarkus.io/guides/dev-ui) will be exposed at http://localhost:8083/q/dev.
 
 ![heroes-ui](images/heroes-ui.png)
+
+
+
+
+
+
+
+# 1. Pornești de la ultima versiune
+git switch main
+git pull origin main
+
+# 2. Creezi un branch nou
+git switch -c change/random-hero-endpoint
+
+# 3. Modifici manual endpointul în openapi.yml
+
+# 4. Compilezi analizatorul
+.\mvnw.cmd -f .\api-impact-analyzer\pom.xml clean package
+
+# 5. Rulezi analiza local
+git fetch origin
+java -jar .\api-impact-analyzer\target\api-impact-analyzer.jar --repo-root . --base-ref origin/main --report api-impact-report.md --index api-dependency-index.json
+
+# 6. Vezi raportul local
+Get-Content .\api-impact-report.md
+
+# 7. Verifici fișierele modificate
+git status --short
+
+# 8. Adaugi fișierul modificat
+git add rest-heroes/src/main/resources/openapi/openapi.yml
+
+# Dacă ai modificat și ownerii:
+git add .github/service-owners.json
+
+# 9. Creezi commitul
+git commit -m "Change random hero endpoint"
+
+# 10. Trimiți branch-ul pe GitHub
+git push -u origin change/random-hero-endpoint
