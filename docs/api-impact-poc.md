@@ -1,53 +1,44 @@
-API Impact Analysis PoC
+# API Impact Analysis PoC
 
-Goal
+## Goal
 
-When a pull request modifies a REST endpoint, automatically identify known consumer services, show the supporting code evidence, and bring the result to the developer's attention in the pull request. Copilot explains the deterministic report; it is not the source of truth for dependency detection.
+When a pull request changes a REST contract, automatically detect known consumer services, publish evidence, notify their owners, request reviewers when possible, and stop a breaking change from being merged unnoticed.
 
-Demonstrated relationship
+The dependency result comes from the deterministic Java analyzer. Copilot can explain the report, but it is not the source of truth.
 
-rest-heroes
-provides GET /api/heroes/random
-↓
-rest-fights
-consumes it through HeroRestClient.findRandomHero()
+## Demonstrated dependency
 
-The provider contract is stored in rest-heroes/src/main/resources/openapi/openapi.yml. The consumer evidence is stored in rest-fights/src/main/java/io/quarkus/sample/superheroes/fight/client/HeroRestClient.java, and its target is configured in rest-fights/src/main/resources/application.properties.
+`rest-heroes` provides `GET /api/heroes/random`; `rest-fights` consumes it through `HeroRestClient.findRandomHero()`.
 
-Pull request flow
+- Provider contract: `rest-heroes/src/main/resources/openapi/openapi.yml`
+- Consumer evidence: `rest-fights/src/main/java/io/quarkus/sample/superheroes/fight/client/HeroRestClient.java`
+- Consumer configuration: `rest-fights/src/main/resources/application.properties`
 
-A developer changes an OpenAPI contract in a branch.
+## Automated pull request flow
 
-.github/workflows/api-impact.yml runs on the pull request.
+1. A developer changes an OpenAPI contract or Java endpoint/client and pushes a pull request update.
+2. `.github/workflows/api-impact.yml` compares the branch with the pull request base SHA.
+3. The Java analyzer scans OpenAPI operations and declarative Quarkus REST clients.
+4. It writes `api-impact-report.md` and `api-dependency-index.json`.
+5. GitHub Actions adds the Markdown report to the run summary and creates or updates one PR comment.
+6. The workflow maps impacted consumer services to `.github/service-owners.json`, mentions those owners, and tries to request them as reviewers.
+7. A breaking API change fails the compatibility check. A developer reviews and updates the affected client or explicitly decides how to handle the change.
 
-The Java analyzer compares the branch contract with the pull request base SHA.
+## Configure service owners
 
-It scans the repository for Quarkus declarative REST clients.
+Edit `.github/service-owners.json` using GitHub mentions:
 
-It matches old method/path pairs with consumer calls.
+```json
+{
+  "rest-fights": ["@my-company/fights-team", "@alice"],
+  "rest-heroes": ["@my-company/heroes-team"]
+}
+```
 
-It publishes api-impact-report.md in the Actions summary and as a PR comment.
+`@repository-owner` is a demo placeholder resolved to the current repository owner. Replace it with real users or organization teams before enterprise use. A team review request works when the repository belongs to the same organization and the workflow token has permission; the PR comment remains the fallback notification.
 
-A breaking change fails the status check.
+## Current limits and enterprise extensions
 
-Copilot can use the report and .github/copilot-instructions.md to explain the required adaptation.
+The scanner currently proves literal declarative REST-client relationships inside this repository. Dynamic URLs, programmatic clients, external repositories, gateway routing, and runtime calls still require additional evidence.
 
-Why this is automatic but not fully autonomous
-
-Detection, reporting, notification, and the status check are automatic. Human review remains necessary for low-confidence or currently unsupported calls because dynamic URLs and runtime routing cannot always be proven from source code alone.
-
-Future enterprise extensions
-
-Run one scanner in every repository and publish snapshots to a central service catalog.
-
-Use a GitHub App for cross-repository issues, review requests, and workflow dispatches.
-
-Add CODEOWNERS-based team notification.
-
-Add generated-client and Maven package detection.
-
-Add API gateway and runtime tracing evidence.
-
-Expose the dependency index to Copilot through MCP.
-
-Enrich the report with Jira and Confluence only after the technical dependency is established.
+Later, publish dependency snapshots to a central catalog, use a GitHub App for cross-repository notifications, and expose the index through MCP for Jira, Confluence, and Copilot queries.

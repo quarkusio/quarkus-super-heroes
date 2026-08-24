@@ -12,6 +12,7 @@ on:
       - '**/src/main/java/**'
       - 'api-impact-analyzer/**'
       - '.github/copilot-instructions.md'
+      - '.github/service-owners.json'
       - '.github/workflows/api-impact.yml'
 
 permissions:
@@ -57,7 +58,7 @@ jobs:
         if: always() && hashFiles('api-impact-report.md') != ''
         run: cat api-impact-report.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Create or update the pull request comment
+      - name: Publish the report and notify service owners
         if: >-
           always() &&
           hashFiles('api-impact-report.md') != '' &&
@@ -68,7 +69,46 @@ jobs:
           script: |
             const fs = require('fs');
             const marker = '<!-- api-impact-report -->';
-            const body = `${marker}\n${fs.readFileSync('api-impact-report.md', 'utf8')}`;
+            const report = fs.readFileSync('api-impact-report.md', 'utf8');
+            const index = fs.existsSync('api-dependency-index.json')
+              ? JSON.parse(fs.readFileSync('api-dependency-index.json', 'utf8'))
+              : { impacts: [] };
+            const ownersByService = fs.existsSync('.github/service-owners.json')
+              ? JSON.parse(fs.readFileSync('.github/service-owners.json', 'utf8'))
+              : {};
+
+            const normalizeOwner = owner => {
+              if (owner === '@repository-owner') return `@${context.repo.owner}`;
+              return owner.startsWith('@') ? owner : `@${owner}`;
+            };
+
+            const impactedServices = [...new Set(
+              (index.impacts || []).map(impact => impact.consumer).filter(Boolean)
+            )].sort();
+            const ownerToServices = new Map();
+            const notificationLines = ['## Service owner notification', ''];
+
+            if (impactedServices.length === 0) {
+              notificationLines.push('No known consumer service requires an owner notification.', '');
+            } else {
+              for (const service of impactedServices) {
+                const owners = (ownersByService[service] || []).map(normalizeOwner);
+                if (owners.length === 0) {
+                  notificationLines.push(`- \`${service}\`: no owner configured`);
+                  continue;
+                }
+
+                notificationLines.push(`- \`${service}\`: ${owners.join(', ')}`);
+                for (const owner of owners) {
+                  const services = ownerToServices.get(owner) || [];
+                  services.push(service);
+                  ownerToServices.set(owner, services);
+                }
+              }
+              notificationLines.push('', 'The owners above were mentioned automatically because their services may be affected.', '');
+            }
+
+            const body = `${marker}\n${notificationLines.join('\n')}\n${report}`;
             const parameters = {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -87,6 +127,36 @@ jobs:
               });
             } else {
               await github.rest.issues.createComment({ ...parameters, body });
+            }
+
+            const pullRequestAuthor = context.payload.pull_request.user.login.toLowerCase();
+            const reviewers = [];
+            const teamReviewers = [];
+
+            for (const owner of ownerToServices.keys()) {
+              const candidate = owner.slice(1);
+              if (candidate.includes('/')) {
+                const [organization, team] = candidate.split('/', 2);
+                if (organization.toLowerCase() === context.repo.owner.toLowerCase()) {
+                  teamReviewers.push(team);
+                }
+              } else if (candidate.toLowerCase() !== pullRequestAuthor) {
+                reviewers.push(candidate);
+              }
+            }
+
+            if (reviewers.length > 0 || teamReviewers.length > 0) {
+              try {
+                await github.rest.pulls.requestReviewers({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: context.issue.number,
+                  reviewers: [...new Set(reviewers)],
+                  team_reviewers: [...new Set(teamReviewers)]
+                });
+              } catch (error) {
+                core.warning(`The report was published, but reviewers could not be requested: ${error.message}`);
+              }
             }
 
       - name: Enforce the API compatibility check

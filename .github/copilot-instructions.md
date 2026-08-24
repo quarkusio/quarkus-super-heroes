@@ -1,42 +1,24 @@
-# API Impact Analysis PoC
+# API impact analysis
 
-## Goal
+The repository uses a deterministic Java analyzer for API dependency detection. Copilot explains its output; it must not invent service dependencies.
 
-When a pull request modifies a REST endpoint, automatically identify known consumer services, show the supporting code evidence, and bring the result to the developer's attention in the pull request. Copilot explains the deterministic report; it is not the source of truth for dependency detection.
+## Sources of truth
 
-## Demonstrated relationship
+- `api-impact-report.md`: human-readable contract changes, evidence, confidence, and affected consumers.
+- `api-dependency-index.json`: machine-readable dependencies and impacts.
+- `.github/service-owners.json`: GitHub users or teams responsible for each service.
+- OpenAPI files: provider contracts.
+- Quarkus REST client declarations and configuration: consumer evidence.
 
-```text
-rest-heroes
-  provides GET /api/heroes/random
-        â†“
-rest-fights
-  consumes it through HeroRestClient.findRandomHero()
-```
+## When helping with an API pull request
 
-The provider contract is stored in `../rest-heroes/src/main/resources/openapi/openapi.yml`. The consumer evidence is stored in `../rest-fights/src/main/java/io/quarkus/sample/superheroes/fight/client/HeroRestClient.java`, and its target is configured in `../rest-fights/src/main/resources/application.properties`.
+1. Read the generated report before drawing conclusions.
+2. State the changed HTTP method and path, provider, impacted consumer, and source-file evidence.
+3. Name only owners found in `.github/service-owners.json`.
+4. Separate confirmed dependencies from unsupported or dynamic cases requiring human verification.
+5. Suggest client and contract-test updates for breaking changes.
+6. If the report is missing, tell the developer to open or update the pull request so the `API impact analysis` workflow runs.
 
-## Pull request flow
+## Demonstrated dependency
 
-1. A developer changes an OpenAPI contract in a branch.
-2. `.github/workflows/api-impact.yml` runs on the pull request.
-3. The Java analyzer compares the branch contract with the pull request base SHA.
-4. It scans the repository for Quarkus declarative REST clients.
-5. It matches old method/path pairs with consumer calls.
-6. It publishes `api-impact-report.md` in the Actions summary and as a PR comment.
-7. A breaking change fails the status check.
-8. Copilot can use the report and `.github/copilot-instructions.md` to explain the required adaptation.
-
-## Why this is automatic but not fully autonomous
-
-Detection, reporting, notification, and the status check are automatic. Human review remains necessary for low-confidence or currently unsupported calls because dynamic URLs and runtime routing cannot always be proven from source code alone.
-
-## Future enterprise extensions
-
-- Run one scanner in every repository and publish snapshots to a central service catalog.
-- Use a GitHub App for cross-repository issues, review requests, and workflow dispatches.
-- Add CODEOWNERS-based team notification.
-- Add generated-client and Maven package detection.
-- Add API gateway and runtime tracing evidence.
-- Expose the dependency index to Copilot through MCP.
-- Enrich the report with Jira and Confluence only after the technical dependency is established.
+`rest-heroes` provides `GET /api/heroes/random`; `rest-fights` consumes it through `HeroRestClient.findRandomHero()`.

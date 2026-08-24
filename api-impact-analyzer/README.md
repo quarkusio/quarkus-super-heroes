@@ -12,6 +12,8 @@ discovers Quarkus REST consumers from @RegisterRestClient, Jakarta REST annotati
 
 produces a Markdown report and a JSON dependency index.
 
+The GitHub Actions workflow also reads `.github/service-owners.json`, mentions owners of impacted consumers in the pull request, and requests their review when GitHub permits it.
+
 Build
 
 On Linux, macOS, WSL, or Git Bash:
@@ -34,7 +36,7 @@ Use --fail-on-breaking when the process should return a non-zero exit code for a
 
 Demonstration scenario
 
-Change this path in rest-heroes/src/main/resources/openapi/openapi.yml:
+To create a temporary test branch, change this path in rest-heroes/src/main/resources/openapi/openapi.yml:
 
 /api/heroes/random:
 
@@ -42,7 +44,7 @@ to:
 
 /api/heroes/random-one:
 
-Keep operationId: getRandomHero, commit the change on a branch, and open a pull request. The analyzer recognizes the operation as moved and identifies rest-fights/.../HeroRestClient.java as a consumer of the previous path.
+Keep operationId: getRandomHero, commit the change on a branch, and open a pull request. The analyzer recognizes the operation as moved, identifies rest-fights/.../HeroRestClient.java as a consumer of the previous path, and notifies the configured owner. Revert the test path after the demonstration.
 
 Current scope
 
