@@ -25,10 +25,13 @@ import jakarta.websocket.OnError;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 
+import org.apache.avro.util.ClassSecurityValidator;
+import org.apache.avro.util.ClassSecurityValidator.ClassSecurityPredicate;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.jboss.logging.Logger;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,6 +73,7 @@ class WebSocketsIT {
 	private static final String VILLAIN_TEAM_NAME = "villains";
 	private static final String VILLAIN_NAME = "Darth Vader";
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static ClassSecurityPredicate originalValidator;
 
 	@TestHTTPResource("/stats/team")
 	URI teamStatsUri;
@@ -85,6 +89,24 @@ class WebSocketsIT {
     OBJECT_MAPPER.setDefaultPropertyInclusion(Include.NON_EMPTY);
     OBJECT_MAPPER.registerModule(new ParameterNamesModule(Mode.PROPERTIES));
     OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    // Avro 1.12.2+ only (de)serializes trusted classes. The Quarkus avro extension's validator only exists
+    // in the application JVM, not in this test JVM, so trust the generated Fight schema class here
+    originalValidator = ClassSecurityValidator.getGlobal();
+    ClassSecurityValidator.setGlobal(
+      ClassSecurityValidator.composite(
+        originalValidator,
+        ClassSecurityValidator.builder()
+          .add(Fight.class)
+          .build()
+      )
+    );
+  }
+
+  @AfterAll
+  public static void afterAll() {
+    ClassSecurityValidator.setGlobal(originalValidator);
+    originalValidator = null;
   }
 
   @BeforeEach
