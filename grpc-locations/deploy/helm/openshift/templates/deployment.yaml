@@ -79,9 +79,9 @@ metadata:
     app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
     app.quarkus.io/quarkus-version: 3.39.2
-    app.quarkus.io/commit-id: abf94ef40551d33d4298db77540a16d1642ad50a
+    app.quarkus.io/commit-id: c99d227540f2bfae4ea187b6eec8c4a2c883ec42
     app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-    app.quarkus.io/build-timestamp: 2026-09-23 - 01:57:15 +0000
+    app.quarkus.io/build-timestamp: 2026-09-29 - 01:17:53 +0000
   labels:
     app: grpc-locations
     application: locations-service
@@ -89,16 +89,16 @@ metadata:
     app.kubernetes.io/managed-by: quarkus
     app.openshift.io/runtime: quarkus
     app.kubernetes.io/name: grpc-locations
-    app.kubernetes.io/part-of: locations-service
     app.kubernetes.io/version: java25-latest
+    app.kubernetes.io/part-of: locations-service
   name: grpc-locations
 spec:
   replicas: {{ .Values.app.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: grpc-locations
-      app.kubernetes.io/part-of: locations-service
       app.kubernetes.io/version: java25-latest
+      app.kubernetes.io/part-of: locations-service
   template:
     metadata:
       annotations:
@@ -110,9 +110,9 @@ spec:
         app.quarkus.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.openshift.io/vcs-url: https://github.com/quarkusio/quarkus-super-heroes
         app.quarkus.io/quarkus-version: 3.39.2
-        app.quarkus.io/commit-id: abf94ef40551d33d4298db77540a16d1642ad50a
+        app.quarkus.io/commit-id: c99d227540f2bfae4ea187b6eec8c4a2c883ec42
         app.quarkus.io/vcs-uri: https://github.com/quarkusio/quarkus-super-heroes.git
-        app.quarkus.io/build-timestamp: 2026-09-23 - 01:57:15 +0000
+        app.quarkus.io/build-timestamp: 2026-09-29 - 01:17:53 +0000
       labels:
         app: grpc-locations
         application: locations-service
@@ -120,8 +120,8 @@ spec:
         app.kubernetes.io/managed-by: quarkus
         app.openshift.io/runtime: quarkus
         app.kubernetes.io/name: grpc-locations
-        app.kubernetes.io/part-of: locations-service
         app.kubernetes.io/version: java25-latest
+        app.kubernetes.io/part-of: locations-service
     spec:
       containers:
         - env:
@@ -146,10 +146,10 @@ spec:
             - name: QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME
               value: {{ .Values.app.envs.QUARKUS_OTEL_K8S_RESOURCE_DEPLOYMENT_NAME | quote }}
           envFrom:
-            - configMapRef:
-                name: grpc-locations-config
             - secretRef:
                 name: grpc-locations-config-creds
+            - configMapRef:
+                name: grpc-locations-config
           image: {{ .Values.app.image }}
           imagePullPolicy: Always
           livenessProbe:
