@@ -19,10 +19,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.apache.avro.util.ClassSecurityValidator;
+import org.apache.avro.util.ClassSecurityValidator.ClassSecurityPredicate;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -46,8 +49,8 @@ import io.quarkus.sample.superheroes.fight.FightImage;
 import io.quarkus.sample.superheroes.fight.FightLocation;
 import io.quarkus.sample.superheroes.fight.FightRequest;
 import io.quarkus.sample.superheroes.fight.Fighters;
-import io.quarkus.sample.superheroes.fight.ImageGenerationRequest;
 import io.quarkus.sample.superheroes.fight.HeroesVillainsNarrationWiremockServerResource;
+import io.quarkus.sample.superheroes.fight.ImageGenerationRequest;
 import io.quarkus.sample.superheroes.fight.InjectGrpcWireMock;
 import io.quarkus.sample.superheroes.fight.InjectWireMock;
 import io.quarkus.sample.superheroes.fight.LocationsWiremockGrpcServerResource;
@@ -199,6 +202,8 @@ class FightResourceIT {
 
 	private static final int NB_FIGHTS = 3;
 
+  private static ClassSecurityPredicate originalValidator;
+
 	@InjectWireMock
 	WireMockServer wireMockServer;
 
@@ -212,6 +217,18 @@ class FightResourceIT {
 	public static void beforeAll() {
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
     OBJECT_MAPPER.setDefaultPropertyInclusion(Include.NON_EMPTY);
+
+    // Avro 1.12.2+ only deserializes trusted classes. The Quarkus avro extension's validator
+    // only exists in the app JVM, not in this test JVM, so trust the generated Fight schema class here
+    originalValidator = ClassSecurityValidator.getGlobal();
+    ClassSecurityValidator.setGlobal(
+      ClassSecurityValidator.composite(
+        originalValidator,
+        ClassSecurityValidator.builder()
+          .add(io.quarkus.sample.superheroes.fight.schema.Fight.class)
+          .build()
+      )
+    );
   }
 
 	@BeforeEach
@@ -226,6 +243,12 @@ class FightResourceIT {
     serde.configure(companion.getCommonClientConfig(), false);
     companion.registerSerde(io.quarkus.sample.superheroes.fight.schema.Fight.class, serde);
 	}
+
+  @AfterAll
+  public static void afterAll() {
+    ClassSecurityValidator.setGlobal(originalValidator);
+    originalValidator = null;
+  }
 
 	@Test
 	@Order(DEFAULT_ORDER)
