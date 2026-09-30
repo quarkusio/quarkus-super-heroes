@@ -109,4 +109,5 @@ jobs:
         run: |
           gh api --method PUT repos/${{ github.repository }}/pulls/${{ steps.create-pr.outputs.pr_number }}/merge \
             -f merge_method=squash
-          git push origin --delete ${{ steps.create-pr.outputs.pr_branch }}
+          # The repo may auto-delete the head branch on merge, so don't fail if it's already gone
+          git push origin --delete ${{ steps.create-pr.outputs.pr_branch }} || echo "Branch ${{ steps.create-pr.outputs.pr_branch }} already deleted"
