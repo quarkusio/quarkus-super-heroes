@@ -6,17 +6,18 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
 
 import io.quarkus.sample.superheroes.hero.Hero;
-import io.quarkus.sample.superheroes.hero.api.model.HeroPatch;
+import io.quarkus.sample.superheroes.hero.model.HeroDto;
+import io.quarkus.sample.superheroes.hero.model.HeroPatchDto;
 
 @Mapper(componentModel = ComponentModel.JAKARTA_CDI)
 public interface HeroMapper {
-	io.quarkus.sample.superheroes.hero.api.model.Hero toApiModel(Hero entity);
+  HeroDto toDto(Hero entity);
 
-	List<io.quarkus.sample.superheroes.hero.api.model.Hero> toApiModelList(List<Hero> entities);
+  List<HeroDto> toDtoList(List<Hero> entities);
 
-	Hero toEntity(io.quarkus.sample.superheroes.hero.api.model.Hero apiModel);
+  Hero toEntity(HeroDto dto);
 
-	List<Hero> toEntityList(List<io.quarkus.sample.superheroes.hero.api.model.Hero> apiModels);
+  List<Hero> toEntityList(List<HeroDto> dtos);
 
-	Hero toEntity(HeroPatch patch);
+  Hero toEntity(HeroPatchDto patch);
 }

@@ -6,18 +6,15 @@
   <artifactId>rest-heroes</artifactId>
   <version>1.0</version>
   <name>Quarkus Sample :: Super-Heroes :: Heroes Microservice</name>
-  <description>The Heroes RESTful microservice</description>
+  <description>The Heroes microservice (Graftcode callable surface)</description>
   <properties>
     <assertj.version>3.27.7</assertj.version>
     <compiler-plugin.version>3.16.0</compiler-plugin.version>
     <mapstruct.version>1.6.3</mapstruct.version>
-    <openapi-generator-server.version>2.23.0</openapi-generator-server.version>
     <maven.compiler.release>25</maven.compiler.release>
     <jacoco.version>0.8.15</jacoco.version>
     <junit5.tree.reporter.version>1.5.1</junit5.tree.reporter.version>
     <helm.version>1.4.3</helm.version>
-    <pact.version>1.6.1</pact.version>
-    <playwright.version>2.3.10</playwright.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
@@ -38,19 +35,6 @@
     </dependencies>
   </dependencyManagement>
   <dependencies>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-openapi</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkiverse.openapi.generator</groupId>
-      <artifactId>quarkus-openapi-generator-server</artifactId>
-      <version>${openapi-generator-server.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-rest-jackson</artifactId>
-    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-hibernate-validator</artifactId>
@@ -107,10 +91,6 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-rest-qute</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-opentelemetry</artifactId>
     </dependency>
     <dependency>
@@ -143,26 +123,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>${assertj.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkiverse.pact</groupId>
-      <artifactId>quarkus-pact-provider</artifactId>
-      <version>${pact.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkiverse.playwright</groupId>
-      <artifactId>quarkus-playwright</artifactId>
-      <version>${playwright.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -180,30 +143,6 @@
               <goal>generate-code</goal>
               <goal>generate-code-tests</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.5.0</version>
-        <executions>
-          <execution>
-            <id>copy-openapi-spec</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>src/main/resources/openapi</directory>
-                  <includes>
-                    <include>openapi.yml</include>
-                  </includes>
-                </resource>
-              </resources>
-            </configuration>
           </execution>
         </executions>
       </plugin>

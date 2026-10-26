@@ -673,7 +673,7 @@ class HeroServiceTests {
       .thenReturn(Uni.createFrom().voidItem());
 
     asserter.assertThat(
-      () -> this.heroService.replaceAllHeroes(heroes),
+      () -> this.heroService.replaceAllHeroEntities(heroes),
       v -> {
         verify(this.heroRepository).listAll();
         verify(this.heroRepository).deleteById(eq(h1.getId()));

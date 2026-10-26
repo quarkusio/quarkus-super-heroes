@@ -4,26 +4,26 @@ import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
 
-import io.quarkus.sample.superheroes.hero.rest.HelloHeroResource;
+import io.quarkus.sample.superheroes.hero.graft.HeroesGraftFacade;
 
 /**
- * {@link HealthCheck} to ping the Hero service
+ * {@link HealthCheck} to ping the hero Graftcode facade.
  */
 @Liveness
 public class PingHeroResourceHealthCheck implements HealthCheck {
-	private final HelloHeroResource helloHeroResource;
+  private final HeroesGraftFacade heroesGraftFacade;
 
-  public PingHeroResourceHealthCheck(HelloHeroResource helloHeroResource) {
-    this.helloHeroResource = helloHeroResource;
+  public PingHeroResourceHealthCheck(HeroesGraftFacade heroesGraftFacade) {
+    this.heroesGraftFacade = heroesGraftFacade;
   }
 
   @Override
-	public HealthCheckResponse call() {
-		var response = this.helloHeroResource.hello().await().indefinitely();
+  public HealthCheckResponse call() {
+    var response = this.heroesGraftFacade.hello();
 
-		return HealthCheckResponse.named("Ping Hero REST Endpoint")
-			.withData("Response", response)
-			.up()
-			.build();
-	}
+    return HealthCheckResponse.named("Ping Hero Graft Facade")
+      .withData("Response", response)
+      .up()
+      .build();
+  }
 }

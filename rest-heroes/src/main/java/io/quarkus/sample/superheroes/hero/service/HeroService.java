@@ -1,19 +1,24 @@
 package io.quarkus.sample.superheroes.hero.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.executable.ValidateOnExecution;
 
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.quarkus.logging.Log;
 
 import io.quarkus.sample.superheroes.hero.Hero;
 import io.quarkus.sample.superheroes.hero.mapping.HeroFullUpdateMapper;
+import io.quarkus.sample.superheroes.hero.mapping.HeroMapper;
 import io.quarkus.sample.superheroes.hero.mapping.HeroPartialUpdateMapper;
+import io.quarkus.sample.superheroes.hero.model.HeroDto;
+import io.quarkus.sample.superheroes.hero.model.HeroPatchDto;
 import io.quarkus.sample.superheroes.hero.repository.HeroRepository;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
@@ -25,17 +30,89 @@ import io.smallrye.mutiny.Uni;
  * Service class containing business methods for the application.
  */
 @ApplicationScoped
+@ValidateOnExecution
 public class HeroService {
+
+  public static final String HELLO_MESSAGE = "Hello Hero Resource";
+
   private final HeroRepository heroRepository;
   private final Validator validator;
+  private final HeroMapper heroMapper;
   private final HeroPartialUpdateMapper heroPartialUpdateMapper;
   private final HeroFullUpdateMapper heroFullUpdateMapper;
 
-  public HeroService(HeroRepository heroRepository, Validator validator, HeroPartialUpdateMapper heroPartialUpdateMapper, HeroFullUpdateMapper heroFullUpdateMapper) {
+  public HeroService(HeroRepository heroRepository, Validator validator, HeroMapper heroMapper, HeroPartialUpdateMapper heroPartialUpdateMapper, HeroFullUpdateMapper heroFullUpdateMapper) {
     this.heroRepository = heroRepository;
     this.validator = validator;
+    this.heroMapper = heroMapper;
     this.heroPartialUpdateMapper = heroPartialUpdateMapper;
     this.heroFullUpdateMapper = heroFullUpdateMapper;
+  }
+
+  @WithSpan("HeroService.hello")
+  public Uni<String> hello() {
+    return Uni.createFrom().item(HELLO_MESSAGE);
+  }
+
+  @WithSpan("HeroService.listHeroes")
+  public Uni<List<HeroDto>> listHeroes(@SpanAttribute("arg.nameFilter") String nameFilter) {
+    var heroes = (nameFilter != null)
+      ? findAllHeroesHavingName(nameFilter)
+      : findAllHeroes().replaceIfNullWith(List::of);
+
+    return heroes
+      .invoke(h -> Log.debugf("Total number of heroes: %d", h.size()))
+      .map(this.heroMapper::toDtoList);
+  }
+
+  @WithSpan("HeroService.findRandomHeroApi")
+  public Uni<Optional<HeroDto>> findRandomHeroApi() {
+    return findRandomHero()
+      .map(hero -> hero == null ? Optional.empty() : Optional.of(this.heroMapper.toDto(hero)));
+  }
+
+  @WithSpan("HeroService.findHeroApiById")
+  public Uni<Optional<HeroDto>> findHeroApiById(@SpanAttribute("arg.id") Long id) {
+    return findHeroById(id)
+      .map(hero -> hero == null ? Optional.empty() : Optional.of(this.heroMapper.toDto(hero)));
+  }
+
+  @WithSpan("HeroService.createHero")
+  @WithTransaction
+  public Uni<HeroDto> createHero(@SpanAttribute("arg.hero") @NotNull @Valid HeroDto hero) {
+    return persistHero(this.heroMapper.toEntity(hero))
+      .map(this.heroMapper::toDto);
+  }
+
+  @WithSpan("HeroService.replaceHero")
+  @WithTransaction
+  public Uni<Boolean> replaceHero(@SpanAttribute("arg.id") Long id, @SpanAttribute("arg.hero") @NotNull @Valid HeroDto hero) {
+    var entity = this.heroMapper.toEntity(hero);
+
+    if (entity.getId() == null) {
+      entity.setId(id);
+    }
+
+    return replaceHero(entity).map(updated -> updated != null);
+  }
+
+  @WithSpan("HeroService.partialUpdateHero")
+  @WithTransaction
+  public Uni<Optional<HeroDto>> partialUpdateHero(@SpanAttribute("arg.id") Long id, @SpanAttribute("arg.patch") @NotNull HeroPatchDto patch) {
+    var entity = this.heroMapper.toEntity(patch);
+
+    if (entity.getId() == null) {
+      entity.setId(id);
+    }
+
+    return partialUpdateHero(entity)
+      .map(updated -> updated == null ? Optional.empty() : Optional.of(this.heroMapper.toDto(updated)));
+  }
+
+  @WithSpan("HeroService.replaceAllHeroesFromDtos")
+  @WithTransaction
+  public Uni<Void> replaceAllHeroesFromDtos(@SpanAttribute("arg.heroes") List<HeroDto> heroes) {
+    return replaceAllHeroEntities(this.heroMapper.toEntityList(heroes));
   }
 
   @WithSpan("HeroService.findAllHeroes")
@@ -92,9 +169,9 @@ public class HeroService {
       .onItem().ifNotNull().transform(this::validatePartialUpdate);
   }
 
-  @WithSpan("HeroService.replaceAllHeroes")
+  @WithSpan("HeroService.replaceAllHeroEntities")
   @WithTransaction
-  public Uni<Void> replaceAllHeroes(@SpanAttribute("arg.heroes") List<Hero> heroes) {
+  public Uni<Void> replaceAllHeroEntities(@SpanAttribute("arg.heroes") List<Hero> heroes) {
     Log.debug("Replacing all heroes");
     return deleteAllHeroes()
       .replaceWith(this.heroRepository.persist(heroes));
