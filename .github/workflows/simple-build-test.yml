@@ -55,10 +55,13 @@ on:
       - '.sonarlint/**'
       - 'scripts/*.sh'
       - '**/hyperfoil/**'
+  merge_group:
+    types:
+      - checks_requested
   workflow_dispatch:
 
 concurrency:
-  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}, pr = ${{ github.event.pull_request.id }}"
+  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref || github.ref }}, pr = ${{ github.event.pull_request.id }}"
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
